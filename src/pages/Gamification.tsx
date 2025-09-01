@@ -114,7 +114,7 @@ export const Gamification: React.FC = () => {
       
       if (statsData) {
         setUserStats({
-          reputation_score: statsData.reputation_score || 0,
+          reputation_score: 0, // This field doesn't exist in the database yet
           facts_submitted: statsData.facts_submitted || 0,
           votes_cast: statsData.votes_cast || 0,
           comments_made: statsData.comments_made || 0,
@@ -202,15 +202,11 @@ export const Gamification: React.FC = () => {
         <div className="container mx-auto px-4 py-8">
           <AnimatePresence>
             {showPointsAnimation && (
-              <PointsAnimation points={pointsEarned} />
+              <PointsAnimation notifications={[]} />
             )}
           </AnimatePresence>
 
-          <GamificationHeader
-            userStats={userStats}
-            userLevel={userLevel}
-            onPointsEarned={triggerPointsAnimation}
-          />
+          <GamificationHeader />
 
           <div className="mt-8">
             <Tabs defaultValue="overview" className="space-y-6">
@@ -317,7 +313,7 @@ export const Gamification: React.FC = () => {
                               {achievement.earned_at && formatDistanceToNow(new Date(achievement.earned_at), { addSuffix: true })}
                             </p>
                           </div>
-                          <SocialSharing achievement={achievement} />
+                          <SocialSharing achievement={{...achievement, earned_at: achievement.earned_at || new Date().toISOString()}} />
                         </div>
                       ))}
                       {earnedAchievements.length === 0 && (
@@ -340,7 +336,6 @@ export const Gamification: React.FC = () => {
                         <ChallengeCard
                           key={challenge.id}
                           challenge={challenge}
-                          compact
                         />
                       ))}
                       {challenges.length === 0 && (
@@ -352,10 +347,7 @@ export const Gamification: React.FC = () => {
                   </Card>
                 </div>
 
-                <VisualProgressIndicators 
-                  userStats={userStats}
-                  userLevel={userLevel}
-                />
+                <VisualProgressIndicators />
               </TabsContent>
 
               <TabsContent value="achievements" className="space-y-6">
@@ -379,8 +371,6 @@ export const Gamification: React.FC = () => {
                       >
                         <AchievementBadge
                           achievement={isEarned ? earnedData : achievement}
-                          locked={!isEarned}
-                          showProgress
                         />
                       </motion.div>
                     );
@@ -414,8 +404,8 @@ export const Gamification: React.FC = () => {
 
               <TabsContent value="progression" className="space-y-6">
                 <ContributionLevelSystem 
-                  userLevel={userLevel}
-                  userStats={userStats}
+                  currentPoints={userStats?.total_points || 0}
+                  totalContributions={userStats?.facts_submitted || 0}
                 />
               </TabsContent>
             </Tabs>
@@ -425,3 +415,5 @@ export const Gamification: React.FC = () => {
     </MainLayout>
   );
 };
+
+export default Gamification;

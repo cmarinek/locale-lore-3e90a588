@@ -199,3 +199,5 @@ export const Discover: React.FC = () => {
     </Swipeable>
   );
 };
+
+export default Discover;

@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
@@ -16,7 +15,6 @@ const customRender = (ui: React.ReactElement, options = {}) =>
 
 // re-export everything
 export * from '@testing-library/react';
-export { screen, fireEvent, waitFor };
 
 // override render method
 export { customRender as render };

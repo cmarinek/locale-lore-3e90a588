@@ -108,20 +108,15 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
       const { data, error } = await supabase.storage
         .from('media')
         .upload(filePath, uploadFile.file, {
-          onUploadProgress: (progress) => {
-            const percentage = (progress.loaded / progress.total) * 100;
-            setUploadProgress(prev => ({
-              ...prev,
-              [uploadFile.id]: { 
-                fileId: uploadFile.id, 
-                progress: percentage, 
-                status: 'uploading' 
-              }
-            }));
-          },
+          upsert: false
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Upload error:', error);
+        throw error;
+      }
+
+      // Get public URL
 
       // Get public URL
       const { data: urlData } = supabase.storage

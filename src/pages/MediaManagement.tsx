@@ -47,8 +47,6 @@ const MediaManagement: React.FC = () => {
             <Card className="p-6">
               <h2 className="text-xl font-semibold mb-4">Upload Media</h2>
               <MediaUploadZone
-                maxSize={100 * 1024 * 1024} // 100MB
-                maxFiles={20}
                 onUploadComplete={(files) => {
                   console.log('Uploaded files:', files);
                 }}
