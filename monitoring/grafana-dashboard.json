@@ -1,0 +1,79 @@
+
+{
+  "dashboard": {
+    "id": null,
+    "title": "Locale Lore - Application Monitoring",
+    "tags": ["locale-lore", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Core Web Vitals",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg(performance_metrics{metric_name=\"lcp\"})",
+            "legendFormat": "LCP (ms)"
+          },
+          {
+            "expr": "avg(performance_metrics{metric_name=\"fid\"})",
+            "legendFormat": "FID (ms)"
+          },
+          {
+            "expr": "avg(performance_metrics{metric_name=\"cls\"})",
+            "legendFormat": "CLS"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 2500},
+                {"color": "red", "value": 4000}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(error_logs[5m])",
+            "legendFormat": "Errors/sec"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Page Views",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(analytics_events{event_name=\"pageview\"}[5m])",
+            "legendFormat": "Page Views/sec"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "User Engagement",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, count by (url) (analytics_events{event_name=\"pageview\"}))",
+            "legendFormat": "Top Pages"
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

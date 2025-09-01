@@ -1,12 +1,11 @@
 
 import '@testing-library/jest-dom';
-import { configure } from '@testing-library/react';
+import { expect } from '@jest/globals';
 import { toHaveNoViolations } from '@axe-core/jest';
+import { server } from './mocks/server';
+import React from 'react';
 
-// Configure Testing Library
-configure({ testIdAttribute: 'data-testid' });
-
-// Add axe-core matchers
+// Extend Jest matchers with axe-core
 expect.extend(toHaveNoViolations);
 
 // Mock framer-motion to avoid animation issues in tests
@@ -18,30 +17,29 @@ jest.mock('framer-motion', () => ({
   },
   AnimatePresence: ({ children }: any) => children,
   useReducedMotion: () => true,
+  useAnimation: () => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    mount: jest.fn(),
+    unmount: jest.fn(),
+  }),
 }));
 
-// Mock Supabase
-jest.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    auth: {
-      getSession: jest.fn(),
-      onAuthStateChange: jest.fn(),
-      signUp: jest.fn(),
-      signInWithPassword: jest.fn(),
-      signOut: jest.fn(),
-    },
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => Promise.resolve({ data: [], error: null })),
-      })),
-      insert: jest.fn(() => Promise.resolve({ data: [], error: null })),
-      update: jest.fn(() => Promise.resolve({ data: [], error: null })),
-      delete: jest.fn(() => Promise.resolve({ data: [], error: null })),
-    })),
-  },
+// Mock Intersection Observer
+global.IntersectionObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
 }));
 
-// Mock window.matchMedia for responsive tests
+// Mock ResizeObserver
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}));
+
+// Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation(query => ({
@@ -56,18 +54,24 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-};
+// Mock geolocation
+Object.defineProperty(navigator, 'geolocation', {
+  writable: true,
+  value: {
+    getCurrentPosition: jest.fn(),
+    watchPosition: jest.fn(),
+    clearWatch: jest.fn(),
+  },
+});
 
-// Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
-  constructor() {}
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-};
+// Mock crypto.randomUUID
+Object.defineProperty(global, 'crypto', {
+  value: {
+    randomUUID: () => '00000000-0000-0000-0000-000000000000',
+  },
+});
+
+// Setup MSW
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
