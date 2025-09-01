@@ -1,52 +1,79 @@
 
-export interface MediaFile {
+export interface UploadFile {
   id: string;
-  originalName: string;
-  mimeType: string;
+  name: string;
   size: number;
-  url: string;
-  thumbnailUrl?: string;
-  status: 'pending' | 'approved' | 'rejected';
-  uploadedAt: string;
-  moderationReason?: string;
-  uploader?: {
-    id: string;
-    username: string;
-    avatar_url?: string;
-  };
-}
-
-export interface MediaUploadOptions {
-  maxSize?: number;
-  allowedTypes?: string[];
-  autoCompress?: boolean;
-  generateThumbnail?: boolean;
-}
-
-export interface MediaModerationResult {
-  approved: boolean;
-  confidence: number;
-  flags: string[];
-  reason?: string;
+  type: string;
+  file: File;
+  progress: number;
+  status: 'pending' | 'uploading' | 'completed' | 'error';
+  preview?: string;
+  error?: string;
+  url?: string;
 }
 
 export interface MediaAnalytics {
   totalFiles: number;
-  totalSize: number;
-  byStatus: {
-    pending: number;
-    approved: number;
-    rejected: number;
-  };
-  byType: {
+  totalUploads: number;
+  storageUsed: number;
+  storageUsage: number;
+  bandwidthUsed: number;
+  bandwidthUsage: number;
+  fileTypes: {
     images: number;
     videos: number;
+    audio: number;
     documents: number;
   };
-  recentUploads: MediaFile[];
-  topUploaders: {
-    userId: string;
-    username: string;
-    uploadCount: number;
+  moderationStats: {
+    approved: number;
+    rejected: number;
+    pending: number;
+    flagged: number;
+  };
+  uploadTrends: {
+    date: string;
+    uploads: number;
+    storage: number;
   }[];
+}
+
+export interface ModerationItem {
+  id: string;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  uploaded_by: string;
+  uploaded_at: string;
+  status: 'pending' | 'approved' | 'rejected' | 'flagged';
+  ai_analysis?: {
+    adult_content: boolean;
+    violence: boolean;
+    medical: boolean;
+    copyright_concern: boolean;
+    confidence_score: number;
+  };
+  admin_notes?: string;
+  file_url: string;
+  thumbnail_url?: string;
+}
+
+export interface MediaFile {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  url: string;
+  thumbnailUrl?: string;
+  uploadedAt: string;
+  uploadedBy: string;
+  status: 'pending' | 'approved' | 'rejected';
+  moderationNotes?: string;
+}
+
+export interface MediaUploadProgress {
+  fileId: string;
+  progress: number;
+  status: 'uploading' | 'processing' | 'completed' | 'error';
+  error?: string;
 }

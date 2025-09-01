@@ -6,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FollowButton } from '@/components/social/FollowButton';
+import { TipSystem } from '@/components/contributor/TipSystem';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
@@ -64,7 +65,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onMessageClick
           profiles!facts_author_id_fkey(username, avatar_url)
         `)
         .eq('author_id', userId)
-        .eq('status', 'approved')
+        .eq('status', 'verified')
         .order('created_at', { ascending: false })
         .limit(10);
 
@@ -195,6 +196,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onMessageClick
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Message
                   </Button>
+                  <TipSystem
+                    recipientId={userId}
+                    recipientName={profile.username}
+                    recipientAvatar={profile.avatar_url}
+                    showTipJar={true}
+                  />
                 </>
               )}
               
