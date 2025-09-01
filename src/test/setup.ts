@@ -12,9 +12,9 @@ expect.extend(toHaveNoViolations);
 // Mock framer-motion to avoid animation issues in tests
 jest.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
-    span: ({ children, ...props }: any) => <span {...props}>{children}</span>,
+    div: ({ children, ...props }: any) => React.createElement('div', props, children),
+    button: ({ children, ...props }: any) => React.createElement('button', props, children),
+    span: ({ children, ...props }: any) => React.createElement('span', props, children),
   },
   AnimatePresence: ({ children }: any) => children,
   useReducedMotion: () => true,

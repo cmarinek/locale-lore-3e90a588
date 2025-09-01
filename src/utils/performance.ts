@@ -10,9 +10,11 @@ export const lazyImport = <T extends ComponentType<any>>(
   const LazyComponent = lazy(importFn);
   
   return (props: React.ComponentProps<T>) => (
-    <Suspense fallback={fallback ? React.createElement(fallback) : <div>Loading...</div>}>
-      <LazyComponent {...props} />
-    </Suspense>
+    React.createElement(
+      Suspense, 
+      { fallback: fallback ? React.createElement(fallback) : React.createElement('div', {}, 'Loading...') },
+      React.createElement(LazyComponent, props)
+    )
   );
 };
 
