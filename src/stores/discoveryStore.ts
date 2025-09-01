@@ -3,6 +3,7 @@ import { devtools } from 'zustand/middleware';
 import { supabase } from '@/integrations/supabase/client';
 import { Fact, Category } from '@/types/map';
 import type { Database } from '@/integrations/supabase/types';
+import { useRealtimeStore, setupFactVoteSubscription } from './realtimeStore';
 
 interface SearchFilters {
   query: string;
@@ -72,7 +73,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
         get().searchFacts(true);
       },
 
-      searchFacts: async (reset = false) => {
+  searchFacts: async (reset = false) => {
         const { filters, page } = get();
         
         if (reset) {
@@ -157,6 +158,13 @@ export const useDiscoveryStore = create<DiscoveryState>()(
           if (error) throw error;
 
           const newFacts = (data || []) as unknown as Fact[];
+          
+          // Set up real-time subscriptions for new facts
+          if (reset) {
+            newFacts.forEach(fact => {
+              setupFactVoteSubscription(fact.id);
+            });
+          }
           
           set((state) => ({
             facts: reset ? newFacts : [...state.facts, ...newFacts],
