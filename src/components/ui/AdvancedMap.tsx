@@ -581,7 +581,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
       )}
 
       {/* Search Bar */}
-      <Card className="absolute top-4 left-4 right-4 z-10 glass">
+      <Card className="absolute top-4 left-4 right-4 z-10 bg-card/95 backdrop-blur border-border">
         <div className="flex items-center gap-3 p-4">
           <Search className="w-5 h-5 text-muted-foreground" />
           <Input
@@ -589,14 +589,14 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
-            className="border-0 bg-transparent focus-visible:ring-0"
+            className="border-0 bg-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </Card>
 
       {/* Map Style Controls */}
       {showControls && (
-        <Card className="absolute top-20 right-4 z-10 glass">
+        <Card className="absolute top-20 right-4 z-10 bg-card/95 backdrop-blur border-border">
           <div className="p-3 space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <Button
@@ -649,17 +649,17 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
       )}
 
       {/* Legend */}
-      <Card className="absolute bottom-4 left-4 z-10 glass">
+      <Card className="absolute bottom-4 left-4 z-10 bg-card/95 backdrop-blur border-border">
         <div className="p-3 space-y-2">
-          <h4 className="text-sm font-semibold flex items-center gap-2">
+          <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground">
             <MapIcon className="w-4 h-4" />
             Categories
           </h4>
-          <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="grid grid-cols-2 gap-2 text-xs text-foreground">
             {Object.entries(categoryColors).map(([category, color]) => (
               <div key={category} className="flex items-center gap-2">
                 <div 
-                  className="w-3 h-3 rounded-full border border-white shadow-sm"
+                  className="w-3 h-3 rounded-full border border-border shadow-sm"
                   style={{ backgroundColor: color }}
                 />
                 <span className="capitalize">{category}</span>
