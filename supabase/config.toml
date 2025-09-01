@@ -1,4 +1,11 @@
+
 project_id = "mwufulzthoqrwbwtvogx"
 
 [functions.get-mapbox-token]
+verify_jwt = false
+
+[functions.analytics-ingestion]
+verify_jwt = false
+
+[functions.search-optimization]
 verify_jwt = false

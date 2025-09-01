@@ -1,13 +1,12 @@
 
 import React from 'react';
-import { render, RenderOptions } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
+import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthContext } from '@/contexts/AuthContext';
 
-// Re-export testing utilities
-export { screen, fireEvent, waitFor, userEvent };
-
+// Create a test query client
 const createTestQueryClient = () => new QueryClient({
   defaultOptions: {
     queries: {
@@ -16,20 +15,32 @@ const createTestQueryClient = () => new QueryClient({
   },
 });
 
-const AllTheProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const queryClient = createTestQueryClient();
+// Mock auth context
+const mockAuthContext = {
+  user: null,
+  signIn: jest.fn(),
+  signOut: jest.fn(),
+  signUp: jest.fn(),
+  resetPassword: jest.fn(),
+  loading: false,
+  profile: null,
+  updateProfile: jest.fn(),
+};
+
+export const renderWithProviders = (ui: React.ReactElement, options = {}) => {
+  const testQueryClient = createTestQueryClient();
   
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+  return render(
+    <QueryClientProvider client={testQueryClient}>
+      <AuthContext.Provider value={mockAuthContext}>
+        <BrowserRouter>
+          {ui}
+        </BrowserRouter>
+      </AuthContext.Provider>
+    </QueryClientProvider>,
+    options
   );
 };
 
-const customRender = (
-  ui: React.ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>,
-) => render(ui, { wrapper: AllTheProviders, ...options });
-
-export * from '@testing-library/react';
-export { customRender as render };
+// Re-export testing utilities
+export { screen, fireEvent, waitFor };
