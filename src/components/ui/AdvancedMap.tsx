@@ -20,6 +20,11 @@ import {
 import { cn } from '@/lib/utils';
 import { Fact, FactMarker } from '@/types/map';
 
+// Get theme-aware border color
+const getThemeBorderColor = () => {
+  return getComputedStyle(document.documentElement).getPropertyValue('--border').trim();
+};
+
 // Real-time facts data - no more mock data!
 
 const mapStyles = {
@@ -64,6 +69,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
   const [showControls, setShowControls] = useState(true);
   const [facts, setFacts] = useState<FactMarker[]>([]);
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Fetch Mapbox token securely from Edge Function
   const fetchMapboxToken = useCallback(async () => {
@@ -177,12 +183,13 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
   const createMarkerElement = useCallback((fact: FactMarker) => {
     const el = document.createElement('div');
     el.className = 'custom-marker';
+    const borderColor = isDarkMode ? 'hsl(var(--border))' : '#ffffff';
     el.style.cssText = `
       width: 32px;
       height: 32px;
       border-radius: 50%;
       background: ${categoryColors[fact.category as keyof typeof categoryColors] || '#6B7280'};
-      border: 3px solid white;
+      border: 3px solid ${borderColor};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       cursor: pointer;
       display: flex;
@@ -210,7 +217,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid white;
+        border: 2px solid ${borderColor};
       `;
       el.appendChild(badge);
     }
@@ -237,7 +244,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
     });
 
     return el;
-  }, [onFactClick]);
+  }, [onFactClick, isDarkMode]);
 
   // Initialize map
   useEffect(() => {
@@ -294,6 +301,45 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
       map.current?.remove();
     };
   }, [mapboxToken]); // Add mapboxToken as dependency
+
+  // Detect theme changes
+  useEffect(() => {
+    const detectTheme = () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      setIsDarkMode(isDark);
+    };
+
+    // Initial detection
+    detectTheme();
+
+    // Watch for theme changes
+    const observer = new MutationObserver(detectTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Update map layers when theme changes
+  useEffect(() => {
+    if (map.current && map.current.isStyleLoaded()) {
+      // Update cluster stroke colors
+      if (map.current.getLayer('clusters')) {
+        map.current.setPaintProperty('clusters', 'circle-stroke-color', 
+          isDarkMode ? 'hsl(var(--border))' : '#ffffff'
+        );
+      }
+      
+      // Update unclustered point stroke colors
+      if (map.current.getLayer('unclustered-point')) {
+        map.current.setPaintProperty('unclustered-point', 'circle-stroke-color', 
+          isDarkMode ? 'hsl(var(--border))' : '#ffffff'
+        );
+      }
+    }
+  }, [isDarkMode]);
 
   // Update map style
   useEffect(() => {
@@ -367,7 +413,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
             40
           ],
           'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff'
+          'circle-stroke-color': isDarkMode ? 'hsl(var(--border))' : '#ffffff'
         }
       });
 
@@ -406,7 +452,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
           ],
           'circle-radius': 12,
           'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff'
+          'circle-stroke-color': isDarkMode ? 'hsl(var(--border))' : '#ffffff'
         }
       });
 
@@ -457,7 +503,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
         if (map.current) map.current.getCanvas().style.cursor = '';
       });
     }
-  }, [facts, onFactClick]);
+  }, [facts, onFactClick, isDarkMode]);
 
   // Add heatmap layer
   const addHeatmapLayer = useCallback(() => {
