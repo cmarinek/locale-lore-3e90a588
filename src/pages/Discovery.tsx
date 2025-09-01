@@ -5,6 +5,7 @@ import { InfiniteFactList } from '@/components/discovery/InfiniteFactList';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { GamificationHeader } from '@/components/gamification/GamificationHeader';
 import { PointsAnimation, usePointsNotifications } from '@/components/gamification/PointsAnimation';
+import { AIRecommendations, SmartSearchBar, DiscoveryOfTheDay, LocationBasedNotifications } from '@/components/ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/ios-card';
 import { Badge } from '@/components/ui/ios-badge';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
@@ -92,7 +93,10 @@ const Discovery: React.FC = () => {
         <Card variant="glass">
           <CardContent className="p-6">
             <div className="space-y-4">
-              <SearchBar />
+              <SmartSearchBar 
+                onResults={(results) => console.log('AI search results:', results)}
+                userLocation={{ latitude: 40.7128, longitude: -74.0060 }}
+              />
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -134,10 +138,32 @@ const Discovery: React.FC = () => {
           </div>
         )}
 
-        {/* Facts List */}
-        <InfiniteFactList />
+        {/* AI-Powered Sidebar */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            {/* Facts List */}
+            <InfiniteFactList />
+          </div>
+          
+          <div className="space-y-6">
+            {/* Discovery of the Day */}
+            <DiscoveryOfTheDay onExplore={(factId) => console.log('Explore fact:', factId)} />
+            
+            {/* AI Recommendations */}
+            <AIRecommendations 
+              userLocation={{ latitude: 40.7128, longitude: -74.0060 }}
+              onFactSelect={(factId) => console.log('Select fact:', factId)}
+            />
+            
+            {/* Location-based Notifications */}
+            <LocationBasedNotifications 
+              userLocation={{ latitude: 40.7128, longitude: -74.0060 }}
+              onFactSelect={(factId) => console.log('Location fact:', factId)}
+            />
+          </div>
+        </div>
 
-        {/* Preview Modal */}
+        {/* Facts List */}
         <FactPreviewModal />
       </div>
 

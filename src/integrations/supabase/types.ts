@@ -105,6 +105,59 @@ export type Database = {
           },
         ]
       }
+      ai_recommendations: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          delivered_at: string | null
+          expires_at: string | null
+          fact_id: string
+          id: string
+          is_delivered: boolean | null
+          metadata: Json | null
+          reasoning: string | null
+          recommendation_type: string
+          user_feedback: string | null
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number
+          created_at?: string
+          delivered_at?: string | null
+          expires_at?: string | null
+          fact_id: string
+          id?: string
+          is_delivered?: boolean | null
+          metadata?: Json | null
+          reasoning?: string | null
+          recommendation_type: string
+          user_feedback?: string | null
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          delivered_at?: string | null
+          expires_at?: string | null
+          fact_id?: string
+          id?: string
+          is_delivered?: boolean | null
+          metadata?: Json | null
+          reasoning?: string | null
+          recommendation_type?: string
+          user_feedback?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_recommendations_fact_id_fkey"
+            columns: ["fact_id"]
+            isOneToOne: false
+            referencedRelation: "facts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           color: string | null
@@ -294,6 +347,44 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discovery_of_the_day: {
+        Row: {
+          ai_summary: string
+          created_at: string
+          date: string
+          engagement_score: number | null
+          fact_id: string
+          fun_fact: string | null
+          id: string
+        }
+        Insert: {
+          ai_summary: string
+          created_at?: string
+          date?: string
+          engagement_score?: number | null
+          fact_id: string
+          fun_fact?: string | null
+          id?: string
+        }
+        Update: {
+          ai_summary?: string
+          created_at?: string
+          date?: string
+          engagement_score?: number | null
+          fact_id?: string
+          fun_fact?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discovery_of_the_day_fact_id_fkey"
+            columns: ["fact_id"]
+            isOneToOne: false
+            referencedRelation: "facts"
             referencedColumns: ["id"]
           },
         ]
@@ -593,6 +684,50 @@ export type Database = {
         }
         Relationships: []
       }
+      location_triggers: {
+        Row: {
+          created_at: string
+          fact_id: string
+          id: string
+          is_active: boolean | null
+          max_triggers_per_user: number | null
+          notification_body: string
+          notification_title: string
+          trigger_location: unknown
+          trigger_radius: number
+        }
+        Insert: {
+          created_at?: string
+          fact_id: string
+          id?: string
+          is_active?: boolean | null
+          max_triggers_per_user?: number | null
+          notification_body: string
+          notification_title: string
+          trigger_location: unknown
+          trigger_radius?: number
+        }
+        Update: {
+          created_at?: string
+          fact_id?: string
+          id?: string
+          is_active?: boolean | null
+          max_triggers_per_user?: number | null
+          notification_body?: string
+          notification_title?: string
+          trigger_location?: unknown
+          trigger_radius?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_triggers_fact_id_fkey"
+            columns: ["fact_id"]
+            isOneToOne: false
+            referencedRelation: "facts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lore_submissions: {
         Row: {
           category_id: string | null
@@ -807,6 +942,42 @@ export type Database = {
         }
         Relationships: []
       }
+      search_analytics: {
+        Row: {
+          created_at: string
+          id: string
+          query: string
+          query_embedding: string | null
+          results_count: number
+          search_context: Json | null
+          selected_results: Json | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          query: string
+          query_embedding?: string | null
+          results_count?: number
+          search_context?: Json | null
+          selected_results?: Json | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          query?: string
+          query_embedding?: string | null
+          results_count?: number
+          search_context?: Json | null
+          selected_results?: Json | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       search_history: {
         Row: {
           clicked_result_id: string | null
@@ -1006,6 +1177,50 @@ export type Database = {
           },
         ]
       }
+      user_discovery_history: {
+        Row: {
+          context: Json | null
+          created_at: string
+          device_info: Json | null
+          dwell_time: number | null
+          fact_id: string
+          id: string
+          interaction_type: string
+          location: unknown | null
+          user_id: string
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          device_info?: Json | null
+          dwell_time?: number | null
+          fact_id: string
+          id?: string
+          interaction_type: string
+          location?: unknown | null
+          user_id: string
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          device_info?: Json | null
+          dwell_time?: number | null
+          fact_id?: string
+          id?: string
+          interaction_type?: string
+          location?: unknown | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_discovery_history_fact_id_fkey"
+            columns: ["fact_id"]
+            isOneToOne: false
+            referencedRelation: "facts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_follows: {
         Row: {
           created_at: string | null
@@ -1072,6 +1287,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_notifications: {
+        Row: {
+          action_taken: string | null
+          body: string
+          data: Json | null
+          delivered_at: string | null
+          id: string
+          is_read: boolean | null
+          notification_type: string
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_taken?: string | null
+          body: string
+          data?: Json | null
+          delivered_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          notification_type: string
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_taken?: string | null
+          body?: string
+          data?: Json | null
+          delivered_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          notification_type?: string
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_points: {
         Row: {
           action_type: string
@@ -1119,6 +1373,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_preferences: {
+        Row: {
+          category_preferences: Json
+          created_at: string
+          discovery_time_preferences: Json
+          id: string
+          interaction_patterns: Json
+          last_location: unknown | null
+          location_preferences: Json
+          notification_preferences: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_preferences?: Json
+          created_at?: string
+          discovery_time_preferences?: Json
+          id?: string
+          interaction_patterns?: Json
+          last_location?: unknown | null
+          location_preferences?: Json
+          notification_preferences?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_preferences?: Json
+          created_at?: string
+          discovery_time_preferences?: Json
+          id?: string
+          interaction_patterns?: Json
+          last_location?: unknown | null
+          location_preferences?: Json
+          notification_preferences?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_rate_limits: {
         Row: {
@@ -1580,6 +1873,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      binary_quantize: {
+        Args: { "": string } | { "": unknown }
+        Returns: unknown
+      }
       box: {
         Args: { "": unknown } | { "": unknown }
         Returns: unknown
@@ -1626,6 +1923,10 @@ export type Database = {
       }
       calculate_user_reputation: {
         Args: { _user_id: string }
+        Returns: number
+      }
+      calculate_user_similarity: {
+        Args: { user1_id: string; user2_id: string }
         Returns: number
       }
       disablelongtransactions: {
@@ -1887,6 +2188,16 @@ export type Database = {
         Args: { "": string }
         Returns: unknown
       }
+      get_nearby_triggers: {
+        Args: { max_distance?: number; user_lat: number; user_lng: number }
+        Returns: {
+          body: string
+          distance_meters: number
+          fact_id: string
+          title: string
+          trigger_id: string
+        }[]
+      }
       get_proj4_from_srid: {
         Args: { "": number }
         Returns: string
@@ -1931,12 +2242,56 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
+      halfvec_avg: {
+        Args: { "": number[] }
+        Returns: unknown
+      }
+      halfvec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      halfvec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      halfvec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role_type"]
           _user_id: string
         }
         Returns: boolean
+      }
+      hnsw_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_sparsevec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnswhandler: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflat_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflat_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflathandler: {
+        Args: { "": unknown }
+        Returns: unknown
       }
       json: {
         Args: { "": unknown }
@@ -1945,6 +2300,14 @@ export type Database = {
       jsonb: {
         Args: { "": unknown }
         Returns: Json
+      }
+      l2_norm: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: number
+      }
+      l2_normalize: {
+        Args: { "": string } | { "": unknown } | { "": unknown }
+        Returns: string
       }
       longtransactionsenabled: {
         Args: Record<PropertyKey, never>
@@ -2175,6 +2538,18 @@ export type Database = {
       show_trgm: {
         Args: { "": string }
         Returns: string[]
+      }
+      sparsevec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      sparsevec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      sparsevec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
       }
       spheroid_in: {
         Args: { "": unknown }
@@ -3274,6 +3649,30 @@ export type Database = {
           table_name: string
         }
         Returns: string
+      }
+      vector_avg: {
+        Args: { "": number[] }
+        Returns: string
+      }
+      vector_dims: {
+        Args: { "": string } | { "": unknown }
+        Returns: number
+      }
+      vector_norm: {
+        Args: { "": string }
+        Returns: number
+      }
+      vector_out: {
+        Args: { "": string }
+        Returns: unknown
+      }
+      vector_send: {
+        Args: { "": string }
+        Returns: string
+      }
+      vector_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
       }
     }
     Enums: {
