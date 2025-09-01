@@ -12,8 +12,8 @@ serve(async (req) => {
   }
 
   try {
-    // Get the Mapbox token from environment variables
-    const mapboxToken = Deno.env.get('MAPBOX_PUBLIC_TOKEN');
+    // Get the Mapbox token from environment variables or Supabase secrets
+    const mapboxToken = Deno.env.get('MAPBOX_PUBLIC_TOKEN') || Deno.env.get('MAPBOX_TOKEN');
     
     if (!mapboxToken) {
       console.error('MAPBOX_PUBLIC_TOKEN not found in environment variables');
