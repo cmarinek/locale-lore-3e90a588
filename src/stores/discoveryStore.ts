@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { EnhancedFact, EnhancedCategory, SearchFilters } from '@/types/fact';
@@ -9,6 +8,8 @@ interface DiscoveryState {
   selectedFact: EnhancedFact | null;
   isLoading: boolean;
   hasMore: boolean;
+  loading: boolean;
+  error: string | null;
   
   // Search & Filters
   filters: SearchFilters;
@@ -32,6 +33,9 @@ interface DiscoveryState {
   toggleSavedFact: (factId: string) => void;
   updateSearchSuggestions: (suggestions: string[]) => void;
   loadMoreFacts: () => Promise<void>;
+  loadCategories: () => Promise<void>;
+  loadSavedFacts: () => Promise<void>;
+  searchFacts: (query: string) => Promise<void>;
 }
 
 export const useDiscoveryStore = create<DiscoveryState>()(
@@ -42,6 +46,8 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       selectedFact: null,
       isLoading: false,
       hasMore: true,
+      loading: false,
+      error: null,
       
       filters: {
         query: '',
@@ -94,7 +100,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       setFilters: (newFilters) => set((state) => ({ 
         filters: { ...state.filters, ...newFilters } 
       })),
-      setLoading: (loading) => set({ isLoading: loading }),
+      setLoading: (loading) => set({ isLoading: loading, loading }),
       setHasMore: (hasMore) => set({ hasMore }),
       setModalOpen: (open) => set({ modalOpen: open }),
       toggleSavedFact: (factId) => set((state) => ({
@@ -103,6 +109,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
           : [...state.savedFacts, factId]
       })),
       updateSearchSuggestions: (suggestions) => set({ searchSuggestions: suggestions }),
+      
       loadMoreFacts: async () => {
         const state = get();
         if (state.isLoading || !state.hasMore) return;
@@ -148,6 +155,80 @@ export const useDiscoveryStore = create<DiscoveryState>()(
         } catch (error) {
           console.error('Error loading more facts:', error);
           set({ isLoading: false });
+        }
+      },
+
+      loadCategories: async () => {
+        set({ loading: true, error: null });
+        try {
+          // Mock implementation - replace with actual API call
+          await new Promise(resolve => setTimeout(resolve, 500));
+          set({ loading: false });
+        } catch (error) {
+          set({ 
+            loading: false, 
+            error: error instanceof Error ? error.message : 'Failed to load categories' 
+          });
+        }
+      },
+
+      loadSavedFacts: async () => {
+        set({ loading: true, error: null });
+        try {
+          // Mock implementation - replace with actual API call
+          await new Promise(resolve => setTimeout(resolve, 500));
+          set({ loading: false });
+        } catch (error) {
+          set({ 
+            loading: false, 
+            error: error instanceof Error ? error.message : 'Failed to load saved facts' 
+          });
+        }
+      },
+
+      searchFacts: async (query: string) => {
+        set({ loading: true, error: null });
+        try {
+          // Mock implementation - replace with actual API call
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const mockFacts: EnhancedFact[] = Array.from({ length: 10 }, (_, i) => ({
+            id: `search-fact-${i + 1}`,
+            title: `Search Result ${i + 1}: ${query}`,
+            description: `This is a search result for "${query}". Mock fact for testing purposes.`,
+            author_id: 'user-1',
+            category_id: 'category-1',
+            status: 'verified' as const,
+            vote_count_up: Math.floor(Math.random() * 100),
+            vote_count_down: Math.floor(Math.random() * 20),
+            latitude: 40.7128 + (Math.random() - 0.5) * 0.1,
+            longitude: -74.0060 + (Math.random() - 0.5) * 0.1,
+            location_name: 'New York, NY',
+            media_urls: [],
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            profiles: {
+              id: 'user-1',
+              username: 'testuser',
+              avatar_url: undefined
+            },
+            categories: {
+              slug: 'history',
+              icon: '🏛️',
+              color: '#8B5CF6',
+              category_translations: [{
+                name: 'History',
+                language_code: 'en'
+              }]
+            }
+          }));
+          
+          set({ facts: mockFacts, loading: false });
+        } catch (error) {
+          set({ 
+            loading: false, 
+            error: error instanceof Error ? error.message : 'Failed to search facts' 
+          });
         }
       }
     }),

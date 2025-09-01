@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MapPin, ThumbsUp, ThumbsDown, Bookmark, BookmarkCheck, Eye, MoreHorizontal } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/ios-card';
@@ -5,11 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/ios-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
-import { Fact } from '@/types/map';
+import { EnhancedFact } from '@/types/fact';
 import { cn } from '@/lib/utils';
 
 interface FactCardProps {
-  fact: Fact;
+  fact: EnhancedFact;
   className?: string;
 }
 

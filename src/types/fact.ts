@@ -1,4 +1,3 @@
-
 export interface Fact {
   id: string;
   title: string;
@@ -24,6 +23,11 @@ export interface Fact {
     slug: string;
     icon?: string;
     color?: string;
+    category_translations?: Array<{
+      name: string;
+      description?: string;
+      language_code: string;
+    }>;
   };
 }
 
@@ -31,6 +35,7 @@ export interface EnhancedFact extends Fact {
   recommendation_score?: number;
   recommendation_reason?: string;
   trending_score?: number;
+  media_urls?: string[];
 }
 
 export interface Category {

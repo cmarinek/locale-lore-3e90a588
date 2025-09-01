@@ -20,6 +20,9 @@ const Discovery = () => {
     loading, 
     error, 
     filters,
+    selectedFact,
+    modalOpen,
+    setModalOpen,
     loadCategories,
     loadSavedFacts,
     searchFacts,
@@ -38,6 +41,10 @@ const Discovery = () => {
   const handleSearch = async (query: string) => {
     setFilters({ search: query });
     await searchFacts(query);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
   };
 
   return (
@@ -77,7 +84,11 @@ const Discovery = () => {
       {error && <p>Error: {error}</p>}
 
       <InfiniteFactList />
-      <FactPreviewModal />
+      <FactPreviewModal 
+        fact={selectedFact}
+        open={modalOpen}
+        onClose={handleCloseModal}
+      />
     </motion.div>
   );
 };
