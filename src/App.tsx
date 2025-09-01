@@ -5,6 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { MobileProvider } from "./components/providers/MobileProvider";
+import { PWAInstallPrompt } from "@/components/offline/PWAInstallPrompt";
+import { OfflineIndicator } from "@/components/offline/OfflineIndicator";
+import { usePWA } from "@/hooks/usePWA";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import AuthMain from "./pages/AuthMain";
 import AuthCallback from "./pages/AuthCallback";
@@ -23,14 +27,23 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <MobileProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+const App = () => {
+  const { registerServiceWorker } = usePWA();
+
+  useEffect(() => {
+    registerServiceWorker();
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <MobileProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <OfflineIndicator />
+            <PWAInstallPrompt />
+            <BrowserRouter>
             <Routes>
               <Route path="/" element={<Discovery />} />
               <Route path="/auth" element={<AuthMain />} />
@@ -53,6 +66,7 @@ const App = () => (
       </MobileProvider>
     </AuthProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
