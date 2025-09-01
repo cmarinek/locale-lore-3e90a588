@@ -1,0 +1,582 @@
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/ios-card';
+import { Input } from '@/components/ui/ios-input';
+import { Badge } from '@/components/ui/ios-badge';
+import { 
+  Map as MapIcon, 
+  Satellite, 
+  Sun, 
+  Moon, 
+  Locate, 
+  Search, 
+  Layers,
+  Zap,
+  Settings
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+// Mock data for demonstration
+const mockFacts = [
+  { id: '1', latitude: 40.7128, longitude: -74.0060, title: 'New York Fact', category: 'history', verified: true },
+  { id: '2', latitude: 34.0522, longitude: -118.2437, title: 'LA Discovery', category: 'culture', verified: false },
+  { id: '3', latitude: 41.8781, longitude: -87.6298, title: 'Chicago Legend', category: 'legend', verified: true },
+  { id: '4', latitude: 29.7604, longitude: -95.3698, title: 'Houston Mystery', category: 'mystery', verified: true },
+  { id: '5', latitude: 33.4484, longitude: -112.0740, title: 'Phoenix Story', category: 'nature', verified: false },
+  // Add more for testing clustering
+  ...Array.from({ length: 100 }, (_, i) => ({
+    id: `fact-${i + 6}`,
+    latitude: 40.7128 + (Math.random() - 0.5) * 0.1,
+    longitude: -74.0060 + (Math.random() - 0.5) * 0.1,
+    title: `NYC Fact ${i + 1}`,
+    category: ['history', 'culture', 'legend', 'mystery', 'nature'][Math.floor(Math.random() * 5)],
+    verified: Math.random() > 0.5
+  }))
+];
+
+const mapStyles = {
+  light: 'mapbox://styles/mapbox/light-v11',
+  dark: 'mapbox://styles/mapbox/dark-v11',
+  satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
+  terrain: 'mapbox://styles/mapbox/outdoors-v12'
+};
+
+const categoryColors = {
+  history: '#3B82F6',
+  culture: '#8B5CF6', 
+  legend: '#F59E0B',
+  nature: '#10B981',
+  mystery: '#EF4444'
+};
+
+interface AdvancedMapProps {
+  className?: string;
+  initialCenter?: [number, number];
+  initialZoom?: number;
+  onFactClick?: (fact: any) => void;
+  showHeatmap?: boolean;
+}
+
+const AdvancedMap: React.FC<AdvancedMapProps> = ({
+  className,
+  initialCenter = [-74.0060, 40.7128],
+  initialZoom = 10,
+  onFactClick,
+  showHeatmap = false
+}) => {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<{ [key: string]: mapboxgl.Marker }>({});
+  
+  const [mapStyle, setMapStyle] = useState<keyof typeof mapStyles>('light');
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [showControls, setShowControls] = useState(true);
+  const [facts, setFacts] = useState(mockFacts);
+
+  // Get Mapbox token (you should use the MAPBOX_PUBLIC_TOKEN from Supabase secrets)
+  const MAPBOX_TOKEN = 'YOUR_MAPBOX_PUBLIC_TOKEN'; // Replace with actual token retrieval
+
+  // Create custom marker element
+  const createMarkerElement = useCallback((fact: any) => {
+    const el = document.createElement('div');
+    el.className = 'custom-marker';
+    el.style.cssText = `
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: ${categoryColors[fact.category as keyof typeof categoryColors] || '#6B7280'};
+      border: 3px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform-origin: center bottom;
+    `;
+
+    // Add verification badge
+    if (fact.verified) {
+      const badge = document.createElement('div');
+      badge.innerHTML = '✓';
+      badge.style.cssText = `
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 16px;
+        height: 16px;
+        background: #10B981;
+        color: white;
+        border-radius: 50%;
+        font-size: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid white;
+      `;
+      el.appendChild(badge);
+    }
+
+    // Add hover and click animations
+    el.addEventListener('mouseenter', () => {
+      el.style.transform = 'scale(1.1) translateY(-2px)';
+      el.style.boxShadow = '0 8px 25px rgba(0,0,0,0.25)';
+    });
+
+    el.addEventListener('mouseleave', () => {
+      el.style.transform = 'scale(1) translateY(0)';
+      el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    });
+
+    el.addEventListener('click', () => {
+      // Haptic feedback animation
+      el.style.transform = 'scale(0.9) translateY(0)';
+      setTimeout(() => {
+        el.style.transform = 'scale(1.1) translateY(-2px)';
+      }, 100);
+      
+      onFactClick?.(fact);
+    });
+
+    return el;
+  }, [onFactClick]);
+
+  // Initialize map
+  useEffect(() => {
+    if (!mapContainer.current || map.current) return;
+
+    mapboxgl.accessToken = MAPBOX_TOKEN;
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: mapStyles[mapStyle],
+      center: initialCenter,
+      zoom: initialZoom,
+      pitch: 45,
+      bearing: 0,
+      antialias: true
+    });
+
+    // Add navigation controls with iOS styling
+    const nav = new mapboxgl.NavigationControl({
+      visualizePitch: true,
+      showZoom: true,
+      showCompass: true
+    });
+    map.current.addControl(nav, 'top-right');
+
+    // Add geolocate control
+    const geolocate = new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true
+      },
+      trackUserLocation: true,
+      showUserHeading: true
+    });
+    map.current.addControl(geolocate, 'top-right');
+
+    // Add scale control
+    map.current.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
+
+    // Map load event
+    map.current.on('load', () => {
+      setIsLoading(false);
+      addFactsToMap();
+      if (showHeatmap) {
+        addHeatmapLayer();
+      }
+    });
+
+    // Geolocate event
+    geolocate.on('geolocate', (e: any) => {
+      setUserLocation([e.coords.longitude, e.coords.latitude]);
+    });
+
+    return () => {
+      map.current?.remove();
+    };
+  }, []);
+
+  // Update map style
+  useEffect(() => {
+    if (map.current) {
+      map.current.setStyle(mapStyles[mapStyle]);
+      map.current.once('styledata', () => {
+        addFactsToMap();
+        if (showHeatmap) {
+          addHeatmapLayer();
+        }
+      });
+    }
+  }, [mapStyle]);
+
+  // Add facts as markers with clustering
+  const addFactsToMap = useCallback(() => {
+    if (!map.current) return;
+
+    // Clear existing markers
+    Object.values(markersRef.current).forEach(marker => marker.remove());
+    markersRef.current = {};
+
+    // Add cluster source
+    if (!map.current.getSource('facts')) {
+      map.current.addSource('facts', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: facts.map(fact => ({
+            type: 'Feature',
+            properties: {
+              id: fact.id,
+              title: fact.title,
+              category: fact.category,
+              verified: fact.verified
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: [fact.longitude, fact.latitude]
+            }
+          }))
+        },
+        cluster: true,
+        clusterMaxZoom: 14,
+        clusterRadius: 50
+      });
+
+      // Add cluster layer
+      map.current.addLayer({
+        id: 'clusters',
+        type: 'circle',
+        source: 'facts',
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': [
+            'step',
+            ['get', 'point_count'],
+            '#3B82F6',
+            100,
+            '#8B5CF6',
+            750,
+            '#EF4444'
+          ],
+          'circle-radius': [
+            'step',
+            ['get', 'point_count'],
+            20,
+            100,
+            30,
+            750,
+            40
+          ],
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff'
+        }
+      });
+
+      // Add cluster count layer
+      map.current.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: 'facts',
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': '{point_count_abbreviated}',
+          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          'text-size': 12
+        },
+        paint: {
+          'text-color': '#ffffff'
+        }
+      });
+
+      // Add unclustered points layer
+      map.current.addLayer({
+        id: 'unclustered-point',
+        type: 'circle',
+        source: 'facts',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': [
+            'match',
+            ['get', 'category'],
+            'history', categoryColors.history,
+            'culture', categoryColors.culture,
+            'legend', categoryColors.legend,
+            'nature', categoryColors.nature,
+            'mystery', categoryColors.mystery,
+            '#6B7280'
+          ],
+          'circle-radius': 12,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff'
+        }
+      });
+
+      // Click events for clusters
+      map.current.on('click', 'clusters', (e) => {
+        if (!map.current) return;
+        
+        const features = map.current.queryRenderedFeatures(e.point, {
+          layers: ['clusters']
+        });
+        
+        const clusterId = features[0].properties?.cluster_id;
+        const source = map.current.getSource('facts') as mapboxgl.GeoJSONSource;
+        
+        source.getClusterExpansionZoom(clusterId, (err, zoom) => {
+          if (err || !map.current) return;
+          
+          map.current.easeTo({
+            center: (features[0].geometry as any).coordinates,
+            zoom: zoom,
+            duration: 1000
+          });
+        });
+      });
+
+      // Click events for unclustered points
+      map.current.on('click', 'unclustered-point', (e) => {
+        const feature = e.features?.[0];
+        if (feature && feature.properties) {
+          const fact = facts.find(f => f.id === feature.properties?.id);
+          if (fact) {
+            onFactClick?.(fact);
+          }
+        }
+      });
+
+      // Cursor pointer on hover
+      map.current.on('mouseenter', 'clusters', () => {
+        if (map.current) map.current.getCanvas().style.cursor = 'pointer';
+      });
+      map.current.on('mouseleave', 'clusters', () => {
+        if (map.current) map.current.getCanvas().style.cursor = '';
+      });
+      map.current.on('mouseenter', 'unclustered-point', () => {
+        if (map.current) map.current.getCanvas().style.cursor = 'pointer';
+      });
+      map.current.on('mouseleave', 'unclustered-point', () => {
+        if (map.current) map.current.getCanvas().style.cursor = '';
+      });
+    }
+  }, [facts, onFactClick]);
+
+  // Add heatmap layer
+  const addHeatmapLayer = useCallback(() => {
+    if (!map.current) return;
+
+    if (!map.current.getSource('facts-heatmap')) {
+      map.current.addSource('facts-heatmap', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: facts.map(fact => ({
+            type: 'Feature',
+            properties: {
+              weight: fact.verified ? 2 : 1
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: [fact.longitude, fact.latitude]
+            }
+          }))
+        }
+      });
+
+      map.current.addLayer({
+        id: 'facts-heatmap',
+        type: 'heatmap',
+        source: 'facts-heatmap',
+        maxzoom: 15,
+        paint: {
+          'heatmap-weight': [
+            'interpolate',
+            ['linear'],
+            ['get', 'weight'],
+            0, 0,
+            6, 1
+          ],
+          'heatmap-intensity': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0, 1,
+            15, 3
+          ],
+          'heatmap-color': [
+            'interpolate',
+            ['linear'],
+            ['heatmap-density'],
+            0, 'rgba(33,102,172,0)',
+            0.2, 'rgb(103,169,207)',
+            0.4, 'rgb(209,229,240)',
+            0.6, 'rgb(253,219,199)',
+            0.8, 'rgb(239,138,98)',
+            1, 'rgb(178,24,43)'
+          ],
+          'heatmap-radius': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0, 2,
+            15, 20
+          ],
+          'heatmap-opacity': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            7, 1,
+            15, 0
+          ]
+        }
+      });
+    }
+  }, [facts]);
+
+  // Search functionality
+  const handleSearch = useCallback(async (query: string) => {
+    if (!query.trim() || !map.current) return;
+
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&limit=5`
+      );
+      const data = await response.json();
+      
+      if (data.features && data.features.length > 0) {
+        const [lng, lat] = data.features[0].center;
+        map.current.flyTo({
+          center: [lng, lat],
+          zoom: 12,
+          duration: 2000
+        });
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+    }
+  }, []);
+
+  // Fly to user location
+  const flyToUserLocation = useCallback(() => {
+    if (userLocation && map.current) {
+      map.current.flyTo({
+        center: userLocation,
+        zoom: 15,
+        duration: 2000
+      });
+    }
+  }, [userLocation]);
+
+  return (
+    <div className={cn("relative w-full h-full rounded-xl overflow-hidden", className)}>
+      {/* Map Container */}
+      <div ref={mapContainer} className="absolute inset-0" />
+      
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10">
+          <div className="text-center space-y-4">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-sm text-muted-foreground">Loading map...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Search Bar */}
+      <Card className="absolute top-4 left-4 right-4 z-10 glass">
+        <div className="flex items-center gap-3 p-4">
+          <Search className="w-5 h-5 text-muted-foreground" />
+          <Input
+            placeholder="Search locations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
+            className="border-0 bg-transparent focus-visible:ring-0"
+          />
+        </div>
+      </Card>
+
+      {/* Map Style Controls */}
+      {showControls && (
+        <Card className="absolute top-20 right-4 z-10 glass">
+          <div className="p-3 space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant={mapStyle === 'light' ? 'ios' : 'ghost'}
+                size="sm"
+                onClick={() => setMapStyle('light')}
+                className="haptic-feedback"
+              >
+                <Sun className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={mapStyle === 'dark' ? 'ios' : 'ghost'}
+                size="sm"
+                onClick={() => setMapStyle('dark')}
+                className="haptic-feedback"
+              >
+                <Moon className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={mapStyle === 'satellite' ? 'ios' : 'ghost'}
+                size="sm"
+                onClick={() => setMapStyle('satellite')}
+                className="haptic-feedback"
+              >
+                <Satellite className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={mapStyle === 'terrain' ? 'ios' : 'ghost'}
+                size="sm"
+                onClick={() => setMapStyle('terrain')}
+                className="haptic-feedback"
+              >
+                <Layers className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* User Location Button */}
+      {userLocation && (
+        <Button
+          variant="floating"
+          size="icon-lg"
+          onClick={flyToUserLocation}
+          className="absolute bottom-20 right-4 z-10"
+        >
+          <Locate className="w-6 h-6" />
+        </Button>
+      )}
+
+      {/* Legend */}
+      <Card className="absolute bottom-4 left-4 z-10 glass">
+        <div className="p-3 space-y-2">
+          <h4 className="text-sm font-semibold flex items-center gap-2">
+            <MapIcon className="w-4 h-4" />
+            Categories
+          </h4>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            {Object.entries(categoryColors).map(([category, color]) => (
+              <div key={category} className="flex items-center gap-2">
+                <div 
+                  className="w-3 h-3 rounded-full border border-white shadow-sm"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="capitalize">{category}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+export default AdvancedMap;

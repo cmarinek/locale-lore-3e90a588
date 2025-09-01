@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/ios-input';
 import { Badge } from '@/components/ui/ios-badge';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/ios-sheet';
 import { Skeleton, SkeletonAvatar, SkeletonCard, SkeletonText } from '@/components/ui/ios-skeleton';
+import MapShowcase from '@/components/showcase/MapShowcase';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -367,6 +368,9 @@ const ComponentShowcase = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Map Component Showcase */}
+        <MapShowcase />
       </div>
     </MainLayout>
   );
