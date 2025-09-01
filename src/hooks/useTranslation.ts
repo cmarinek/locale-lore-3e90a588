@@ -1,5 +1,5 @@
 
-import { useTranslation as useI18nTranslation, TFunction } from 'react-i18next';
+import { useTranslation as useI18nTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   formatLocalizedDate, 
@@ -17,7 +17,8 @@ interface TranslationOptions {
   interpolation?: Record<string, any>;
 }
 
-interface ExtendedTFunction extends TFunction {
+interface ExtendedTFunction {
+  (key: string, options?: TranslationOptions): string;
   formatDate: (date: string | Date, format?: string) => string;
   formatRelativeTime: (date: string | Date) => string;
   formatNumber: (num: number, options?: Intl.NumberFormatOptions) => string;

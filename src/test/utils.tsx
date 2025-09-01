@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { render as rtlRender } from '@testing-library/react';
 import { screen } from '@testing-library/react';
@@ -56,4 +55,3 @@ export { screen, fireEvent, waitFor };
 // Export the mock auth context for tests that need it
 export const mockAuth = mockAuthContext;
 export { MockAuthProvider };
-
