@@ -283,4 +283,54 @@ All colors MUST be HSL.
   .text-pretty {
     text-wrap: pretty;
   }
+
+  /* Safe area support for iOS devices */
+  .safe-area-padding {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .safe-area-padding-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-padding-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-padding-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Mobile-optimized scroll behavior */
+  .scroll-smooth-mobile {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Mobile-first button styles */
+  .mobile-button {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Pull-to-refresh styles */
+  .overscroll-contain {
+    overscroll-behavior: contain;
+  }
+
+  /* Mobile keyboard adjustments */
+  .keyboard-adjust {
+    transition: height 0.3s ease-in-out;
+  }
+
+  /* Optimized for thumb navigation */
+  .thumb-zone {
+    margin-bottom: env(safe-area-inset-bottom, 20px);
+  }
 }

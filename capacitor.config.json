@@ -1,0 +1,21 @@
+{
+  "appId": "app.lovable.8ee9bb219cd64b2281a4e2322ff21c98",
+  "appName": "locale-lore",
+  "webDir": "dist",
+  "server": {
+    "url": "https://8ee9bb21-9cd6-4b22-81a4-e2322ff21c98.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  },
+  "plugins": {
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#FFFFFF"
+    },
+    "Keyboard": {
+      "resize": "body",
+      "style": "DARK",
+      "resizeOnFullScreen": true
+    },
+    "Haptics": {}
+  }
+}
