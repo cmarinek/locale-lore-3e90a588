@@ -12,13 +12,20 @@ serve(async (req) => {
   }
 
   try {
-    // Get the Mapbox token from environment variables or Supabase secrets
-    const mapboxToken = Deno.env.get('MAPBOX_PUBLIC_TOKEN') || Deno.env.get('MAPBOX_TOKEN');
+    // Get the Mapbox token from environment variables
+    // When using Supabase secrets, they appear as environment variables
+    const mapboxToken = Deno.env.get('MAPBOX_PUBLIC_TOKEN');
+    
+    console.log('Available environment variables:', Object.keys(Deno.env.toObject()));
+    console.log('MAPBOX_PUBLIC_TOKEN value:', mapboxToken ? 'Found' : 'Not found');
     
     if (!mapboxToken) {
       console.error('MAPBOX_PUBLIC_TOKEN not found in environment variables');
       return new Response(
-        JSON.stringify({ error: 'Mapbox token not configured' }),
+        JSON.stringify({ 
+          error: 'Mapbox token not configured',
+          availableEnvVars: Object.keys(Deno.env.toObject()).filter(key => key.includes('MAPBOX'))
+        }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
