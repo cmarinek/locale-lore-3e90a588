@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/ios-badge';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/ios-sheet';
 import { Skeleton, SkeletonAvatar, SkeletonCard, SkeletonText } from '@/components/ui/ios-skeleton';
 import MapShowcase from '@/components/showcase/MapShowcase';
+import { VerificationShowcase } from '@/components/showcase/VerificationShowcase';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -381,6 +382,11 @@ const ComponentShowcase = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Verification System Showcase */}
+        <section className="space-y-4">
+          <VerificationShowcase />
+        </section>
 
         {/* Map Component Showcase */}
         <MapShowcase />

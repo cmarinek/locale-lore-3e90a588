@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          badge_color: string | null
+          category: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          requirement_type: string
+          requirement_value: number | null
+          slug: string
+        }
+        Insert: {
+          badge_color?: string | null
+          category: string
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          name: string
+          requirement_type: string
+          requirement_value?: number | null
+          slug: string
+        }
+        Update: {
+          badge_color?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          requirement_type?: string
+          requirement_value?: number | null
+          slug?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           color: string | null
@@ -70,6 +109,38 @@ export type Database = {
           },
         ]
       }
+      comment_votes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          is_upvote: boolean
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          is_upvote: boolean
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          is_upvote?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_votes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "fact_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           author_id: string
@@ -118,6 +189,69 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fact_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          depth: number | null
+          fact_id: string
+          id: string
+          is_verified: boolean | null
+          parent_id: string | null
+          reply_count: number | null
+          updated_at: string
+          verified_by: string | null
+          vote_count_down: number | null
+          vote_count_up: number | null
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          depth?: number | null
+          fact_id: string
+          id?: string
+          is_verified?: boolean | null
+          parent_id?: string | null
+          reply_count?: number | null
+          updated_at?: string
+          verified_by?: string | null
+          vote_count_down?: number | null
+          vote_count_up?: number | null
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          depth?: number | null
+          fact_id?: string
+          id?: string
+          is_verified?: boolean | null
+          parent_id?: string | null
+          reply_count?: number | null
+          updated_at?: string
+          verified_by?: string | null
+          vote_count_down?: number | null
+          vote_count_up?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fact_comments_fact_id_fkey"
+            columns: ["fact_id"]
+            isOneToOne: false
+            referencedRelation: "facts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fact_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "fact_comments"
             referencedColumns: ["id"]
           },
         ]
@@ -400,6 +534,104 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_rate_limits: {
+        Row: {
+          action_count: number | null
+          action_type: string
+          id: string
+          last_action: string
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          action_count?: number | null
+          action_type: string
+          id?: string
+          last_action?: string
+          user_id: string
+          window_start?: string
+        }
+        Update: {
+          action_count?: number | null
+          action_type?: string
+          id?: string
+          last_action?: string
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      user_reputation: {
+        Row: {
+          comments_made: number | null
+          created_at: string
+          facts_verified: number | null
+          id: string
+          last_activity_date: string | null
+          streak_days: number | null
+          total_score: number | null
+          updated_at: string
+          user_id: string
+          votes_cast: number | null
+          votes_received: number | null
+        }
+        Insert: {
+          comments_made?: number | null
+          created_at?: string
+          facts_verified?: number | null
+          id?: string
+          last_activity_date?: string | null
+          streak_days?: number | null
+          total_score?: number | null
+          updated_at?: string
+          user_id: string
+          votes_cast?: number | null
+          votes_received?: number | null
+        }
+        Update: {
+          comments_made?: number | null
+          created_at?: string
+          facts_verified?: number | null
+          id?: string
+          last_activity_date?: string | null
+          streak_days?: number | null
+          total_score?: number | null
+          updated_at?: string
+          user_id?: string
+          votes_cast?: number | null
+          votes_received?: number | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           granted_at: string
@@ -435,6 +667,50 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verification_requests: {
+        Row: {
+          created_at: string
+          evidence_text: string | null
+          evidence_urls: string[] | null
+          fact_id: string
+          id: string
+          requested_by: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          evidence_text?: string | null
+          evidence_urls?: string[] | null
+          fact_id: string
+          id?: string
+          requested_by: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          evidence_text?: string | null
+          evidence_urls?: string[] | null
+          fact_id?: string
+          id?: string
+          requested_by?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_requests_fact_id_fkey"
+            columns: ["fact_id"]
+            isOneToOne: false
+            referencedRelation: "facts"
             referencedColumns: ["id"]
           },
         ]
