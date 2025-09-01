@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +7,8 @@ import { ContentModerationPanel } from '@/components/admin/ContentModerationPane
 import { UserManagementPanel } from '@/components/admin/UserManagementPanel';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { ReportsPanel } from '@/components/admin/ReportsPanel';
+import { PaymentDashboard } from '@/components/admin/PaymentDashboard';
+import { PromoCodeManager } from '@/components/admin/PromoCodeManager';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, AlertTriangle } from 'lucide-react';
 
@@ -49,7 +52,7 @@ export const AdminDashboard: React.FC = () => {
             <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
             <div>
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Admin Dashboard</h1>
-              <p className="text-sm text-muted-foreground hidden sm:block">Manage content, users, and monitor system health</p>
+              <p className="text-sm text-muted-foreground hidden sm:block">Manage content, users, payments, and monitor system health</p>
             </div>
           </div>
         </div>
@@ -62,8 +65,10 @@ export const AdminDashboard: React.FC = () => {
         </Alert>
 
         <Tabs defaultValue="analytics" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
             <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-2">Analytics</TabsTrigger>
+            <TabsTrigger value="payments" className="text-xs sm:text-sm px-2 py-2">Payments</TabsTrigger>
+            <TabsTrigger value="promos" className="text-xs sm:text-sm px-2 py-2">Promos</TabsTrigger>
             <TabsTrigger value="moderation" className="text-xs sm:text-sm px-2 py-2">Moderation</TabsTrigger>
             <TabsTrigger value="users" className="text-xs sm:text-sm px-2 py-2">Users</TabsTrigger>
             <TabsTrigger value="reports" className="text-xs sm:text-sm px-2 py-2">Reports</TabsTrigger>
@@ -71,6 +76,14 @@ export const AdminDashboard: React.FC = () => {
 
           <TabsContent value="analytics" className="space-y-4 sm:space-y-6">
             <AnalyticsDashboard />
+          </TabsContent>
+
+          <TabsContent value="payments" className="space-y-4 sm:space-y-6">
+            <PaymentDashboard />
+          </TabsContent>
+
+          <TabsContent value="promos" className="space-y-4 sm:space-y-6">
+            <PromoCodeManager />
           </TabsContent>
 
           <TabsContent value="moderation" className="space-y-4 sm:space-y-6">
