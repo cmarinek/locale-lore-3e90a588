@@ -1,49 +1,31 @@
 
 export interface MediaFile {
   id: string;
-  filename: string;
   originalName: string;
   mimeType: string;
   size: number;
   url: string;
   thumbnailUrl?: string;
-  status: 'pending' | 'approved' | 'rejected' | 'processing';
-  uploadedBy: string;
+  status: 'pending' | 'approved' | 'rejected';
   uploadedAt: string;
-  moderatedBy?: string;
-  moderatedAt?: string;
   moderationReason?: string;
-  dimensions?: {
-    width: number;
-    height: number;
-  };
-  metadata?: {
-    duration?: number;
-    format?: string;
-    bitrate?: number;
-    fps?: number;
+  uploader?: {
+    id: string;
+    username: string;
+    avatar_url?: string;
   };
 }
 
-export interface MediaUploadProgress {
-  fileId: string;
-  progress: number;
-  status: 'uploading' | 'processing' | 'complete' | 'error';
-  error?: string;
+export interface MediaUploadOptions {
+  maxSize?: number;
+  allowedTypes?: string[];
+  autoCompress?: boolean;
+  generateThumbnail?: boolean;
 }
 
 export interface MediaModerationResult {
-  safe: boolean;
-  categories: string[];
+  approved: boolean;
   confidence: number;
   flags: string[];
-}
-
-export interface MediaAnalytics {
-  totalUploads: number;
-  totalSize: number;
-  byType: Record<string, number>;
-  byStatus: Record<string, number>;
-  storageUsage: number;
-  bandwidthUsage: number;
+  reason?: string;
 }
