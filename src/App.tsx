@@ -1,8 +1,10 @@
+
 import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import { MobileProvider } from '@/components/providers/MobileProvider';
 import { PerformanceMonitor } from '@/components/monitoring/PerformanceMonitor';
 import { ErrorBoundary } from '@/components/monitoring/ErrorBoundary';
@@ -12,6 +14,9 @@ import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { initializeErrorTracking, initializePerformanceMonitoring } from '@/utils/monitoring';
 import { analytics } from '@/utils/analytics';
 import { seoManager } from '@/utils/seo';
+
+// Initialize i18n
+import '@/utils/i18n';
 
 // Lazy load routes for better performance
 import {
@@ -129,15 +134,17 @@ function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <MobileProvider>
-            <Router>
-              <PerformanceMonitor />
-              <AppContent />
-              <Toaster />
-            </Router>
-          </MobileProvider>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <MobileProvider>
+              <Router>
+                <PerformanceMonitor />
+                <AppContent />
+                <Toaster />
+              </Router>
+            </MobileProvider>
+          </AuthProvider>
+        </LanguageProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );

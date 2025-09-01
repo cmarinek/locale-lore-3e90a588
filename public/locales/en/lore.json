@@ -1,0 +1,38 @@
+
+{
+  "title": "Local Lore",
+  "subtitle": "Discover stories around you",
+  "submitLore": "Submit Lore",
+  "myLore": "My Lore",
+  "favoriteLore": "Favorite Lore",
+  "recentLore": "Recent Lore",
+  "popularLore": "Popular Lore",
+  "trendingLore": "Trending Lore",
+  "nearbyLore": "Nearby Lore",
+  "categories": {
+    "history": "History",
+    "culture": "Culture",
+    "nature": "Nature",
+    "architecture": "Architecture",
+    "food": "Food",
+    "tradition": "Tradition",
+    "legend": "Legend",
+    "mystery": "Mystery",
+    "art": "Art",
+    "music": "Music",
+    "other": "Other"
+  },
+  "submission": {
+    "basicInfo": "Basic Information",
+    "content": "Content",
+    "location": "Location",
+    "media": "Media",
+    "preview": "Preview",
+    "titlePlaceholder": "Enter a captivating title for your lore...",
+    "descriptionPlaceholder": "Share the fascinating story behind this local gem...",
+    "selectCategory": "Select a category",
+    "addLocation": "Add Location",
+    "addMedia": "Add Media",
+    "submitForReview": "Submit for Review"
+  }
+}

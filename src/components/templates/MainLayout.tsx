@@ -1,9 +1,12 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Navigation } from '@/components/ui/navigation';
 import { BottomNavigation } from '@/components/ui/bottom-navigation';
+import { LanguageSelector } from '@/components/ui/language-selector';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -11,8 +14,14 @@ interface MainLayoutProps {
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) => {
+  const { isRTL } = useLanguage();
+
   return (
-    <div className={cn("min-h-screen bg-background", className)}>
+    <div className={cn(
+      "min-h-screen bg-background transition-all duration-300",
+      isRTL && "rtl",
+      className
+    )}>
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4">
@@ -25,8 +34,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
               </span>
             </Link>
 
-            {/* Navigation */}
-            <Navigation />
+            {/* Navigation and Language Selector */}
+            <div className="flex items-center gap-4">
+              <Navigation />
+              <LanguageSelector variant="compact" />
+            </div>
           </div>
         </div>
       </header>

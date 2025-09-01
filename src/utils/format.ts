@@ -1,5 +1,5 @@
-
 import { formatDistanceToNow, format } from 'date-fns';
+import { formatLocalizedDate, formatLocalizedRelativeTime, formatLocalizedNumber, formatLocalizedDistance } from './localization';
 
 export const formatDate = (date: string | Date): string => {
   return format(new Date(date), 'MMM dd, yyyy');
@@ -34,3 +34,10 @@ export const truncateText = (text: string, maxLength: number): string => {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength).trim() + '...';
 };
+
+export {
+  formatLocalizedDate,
+  formatLocalizedRelativeTime,
+  formatLocalizedNumber,
+  formatLocalizedDistance,
+} from './localization';
