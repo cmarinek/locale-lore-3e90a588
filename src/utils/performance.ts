@@ -1,6 +1,6 @@
 
 // Performance utilities for optimization
-import { lazy, ComponentType } from 'react';
+import { lazy, ComponentType, Suspense } from 'react';
 
 // Code splitting utility with error handling
 export const lazyImport = <T extends ComponentType<any>>(
@@ -103,5 +103,3 @@ export const analyzeBundleSize = (): void => {
     });
   }
 };
-
-import { Suspense } from 'react';
