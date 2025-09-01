@@ -6,7 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { MobileProvider } from "./components/providers/MobileProvider";
 import Index from "./pages/Index";
-import Auth from "./pages/Auth";
+import AuthMain from "./pages/AuthMain";
+import AuthCallback from "./pages/AuthCallback";
+import AuthConfirm from "./pages/AuthConfirm";
+import AuthResetPassword from "./pages/AuthResetPassword";
 import ComponentShowcase from "./pages/ComponentShowcase";
 import { Discover } from "./pages/Discover";
 import Discovery from "./pages/Discovery";
@@ -30,7 +33,10 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Discovery />} />
-              <Route path="/auth" element={<Auth />} />
+              <Route path="/auth" element={<AuthMain />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/auth/confirm" element={<AuthConfirm />} />
+              <Route path="/auth/reset-password" element={<AuthResetPassword />} />
               <Route path="/components" element={<ComponentShowcase />} />
               <Route path="/discover" element={<Discovery />} />
               <Route path="/explore" element={<Explore />} />
