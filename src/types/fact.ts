@@ -1,4 +1,3 @@
-
 export interface Fact {
   id: string;
   title: string;
@@ -57,4 +56,44 @@ export interface SavedFact {
   user_id: string;
   fact_id: string;
   created_at: string;
+}
+
+// Enhanced Fact type for discovery components
+export interface EnhancedFact extends Fact {
+  vote_count_up: number;
+  vote_count_down: number;
+  description: string;
+  location_name: string;
+  latitude: number;
+  longitude: number;
+  media_urls?: string[];
+  profiles?: {
+    id: string;
+    username: string;
+    avatar_url?: string;
+  };
+  categories?: {
+    id: string;
+    name: string;
+    slug: string;
+    color?: string;
+    icon?: string;
+    category_translations?: Array<{
+      language_code: string;
+      name: string;
+    }>;
+  };
+}
+
+// Enhanced Category type
+export interface EnhancedCategory {
+  id: string;
+  name: string;
+  slug: string;
+  color?: string;
+  icon?: string;
+  category_translations?: Array<{
+    language_code: string;
+    name: string;
+  }>;
 }

@@ -1,269 +1,193 @@
 
 import { create } from 'zustand';
-import { supabase } from '@/integrations/supabase/client';
+import { devtools } from 'zustand/middleware';
+import type { EnhancedFact, EnhancedCategory } from '@/types/fact';
 
 export interface SearchFilters {
-  search: string;
-  category?: string;
-  categories: string[];
-  location?: { lat: number; lng: number; radius: number };
-  dateRange?: { start: Date; end: Date };
-  sortBy: 'relevance' | 'date' | 'popularity' | 'recency' | 'credibility' | 'distance';
-  verified?: boolean;
-  radius: number;
-  center: [number, number] | null;
-}
-
-interface Fact {
-  id: string;
-  title: string;
-  content: string;
-  status: string;
-  upvotes: number;
-  is_verified: boolean;
-  created_at: string;
-  categories?: {
-    id: string;
-    name: string;
-    slug: string;
+  query: string;
+  category: string[];
+  sortBy: 'relevance' | 'date' | 'popularity';
+  dateRange?: {
+    from: Date;
+    to: Date;
   };
-  fact_votes?: Array<{
-    vote_type: string;
-  }>;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  status: string;
+  location?: {
+    lat: number;
+    lng: number;
+    radius: number;
+  };
+  status?: string[];
 }
 
 export interface DiscoveryState {
-  // Data
-  facts: Fact[];
-  categories: Category[];
-  savedFacts: string[];
-  searchSuggestions: string[];
+  // Core data
+  facts: EnhancedFact[];
+  categories: EnhancedCategory[];
   
-  // UI State
-  loading: boolean;
+  // UI state
+  selectedFact: EnhancedFact | null;
+  isModalOpen: boolean;
+  savedFacts: string[];
+  
+  // Loading states
   isLoading: boolean;
   hasMore: boolean;
-  error: string | null;
-  selectedFact: Fact | null;
-  isModalOpen: boolean;
-  filters: SearchFilters;
-
+  
+  // Search and filters
+  searchFilters: SearchFilters;
+  
   // Actions
-  loadCategories: () => Promise<void>;
-  loadSavedFacts: () => Promise<void>;
-  searchFacts: (query: string) => Promise<void>;
-  loadMoreFacts: () => Promise<void>;
-  setFilters: (filters: Partial<SearchFilters>) => void;
-  updateSearchSuggestions: (suggestions: string[]) => void;
-  toggleSavedFact: (factId: string) => void;
-  setSelectedFact: (fact: Fact | null) => void;
+  setFacts: (facts: EnhancedFact[]) => void;
+  addFacts: (facts: EnhancedFact[]) => void;
+  setCategories: (categories: EnhancedCategory[]) => void;
+  setSelectedFact: (fact: EnhancedFact | null) => void;
   setModalOpen: (open: boolean) => void;
+  toggleSavedFact: (factId: string) => void;
+  setSearchFilters: (filters: Partial<SearchFilters>) => void;
+  clearFilters: () => void;
+  loadMoreFacts: () => Promise<void>;
+  searchFacts: (query: string) => Promise<void>;
 }
 
-export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
-  // Initial state
-  facts: [],
-  categories: [],
-  savedFacts: [],
-  searchSuggestions: [],
-  loading: false,
-  isLoading: false,
-  hasMore: true,
-  error: null,
-  selectedFact: null,
-  isModalOpen: false,
-  filters: {
-    search: '',
-    categories: [],
-    sortBy: 'relevance',
-    radius: 10,
-    center: null,
-  },
+const defaultFilters: SearchFilters = {
+  query: '',
+  category: [],
+  sortBy: 'relevance',
+};
 
-  // Actions
-  loadCategories: async () => {
-    set({ loading: true, error: null });
-    try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('status', 'active');
+export const useDiscoveryStore = create<DiscoveryState>()(
+  devtools(
+    (set, get) => ({
+      // Initial state
+      facts: [],
+      categories: [],
+      selectedFact: null,
+      isModalOpen: false,
+      savedFacts: [],
+      isLoading: false,
+      hasMore: true,
+      searchFilters: defaultFilters,
 
-      if (error) throw error;
-      set({ categories: data || [], loading: false });
-    } catch (error) {
-      console.error('Error loading categories:', error);
-      set({ error: 'Failed to load categories', loading: false });
-    }
-  },
-
-  loadSavedFacts: async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('saved_facts')
-        .select('fact_id')
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-      set({ savedFacts: data?.map(item => item.fact_id) || [] });
-    } catch (error) {
-      console.error('Error loading saved facts:', error);
-    }
-  },
-
-  searchFacts: async (query: string) => {
-    set({ loading: true, isLoading: true, error: null });
-    try {
-      const state = get();
-      let queryBuilder = supabase
-        .from('facts')
-        .select(`
-          *,
-          categories (
-            id,
-            name,
-            slug
-          ),
-          fact_votes (
-            vote_type
-          )
-        `)
-        .eq('status', 'verified');
-
-      if (query) {
-        queryBuilder = queryBuilder.or(`title.ilike.%${query}%,content.ilike.%${query}%`);
-      }
-
-      if (state.filters.category) {
-        queryBuilder = queryBuilder.eq('categories.slug', state.filters.category);
-      }
-
-      if (state.filters.verified !== undefined) {
-        queryBuilder = queryBuilder.eq('is_verified', state.filters.verified);
-      }
-
-      // Apply sorting
-      switch (state.filters.sortBy) {
-        case 'date':
-        case 'recency':
-          queryBuilder = queryBuilder.order('created_at', { ascending: false });
-          break;
-        case 'popularity':
-          queryBuilder = queryBuilder.order('upvotes', { ascending: false });
-          break;
-        default:
-          queryBuilder = queryBuilder.order('created_at', { ascending: false });
-      }
-
-      const { data, error } = await queryBuilder.limit(20);
-
-      if (error) throw error;
-      set({ facts: data || [], loading: false, isLoading: false });
-    } catch (error) {
-      console.error('Error searching facts:', error);
-      set({ error: 'Failed to search facts', loading: false, isLoading: false });
-    }
-  },
-
-  loadMoreFacts: async () => {
-    const state = get();
-    if (state.isLoading || !state.hasMore) return;
-
-    set({ isLoading: true });
-    try {
-      let queryBuilder = supabase
-        .from('facts')
-        .select(`
-          *,
-          categories (
-            id,
-            name,
-            slug
-          ),
-          fact_votes (
-            vote_type
-          )
-        `)
-        .eq('status', 'verified')
-        .range(state.facts.length, state.facts.length + 19);
-
-      if (state.filters.search) {
-        queryBuilder = queryBuilder.or(`title.ilike.%${state.filters.search}%,content.ilike.%${state.filters.search}%`);
-      }
-
-      const { data, error } = await queryBuilder;
-
-      if (error) throw error;
+      // Actions
+      setFacts: (facts) => set({ facts }),
       
-      set({ 
-        facts: [...state.facts, ...(data || [])],
-        isLoading: false,
-        hasMore: (data?.length || 0) === 20
-      });
-    } catch (error) {
-      console.error('Error loading more facts:', error);
-      set({ isLoading: false });
-    }
-  },
-
-  setFilters: (newFilters: Partial<SearchFilters>) => {
-    const state = get();
-    const updatedFilters = { ...state.filters, ...newFilters };
-    set({ filters: updatedFilters });
-    
-    // Auto-search when filters change
-    if (newFilters.search !== undefined) {
-      get().searchFacts(newFilters.search);
-    }
-  },
-
-  updateSearchSuggestions: (suggestions: string[]) => {
-    set({ searchSuggestions: suggestions });
-  },
-
-  toggleSavedFact: async (factId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const state = get();
-      const isSaved = state.savedFacts.includes(factId);
-
-      if (isSaved) {
-        await supabase
-          .from('saved_facts')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('fact_id', factId);
+      addFacts: (newFacts) => set((state) => ({ 
+        facts: [...state.facts, ...newFacts] 
+      })),
+      
+      setCategories: (categories) => set({ categories }),
+      
+      setSelectedFact: (fact) => set({ 
+        selectedFact: fact,
+        isModalOpen: !!fact 
+      }),
+      
+      setModalOpen: (open) => set({ 
+        isModalOpen: open,
+        selectedFact: open ? get().selectedFact : null
+      }),
+      
+      toggleSavedFact: (factId) => set((state) => ({
+        savedFacts: state.savedFacts.includes(factId)
+          ? state.savedFacts.filter(id => id !== factId)
+          : [...state.savedFacts, factId]
+      })),
+      
+      setSearchFilters: (filters) => set((state) => ({
+        searchFilters: { ...state.searchFilters, ...filters }
+      })),
+      
+      clearFilters: () => set({ searchFilters: defaultFilters }),
+      
+      loadMoreFacts: async () => {
+        const state = get();
+        if (state.isLoading || !state.hasMore) return;
         
-        set({ savedFacts: state.savedFacts.filter(id => id !== factId) });
-      } else {
-        await supabase
-          .from('saved_facts')
-          .insert({ user_id: user.id, fact_id: factId });
+        set({ isLoading: true });
         
-        set({ savedFacts: [...state.savedFacts, factId] });
+        try {
+          // Simulate API call
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Mock data - in real app, fetch from API
+          const mockFacts: EnhancedFact[] = Array.from({ length: 10 }, (_, i) => ({
+            id: `fact-${state.facts.length + i}`,
+            title: `Fact ${state.facts.length + i + 1}`,
+            content: `This is the content for fact ${state.facts.length + i + 1}`,
+            description: `This is a description for fact ${state.facts.length + i + 1}`,
+            location_name: `Location ${state.facts.length + i + 1}`,
+            latitude: 40.7128 + (Math.random() - 0.5) * 0.1,
+            longitude: -74.0060 + (Math.random() - 0.5) * 0.1,
+            status: 'verified' as const,
+            vote_count_up: Math.floor(Math.random() * 100),
+            vote_count_down: Math.floor(Math.random() * 20),
+            upvotes: Math.floor(Math.random() * 100),
+            is_verified: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            user_id: 'user-1',
+            category_id: 'category-1',
+            categories: {
+              id: 'category-1',
+              name: 'History',
+              slug: 'history',
+              color: '#3B82F6',
+              icon: '🏛️'
+            }
+          }));
+          
+          set((state) => ({
+            facts: [...state.facts, ...mockFacts],
+            isLoading: false,
+            hasMore: state.facts.length + mockFacts.length < 100
+          }));
+        } catch (error) {
+          console.error('Failed to load more facts:', error);
+          set({ isLoading: false });
+        }
+      },
+      
+      searchFacts: async (query) => {
+        set({ isLoading: true, facts: [] });
+        
+        try {
+          // Simulate API call
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Mock search results
+          const mockFacts: EnhancedFact[] = Array.from({ length: 20 }, (_, i) => ({
+            id: `search-fact-${i}`,
+            title: `Search Result ${i + 1} for "${query}"`,
+            content: `This fact matches your search for "${query}"`,
+            description: `Search result description for "${query}"`,
+            location_name: `Search Location ${i + 1}`,
+            latitude: 40.7128 + (Math.random() - 0.5) * 0.1,
+            longitude: -74.0060 + (Math.random() - 0.5) * 0.1,
+            status: 'verified' as const,
+            vote_count_up: Math.floor(Math.random() * 100),
+            vote_count_down: Math.floor(Math.random() * 20),
+            upvotes: Math.floor(Math.random() * 100),
+            is_verified: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            user_id: 'user-1',
+            category_id: 'category-1',
+            categories: {
+              id: 'category-1',
+              name: 'History',
+              slug: 'history',
+              color: '#3B82F6',
+              icon: '🏛️'
+            }
+          }));
+          
+          set({ facts: mockFacts, isLoading: false, hasMore: true });
+        } catch (error) {
+          console.error('Search failed:', error);
+          set({ isLoading: false });
+        }
       }
-    } catch (error) {
-      console.error('Error toggling saved fact:', error);
-    }
-  },
-
-  setSelectedFact: (fact: Fact | null) => {
-    set({ selectedFact: fact });
-  },
-
-  setModalOpen: (open: boolean) => {
-    set({ isModalOpen: open });
-  },
-}));
+    }),
+    { name: 'discovery-store' }
+  )
+);

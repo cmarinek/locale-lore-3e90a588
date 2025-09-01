@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { FactCard } from './FactCard';
@@ -87,7 +88,7 @@ export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ className })
         {facts.map((fact, index) => (
           <FactCard
             key={fact.id}
-            fact={fact}
+            fact={fact as any}
             className={cn(
               "animate-fade-in",
               // Stagger animation

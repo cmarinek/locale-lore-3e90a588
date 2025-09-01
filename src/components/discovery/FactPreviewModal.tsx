@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { X, MapPin, ThumbsUp, ThumbsDown, Bookmark, BookmarkCheck, ExternalLink, Share } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -23,7 +24,7 @@ export const FactPreviewModal: React.FC = () => {
   
   const categoryName = selectedFact.categories?.category_translations?.find(
     t => t.language_code === 'en'
-  )?.name || selectedFact.categories?.slug || 'Unknown';
+  )?.name || selectedFact.categories?.name || 'Unknown';
 
   const handleSaveToggle = () => {
     toggleSavedFact(selectedFact.id);
@@ -43,7 +44,6 @@ export const FactPreviewModal: React.FC = () => {
     } else {
       // Fallback to clipboard
       navigator.clipboard.writeText(window.location.href);
-      // You could show a toast here
     }
   };
 
