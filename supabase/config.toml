@@ -9,3 +9,9 @@ verify_jwt = false
 
 [functions.search-optimization]
 verify_jwt = false
+
+[functions.fact-harvester]
+verify_jwt = false
+
+[functions.bulk-import-processor]
+verify_jwt = false

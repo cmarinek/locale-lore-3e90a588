@@ -83,6 +83,119 @@ export type Database = {
         }
         Relationships: []
       }
+      acquisition_jobs: {
+        Row: {
+          completed_at: string | null
+          configuration: Json
+          created_at: string
+          created_by: string | null
+          error_count: number
+          error_log: string[] | null
+          estimated_completion: string | null
+          id: string
+          name: string
+          processed_count: number
+          progress_data: Json | null
+          source_type: string
+          status: string
+          success_count: number
+          target_count: number
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          configuration?: Json
+          created_at?: string
+          created_by?: string | null
+          error_count?: number
+          error_log?: string[] | null
+          estimated_completion?: string | null
+          id?: string
+          name: string
+          processed_count?: number
+          progress_data?: Json | null
+          source_type: string
+          status?: string
+          success_count?: number
+          target_count?: number
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          configuration?: Json
+          created_at?: string
+          created_by?: string | null
+          error_count?: number
+          error_log?: string[] | null
+          estimated_completion?: string | null
+          id?: string
+          name?: string
+          processed_count?: number
+          progress_data?: Json | null
+          source_type?: string
+          status?: string
+          success_count?: number
+          target_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      acquisition_queue: {
+        Row: {
+          attempts: number
+          created_at: string
+          error_message: string | null
+          id: string
+          item_type: string
+          job_id: string
+          max_attempts: number
+          processed_at: string | null
+          result_data: Json | null
+          source_data: Json
+          source_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          item_type: string
+          job_id: string
+          max_attempts?: number
+          processed_at?: string | null
+          result_data?: Json | null
+          source_data?: Json
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          item_type?: string
+          job_id?: string
+          max_attempts?: number
+          processed_at?: string | null
+          result_data?: Json | null
+          source_data?: Json
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acquisition_queue_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activity_feed: {
         Row: {
           activity_type: string
