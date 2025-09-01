@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAdmin } from '@/hooks/useAdmin';
 import { 
   Home, 
   Compass, 
@@ -15,12 +16,14 @@ import {
   Users,
   Camera,
   Upload,
-  Settings
+  Settings,
+  Shield
 } from 'lucide-react';
 
 export const Navigation: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
+  const { isAdmin } = useAdmin();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -78,6 +81,11 @@ export const Navigation: React.FC = () => {
       icon: User, 
       label: 'Profile'
     },
+    ...(isAdmin ? [{ 
+      path: '/admin', 
+      icon: Shield, 
+      label: 'Admin'
+    }] : []),
   ] : [
     { 
       path: '/auth', 
