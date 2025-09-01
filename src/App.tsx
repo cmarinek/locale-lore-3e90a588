@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ComponentShowcase from "./pages/ComponentShowcase";
 import { Discover } from "./pages/Discover";
+import Discovery from "./pages/Discovery";
 import { Explore } from "./pages/Explore";
 import { Search } from "./pages/Search";
 import { Submit } from "./pages/Submit";
@@ -27,10 +28,10 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<Discovery />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/components" element={<ComponentShowcase />} />
-              <Route path="/discover" element={<Discover />} />
+              <Route path="/discover" element={<Discovery />} />
               <Route path="/explore" element={<Explore />} />
               <Route path="/search" element={<Search />} />
               <Route path="/submit" element={<Submit />} />

@@ -129,8 +129,8 @@ interface AppState {
   // UI state
   isMobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
-  activeTab: 'explore' | 'search' | 'submit' | 'profile';
-  setActiveTab: (tab: 'explore' | 'search' | 'submit' | 'profile') => void;
+  activeTab: 'discover' | 'explore' | 'search' | 'submit' | 'profile';
+  setActiveTab: (tab: 'discover' | 'explore' | 'search' | 'submit' | 'profile') => void;
   
   // Mobile actions with haptic feedback
   triggerHapticFeedback: (type: 'light' | 'medium' | 'heavy' | 'selection') => void;
@@ -165,7 +165,7 @@ export const useAppStore = create<AppState>()(
         prefetchEnabled: true,
       },
       isMobileMenuOpen: false,
-      activeTab: 'explore',
+      activeTab: 'discover' as 'discover' | 'explore' | 'search' | 'submit' | 'profile',
 
       // User actions
       setUser: (user) => set({ user }),

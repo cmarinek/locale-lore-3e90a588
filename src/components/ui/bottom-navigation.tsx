@@ -1,15 +1,21 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Map, Search, BookOpen, User } from 'lucide-react';
+import { Heart, Search, BookOpen, User, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/stores/appStore';
 
 const tabs = [
   {
+    id: 'discover' as const,
+    label: 'Discover',
+    href: '/discover',
+    icon: Heart,
+  },
+  {
     id: 'explore' as const,
     label: 'Explore',
     href: '/explore',
-    icon: Map,
+    icon: Home,
   },
   {
     id: 'search' as const,
@@ -42,7 +48,10 @@ export const BottomNavigation: React.FC = () => {
   } = useAppStore();
 
   const isActive = (href: string) => {
-    if (href === '/explore' && (location.pathname === '/' || location.pathname === '/discover')) {
+    if (href === '/discover' && location.pathname === '/') {
+      return true;
+    }
+    if (href === '/explore' && (location.pathname === '/explore' || location.pathname === '/discover')) {
       return true;
     }
     return location.pathname.startsWith(href);
@@ -82,7 +91,7 @@ export const BottomNavigation: React.FC = () => {
         paddingBottom: `max(env(safe-area-inset-bottom), ${mobile?.safeAreaInsets?.bottom || 0}px)`,
       }}
     >
-      <div className="grid grid-cols-4 h-16">
+      <div className="grid grid-cols-5 h-16">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = isActive(tab.href);
