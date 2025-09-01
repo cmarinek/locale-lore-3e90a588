@@ -335,6 +335,42 @@ export type Database = {
           },
         ]
       }
+      location_qr_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          latitude: number
+          location_name: string
+          longitude: number
+          scan_count: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          latitude: number
+          location_name: string
+          longitude: number
+          scan_count?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          latitude?: number
+          location_name?: string
+          longitude?: number
+          scan_count?: number | null
+        }
+        Relationships: []
+      }
       lore_submissions: {
         Row: {
           category_id: string | null
@@ -510,6 +546,69 @@ export type Database = {
           },
         ]
       }
+      saved_searches: {
+        Row: {
+          created_at: string
+          filters: Json | null
+          id: string
+          name: string
+          notification_enabled: boolean | null
+          query: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json | null
+          id?: string
+          name: string
+          notification_enabled?: boolean | null
+          query: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json | null
+          id?: string
+          name?: string
+          notification_enabled?: boolean | null
+          query?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      search_history: {
+        Row: {
+          clicked_result_id: string | null
+          created_at: string
+          filters: Json | null
+          id: string
+          query: string
+          results_count: number | null
+          user_id: string
+        }
+        Insert: {
+          clicked_result_id?: string | null
+          created_at?: string
+          filters?: Json | null
+          id?: string
+          query: string
+          results_count?: number | null
+          user_id: string
+        }
+        Update: {
+          clicked_result_id?: string | null
+          created_at?: string
+          filters?: Json | null
+          id?: string
+          query?: string
+          results_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       spatial_ref_sys: {
         Row: {
           auth_name: string | null
@@ -531,6 +630,84 @@ export type Database = {
           proj4text?: string | null
           srid?: number
           srtext?: string | null
+        }
+        Relationships: []
+      }
+      trending_facts: {
+        Row: {
+          comment_count: number | null
+          created_at: string
+          fact_id: string
+          id: string
+          period_end: string
+          period_start: string
+          score: number
+          share_count: number | null
+          view_count: number | null
+          vote_count: number | null
+        }
+        Insert: {
+          comment_count?: number | null
+          created_at?: string
+          fact_id: string
+          id?: string
+          period_end: string
+          period_start: string
+          score?: number
+          share_count?: number | null
+          view_count?: number | null
+          vote_count?: number | null
+        }
+        Update: {
+          comment_count?: number | null
+          created_at?: string
+          fact_id?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          score?: number
+          share_count?: number | null
+          view_count?: number | null
+          vote_count?: number | null
+        }
+        Relationships: []
+      }
+      trending_locations: {
+        Row: {
+          created_at: string
+          fact_count: number | null
+          id: string
+          latitude: number
+          location_name: string
+          longitude: number
+          period_end: string
+          period_start: string
+          score: number
+          view_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          fact_count?: number | null
+          id?: string
+          latitude: number
+          location_name: string
+          longitude: number
+          period_end: string
+          period_start: string
+          score?: number
+          view_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          fact_count?: number | null
+          id?: string
+          latitude?: number
+          location_name?: string
+          longitude?: number
+          period_end?: string
+          period_start?: string
+          score?: number
+          view_count?: number | null
         }
         Relationships: []
       }
@@ -587,6 +764,36 @@ export type Database = {
           last_action?: string
           user_id?: string
           window_start?: string
+        }
+        Relationships: []
+      }
+      user_recommendations: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          fact_id: string
+          id: string
+          reason: string | null
+          score: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          fact_id: string
+          id?: string
+          reason?: string | null
+          score?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          fact_id?: string
+          id?: string
+          reason?: string | null
+          score?: number
+          user_id?: string
         }
         Relationships: []
       }
@@ -1028,6 +1235,10 @@ export type Database = {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
+      generate_user_recommendations: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       geography: {
         Args: { "": string } | { "": unknown }
         Returns: unknown
@@ -1272,6 +1483,26 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
+      gtrgm_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: { "": unknown }
+        Returns: undefined
+      }
+      gtrgm_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role_type"]
@@ -1504,6 +1735,18 @@ export type Database = {
           vote_count_down: number
           vote_count_up: number
         }[]
+      }
+      set_limit: {
+        Args: { "": number }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: { "": string }
+        Returns: string[]
       }
       spheroid_in: {
         Args: { "": unknown }
@@ -2578,9 +2821,21 @@ export type Database = {
         Args: { "": unknown }
         Returns: string
       }
+      unaccent: {
+        Args: { "": string }
+        Returns: string
+      }
+      unaccent_init: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
       unlockrows: {
         Args: { "": string }
         Returns: number
+      }
+      update_trending_scores: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       updategeometrysrid: {
         Args: {

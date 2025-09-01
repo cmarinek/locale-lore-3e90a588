@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ComponentShowcase from "./pages/ComponentShowcase";
 import Discovery from "./pages/Discovery";
+import { Search } from "./pages/Search";
 import LoreSubmit from "./pages/LoreSubmit";
 import NotFound from "./pages/NotFound";
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/components" element={<ComponentShowcase />} />
             <Route path="/lore/submit" element={<LoreSubmit />} />
+            <Route path="/search" element={<Search />} />
             <Route path="/discovery" element={<Discovery />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
