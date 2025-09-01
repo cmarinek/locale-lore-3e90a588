@@ -1,4 +1,3 @@
-
 import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -10,13 +9,23 @@ import { ErrorBoundary } from '@/components/monitoring/ErrorBoundary';
 import { AnimatedPage, PageTransition } from '@/components/ui/animated-page';
 import { ScrollProgress } from '@/components/ui/smooth-scroll';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
-import { AnimatePresence } from 'framer-motion';
 import { initializeErrorTracking, initializePerformanceMonitoring } from '@/utils/monitoring';
 import { analytics } from '@/utils/analytics';
 import { seoManager } from '@/utils/seo';
 
 // Lazy load routes for better performance
-import { LazyRoutes } from '@/components/performance/LazyRoutes';
+import {
+  LazyExplore,
+  LazySearch,
+  LazySubmit,
+  LazyProfile,
+  LazyFact,
+  LazyAdmin,
+  LazyDiscover,
+  LazyGamification,
+  LazyComponentShowcase,
+  LazyLoreSubmit
+} from '@/components/performance/LazyRoutes';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,52 +57,52 @@ function AppContent() {
           <Routes>
             <Route path="/" element={
               <Suspense fallback={<EnhancedSkeleton />}>
-                <LazyRoutes.Explore />
+                <LazyExplore />
               </Suspense>
             } />
             <Route path="/search" element={
               <Suspense fallback={<EnhancedSkeleton />}>
-                <LazyRoutes.Search />
+                <LazySearch />
               </Suspense>
             } />
             <Route path="/submit" element={
               <Suspense fallback={<EnhancedSkeleton />}>
-                <LazyRoutes.Submit />
+                <LazySubmit />
               </Suspense>
             } />
             <Route path="/profile" element={
               <Suspense fallback={<EnhancedSkeleton />}>
-                <LazyRoutes.Profile />
+                <LazyProfile />
               </Suspense>
             } />
             <Route path="/fact/:id" element={
               <Suspense fallback={<EnhancedSkeleton />}>
-                <LazyRoutes.Fact />
+                <LazyFact />
               </Suspense>
             } />
             <Route path="/admin" element={
               <Suspense fallback={<EnhancedSkeleton />}>
-                <LazyRoutes.Admin />
+                <LazyAdmin />
               </Suspense>
             } />
             <Route path="/discover" element={
               <Suspense fallback={<EnhancedSkeleton />}>
-                <LazyRoutes.Discover />
+                <LazyDiscover />
               </Suspense>
             } />
             <Route path="/gamification" element={
               <Suspense fallback={<EnhancedSkeleton />}>
-                <LazyRoutes.Gamification />
+                <LazyGamification />
               </Suspense>
             } />
             <Route path="/showcase" element={
               <Suspense fallback={<EnhancedSkeleton />}>
-                <LazyRoutes.ComponentShowcase />
+                <LazyComponentShowcase />
               </Suspense>
             } />
             <Route path="/lore-submit" element={
               <Suspense fallback={<EnhancedSkeleton />}>
-                <LazyRoutes.LoreSubmit />
+                <LazyLoreSubmit />
               </Suspense>
             } />
           </Routes>

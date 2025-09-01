@@ -4,7 +4,6 @@ import { render } from '@testing-library/react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthContext } from '@/contexts/AuthContext';
 
 // Create a test query client
 const createTestQueryClient = () => new QueryClient({
@@ -15,7 +14,7 @@ const createTestQueryClient = () => new QueryClient({
   },
 });
 
-// Mock auth context
+// Mock auth context value
 const mockAuthContext = {
   user: null,
   signIn: jest.fn(),
@@ -27,20 +26,26 @@ const mockAuthContext = {
   updateProfile: jest.fn(),
 };
 
+// Mock AuthContext component
+const MockAuthProvider = ({ children }: { children: React.ReactNode }) => {
+  return <div data-testid="mock-auth-provider">{children}</div>;
+};
+
 export const renderWithProviders = (ui: React.ReactElement, options = {}) => {
   const testQueryClient = createTestQueryClient();
   
   return render(
     <QueryClientProvider client={testQueryClient}>
-      <AuthContext.Provider value={mockAuthContext}>
+      <MockAuthProvider>
         <BrowserRouter>
           {ui}
         </BrowserRouter>
-      </AuthContext.Provider>
+      </MockAuthProvider>
     </QueryClientProvider>,
     options
   );
 };
 
-// Re-export testing utilities
+// Export testing utilities
 export { screen, fireEvent, waitFor };
+export { render };
