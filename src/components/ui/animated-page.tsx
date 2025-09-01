@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { useAnimations } from '@/hooks/useAnimations';
 
 interface AnimatedPageProps {
@@ -18,7 +18,7 @@ export const AnimatedPage: React.FC<AnimatedPageProps> = ({
 }) => {
   const { pageVariants, slideVariants, shouldReduceMotion } = useAnimations();
 
-  const getVariants = () => {
+  const getVariants = (): Variants => {
     switch (type) {
       case 'slide':
         return slideVariants;

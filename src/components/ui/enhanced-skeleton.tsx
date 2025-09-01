@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { useAnimations } from '@/hooks/useAnimations';
 import { cn } from '@/lib/utils';
 
@@ -40,7 +40,7 @@ export const EnhancedSkeleton: React.FC<EnhancedSkeletonProps> = ({
     className
   );
 
-  const shimmerVariants = {
+  const shimmerVariants: Variants = {
     shimmer: shouldReduceMotion ? {} : {
       x: ["-100%", "100%"],
       transition: {

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, Transition } from 'framer-motion';
 import { useAnimations } from '@/hooks/useAnimations';
 import { useAppStore } from '@/stores/appStore';
 
@@ -48,10 +48,12 @@ export const InteractiveButton: React.FC<InteractiveButtonProps> = ({
     lg: "h-11 px-8 text-lg"
   };
 
+  const transition: Transition = { type: "spring" as const, stiffness: 400, damping: 25 };
+
   const motionProps = shouldReduceMotion ? {} : {
     whileHover: { scale: 1.02 },
     whileTap: { scale: 0.98 },
-    transition: { type: "spring", stiffness: 400, damping: 25 }
+    transition
   };
 
   return (
@@ -85,12 +87,14 @@ export const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
     onClick();
   };
 
+  const transition: Transition = { type: "spring" as const, stiffness: 400, damping: 25 };
+
   const motionProps = shouldReduceMotion ? {} : {
     whileHover: { scale: 1.1, y: -2 },
     whileTap: { scale: 0.95 },
     initial: { scale: 0 },
     animate: { scale: 1 },
-    transition: { type: "spring", stiffness: 400, damping: 25 }
+    transition
   };
 
   return (

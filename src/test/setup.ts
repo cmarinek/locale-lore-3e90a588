@@ -1,7 +1,7 @@
 
 import '@testing-library/jest-dom';
 import { expect } from '@jest/globals';
-import { toHaveNoViolations } from '@axe-core/jest';
+import { toHaveNoViolations } from 'jest-axe';
 import { server } from './mocks/server';
 import React from 'react';
 

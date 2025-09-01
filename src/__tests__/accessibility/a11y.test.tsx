@@ -1,7 +1,6 @@
 
 import { render } from '@/test/utils';
-import { axe } from '@axe-core/playwright';
-import { toHaveNoViolations } from 'jest-axe';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import { Button } from '@/components/ui/button';
 import { InputField } from '@/components/molecules/InputField';
 

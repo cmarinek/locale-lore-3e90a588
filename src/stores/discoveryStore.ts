@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,6 +45,9 @@ interface DiscoveryState {
   performSearch: () => Promise<void>;
   refreshFacts: () => Promise<void>;
   updateSearchSuggestions: (query: string) => void;
+  loadCategories: () => Promise<void>;
+  loadSavedFacts: () => Promise<void>;
+  searchFacts: (query: string) => Promise<void>;
   
   // UI Actions
   setSelectedFact: (fact: any) => void;
@@ -126,6 +130,30 @@ export const useDiscoveryStore = create<DiscoveryState>()(
         get().performSearch();
       },
 
+      loadCategories: async () => {
+        try {
+          const { data, error } = await supabase
+            .from('categories')
+            .select('*')
+            .order('name');
+
+          if (error) throw error;
+          set({ categories: data || [] });
+        } catch (error: any) {
+          console.error('Error loading categories:', error);
+        }
+      },
+
+      loadSavedFacts: async () => {
+        // Implementation for loading saved facts
+        console.log('Loading saved facts...');
+      },
+
+      searchFacts: async (query: string) => {
+        set({ searchQuery: query });
+        await get().performSearch();
+      },
+
       loadFacts: async () => {
         set({ isLoading: true, error: null });
         try {
@@ -136,7 +164,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
               profiles!inner(username, avatar_url),
               categories!inner(slug, icon, color)
             `)
-            .eq('status', 'published')
+            .eq('status', 'verified')
             .order('created_at', { ascending: false })
             .range(0, 19);
 
@@ -171,7 +199,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
               profiles!inner(username, avatar_url),
               categories!inner(slug, icon, color)
             `)
-            .eq('status', 'published')
+            .eq('status', 'verified')
             .order('created_at', { ascending: false })
             .range(currentPage * 20, nextPage * 20 - 1);
 
@@ -230,7 +258,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
               profiles!inner(username, avatar_url),
               categories!inner(slug, icon, color)
             `)
-            .eq('status', 'published')
+            .eq('status', 'verified')
             .order('created_at', { ascending: false })
             .range(0, 19);
 
@@ -274,7 +302,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
               profiles!inner(username, avatar_url),
               categories!inner(slug, icon, color)
             `)
-            .eq('status', 'published')
+            .eq('status', 'verified')
             .order('created_at', { ascending: false })
             .range(0, 19);
 
