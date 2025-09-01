@@ -61,7 +61,7 @@ export const SubscriptionDashboard: React.FC = () => {
         .select('*')
         .eq('user_id', user?.id)
         .eq('status', 'active')
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         throw error;

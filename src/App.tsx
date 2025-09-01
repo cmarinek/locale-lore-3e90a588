@@ -1,4 +1,3 @@
-
 import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -29,7 +28,8 @@ import {
   LazyDiscover,
   LazyGamification,
   LazyComponentShowcase,
-  LazyLoreSubmit
+  LazyLoreSubmit,
+  LazyBilling
 } from '@/components/performance/LazyRoutes';
 
 const queryClient = new QueryClient({
@@ -108,6 +108,11 @@ function AppContent() {
             <Route path="/lore-submit" element={
               <Suspense fallback={<EnhancedSkeleton />}>
                 <LazyLoreSubmit />
+              </Suspense>
+            } />
+            <Route path="/billing" element={
+              <Suspense fallback={<EnhancedSkeleton />}>
+                <LazyBilling />
               </Suspense>
             } />
           </Routes>
