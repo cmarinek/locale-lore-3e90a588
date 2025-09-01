@@ -81,46 +81,97 @@ export const useAdmin = () => {
   };
 
   const updateUserRole = async (userId: string, role: string) => {
-    // For now, just log the action since the user_roles table might not be available yet
-    console.log('Update user role:', userId, role);
-    // The actual implementation would depend on the available tables
-    // This is a placeholder until the schema is properly set up
+    if (!['admin', 'moderator', 'user'].includes(role)) {
+      throw new Error(`Invalid role: ${role}`);
+    }
+
+    // First, remove existing roles for this user
+    await supabase
+      .from('user_roles')
+      .delete()
+      .eq('user_id', userId);
+
+    // Then add the new role (map 'user' to 'free' as per schema)
+    const mappedRole = role === 'user' ? 'free' : role;
+    const { error } = await supabase
+      .from('user_roles')
+      .insert({ user_id: userId, role: mappedRole as 'admin' | 'contributor' | 'free' });
+
+    if (error) throw error;
   };
 
   const getContentReports = async (status?: string) => {
-    // Mock data for demonstration since content_reports table is not in current schema
-    return [
-      {
-        id: '1',
-        reporter_id: 'user1',
-        reported_content_type: 'fact',
-        reported_content_id: 'fact1',
-        reason: 'spam',
-        description: 'This content appears to be spam',
-        status: 'pending',
-        created_at: new Date().toISOString(),
-        reporter: { username: 'reporter1', email: 'reporter@example.com' }
-      }
-    ];
+    let query = supabase
+      .from('content_reports')
+      .select(`
+        *,
+        reporter:reporter_id(username, email),
+        reviewer:reviewed_by(username, email)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (status && ['pending', 'reviewed', 'resolved', 'dismissed'].includes(status)) {
+      query = query.eq('status', status);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
   };
 
   const updateReportStatus = async (reportId: string, status: string, resolutionNotes?: string) => {
-    // Placeholder implementation
-    console.log('Update report status:', reportId, status, resolutionNotes);
+    if (!['pending', 'reviewed', 'resolved', 'dismissed'].includes(status)) {
+      throw new Error(`Invalid status: ${status}`);
+    }
+
+    const updateData: any = { 
+      status,
+      reviewed_by: (await supabase.auth.getUser()).data.user?.id,
+      reviewed_at: new Date().toISOString()
+    };
+
+    if (resolutionNotes) {
+      updateData.resolution_notes = resolutionNotes;
+    }
+
+    const { error } = await supabase
+      .from('content_reports')
+      .update(updateData)
+      .eq('id', reportId);
+
+    if (error) throw error;
   };
 
   const getSystemMetrics = async (timeRange = '24h') => {
-    // Mock metrics data for demonstration
-    return [
-      {
-        id: '1',
-        metric_name: 'active_users',
-        metric_value: 156,
-        metric_unit: 'count',
-        metadata: {},
-        recorded_at: new Date().toISOString()
-      }
-    ];
+    // Calculate the start time based on range
+    const now = new Date();
+    const startTime = new Date();
+    
+    switch(timeRange) {
+      case '1h':
+        startTime.setHours(now.getHours() - 1);
+        break;
+      case '24h':
+        startTime.setDate(now.getDate() - 1);
+        break;
+      case '7d':
+        startTime.setDate(now.getDate() - 7);
+        break;
+      case '30d':
+        startTime.setDate(now.getDate() - 30);
+        break;
+      default:
+        startTime.setDate(now.getDate() - 1);
+    }
+
+    const { data, error } = await supabase
+      .from('system_metrics')
+      .select('*')
+      .gte('recorded_at', startTime.toISOString())
+      .order('recorded_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
   };
 
   const getFactsForModeration = async (status?: string) => {
