@@ -8,6 +8,7 @@ import { MobileProvider } from "./components/providers/MobileProvider";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ComponentShowcase from "./pages/ComponentShowcase";
+import { Discover } from "./pages/Discover";
 import { Explore } from "./pages/Explore";
 import { Search } from "./pages/Search";
 import { Submit } from "./pages/Submit";
@@ -29,6 +30,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/components" element={<ComponentShowcase />} />
+              <Route path="/discover" element={<Discover />} />
               <Route path="/explore" element={<Explore />} />
               <Route path="/search" element={<Search />} />
               <Route path="/submit" element={<Submit />} />

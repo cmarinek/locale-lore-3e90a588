@@ -10,7 +10,8 @@ import {
   User,
   Menu,
   X,
-  Star
+  Star,
+  MapPin
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -31,10 +32,16 @@ const navigation: NavItem[] = [
     description: 'Welcome & Overview'
   },
   {
-    label: 'Explore',
-    href: '/explore',
+    label: 'Discover',
+    href: '/discover',
     icon: <Compass className="w-4 h-4" />,
     description: 'Discover Stories'
+  },
+  {
+    label: 'Explore',
+    href: '/explore',
+    icon: <MapPin className="w-4 h-4" />,
+    description: 'Map Exploration'
   },
   {
     label: 'Search',
@@ -64,14 +71,15 @@ export const Navigation: React.FC<NavigationProps> = ({ className }) => {
     if (href === '/') {
       return location.pathname === '/';
     }
-    if (href === '/explore' && location.pathname === '/') {
+    if (href === '/discover' && location.pathname === '/') {
       return true;
     }
     return location.pathname.startsWith(href);
   };
 
   const handleNavClick = (href: string) => {
-    if (href === '/explore') setActiveTab('explore');
+    if (href === '/discover') setActiveTab('explore');
+    else if (href === '/explore') setActiveTab('explore');
     else if (href === '/search') setActiveTab('search');
     else if (href === '/submit') setActiveTab('submit');
     else if (href === '/profile') setActiveTab('profile');

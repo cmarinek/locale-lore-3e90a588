@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Compass, Search, BookOpen, User } from 'lucide-react';
+import { Map, Search, BookOpen, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/stores/appStore';
 
@@ -9,7 +9,7 @@ const tabs = [
     id: 'explore' as const,
     label: 'Explore',
     href: '/explore',
-    icon: Compass,
+    icon: Map,
   },
   {
     id: 'search' as const,
@@ -42,7 +42,7 @@ export const BottomNavigation: React.FC = () => {
   } = useAppStore();
 
   const isActive = (href: string) => {
-    if (href === '/explore' && location.pathname === '/') {
+    if (href === '/explore' && (location.pathname === '/' || location.pathname === '/discover')) {
       return true;
     }
     return location.pathname.startsWith(href);

@@ -1,58 +1,167 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MainLayout } from "@/components/templates/MainLayout";
-import { WelcomeHero } from "@/components/organisms/WelcomeHero";
-import { useAuth } from '@/contexts/AuthContext';
+import React from 'react';
+import { MainLayout } from '@/components/templates/MainLayout';
+import { WelcomeHero } from '@/components/organisms/WelcomeHero';
 import { Button } from '@/components/ui/button';
-import { LogIn, LogOut, Palette } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Compass, Search, BookOpen, Star, MapPin, TrendingUp, Users, Shield } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
-const Index = () => {
-  const { user, loading, signOut } = useAuth();
+const Index: React.FC = () => {
   const navigate = useNavigate();
-
-  if (loading) {
-    return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </MainLayout>
-    );
-  }
 
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Locale Lore</h1>
-          <div className="flex gap-3">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/components')}
-              className="hidden sm:flex"
-            >
-              <Palette className="mr-2 h-4 w-4" />
-              Components
-            </Button>
-            {user ? (
-              <>
-                <span className="text-sm text-muted-foreground flex items-center">
-                  Welcome back!
-                </span>
-                <Button variant="outline" onClick={signOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <Button onClick={() => navigate('/auth')}>
-                <LogIn className="mr-2 h-4 w-4" />
-                Sign In
-              </Button>
-            )}
-          </div>
-        </div>
+      <div className="min-h-screen">
+        {/* Hero Section */}
         <WelcomeHero />
+        
+        {/* Main Actions */}
+        <div className="container mx-auto px-4 py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold mb-6">Start Your Journey</h2>
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Choose how you'd like to explore the fascinating world of local stories and legends.
+            </p>
+            
+            <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Button 
+                  size="lg" 
+                  onClick={() => navigate('/discover')}
+                  className="w-full h-24 bg-primary hover:bg-primary/90 mobile-button"
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <Compass className="w-8 h-8" />
+                    <span className="text-lg font-semibold">Discover Stories</span>
+                  </div>
+                </Button>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  onClick={() => navigate('/explore')}
+                  className="w-full h-24 mobile-button"
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <MapPin className="w-8 h-8" />
+                    <span className="text-lg font-semibold">Explore Map</span>
+                  </div>
+                </Button>
+              </motion.div>
+            </div>
+          </motion.div>
+
+          {/* Feature Cards */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Card className="p-6 h-full">
+                <Search className="w-12 h-12 text-primary mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Advanced Search</h3>
+                <p className="text-muted-foreground mb-4">
+                  Find stories by location, category, or keywords with powerful filters.
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/search')}
+                  className="mobile-button"
+                >
+                  Search Stories
+                </Button>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Card className="p-6 h-full">
+                <BookOpen className="w-12 h-12 text-primary mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Share Your Story</h3>
+                <p className="text-muted-foreground mb-4">
+                  Contribute your own local stories and legends to the community.
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/submit')}
+                  className="mobile-button"
+                >
+                  Submit Story
+                </Button>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+            >
+              <Card className="p-6 h-full">
+                <Shield className="w-12 h-12 text-primary mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Verified Content</h3>
+                <p className="text-muted-foreground mb-4">
+                  All stories are community-verified for authenticity and accuracy.
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/profile')}
+                  className="mobile-button"
+                >
+                  Learn More
+                </Button>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Stats Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="text-center"
+          >
+            <Card className="p-8 bg-primary/5">
+              <h3 className="text-2xl font-semibold mb-6 flex items-center justify-center gap-2">
+                <TrendingUp className="w-6 h-6 text-primary" />
+                Community Impact
+              </h3>
+              <div className="grid md:grid-cols-3 gap-8">
+                <div>
+                  <div className="text-3xl font-bold text-primary mb-2">12,847</div>
+                  <div className="text-muted-foreground">Stories Shared</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-primary mb-2">3,456</div>
+                  <div className="text-muted-foreground">Active Contributors</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-primary mb-2">2,134</div>
+                  <div className="text-muted-foreground">Locations Covered</div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        </div>
       </div>
     </MainLayout>
   );
