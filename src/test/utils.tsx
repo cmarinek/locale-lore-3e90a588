@@ -8,7 +8,7 @@ import { MobileProvider } from '@/components/providers/MobileProvider';
 
 // Re-export everything from testing library
 export * from '@testing-library/react';
-export { screen, fireEvent, waitFor } from '@testing-library/react';
+export { default as userEvent } from '@testing-library/user-event';
 
 // Create a custom render function with providers
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {

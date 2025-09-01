@@ -5,10 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 export interface SearchFilters {
   search: string;
   category?: string;
+  categories: string[];
   location?: { lat: number; lng: number; radius: number };
   dateRange?: { start: Date; end: Date };
-  sortBy: 'relevance' | 'date' | 'popularity';
+  sortBy: 'relevance' | 'date' | 'popularity' | 'recency' | 'credibility' | 'distance';
   verified?: boolean;
+  query: string;
+  radius: number;
+  center: [number, number] | null;
 }
 
 export interface DiscoveryState {
@@ -20,6 +24,8 @@ export interface DiscoveryState {
   
   // UI State
   loading: boolean;
+  isLoading: boolean;
+  hasMore: boolean;
   error: string | null;
   selectedFact: any | null;
   isModalOpen: boolean;
@@ -29,6 +35,7 @@ export interface DiscoveryState {
   loadCategories: () => Promise<void>;
   loadSavedFacts: () => Promise<void>;
   searchFacts: (query: string) => Promise<void>;
+  loadMoreFacts: () => Promise<void>;
   setFilters: (filters: Partial<SearchFilters>) => void;
   updateSearchSuggestions: (suggestions: string[]) => void;
   toggleSavedFact: (factId: string) => void;
@@ -43,12 +50,18 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
   savedFacts: [],
   searchSuggestions: [],
   loading: false,
+  isLoading: false,
+  hasMore: true,
   error: null,
   selectedFact: null,
   isModalOpen: false,
   filters: {
     search: '',
+    categories: [],
     sortBy: 'relevance',
+    query: '',
+    radius: 10,
+    center: null,
   },
 
   // Actions
@@ -86,7 +99,7 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
   },
 
   searchFacts: async (query: string) => {
-    set({ loading: true, error: null });
+    set({ loading: true, isLoading: true, error: null });
     try {
       const { filters } = get();
       let queryBuilder = supabase
@@ -119,6 +132,7 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
       // Apply sorting
       switch (filters.sortBy) {
         case 'date':
+        case 'recency':
           queryBuilder = queryBuilder.order('created_at', { ascending: false });
           break;
         case 'popularity':
@@ -131,10 +145,52 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
       const { data, error } = await queryBuilder.limit(20);
 
       if (error) throw error;
-      set({ facts: data || [], loading: false });
+      set({ facts: data || [], loading: false, isLoading: false });
     } catch (error) {
       console.error('Error searching facts:', error);
-      set({ error: 'Failed to search facts', loading: false });
+      set({ error: 'Failed to search facts', loading: false, isLoading: false });
+    }
+  },
+
+  loadMoreFacts: async () => {
+    const { facts, isLoading, hasMore } = get();
+    if (isLoading || !hasMore) return;
+
+    set({ isLoading: true });
+    try {
+      const { filters } = get();
+      let queryBuilder = supabase
+        .from('facts')
+        .select(`
+          *,
+          categories (
+            id,
+            name,
+            slug
+          ),
+          fact_votes (
+            vote_type
+          )
+        `)
+        .eq('status', 'verified')
+        .range(facts.length, facts.length + 19);
+
+      if (filters.search) {
+        queryBuilder = queryBuilder.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`);
+      }
+
+      const { data, error } = await queryBuilder;
+
+      if (error) throw error;
+      
+      set({ 
+        facts: [...facts, ...(data || [])],
+        isLoading: false,
+        hasMore: (data?.length || 0) === 20
+      });
+    } catch (error) {
+      console.error('Error loading more facts:', error);
+      set({ isLoading: false });
     }
   },
 
@@ -144,8 +200,9 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
     set({ filters: updatedFilters });
     
     // Auto-search when filters change
-    if (newFilters.search !== undefined) {
-      get().searchFacts(newFilters.search);
+    if (newFilters.search !== undefined || newFilters.query !== undefined) {
+      const searchQuery = newFilters.search || newFilters.query || '';
+      get().searchFacts(searchQuery);
     }
   },
 
