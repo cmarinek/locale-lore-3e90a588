@@ -79,7 +79,7 @@ export const BottomNavigation: React.FC = () => {
         "safe-area-padding-bottom"
       )}
       style={{
-        paddingBottom: `max(env(safe-area-inset-bottom), ${mobile.safeAreaInsets.bottom}px)`,
+        paddingBottom: `max(env(safe-area-inset-bottom), ${mobile?.safeAreaInsets?.bottom || 0}px)`,
       }}
     >
       <div className="grid grid-cols-4 h-16">
@@ -95,7 +95,7 @@ export const BottomNavigation: React.FC = () => {
               className={cn(
                 "flex flex-col items-center justify-center gap-1 px-2 py-1 text-xs font-medium",
                 "transition-all duration-200 tap-highlight-none touch-manipulation",
-                !mobile.reduceAnimations && "haptic-feedback",
+                !mobile?.reduceAnimations && "haptic-feedback",
                 active
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground active:text-primary"
@@ -106,13 +106,13 @@ export const BottomNavigation: React.FC = () => {
                 className={cn(
                   "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200",
                   active && "bg-primary/10",
-                  !mobile.reduceAnimations && active && "scale-110"
+                  !mobile?.reduceAnimations && active && "scale-110"
                 )}
               >
                 <Icon 
                   className={cn(
                     "w-5 h-5 transition-transform duration-200",
-                    !mobile.reduceAnimations && active && "scale-110"
+                    !mobile?.reduceAnimations && active && "scale-110"
                   )} 
                 />
               </div>
