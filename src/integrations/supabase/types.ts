@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_deletion_requests: {
+        Row: {
+          created_at: string
+          feedback: string | null
+          id: string
+          reason: string | null
+          scheduled_deletion: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          reason?: string | null
+          scheduled_deletion?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          reason?: string | null
+          scheduled_deletion?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       achievements: {
         Row: {
           badge_color: string | null
@@ -350,6 +380,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      data_export_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          expires_at: string | null
+          export_type: string
+          file_url: string | null
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          export_type?: string
+          file_url?: string | null
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          export_type?: string
+          file_url?: string | null
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       discovery_of_the_day: {
         Row: {
@@ -1032,6 +1095,42 @@ export type Database = {
         }
         Relationships: []
       }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       trending_facts: {
         Row: {
           comment_count: number | null
@@ -1138,6 +1237,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_activity_log: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          location: unknown | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          location?: unknown | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          location?: unknown | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_challenge_progress: {
         Row: {
@@ -1550,6 +1682,114 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_settings: {
+        Row: {
+          activity_tracking: boolean
+          created_at: string
+          data_processing_consent: boolean
+          discovery_radius: number
+          email_notifications: boolean
+          id: string
+          in_app_notifications: boolean
+          language: string
+          location_sharing: boolean
+          marketing_emails: boolean
+          profile_visibility: string
+          push_notifications: boolean
+          theme: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_tracking?: boolean
+          created_at?: string
+          data_processing_consent?: boolean
+          discovery_radius?: number
+          email_notifications?: boolean
+          id?: string
+          in_app_notifications?: boolean
+          language?: string
+          location_sharing?: boolean
+          marketing_emails?: boolean
+          profile_visibility?: string
+          push_notifications?: boolean
+          theme?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_tracking?: boolean
+          created_at?: string
+          data_processing_consent?: boolean
+          discovery_radius?: number
+          email_notifications?: boolean
+          id?: string
+          in_app_notifications?: boolean
+          language?: string
+          location_sharing?: boolean
+          marketing_emails?: boolean
+          profile_visibility?: string
+          push_notifications?: boolean
+          theme?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_statistics: {
+        Row: {
+          achievements_earned: number
+          comments_made: number
+          created_at: string
+          current_streak: number
+          facts_submitted: number
+          facts_verified: number
+          id: string
+          last_activity: string | null
+          locations_discovered: number
+          longest_streak: number
+          profile_views: number
+          total_points: number
+          updated_at: string
+          user_id: string
+          votes_cast: number
+        }
+        Insert: {
+          achievements_earned?: number
+          comments_made?: number
+          created_at?: string
+          current_streak?: number
+          facts_submitted?: number
+          facts_verified?: number
+          id?: string
+          last_activity?: string | null
+          locations_discovered?: number
+          longest_streak?: number
+          profile_views?: number
+          total_points?: number
+          updated_at?: string
+          user_id: string
+          votes_cast?: number
+        }
+        Update: {
+          achievements_earned?: number
+          comments_made?: number
+          created_at?: string
+          current_streak?: number
+          facts_submitted?: number
+          facts_verified?: number
+          id?: string
+          last_activity?: string | null
+          locations_discovered?: number
+          longest_streak?: number
+          profile_views?: number
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+          votes_cast?: number
+        }
+        Relationships: []
       }
       user_streaks: {
         Row: {
