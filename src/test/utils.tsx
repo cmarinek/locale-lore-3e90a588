@@ -1,12 +1,28 @@
 
 import React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// Re-export testing utilities
 export { screen, fireEvent, waitFor } from '@testing-library/react';
 export { userEvent } from '@testing-library/user-event';
 
-// Custom render function with providers
-const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
-  return <>{children}</>;
+const createTestQueryClient = () => new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
+const AllTheProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const queryClient = createTestQueryClient();
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
 };
 
 const customRender = (
@@ -14,4 +30,5 @@ const customRender = (
   options?: Omit<RenderOptions, 'wrapper'>,
 ) => render(ui, { wrapper: AllTheProviders, ...options });
 
+export * from '@testing-library/react';
 export { customRender as render };
