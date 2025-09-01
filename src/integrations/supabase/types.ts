@@ -201,6 +201,57 @@ export type Database = {
           },
         ]
       }
+      lore_submissions: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_draft: boolean | null
+          latitude: number | null
+          location_name: string | null
+          longitude: number | null
+          media_urls: string[] | null
+          step_completed: number | null
+          submission_data: Json | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_draft?: boolean | null
+          latitude?: number | null
+          location_name?: string | null
+          longitude?: number | null
+          media_urls?: string[] | null
+          step_completed?: number | null
+          submission_data?: Json | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_draft?: boolean | null
+          latitude?: number | null
+          location_name?: string | null
+          longitude?: number | null
+          media_urls?: string[] | null
+          step_completed?: number | null
+          submission_data?: Json | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
