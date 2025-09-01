@@ -8,9 +8,11 @@ import { cn } from '@/lib/utils';
 
 interface SearchBarProps {
   className?: string;
+  onQueryChange?: (query: string) => void;
+  placeholder?: string;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({ className }) => {
+export const SearchBar: React.FC<SearchBarProps> = ({ className, onQueryChange, placeholder = "Search locations, facts, or places..." }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -49,7 +51,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({ className }) => {
   }, []);
 
   const handleSearch = (query: string) => {
-    setFilters({ query });
+    if (onQueryChange) {
+      onQueryChange(query);
+    } else {
+      setFilters({ query });
+    }
     setInputValue(query);
     setIsOpen(false);
   };
@@ -78,7 +84,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ className }) => {
         <Input
           ref={inputRef}
           type="text"
-          placeholder="Search locations, facts, or places..."
+          placeholder={placeholder}
           value={inputValue}
           onChange={handleInputChange}
           onFocus={() => inputValue.length > 0 && setIsOpen(true)}

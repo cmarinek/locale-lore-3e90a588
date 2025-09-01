@@ -7,9 +7,11 @@ import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ComponentShowcase from "./pages/ComponentShowcase";
-import Discovery from "./pages/Discovery";
+import { Explore } from "./pages/Explore";
 import { Search } from "./pages/Search";
-import LoreSubmit from "./pages/LoreSubmit";
+import { Submit } from "./pages/Submit";
+import { Fact } from "./pages/Fact";
+import { Profile } from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,9 +27,11 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/components" element={<ComponentShowcase />} />
-            <Route path="/lore/submit" element={<LoreSubmit />} />
+            <Route path="/explore" element={<Explore />} />
             <Route path="/search" element={<Search />} />
-            <Route path="/discovery" element={<Discovery />} />
+            <Route path="/submit" element={<Submit />} />
+            <Route path="/fact/:id" element={<Fact />} />
+            <Route path="/profile/:id?" element={<Profile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
