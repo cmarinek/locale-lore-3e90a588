@@ -3,11 +3,14 @@ import { SearchBar } from '@/components/discovery/SearchBar';
 import { FilterPanel } from '@/components/discovery/FilterPanel';
 import { InfiniteFactList } from '@/components/discovery/InfiniteFactList';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
+import { GamificationHeader } from '@/components/gamification/GamificationHeader';
+import { PointsAnimation, usePointsNotifications } from '@/components/gamification/PointsAnimation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/ios-card';
 import { Badge } from '@/components/ui/ios-badge';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { Compass, TrendingUp, Clock, Target } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Discovery: React.FC = () => {
   const { 
@@ -17,6 +20,8 @@ const Discovery: React.FC = () => {
     loadSavedFacts, 
     searchFacts 
   } = useDiscoveryStore();
+  
+  const { notifications, addNotification, removeNotification } = usePointsNotifications();
 
   useEffect(() => {
     // Initialize data
@@ -24,6 +29,25 @@ const Discovery: React.FC = () => {
     loadSavedFacts();
     searchFacts(true);
   }, [loadCategories, loadSavedFacts, searchFacts]);
+
+  // Listen for points awarded
+  useEffect(() => {
+    const channel = supabase
+      .channel('points-updates')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'user_points'
+      }, (payload) => {
+        const pointsData = payload.new;
+        addNotification(pointsData.points, pointsData.action_type);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [addNotification]);
 
   const getSortIcon = () => {
     switch (filters.sortBy) {
@@ -48,6 +72,9 @@ const Discovery: React.FC = () => {
   return (
     <MainLayout>
       <div className="container mx-auto px-4 py-8 space-y-8">
+        {/* Gamification Header */}
+        <GamificationHeader />
+        
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
@@ -113,6 +140,12 @@ const Discovery: React.FC = () => {
         {/* Preview Modal */}
         <FactPreviewModal />
       </div>
+
+      {/* Points Animation */}
+      <PointsAnimation
+        notifications={notifications}
+        onComplete={removeNotification}
+      />
     </MainLayout>
   );
 };

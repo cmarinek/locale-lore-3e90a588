@@ -15,6 +15,7 @@ import { Search } from "./pages/Search";
 import { Submit } from "./pages/Submit";
 import { Fact } from "./pages/Fact";
 import { Profile } from "./pages/Profile";
+import Gamification from "./pages/Gamification";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/submit" element={<Submit />} />
               <Route path="/fact/:id" element={<Fact />} />
               <Route path="/profile/:id?" element={<Profile />} />
+              <Route path="/gamification" element={<Gamification />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
