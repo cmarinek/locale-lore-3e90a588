@@ -1,7 +1,7 @@
 {
-  "name": "React TypeScript PWA",
-  "short_name": "React PWA",
-  "description": "A modern React TypeScript PWA with iOS-inspired design",
+  "name": "Locale Lore",
+  "short_name": "Locale Lore",
+  "description": "Discover and explore local stories, culture, and hidden gems",
   "theme_color": "#007AFF",
   "background_color": "#FFFFFF",
   "display": "standalone",

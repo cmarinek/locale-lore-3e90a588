@@ -1,6 +1,6 @@
-# React TypeScript PWA
+# Locale Lore
 
-A modern, production-ready React TypeScript Progressive Web App with iOS-inspired design system and atomic architecture.
+Discover and explore local stories, culture, and hidden gems in your area. A modern Progressive Web App built with React, TypeScript, and iOS-inspired design.
 
 ## 🚀 Features
 

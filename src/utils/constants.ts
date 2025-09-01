@@ -1,7 +1,7 @@
 // Application constants
 export const APP_CONFIG = {
-  name: import.meta.env.VITE_APP_TITLE || 'React TypeScript PWA',
-  description: import.meta.env.VITE_APP_DESCRIPTION || 'A modern React TypeScript PWA with iOS-inspired design',
+  name: import.meta.env.VITE_APP_TITLE || 'Locale Lore',
+  description: import.meta.env.VITE_APP_DESCRIPTION || 'Discover and explore local stories, culture, and hidden gems',
   version: '1.0.0',
 } as const;
 

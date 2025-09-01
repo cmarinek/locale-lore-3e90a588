@@ -13,11 +13,11 @@ export const WelcomeHero = () => {
           <h1 className="text-4xl md:text-6xl font-bold text-foreground leading-tight">
             Welcome to{" "}
             <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              React PWA
+              Locale Lore
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-lg mx-auto">
-            A modern TypeScript PWA with iOS-inspired design system and atomic architecture
+            Discover and explore local stories, culture, and hidden gems in your area
           </p>
         </div>
 
