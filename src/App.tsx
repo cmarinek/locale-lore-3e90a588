@@ -1,6 +1,6 @@
 
 import React, { Suspense, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -45,17 +45,7 @@ function AppContent() {
       <ScrollProgress />
       <PageTransition location={location.pathname}>
         <AnimatedPage>
-          <Routes location={location}>
-            <Route path="/*" element={
-              <Suspense fallback={
-                <div className="min-h-screen p-6">
-                  <EnhancedSkeleton variant="card" lines={4} />
-                </div>
-              }>
-                <LazyRoutes />
-              </Suspense>
-            } />
-          </Routes>
+          <LazyRoutes />
         </AnimatedPage>
       </PageTransition>
     </>

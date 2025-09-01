@@ -1,11 +1,8 @@
 
 import { render } from '@/test/utils';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { axe } from 'jest-axe';
 import { Button } from '@/components/ui/button';
 import { InputField } from '@/components/molecules/InputField';
-
-// Extend Jest matchers
-expect.extend(toHaveNoViolations);
 
 describe('Accessibility Tests', () => {
   it('Button should not have accessibility violations', async () => {

@@ -8,6 +8,15 @@ import React from 'react';
 // Extend Jest matchers with axe-core
 expect.extend(toHaveNoViolations);
 
+// Extend global expect type
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toHaveNoViolations(): R;
+    }
+  }
+}
+
 // Mock framer-motion to avoid animation issues in tests
 jest.mock('framer-motion', () => ({
   motion: {

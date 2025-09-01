@@ -1,133 +1,111 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, MapPin, X } from 'lucide-react';
+
+import React, { useState, useCallback, useEffect } from 'react';
+import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/ios-card';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { useDebounce } from '@/hooks/useDebounce';
 import { cn } from '@/lib/utils';
 
 interface SearchBarProps {
-  className?: string;
   onQueryChange?: (query: string) => void;
+  className?: string;
   placeholder?: string;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({ className, onQueryChange, placeholder = "Search locations, facts, or places..." }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [inputValue, setInputValue] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  
+export const SearchBar: React.FC<SearchBarProps> = ({
+  onQueryChange,
+  className,
+  placeholder = "Search for facts, stories, or topics..."
+}) => {
   const { 
     filters, 
     searchSuggestions, 
-    setFilters, 
-    updateSearchSuggestions 
+    updateSearchSuggestions,
+    setFilters 
   } = useDiscoveryStore();
+  
+  const [localQuery, setLocalQuery] = useState(filters.search || '');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  
+  const debouncedQuery = useDebounce(localQuery, 300);
 
   useEffect(() => {
-    const delayedSearch = setTimeout(() => {
-      if (inputValue !== filters.query) {
-        updateSearchSuggestions(inputValue);
-      }
-    }, 300);
-
-    return () => clearTimeout(delayedSearch);
-  }, [inputValue, filters.query, updateSearchSuggestions]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        !inputRef.current?.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleSearch = (query: string) => {
-    if (onQueryChange) {
-      onQueryChange(query);
-    } else {
-      setFilters({ query });
+    if (debouncedQuery !== filters.search) {
+      setFilters({ search: debouncedQuery });
+      onQueryChange?.(debouncedQuery);
     }
-    setInputValue(query);
-    setIsOpen(false);
-  };
+  }, [debouncedQuery, filters.search, setFilters, onQueryChange]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setInputValue(value);
-    setIsOpen(value.length > 0);
-  };
+    setLocalQuery(value);
+    
+    if (value.length > 2) {
+      // Mock search suggestions - in a real app, this would be an API call
+      const mockSuggestions = [
+        `${value} history`,
+        `${value} facts`,
+        `${value} stories`,
+      ];
+      updateSearchSuggestions(mockSuggestions);
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+  }, [updateSearchSuggestions]);
 
-  const handleClear = () => {
-    setInputValue('');
-    setFilters({ query: '' });
-    setIsOpen(false);
-    inputRef.current?.focus();
-  };
+  const handleSuggestionClick = useCallback((suggestion: string) => {
+    setLocalQuery(suggestion);
+    setFilters({ search: suggestion });
+    onQueryChange?.(suggestion);
+    setShowSuggestions(false);
+  }, [setFilters, onQueryChange]);
 
-  const handleSuggestionClick = (suggestion: string) => {
-    handleSearch(suggestion);
-  };
+  const clearSearch = useCallback(() => {
+    setLocalQuery('');
+    setFilters({ search: '' });
+    onQueryChange?.('');
+    setShowSuggestions(false);
+  }, [setFilters, onQueryChange]);
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative w-full max-w-md", className)}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          ref={inputRef}
           type="text"
           placeholder={placeholder}
-          value={inputValue}
+          value={localQuery}
           onChange={handleInputChange}
-          onFocus={() => inputValue.length > 0 && setIsOpen(true)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleSearch(inputValue);
-            } else if (e.key === 'Escape') {
-              setIsOpen(false);
-            }
-          }}
-          className="pl-10 pr-10 h-12 rounded-full bg-background/80 backdrop-blur-sm border-0 ring-1 ring-border/50 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+          onFocus={() => localQuery.length > 2 && setShowSuggestions(true)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+          className="pl-10 pr-10"
         />
-        {inputValue && (
+        {localQuery && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleClear}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 rounded-full hover:bg-muted"
+            onClick={clearSearch}
+            className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 p-0"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3 w-3" />
           </Button>
         )}
       </div>
 
-      {isOpen && (searchSuggestions.length > 0) && (
-        <Card
-          ref={dropdownRef}
-          variant="glass"
-          className="absolute top-full mt-2 w-full z-50 p-2 animate-scale-in"
-        >
-          <div className="space-y-1">
-            {searchSuggestions.map((suggestion, index) => (
-              <button
-                key={index}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors duration-150 flex items-center gap-3"
-              >
-                <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="text-sm truncate">{suggestion}</span>
-              </button>
-            ))}
-          </div>
-        </Card>
+      {showSuggestions && searchSuggestions.length > 0 && (
+        <div className="absolute top-full z-50 mt-1 w-full rounded-md border bg-popover p-1 shadow-md">
+          {searchSuggestions.map((suggestion, index) => (
+            <button
+              key={index}
+              onClick={() => handleSuggestionClick(suggestion)}
+              className="w-full rounded-sm px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );

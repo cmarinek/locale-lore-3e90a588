@@ -10,7 +10,6 @@ export interface SearchFilters {
   dateRange?: { start: Date; end: Date };
   sortBy: 'relevance' | 'date' | 'popularity' | 'recency' | 'credibility' | 'distance';
   verified?: boolean;
-  query: string;
   radius: number;
   center: [number, number] | null;
 }
@@ -59,7 +58,6 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
     search: '',
     categories: [],
     sortBy: 'relevance',
-    query: '',
     radius: 10,
     center: null,
   },
@@ -71,7 +69,7 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
       const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .eq('status', 'verified');
+        .eq('status', 'active');
 
       if (error) throw error;
       set({ categories: data || [], loading: false });
@@ -101,7 +99,7 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
   searchFacts: async (query: string) => {
     set({ loading: true, isLoading: true, error: null });
     try {
-      const { filters } = get();
+      const state = get();
       let queryBuilder = supabase
         .from('facts')
         .select(`
@@ -115,22 +113,22 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
             vote_type
           )
         `)
-        .eq('status', 'verified');
+        .eq('status', 'active');
 
       if (query) {
         queryBuilder = queryBuilder.or(`title.ilike.%${query}%,content.ilike.%${query}%`);
       }
 
-      if (filters.category) {
-        queryBuilder = queryBuilder.eq('categories.slug', filters.category);
+      if (state.filters.category) {
+        queryBuilder = queryBuilder.eq('categories.slug', state.filters.category);
       }
 
-      if (filters.verified !== undefined) {
-        queryBuilder = queryBuilder.eq('is_verified', filters.verified);
+      if (state.filters.verified !== undefined) {
+        queryBuilder = queryBuilder.eq('is_verified', state.filters.verified);
       }
 
       // Apply sorting
-      switch (filters.sortBy) {
+      switch (state.filters.sortBy) {
         case 'date':
         case 'recency':
           queryBuilder = queryBuilder.order('created_at', { ascending: false });
@@ -153,12 +151,11 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
   },
 
   loadMoreFacts: async () => {
-    const { facts, isLoading, hasMore } = get();
-    if (isLoading || !hasMore) return;
+    const state = get();
+    if (state.isLoading || !state.hasMore) return;
 
     set({ isLoading: true });
     try {
-      const { filters } = get();
       let queryBuilder = supabase
         .from('facts')
         .select(`
@@ -172,11 +169,11 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
             vote_type
           )
         `)
-        .eq('status', 'verified')
-        .range(facts.length, facts.length + 19);
+        .eq('status', 'active')
+        .range(state.facts.length, state.facts.length + 19);
 
-      if (filters.search) {
-        queryBuilder = queryBuilder.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`);
+      if (state.filters.search) {
+        queryBuilder = queryBuilder.or(`title.ilike.%${state.filters.search}%,content.ilike.%${state.filters.search}%`);
       }
 
       const { data, error } = await queryBuilder;
@@ -184,7 +181,7 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
       if (error) throw error;
       
       set({ 
-        facts: [...facts, ...(data || [])],
+        facts: [...state.facts, ...(data || [])],
         isLoading: false,
         hasMore: (data?.length || 0) === 20
       });
@@ -195,14 +192,13 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
   },
 
   setFilters: (newFilters: Partial<SearchFilters>) => {
-    const { filters } = get();
-    const updatedFilters = { ...filters, ...newFilters };
+    const state = get();
+    const updatedFilters = { ...state.filters, ...newFilters };
     set({ filters: updatedFilters });
     
     // Auto-search when filters change
-    if (newFilters.search !== undefined || newFilters.query !== undefined) {
-      const searchQuery = newFilters.search || newFilters.query || '';
-      get().searchFacts(searchQuery);
+    if (newFilters.search !== undefined) {
+      get().searchFacts(newFilters.search);
     }
   },
 
@@ -215,8 +211,8 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { savedFacts } = get();
-      const isSaved = savedFacts.includes(factId);
+      const state = get();
+      const isSaved = state.savedFacts.includes(factId);
 
       if (isSaved) {
         await supabase
@@ -225,13 +221,13 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
           .eq('user_id', user.id)
           .eq('fact_id', factId);
         
-        set({ savedFacts: savedFacts.filter(id => id !== factId) });
+        set({ savedFacts: state.savedFacts.filter(id => id !== factId) });
       } else {
         await supabase
           .from('saved_facts')
           .insert({ user_id: user.id, fact_id: factId });
         
-        set({ savedFacts: [...savedFacts, factId] });
+        set({ savedFacts: [...state.savedFacts, factId] });
       }
     } catch (error) {
       console.error('Error toggling saved fact:', error);
