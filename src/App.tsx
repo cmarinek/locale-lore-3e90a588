@@ -1,38 +1,57 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { MobileProvider } from "./components/providers/MobileProvider";
 import { PWAInstallPrompt } from "@/components/offline/PWAInstallPrompt";
 import { OfflineIndicator } from "@/components/offline/OfflineIndicator";
+import { PerformanceMonitor } from "@/components/performance/PerformanceMonitor";
+import { LazyRoutes } from "@/components/performance/LazyRoutes";
 import { usePWA } from "@/hooks/usePWA";
 import { useEffect } from "react";
-import Index from "./pages/Index";
-import AuthMain from "./pages/AuthMain";
-import AuthCallback from "./pages/AuthCallback";
-import AuthConfirm from "./pages/AuthConfirm";
-import AuthResetPassword from "./pages/AuthResetPassword";
-import ComponentShowcase from "./pages/ComponentShowcase";
-import { Discover } from "./pages/Discover";
-import Discovery from "./pages/Discovery";
-import { Explore } from "./pages/Explore";
-import { Search } from "./pages/Search";
-import { Submit } from "./pages/Submit";
-import { Fact } from "./pages/Fact";
-import { Profile } from "./pages/Profile";
-import Gamification from "./pages/Gamification";
-import NotFound from "./pages/NotFound";
-import Admin from "./pages/Admin";
 
-const queryClient = new QueryClient();
+// Optimize QueryClient for better performance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      refetchOnWindowFocus: false,
+      retry: (failureCount, error: any) => {
+        if (error?.status === 404 || error?.status === 403) return false;
+        return failureCount < 2;
+      },
+    },
+  },
+});
 
 const App = () => {
   const { registerServiceWorker } = usePWA();
 
   useEffect(() => {
     registerServiceWorker();
+    
+    // Preload critical resources
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => {
+        // Preload commonly used images
+        const criticalImages = [
+          '/placeholder.svg',
+          // Add other critical images
+        ];
+        
+        criticalImages.forEach(src => {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'image';
+          link.href = src;
+          document.head.appendChild(link);
+        });
+      });
+    }
   }, []);
 
   return (
@@ -44,30 +63,14 @@ const App = () => {
             <Sonner />
             <OfflineIndicator />
             <PWAInstallPrompt />
+            <PerformanceMonitor />
             <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Discovery />} />
-              <Route path="/auth" element={<AuthMain />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="/auth/confirm" element={<AuthConfirm />} />
-              <Route path="/auth/reset-password" element={<AuthResetPassword />} />
-              <Route path="/components" element={<ComponentShowcase />} />
-              <Route path="/discover" element={<Discovery />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/submit" element={<Submit />} />
-                <Route path="/fact/:id" element={<Fact />} />
-                <Route path="/profile/:id?" element={<Profile />} />
-                <Route path="/gamification" element={<Gamification />} />
-                <Route path="/admin" element={<Admin />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </MobileProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+              <LazyRoutes />
+            </BrowserRouter>
+          </TooltipProvider>
+        </MobileProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 };
 
