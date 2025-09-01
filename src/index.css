@@ -160,4 +160,128 @@ All colors MUST be HSL.
   .elevation-3 {
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
   }
+  }
+
+  /* iOS-inspired haptic feedback animations */
+  .haptic-feedback {
+    transition: all 150ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .haptic-feedback:active {
+    transform: scale(0.95);
+  }
+  
+  .spring-bounce {
+    animation: spring-bounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  /* iOS-inspired sheet animations */
+  .sheet-enter {
+    animation: slide-up 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  
+  .sheet-exit {
+    animation: slide-down 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  
+  /* iOS-inspired floating label */
+  .floating-label {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    color: hsl(var(--muted-foreground));
+    font-size: 16px;
+  }
+  
+  .floating-label.floating {
+    top: 0;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: hsl(var(--primary));
+    background: hsl(var(--background));
+    padding: 0 4px;
+  }
+  
+  /* iOS-inspired skeleton loading */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200px 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes spring-bounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) rotate(2deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes slide-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-down {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* iOS-inspired utility classes */
+@layer utilities {
+  .tap-highlight-none {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .text-pretty {
+    text-wrap: pretty;
+  }
 }
