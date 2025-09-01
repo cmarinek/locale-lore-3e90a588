@@ -4,10 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { usePerformanceStore } from './performanceStore';
 
 interface SearchFilters {
-  category?: string;
-  location?: string;
-  verified?: boolean;
-  timeRange?: string;
+  categories: string[];
+  radius: number;
+  center: [number, number] | null;
+  sortBy: 'recency' | 'popularity' | 'credibility' | 'distance';
+  query: string;
 }
 
 interface DiscoveryState {
@@ -21,16 +22,33 @@ interface DiscoveryState {
   // Search
   searchQuery: string;
   searchFilters: SearchFilters;
+  searchSuggestions: string[];
   searchDebounceTimer?: NodeJS.Timeout;
+  
+  // UI State
+  selectedFact: any | null;
+  isModalOpen: boolean;
+  savedFacts: string[];
+  
+  // Filter data
+  filters: SearchFilters;
+  categories: any[];
   
   // Actions
   loadFacts: () => Promise<void>;
   loadMoreFacts: () => Promise<void>;
   setSearchQuery: (query: string) => void;
-  setSearchFilters: (filters: SearchFilters) => void;
+  setSearchFilters: (filters: Partial<SearchFilters>) => void;
+  setFilters: (filters: Partial<SearchFilters>) => void;
   clearSearch: () => void;
   performSearch: () => Promise<void>;
   refreshFacts: () => Promise<void>;
+  updateSearchSuggestions: (query: string) => void;
+  
+  // UI Actions
+  setSelectedFact: (fact: any) => void;
+  setModalOpen: (open: boolean) => void;
+  toggleSavedFact: (factId: string) => void;
 }
 
 export const useDiscoveryStore = create<DiscoveryState>()(
@@ -43,7 +61,25 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       hasMore: true,
       currentPage: 1,
       searchQuery: '',
-      searchFilters: {},
+      searchFilters: {
+        categories: [],
+        radius: 10,
+        center: null,
+        sortBy: 'recency',
+        query: ''
+      },
+      searchSuggestions: [],
+      selectedFact: null,
+      isModalOpen: false,
+      savedFacts: [],
+      filters: {
+        categories: [],
+        radius: 10,
+        center: null,
+        sortBy: 'recency',
+        query: ''
+      },
+      categories: [],
 
       setSearchQuery: (query) => {
         set({ searchQuery: query });
@@ -57,6 +93,37 @@ export const useDiscoveryStore = create<DiscoveryState>()(
         }, 300);
         
         set({ searchDebounceTimer: timer });
+      },
+
+      updateSearchSuggestions: (query) => {
+        // Mock suggestions for now
+        const mockSuggestions = [
+          'New York, NY',
+          'London, UK', 
+          'Tokyo, Japan',
+          'Paris, France'
+        ].filter(s => s.toLowerCase().includes(query.toLowerCase()));
+        
+        set({ searchSuggestions: mockSuggestions });
+      },
+
+      setSelectedFact: (fact) => set({ selectedFact: fact }),
+      
+      setModalOpen: (open) => set({ isModalOpen: open }),
+      
+      toggleSavedFact: (factId) => {
+        const { savedFacts } = get();
+        const newSavedFacts = savedFacts.includes(factId)
+          ? savedFacts.filter(id => id !== factId)
+          : [...savedFacts, factId];
+        set({ savedFacts: newSavedFacts });
+      },
+
+      setFilters: (newFilters) => {
+        const currentFilters = get().filters;
+        const updatedFilters = { ...currentFilters, ...newFilters };
+        set({ filters: updatedFilters, searchFilters: updatedFilters });
+        get().performSearch();
       },
 
       loadFacts: async () => {
@@ -127,14 +194,21 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       },
 
       setSearchFilters: (filters) => {
-        set({ searchFilters: filters });
+        const currentFilters = get().searchFilters;
+        set({ searchFilters: { ...currentFilters, ...filters } });
         get().performSearch();
       },
 
       clearSearch: () => {
         set({
           searchQuery: '',
-          searchFilters: {},
+          searchFilters: {
+            categories: [],
+            radius: 10,
+            center: null,
+            sortBy: 'recency',
+            query: ''
+          },
           facts: [],
           hasMore: true,
           currentPage: 1
@@ -146,19 +220,6 @@ export const useDiscoveryStore = create<DiscoveryState>()(
         const state = get();
         const { searchQuery, searchFilters } = state;
         
-        // Use memoized selectors for better performance
-        const cacheKey = `search_${searchQuery}_${JSON.stringify(searchFilters)}`;
-        const cachedResults = usePerformanceStore.getState().getCachedResult(cacheKey);
-        
-        if (cachedResults && Date.now() - cachedResults.timestamp < 300000) { // 5 minutes
-          set({ 
-            facts: cachedResults.facts,
-            isLoading: false,
-            hasMore: cachedResults.hasMore
-          });
-          return;
-        }
-
         set({ isLoading: true, error: null });
 
         try {
@@ -173,34 +234,22 @@ export const useDiscoveryStore = create<DiscoveryState>()(
             .order('created_at', { ascending: false })
             .range(0, 19);
 
-          if (searchQuery) {
-            query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,location_name.ilike.%${searchQuery}%`);
+          if (searchQuery || searchFilters.query) {
+            const searchTerm = searchQuery || searchFilters.query;
+            query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,location_name.ilike.%${searchTerm}%`);
           }
 
-          if (searchFilters.category) {
-            query = query.eq('categories.slug', searchFilters.category);
-          }
-
-          if (searchFilters.verified) {
-            query = query.eq('status', 'verified');
+          if (searchFilters.categories.length > 0) {
+            query = query.in('categories.slug', searchFilters.categories);
           }
 
           const { data, error } = await query;
 
           if (error) throw error;
 
-          const results = {
+          set({
             facts: data || [],
             hasMore: (data?.length || 0) === 20,
-            timestamp: Date.now()
-          };
-
-          // Cache results
-          usePerformanceStore.getState().setCachedResult(cacheKey, results);
-
-          set({
-            facts: results.facts,
-            hasMore: results.hasMore,
             isLoading: false,
             error: null,
             currentPage: 1
@@ -252,7 +301,8 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       partialize: (state) => ({
         searchQuery: state.searchQuery,
         searchFilters: state.searchFilters,
-        currentPage: state.currentPage
+        currentPage: state.currentPage,
+        savedFacts: state.savedFacts
       }),
     }
   )

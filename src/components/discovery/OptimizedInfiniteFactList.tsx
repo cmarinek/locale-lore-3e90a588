@@ -120,7 +120,7 @@ export const OptimizedInfiniteFactList: React.FC<OptimizedInfiniteFactListProps>
 
       {/* Intersection Observer Target */}
       <div
-        ref={intersectionRef}
+        ref={intersectionRef as React.RefObject<HTMLDivElement>}
         className="h-10 flex items-center justify-center"
       >
         {!hasMore && facts.length > 0 && (

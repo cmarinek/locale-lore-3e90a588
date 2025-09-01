@@ -21,7 +21,7 @@ export const useAnimations = () => {
       scale: 1,
       transition: {
         duration: shouldReduceMotion ? 0 : 0.4,
-        ease: "easeOut"
+        ease: [0.4, 0.0, 0.2, 1]
       }
     },
     exit: shouldReduceMotion ? {} : { 
@@ -30,7 +30,7 @@ export const useAnimations = () => {
       scale: 0.98,
       transition: {
         duration: 0.3,
-        ease: "easeIn"
+        ease: [0.4, 0.0, 1, 1]
       }
     }
   };
@@ -69,7 +69,7 @@ export const useAnimations = () => {
       transition: {
         delay: shouldReduceMotion ? 0 : index * 0.1,
         duration: shouldReduceMotion ? 0 : 0.5,
-        ease: "easeOut"
+        ease: [0.4, 0.0, 0.2, 1]
       }
     }),
     hover: shouldReduceMotion ? {} : {

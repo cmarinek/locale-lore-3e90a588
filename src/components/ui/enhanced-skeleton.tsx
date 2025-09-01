@@ -17,7 +17,7 @@ export const EnhancedSkeleton: React.FC<EnhancedSkeletonProps> = ({
   lines = 1,
   showShimmer = true
 }) => {
-  const { shimmerVariants, shouldReduceMotion } = useAnimations();
+  const { shouldReduceMotion } = useAnimations();
 
   const getVariantClasses = () => {
     switch (variant) {
@@ -39,6 +39,17 @@ export const EnhancedSkeleton: React.FC<EnhancedSkeletonProps> = ({
     getVariantClasses(),
     className
   );
+
+  const shimmerVariants = {
+    shimmer: shouldReduceMotion ? {} : {
+      x: ["-100%", "100%"],
+      transition: {
+        repeat: Infinity,
+        duration: 1.5,
+        ease: "linear"
+      }
+    }
+  };
 
   const SkeletonBase = ({ children }: { children?: React.ReactNode }) => (
     <div className={baseClasses}>

@@ -4,11 +4,14 @@ import { motion } from 'framer-motion';
 import { useAnimations } from '@/hooks/useAnimations';
 import { useAppStore } from '@/stores/appStore';
 
-interface InteractiveButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface InteractiveButtonProps {
   children: React.ReactNode;
   variant?: 'default' | 'ghost' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   haptic?: 'light' | 'medium' | 'heavy';
+  className?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  disabled?: boolean;
 }
 
 export const InteractiveButton: React.FC<InteractiveButtonProps> = ({
@@ -19,7 +22,6 @@ export const InteractiveButton: React.FC<InteractiveButtonProps> = ({
   className = "",
   onClick,
   disabled,
-  ...props
 }) => {
   const { triggerHapticFeedback, handleTouchInteraction } = useAppStore();
   const { shouldReduceMotion } = useAnimations();
@@ -58,7 +60,6 @@ export const InteractiveButton: React.FC<InteractiveButtonProps> = ({
       onClick={handleClick}
       disabled={disabled}
       {...motionProps}
-      {...props}
     >
       {children}
     </motion.button>

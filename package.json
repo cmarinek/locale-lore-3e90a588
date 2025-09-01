@@ -68,6 +68,7 @@
     "husky": "^9.1.7",
     "input-otp": "^1.4.2",
     "jest": "^30.1.2",
+    "jest-axe": "^9.0.0",
     "jest-coverage-badges": "^1.1.2",
     "jest-environment-jsdom": "^30.1.2",
     "lint-staged": "^16.1.5",
