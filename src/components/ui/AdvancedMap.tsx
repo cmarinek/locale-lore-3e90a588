@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/ios-card';
 import { Input } from '@/components/ui/ios-input';
 import { Badge } from '@/components/ui/ios-badge';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Map as MapIcon, 
   Satellite, 
@@ -17,24 +18,9 @@ import {
   Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Fact, FactMarker } from '@/types/map';
 
-// Mock data for demonstration
-const mockFacts = [
-  { id: '1', latitude: 40.7128, longitude: -74.0060, title: 'New York Fact', category: 'history', verified: true },
-  { id: '2', latitude: 34.0522, longitude: -118.2437, title: 'LA Discovery', category: 'culture', verified: false },
-  { id: '3', latitude: 41.8781, longitude: -87.6298, title: 'Chicago Legend', category: 'legend', verified: true },
-  { id: '4', latitude: 29.7604, longitude: -95.3698, title: 'Houston Mystery', category: 'mystery', verified: true },
-  { id: '5', latitude: 33.4484, longitude: -112.0740, title: 'Phoenix Story', category: 'nature', verified: false },
-  // Add more for testing clustering
-  ...Array.from({ length: 100 }, (_, i) => ({
-    id: `fact-${i + 6}`,
-    latitude: 40.7128 + (Math.random() - 0.5) * 0.1,
-    longitude: -74.0060 + (Math.random() - 0.5) * 0.1,
-    title: `NYC Fact ${i + 1}`,
-    category: ['history', 'culture', 'legend', 'mystery', 'nature'][Math.floor(Math.random() * 5)],
-    verified: Math.random() > 0.5
-  }))
-];
+// Real-time facts data - no more mock data!
 
 const mapStyles = {
   light: 'mapbox://styles/mapbox/light-v11',
@@ -55,7 +41,7 @@ interface AdvancedMapProps {
   className?: string;
   initialCenter?: [number, number];
   initialZoom?: number;
-  onFactClick?: (fact: any) => void;
+  onFactClick?: (fact: FactMarker) => void;
   showHeatmap?: boolean;
 }
 
@@ -69,19 +55,126 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<{ [key: string]: mapboxgl.Marker }>({});
+  const realtimeChannelRef = useRef<any>(null);
   
   const [mapStyle, setMapStyle] = useState<keyof typeof mapStyles>('light');
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [showControls, setShowControls] = useState(true);
-  const [facts, setFacts] = useState(mockFacts);
+  const [facts, setFacts] = useState<FactMarker[]>([]);
+  const [mapboxToken, setMapboxToken] = useState<string | null>(null);
 
-  // Get Mapbox token (you should use the MAPBOX_PUBLIC_TOKEN from Supabase secrets)
-  const MAPBOX_TOKEN = 'YOUR_MAPBOX_PUBLIC_TOKEN'; // Replace with actual token retrieval
+  // Fetch Mapbox token securely from Edge Function
+  const fetchMapboxToken = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+      if (error) throw error;
+      return data.token;
+    } catch (error) {
+      console.error('Error fetching Mapbox token:', error);
+      return null;
+    }
+  }, []);
+
+  // Fetch facts from Supabase
+  const fetchFacts = useCallback(async () => {
+    try {
+      const { data: facts, error } = await supabase
+        .from('facts')
+        .select(`
+          id,
+          title,
+          description,
+          location_name,
+          latitude,
+          longitude,
+          status,
+          vote_count_up,
+          vote_count_down,
+          category_id,
+          author_id,
+          categories!facts_category_id_fkey(
+            slug,
+            icon,
+            color
+          ),
+          profiles!facts_author_id_fkey(
+            username,
+            avatar_url
+          )
+        `)
+        .in('status', ['verified', 'pending']);
+
+      if (error) throw error;
+
+      const formattedFacts: FactMarker[] = facts?.map(fact => ({
+        id: fact.id,
+        title: fact.title,
+        latitude: fact.latitude,
+        longitude: fact.longitude,
+        category: fact.categories?.slug || 'unknown',
+        verified: fact.status === 'verified',
+        voteScore: fact.vote_count_up - fact.vote_count_down,
+        authorName: fact.profiles?.username
+      })) || [];
+
+      setFacts(formattedFacts);
+    } catch (error) {
+      console.error('Error fetching facts:', error);
+      // Fallback to mock data if there's an error
+      setFacts([]);
+    }
+  }, []);
+
+  // Set up real-time subscriptions
+  const setupRealtimeSubscription = useCallback(() => {
+    // Clean up existing subscription
+    if (realtimeChannelRef.current) {
+      supabase.removeChannel(realtimeChannelRef.current);
+    }
+
+    const channel = supabase
+      .channel('facts-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'facts'
+        },
+        (payload) => {
+          console.log('Real-time fact update:', payload);
+          // Refetch facts when changes occur
+          fetchFacts();
+        }
+      )
+      .subscribe();
+
+    realtimeChannelRef.current = channel;
+  }, [fetchFacts]);
+
+  // Initialize token and data
+  useEffect(() => {
+    const initialize = async () => {
+      const token = await fetchMapboxToken();
+      if (token) {
+        setMapboxToken(token);
+        await fetchFacts();
+        setupRealtimeSubscription();
+      }
+    };
+    initialize();
+
+    return () => {
+      if (realtimeChannelRef.current) {
+        supabase.removeChannel(realtimeChannelRef.current);
+      }
+    };
+  }, [fetchMapboxToken, fetchFacts, setupRealtimeSubscription]);
 
   // Create custom marker element
-  const createMarkerElement = useCallback((fact: any) => {
+  const createMarkerElement = useCallback((fact: FactMarker) => {
     const el = document.createElement('div');
     el.className = 'custom-marker';
     el.style.cssText = `
@@ -148,9 +241,9 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+    if (!mapContainer.current || map.current || !mapboxToken) return;
 
-    mapboxgl.accessToken = MAPBOX_TOKEN;
+    mapboxgl.accessToken = mapboxToken;
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -200,7 +293,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
     return () => {
       map.current?.remove();
     };
-  }, []);
+  }, [mapboxToken]); // Add mapboxToken as dependency
 
   // Update map style
   useEffect(() => {
@@ -440,11 +533,11 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
 
   // Search functionality
   const handleSearch = useCallback(async (query: string) => {
-    if (!query.trim() || !map.current) return;
+    if (!query.trim() || !map.current || !mapboxToken) return;
 
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&limit=5`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&limit=5`
       );
       const data = await response.json();
       
@@ -459,7 +552,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
     } catch (error) {
       console.error('Search error:', error);
     }
-  }, []);
+  }, [mapboxToken]); // Add mapboxToken as dependency
 
   // Fly to user location
   const flyToUserLocation = useCallback(() => {

@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/ios-badge';
 import AdvancedMap from '@/components/ui/AdvancedMap';
+import { FactMarker } from '@/types/map';
 import { 
   Map as MapIcon, 
   MapPin, 
@@ -13,10 +14,10 @@ import {
 } from 'lucide-react';
 
 const MapShowcase = () => {
-  const [selectedFact, setSelectedFact] = useState<any>(null);
+  const [selectedFact, setSelectedFact] = useState<FactMarker | null>(null);
   const [showHeatmap, setShowHeatmap] = useState(false);
 
-  const handleFactClick = (fact: any) => {
+  const handleFactClick = (fact: FactMarker) => {
     setSelectedFact(fact);
   };
 
@@ -136,7 +137,8 @@ const MapShowcase = () => {
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground capitalize">
-                      {selectedFact.category} • Coordinates: {selectedFact.latitude.toFixed(4)}, {selectedFact.longitude.toFixed(4)}
+                      {selectedFact.category} • Score: {selectedFact.voteScore}
+                      {selectedFact.authorName && ` • by ${selectedFact.authorName}`}
                     </p>
                   </div>
                   <Button
@@ -238,8 +240,8 @@ const MapShowcase = () => {
           
           <div className="text-sm text-muted-foreground">
             <p>
-              <strong>Note:</strong> This demo uses mock data. In production, connect to your Supabase facts table 
-              for real-time marker updates and clustering.
+              <strong>✅ Real-time Integration:</strong> This map is now connected to your Supabase facts table 
+              with live updates and clustering. New facts will appear automatically!
             </p>
           </div>
         </CardContent>
