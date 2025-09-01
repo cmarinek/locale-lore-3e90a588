@@ -1,55 +1,23 @@
 
-import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
+import { lazy } from 'react';
 
-// Lazy load route components for better performance
-const LazyExplore = lazy(() => import('@/pages/Explore'));
-const LazySearch = lazy(() => import('@/pages/Search'));
-const LazySubmit = lazy(() => import('@/pages/Submit'));
-const LazyProfile = lazy(() => import('@/pages/Profile'));
-const LazyFact = lazy(() => import('@/pages/Fact'));
-const LazyAdmin = lazy(() => import('@/pages/Admin'));
-const LazyGamification = lazy(() => import('@/pages/Gamification'));
-const LazyDiscover = lazy(() => import('@/pages/Discover'));
-const LazyDiscovery = lazy(() => import('@/pages/Discovery'));
-const LazyIndex = lazy(() => import('@/pages/Index'));
-const LazyAuthMain = lazy(() => import('@/pages/AuthMain'));
-const LazyAuthCallback = lazy(() => import('@/pages/AuthCallback'));
-const LazyAuthConfirm = lazy(() => import('@/pages/AuthConfirm'));
-const LazyAuthResetPassword = lazy(() => import('@/pages/AuthResetPassword'));
-const LazyLoreSubmit = lazy(() => import('@/pages/LoreSubmit'));
-const LazyNotFound = lazy(() => import('@/pages/NotFound'));
-const LazyComponentShowcase = lazy(() => import('@/pages/ComponentShowcase'));
+// Lazy load route components with proper default export handling
+const LazyExplore = lazy(() => import('@/pages/Explore').then(module => ({ default: module.default || module.Explore || module })));
+const LazySearch = lazy(() => import('@/pages/Search').then(module => ({ default: module.default || module.Search || module })));
+const LazySubmit = lazy(() => import('@/pages/Submit').then(module => ({ default: module.default || module.Submit || module })));
+const LazyProfile = lazy(() => import('@/pages/Profile').then(module => ({ default: module.default || module.Profile || module })));
+const LazyFact = lazy(() => import('@/pages/Fact').then(module => ({ default: module.default || module.Fact || module })));
+const LazyAdmin = lazy(() => import('@/pages/Admin').then(module => ({ default: module.default || module.Admin || module })));
+const LazyDiscover = lazy(() => import('@/pages/Discover').then(module => ({ default: module.default || module.Discover || module })));
+const LazyGamification = lazy(() => import('@/pages/Gamification').then(module => ({ default: module.default || module.Gamification || module })));
 
-const LoadingFallback = () => (
-  <div className="min-h-screen p-6">
-    <EnhancedSkeleton variant="card" lines={4} />
-  </div>
-);
-
-export const LazyRoutes = () => {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <Routes>
-        <Route path="/" element={<LazyIndex />} />
-        <Route path="/explore" element={<LazyExplore />} />
-        <Route path="/discover" element={<LazyDiscover />} />
-        <Route path="/discovery" element={<LazyDiscovery />} />
-        <Route path="/search" element={<LazySearch />} />
-        <Route path="/submit" element={<LazySubmit />} />
-        <Route path="/lore-submit" element={<LazyLoreSubmit />} />
-        <Route path="/profile" element={<LazyProfile />} />
-        <Route path="/fact/:id" element={<LazyFact />} />
-        <Route path="/admin" element={<LazyAdmin />} />
-        <Route path="/gamification" element={<LazyGamification />} />
-        <Route path="/auth" element={<LazyAuthMain />} />
-        <Route path="/auth/callback" element={<LazyAuthCallback />} />
-        <Route path="/auth/confirm" element={<LazyAuthConfirm />} />
-        <Route path="/auth/reset-password" element={<LazyAuthResetPassword />} />
-        <Route path="/showcase" element={<LazyComponentShowcase />} />
-        <Route path="*" element={<LazyNotFound />} />
-      </Routes>
-    </Suspense>
-  );
+export const LazyRoutes = {
+  Explore: LazyExplore,
+  Search: LazySearch,
+  Submit: LazySubmit,
+  Profile: LazyProfile,
+  Fact: LazyFact,
+  Admin: LazyAdmin,
+  Discover: LazyDiscover,
+  Gamification: LazyGamification,
 };

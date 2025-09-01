@@ -32,9 +32,13 @@ export interface DiscoveryState {
   // Loading states
   isLoading: boolean;
   hasMore: boolean;
+  loading: boolean;
+  error: string | null;
   
   // Search and filters
   searchFilters: SearchFilters;
+  filters: SearchFilters;
+  searchSuggestions: string[];
   
   // Actions
   setFacts: (facts: EnhancedFact[]) => void;
@@ -44,9 +48,13 @@ export interface DiscoveryState {
   setModalOpen: (open: boolean) => void;
   toggleSavedFact: (factId: string) => void;
   setSearchFilters: (filters: Partial<SearchFilters>) => void;
+  setFilters: (filters: Partial<SearchFilters>) => void;
   clearFilters: () => void;
   loadMoreFacts: () => Promise<void>;
   searchFacts: (query: string) => Promise<void>;
+  loadCategories: () => Promise<void>;
+  loadSavedFacts: () => Promise<void>;
+  updateSearchSuggestions: (suggestions: string[]) => void;
 }
 
 const defaultFilters: SearchFilters = {
@@ -66,7 +74,11 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       savedFacts: [],
       isLoading: false,
       hasMore: true,
+      loading: false,
+      error: null,
       searchFilters: defaultFilters,
+      filters: defaultFilters,
+      searchSuggestions: [],
 
       // Actions
       setFacts: (facts) => set({ facts }),
@@ -96,8 +108,38 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       setSearchFilters: (filters) => set((state) => ({
         searchFilters: { ...state.searchFilters, ...filters }
       })),
+
+      setFilters: (filters) => set((state) => ({
+        filters: { ...state.filters, ...filters }
+      })),
       
-      clearFilters: () => set({ searchFilters: defaultFilters }),
+      clearFilters: () => set({ 
+        searchFilters: defaultFilters,
+        filters: defaultFilters
+      }),
+
+      updateSearchSuggestions: (suggestions) => set({ searchSuggestions: suggestions }),
+
+      loadCategories: async () => {
+        set({ loading: true, error: null });
+        try {
+          // Mock categories
+          const mockCategories: EnhancedCategory[] = [
+            { id: '1', name: 'History', slug: 'history', color: '#3B82F6', icon: '🏛️' },
+            { id: '2', name: 'Culture', slug: 'culture', color: '#10B981', icon: '🎭' },
+            { id: '3', name: 'Nature', slug: 'nature', color: '#059669', icon: '🌿' },
+          ];
+          set({ categories: mockCategories, loading: false });
+        } catch (error) {
+          console.error('Failed to load categories:', error);
+          set({ loading: false, error: 'Failed to load categories' });
+        }
+      },
+
+      loadSavedFacts: async () => {
+        // Mock implementation
+        set({ savedFacts: [] });
+      },
       
       loadMoreFacts: async () => {
         const state = get();
@@ -109,7 +151,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
           // Simulate API call
           await new Promise(resolve => setTimeout(resolve, 1000));
           
-          // Mock data - in real app, fetch from API
+          // Mock data
           const mockFacts: EnhancedFact[] = Array.from({ length: 10 }, (_, i) => ({
             id: `fact-${state.facts.length + i}`,
             title: `Fact ${state.facts.length + i + 1}`,
@@ -125,6 +167,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
             is_verified: true,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+            author_id: 'user-1',
             user_id: 'user-1',
             category_id: 'category-1',
             categories: {
@@ -133,6 +176,11 @@ export const useDiscoveryStore = create<DiscoveryState>()(
               slug: 'history',
               color: '#3B82F6',
               icon: '🏛️'
+            },
+            profiles: {
+              id: 'user-1',
+              username: 'testuser',
+              avatar_url: null
             }
           }));
           
@@ -170,6 +218,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
             is_verified: true,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+            author_id: 'user-1',
             user_id: 'user-1',
             category_id: 'category-1',
             categories: {
@@ -178,6 +227,11 @@ export const useDiscoveryStore = create<DiscoveryState>()(
               slug: 'history',
               color: '#3B82F6',
               icon: '🏛️'
+            },
+            profiles: {
+              id: 'user-1',
+              username: 'testuser',
+              avatar_url: null
             }
           }));
           
