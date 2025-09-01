@@ -1,107 +1,144 @@
+
 import React from 'react';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { useAuth } from '@/contexts/AuthContext';
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { cn } from '@/lib/utils';
 import { 
   Home, 
   Search, 
-  Plus, 
+  PlusCircle, 
   User, 
-  MapPin,
-  Trophy,
-  Users,
-  Upload,
   Settings,
-  LogOut
+  Users,
+  Film,
+  Trophy
 } from 'lucide-react';
+import { Button } from './button';
+import { Avatar, AvatarFallback, AvatarImage } from './avatar';
 
-interface NavigationItemProps {
-  to: string;
-  icon: React.ComponentType<any>;
-  label: string;
-}
-
-const NavigationItem: React.FC<NavigationItemProps> = ({ to, icon: Icon, label }) => {
+export const Navigation: React.FC = () => {
+  const { user } = useAuth();
   const location = useLocation();
-  const isActive = location.pathname === to;
+
+  const isActive = (path: string) => location.pathname === path;
+
+  const navItems = [
+    { path: '/', icon: Home, label: 'Home' },
+    { path: '/search', icon: Search, label: 'Search' },
+    { path: '/stories', icon: Film, label: 'Stories' },
+    { path: '/gamification', icon: Trophy, label: 'Rewards' },
+    { path: '/social', icon: Users, label: 'Social' },
+  ];
+
+  if (!user) {
+    return (
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border z-50 md:hidden">
+        <div className="flex items-center justify-around py-2">
+          {navItems.slice(0, 3).map(({ path, icon: Icon, label }) => (
+            <Link
+              key={path}
+              to={path}
+              className={cn(
+                "flex flex-col items-center gap-1 p-2 text-xs",
+                isActive(path) 
+                  ? "text-primary" 
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Icon className="w-5 h-5" />
+              <span>{label}</span>
+            </Link>
+          ))}
+        </div>
+      </nav>
+    );
+  }
 
   return (
-    <Link
-      to={to}
-      className={`group flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:bg-secondary hover:text-foreground ${
-        isActive ? 'bg-secondary text-foreground' : 'text-muted-foreground'
-      }`}
-    >
-      <Icon className="h-4 w-4" />
-      <span>{label}</span>
-    </Link>
+    <>
+      {/* Desktop Navigation */}
+      <nav className="hidden md:flex fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-md border-b border-border z-50 px-4 py-3">
+        <div className="flex items-center justify-between w-full max-w-6xl mx-auto">
+          <Link to="/" className="text-xl font-bold">
+            Awesome Facts
+          </Link>
+          
+          <div className="flex items-center gap-6">
+            {navItems.map(({ path, icon: Icon, label }) => (
+              <Link
+                key={path}
+                to={path}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                  isActive(path)
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Avatar className="w-8 h-8">
+              <AvatarImage 
+                src={user.user_metadata?.avatar_url} 
+                alt={user.user_metadata?.full_name || user.email} 
+              />
+              <AvatarFallback>
+                {user.user_metadata?.full_name?.charAt(0) || user.email?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-medium">
+              {user.user_metadata?.full_name || user.email}
+            </span>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border z-50 md:hidden">
+        <div className="flex items-center justify-around py-2">
+          {navItems.map(({ path, icon: Icon, label }) => (
+            <Link
+              key={path}
+              to={path}
+              className={cn(
+                "flex flex-col items-center gap-1 p-2 text-xs",
+                isActive(path) 
+                  ? "text-primary" 
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Icon className="w-5 h-5" />
+              <span>{label}</span>
+            </Link>
+          ))}
+          
+          <Link
+            to="/profile"
+            className={cn(
+              "flex flex-col items-center gap-1 p-2 text-xs",
+              isActive('/profile') 
+                ? "text-primary" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Avatar className="w-5 h-5">
+              <AvatarImage 
+                src={user.user_metadata?.avatar_url} 
+                alt={user.user_metadata?.full_name || user.email} 
+              />
+              <AvatarFallback className="text-xs">
+                {user.user_metadata?.full_name?.charAt(0) || user.email?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <span>Profile</span>
+          </Link>
+        </div>
+      </nav>
+    </>
   );
 };
-
-export function MobileNavigation() {
-  const { user, signOut } = useAuth();
-
-  return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="sm" className="p-0">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.avatar} />
-            <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
-          </Avatar>
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-64">
-        <SheetHeader className="text-left">
-          <SheetTitle>Menu</SheetTitle>
-          <SheetDescription>
-            Explore LocaleLore
-          </SheetDescription>
-        </SheetHeader>
-        <div className="py-4">
-          <div className="flex items-center space-x-1">
-            <NavigationItem to="/" icon={Home} label="Home" />
-            <NavigationItem to="/explore" icon={MapPin} label="Explore" />
-            <NavigationItem to="/search" icon={Search} label="Search" />
-            <NavigationItem to="/social" icon={Users} label="Social" />
-            <NavigationItem to="/gamification" icon={Trophy} label="Achievements" />
-            
-            {user && (
-              <>
-                <NavigationItem to="/submit" icon={Plus} label="Submit" />
-                <NavigationItem to="/media" icon={Upload} label="Media" />
-              </>
-            )}
-          </div>
-        </div>
-        <SheetHeader className="text-left">
-          <SheetTitle>User Profile</SheetTitle>
-        </SheetHeader>
-        <div className="flex items-center space-x-2 p-4">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={user?.avatar} />
-            <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div className="space-y-1">
-            <p className="text-sm font-medium leading-none">{user?.name}</p>
-            <p className="text-sm text-muted-foreground">{user?.email}</p>
-          </div>
-        </div>
-        <div className="flex flex-col space-y-1 p-4">
-          {user && (
-            <>
-              <NavigationItem to={`/profile/${user.id}`} icon={User} label="Profile" />
-              <NavigationItem to="/settings" icon={Settings} label="Settings" />
-              <Button variant="ghost" className="justify-start" onClick={signOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Log Out
-              </Button>
-            </>
-          )}
-        </div>
-      </SheetContent>
-    </Sheet>
-  );
-}

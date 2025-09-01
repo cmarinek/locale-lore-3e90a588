@@ -29,3 +29,24 @@ export interface MediaModerationResult {
   flags: string[];
   reason?: string;
 }
+
+export interface MediaAnalytics {
+  totalFiles: number;
+  totalSize: number;
+  byStatus: {
+    pending: number;
+    approved: number;
+    rejected: number;
+  };
+  byType: {
+    images: number;
+    videos: number;
+    documents: number;
+  };
+  recentUploads: MediaFile[];
+  topUploaders: {
+    userId: string;
+    username: string;
+    uploadCount: number;
+  }[];
+}

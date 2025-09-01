@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,7 +15,7 @@ import {
   X, 
   Check,
   AlertCircle,
-  Compress
+  Compass
 } from 'lucide-react';
 
 interface UploadFile extends File {
@@ -193,7 +192,7 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
                 <>
                   <span>•</span>
                   <div className="flex items-center gap-1">
-                    <Compress className="w-4 h-4" />
+                    <Compass className="w-4 h-4" />
                     <span>Auto-compress</span>
                   </div>
                 </>
