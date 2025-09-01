@@ -1,7 +1,10 @@
 
+
 import React from 'react';
 import { render as rtlRender } from '@testing-library/react';
-import * as rtl from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -48,10 +51,9 @@ export const renderWithProviders = (ui: React.ReactElement, options = {}) => {
 
 // Export testing utilities - use the render from renderWithProviders as default
 export const render = renderWithProviders;
-export const screen = rtl.screen;
-export const fireEvent = rtl.fireEvent;
-export const waitFor = rtl.waitFor;
+export { screen, fireEvent, waitFor };
 
 // Export the mock auth context for tests that need it
 export const mockAuth = mockAuthContext;
 export { MockAuthProvider };
+
