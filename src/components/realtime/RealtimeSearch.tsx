@@ -1,13 +1,16 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, TrendingUp, Clock, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { useRealtimeStore } from '@/stores/realtimeStore';
 import { supabase } from '@/integrations/supabase/client';
 import { useDebounce } from '@/hooks/useDebounce';
+import { SearchSuggestions } from './SearchSuggestions';
+import { RecentSearches } from './RecentSearches';
+import { TrendingSearches } from './TrendingSearches';
 
 interface RealtimeSearchProps {
   onSearch: (query: string) => void;
@@ -188,79 +191,26 @@ export const RealtimeSearch: React.FC<RealtimeSearchProps> = ({
             >
               <Card className="p-4 shadow-lg border">
                 {/* Current query suggestions */}
-                {debouncedQuery.length >= 2 && currentSuggestions.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium mb-2 text-muted-foreground">Suggestions</h4>
-                    <div className="space-y-1">
-                      {currentSuggestions.map((suggestion, index) => (
-                        <motion.div
-                          key={suggestion}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                        >
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start text-sm p-2 h-auto"
-                            onClick={() => handleSearch(suggestion)}
-                          >
-                            <Search className="w-3 h-3 mr-2 text-muted-foreground" />
-                            {suggestion}
-                          </Button>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
+                {debouncedQuery.length >= 2 && (
+                  <SearchSuggestions 
+                    suggestions={currentSuggestions}
+                    onSelect={handleSearch}
+                  />
                 )}
 
                 {/* Recent searches */}
-                {recentSearches.length > 0 && (
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-medium text-muted-foreground">Recent</h4>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={clearRecentSearches}
-                        className="text-xs h-6 px-2"
-                      >
-                        Clear
-                      </Button>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {recentSearches.map((recent) => (
-                        <Badge
-                          key={recent}
-                          variant="secondary"
-                          className="cursor-pointer hover:bg-secondary/80 transition-colors"
-                          onClick={() => handleSearch(recent)}
-                        >
-                          <Clock className="w-3 h-3 mr-1" />
-                          {recent}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <RecentSearches
+                  searches={recentSearches}
+                  onSelect={handleSearch}
+                  onClear={clearRecentSearches}
+                />
 
                 {/* Trending searches */}
-                {showTrending && trendingSearches.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-medium mb-2 text-muted-foreground">Trending</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {trendingSearches.map((trending) => (
-                        <Badge
-                          key={trending}
-                          variant="outline"
-                          className="cursor-pointer hover:bg-primary/10 hover:border-primary transition-colors"
-                          onClick={() => handleSearch(trending)}
-                        >
-                          <TrendingUp className="w-3 h-3 mr-1" />
-                          {trending}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
+                {showTrending && (
+                  <TrendingSearches
+                    searches={trendingSearches}
+                    onSelect={handleSearch}
+                  />
                 )}
 
                 {/* Empty state */}

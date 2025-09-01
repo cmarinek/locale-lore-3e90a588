@@ -1,4 +1,3 @@
-
 // Central component library index for easy imports
 // Usage: import { AdminDashboard, AuthLayout, Button } from '@/components'
 
@@ -32,6 +31,18 @@ export * from './verification';
 
 // UI components (atoms)
 export * from './ui';
+
+// Profile components
+export * from './profile';
+
+// Offline components
+export * from './offline';
+
+// Showcase components
+export * from './showcase';
+
+// Provider components
+export * from './providers';
 
 // Atomic design system exports
 export * from './atoms';
