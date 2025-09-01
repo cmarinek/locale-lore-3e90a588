@@ -1,6 +1,5 @@
 
-import { render } from '@/test/utils';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@/test/utils';
 import { server } from '@/test/mocks/server';
 import AuthMain from '@/pages/AuthMain';
 
