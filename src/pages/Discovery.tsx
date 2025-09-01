@@ -1,178 +1,77 @@
 import React, { useEffect } from 'react';
-import { SearchBar } from '@/components/discovery/SearchBar';
-import { FilterPanel } from '@/components/discovery/FilterPanel';
+import { Helmet } from 'react-helmet-async';
+import { motion } from 'framer-motion';
 import { InfiniteFactList } from '@/components/discovery/InfiniteFactList';
+import { FilterPanel } from '@/components/discovery/FilterPanel';
+import { SearchBar } from '@/components/discovery/SearchBar';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
-import { GamificationHeader } from '@/components/gamification/GamificationHeader';
-import { PointsAnimation, usePointsNotifications } from '@/components/gamification/PointsAnimation';
-import { AIRecommendations, SmartSearchBar, DiscoveryOfTheDay, LocationBasedNotifications } from '@/components/ai';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/ios-card';
-import { Badge } from '@/components/ui/ios-badge';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
-import { MainLayout } from '@/components/templates/MainLayout';
-import { Compass, TrendingUp, Clock, Target } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useAnimations } from '@/hooks/useAnimations';
+import { Button } from '@/components/ui/button';
+import { Filter, Search } from 'lucide-react';
+import { useState } from 'react';
 
-const Discovery: React.FC = () => {
+const Discovery = () => {
+  const [showFilters, setShowFilters] = useState(false);
+  const { pageVariants } = useAnimations();
   const { 
+    facts, 
+    loading, 
+    error, 
     filters,
-    facts,
-    loadCategories, 
-    loadSavedFacts, 
+    loadCategories,
+    loadSavedFacts,
     searchFacts 
   } = useDiscoveryStore();
-  
-  const { notifications, addNotification, removeNotification } = usePointsNotifications();
 
   useEffect(() => {
-    // Initialize data
     loadCategories();
     loadSavedFacts();
-    searchFacts(true);
+    
+    // Load initial facts with current filters
+    const searchQuery = filters.search || '';
+    searchFacts(searchQuery);
   }, [loadCategories, loadSavedFacts, searchFacts]);
 
-  // Listen for points awarded
-  useEffect(() => {
-    const channel = supabase
-      .channel('points-updates')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'user_points'
-      }, (payload) => {
-        const pointsData = payload.new;
-        addNotification(pointsData.points, pointsData.action_type);
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [addNotification]);
-
-  const getSortIcon = () => {
-    switch (filters.sortBy) {
-      case 'popularity': return <TrendingUp className="h-4 w-4" />;
-      case 'recency': return <Clock className="h-4 w-4" />;
-      case 'distance': return <Target className="h-4 w-4" />;
-      case 'credibility': return <Compass className="h-4 w-4" />;
-      default: return <Clock className="h-4 w-4" />;
-    }
-  };
-
-  const getSortLabel = () => {
-    switch (filters.sortBy) {
-      case 'popularity': return 'Most Popular';
-      case 'recency': return 'Most Recent';
-      case 'distance': return 'Nearest';
-      case 'credibility': return 'Most Credible';
-      default: return 'Most Recent';
-    }
-  };
-
   return (
-    <MainLayout>
-      <div className="container mx-auto px-4 py-8 space-y-8">
-        {/* Gamification Header */}
-        <GamificationHeader />
-        
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
-              <Compass className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold">Discover Facts</h1>
-              <p className="text-muted-foreground">Explore fascinating facts from around the world</p>
-            </div>
-          </div>
-        </div>
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="container relative py-8"
+    >
+      <Helmet>
+        <title>Discovery - Awesome Facts</title>
+        <meta name="description" content="Discover awesome and interesting facts." />
+      </Helmet>
 
-        {/* Search & Filters */}
-        <Card variant="glass">
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              <SmartSearchBar 
-                onResults={(results) => console.log('AI search results:', results)}
-                userLocation={{ latitude: 40.7128, longitude: -74.0060 }}
-              />
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <FilterPanel />
-                  
-                  {filters.center && (
-                    <Badge variant="chip" className="flex items-center gap-1">
-                      <Target className="h-3 w-3" />
-                      {filters.radius}km radius
-                    </Badge>
-                  )}
-                  
-                  {filters.categories.length > 0 && (
-                    <Badge variant="chip">
-                      {filters.categories.length} categor{filters.categories.length === 1 ? 'y' : 'ies'}
-                    </Badge>
-                  )}
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  {getSortIcon()}
-                  <span>{getSortLabel()}</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Results Summary */}
-        {facts.length > 0 && (
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              {filters.query ? (
-                <>Showing results for "{filters.query}"</>
-              ) : (
-                <>Discovered {facts.length} fascinating facts</>
-              )}
-            </p>
-          </div>
-        )}
-
-        {/* AI-Powered Sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            {/* Facts List */}
-            <InfiniteFactList />
-          </div>
-          
-          <div className="space-y-6">
-            {/* Discovery of the Day */}
-            <DiscoveryOfTheDay onExplore={(factId) => console.log('Explore fact:', factId)} />
-            
-            {/* AI Recommendations */}
-            <AIRecommendations 
-              userLocation={{ latitude: 40.7128, longitude: -74.0060 }}
-              onFactSelect={(factId) => console.log('Select fact:', factId)}
-            />
-            
-            {/* Location-based Notifications */}
-            <LocationBasedNotifications 
-              userLocation={{ latitude: 40.7128, longitude: -74.0060 }}
-              onFactSelect={(factId) => console.log('Location fact:', factId)}
-            />
-          </div>
-        </div>
-
-        {/* Facts List */}
-        <FactPreviewModal />
+      <div className="mb-6 flex items-center justify-between">
+        <SearchBar onSearch={(query: string) => searchFacts(query)} />
+        <Button variant="outline" size="icon" onClick={() => setShowFilters(!showFilters)}>
+          {showFilters ? <Search className="h-4 w-4" /> : <Filter className="h-4 w-4" />}
+          <span className="sr-only">Toggle filters</span>
+        </Button>
       </div>
 
-      {/* Points Animation */}
-      <PointsAnimation
-        notifications={notifications}
-        onComplete={removeNotification}
-      />
-    </MainLayout>
+      {showFilters && (
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+          className="mb-6"
+        >
+          <FilterPanel />
+        </motion.div>
+      )}
+
+      {loading && <p>Loading facts...</p>}
+      {error && <p>Error: {error}</p>}
+
+      <InfiniteFactList facts={facts} />
+      <FactPreviewModal />
+    </motion.div>
   );
 };
 

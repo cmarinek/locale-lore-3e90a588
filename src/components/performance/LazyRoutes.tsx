@@ -11,11 +11,11 @@ const Discovery = React.lazy(() => {
   return importPromise;
 });
 
-const Explore = React.lazy(() => import('@/pages/Explore').then(module => ({ default: module.default })));
-const Search = React.lazy(() => import('@/pages/Search').then(module => ({ default: module.default })));
-const Submit = React.lazy(() => import('@/pages/Submit').then(module => ({ default: module.default })));
-const Profile = React.lazy(() => import('@/pages/Profile').then(module => ({ default: module.default })));
-const Fact = React.lazy(() => import('@/pages/Fact').then(module => ({ default: module.default })));
+const Explore = React.lazy(() => import('@/pages/Explore'));
+const Search = React.lazy(() => import('@/pages/Search'));
+const Submit = React.lazy(() => import('@/pages/Submit'));
+const Profile = React.lazy(() => import('@/pages/Profile'));
+const Fact = React.lazy(() => import('@/pages/Fact'));
 const Gamification = React.lazy(() => import('@/pages/Gamification'));
 const Admin = React.lazy(() => import('@/pages/Admin'));
 const AuthMain = React.lazy(() => import('@/pages/AuthMain'));

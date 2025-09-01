@@ -18,10 +18,57 @@ export const AnimatedPage: React.FC<AnimatedPageProps> = ({
 }) => {
   const { pageVariants, slideVariants, shouldReduceMotion } = useAnimations();
 
+  const slideVariantsFixed: Variants = {
+    initial: (direction: 'left' | 'right') => shouldReduceMotion ? {} : ({
+      x: direction === 'left' ? -300 : 300,
+      opacity: 0
+    }),
+    animate: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 30
+      }
+    },
+    exit: (direction: 'left' | 'right') => shouldReduceMotion ? {} : ({
+      x: direction === 'left' ? 300 : -300,
+      opacity: 0,
+      transition: { duration: 0.3 }
+    })
+  };
+
+  const pageVariantsFixed: Variants = {
+    initial: shouldReduceMotion ? {} : { 
+      opacity: 0, 
+      y: 20,
+      scale: 0.98
+    },
+    animate: { 
+      opacity: 1, 
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: shouldReduceMotion ? 0 : 0.4,
+        ease: [0.4, 0.0, 0.2, 1] as const
+      }
+    },
+    exit: shouldReduceMotion ? {} : { 
+      opacity: 0, 
+      y: -20,
+      scale: 0.98,
+      transition: {
+        duration: 0.3,
+        ease: [0.4, 0.0, 1, 1] as const
+      }
+    }
+  };
+
   const getVariants = (): Variants => {
     switch (type) {
       case 'slide':
-        return slideVariants;
+        return slideVariantsFixed;
       case 'fade':
         return {
           initial: { opacity: 0 },
@@ -29,7 +76,7 @@ export const AnimatedPage: React.FC<AnimatedPageProps> = ({
           exit: { opacity: 0 }
         };
       default:
-        return pageVariants;
+        return pageVariantsFixed;
     }
   };
 

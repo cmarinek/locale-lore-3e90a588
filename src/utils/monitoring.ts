@@ -9,8 +9,8 @@ export const initializeErrorTracking = () => {
       dsn: config.sentryDsn,
       environment: config.environment,
       integrations: [
-        new Sentry.BrowserTracing(),
-        new Sentry.Replay({
+        Sentry.browserTracingIntegration(),
+        Sentry.replayIntegration({
           maskAllText: true,
           blockAllMedia: true,
         }),
