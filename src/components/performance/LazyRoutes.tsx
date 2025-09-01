@@ -1,23 +1,19 @@
 
 import { lazy } from 'react';
 
-// Lazy load route components
-const Explore = lazy(() => import('@/pages/Explore').then(m => ({ default: m.Explore })));
-const Search = lazy(() => import('@/pages/Search').then(m => ({ default: m.Search })));
-const Submit = lazy(() => import('@/pages/Submit').then(m => ({ default: m.Submit })));
-const Profile = lazy(() => import('@/pages/Profile').then(m => ({ default: m.Profile })));
-const Fact = lazy(() => import('@/pages/Fact').then(m => ({ default: m.Fact })));
-const AdminDashboard = lazy(() => import('@/components/admin/AdminDashboard'));
-const Discover = lazy(() => import('@/pages/Discover').then(m => ({ default: m.Discover })));
-const Gamification = lazy(() => import('@/pages/Gamification'));
+// Lazy load components for better performance
+export const LazyExplore = lazy(() => import('@/pages/Explore'));
+export const LazySearch = lazy(() => import('@/pages/Search'));
+export const LazySubmit = lazy(() => import('@/pages/Submit'));
+export const LazyProfile = lazy(() => import('@/pages/Profile'));
+export const LazyFact = lazy(() => import('@/pages/Fact'));
+export const LazyAdmin = lazy(() => import('@/pages/Admin'));
+export const LazyDiscover = lazy(() => import('@/pages/Discover'));
+export const LazyGamification = lazy(() => import('@/pages/Gamification'));
+export const LazyComponentShowcase = lazy(() => import('@/pages/ComponentShowcase'));
+export const LazyLoreSubmit = lazy(() => import('@/pages/LoreSubmit'));
+export const LazyBilling = lazy(() => import('@/pages/Billing'));
 
-export {
-  Explore,
-  Search,
-  Submit,
-  Profile,
-  Fact,
-  AdminDashboard,
-  Discover,
-  Gamification
-};
+// Re-export direct components for compatibility
+export { default as Discover } from '@/pages/Discover';
+export { default as Gamification } from '@/pages/Gamification';
