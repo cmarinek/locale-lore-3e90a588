@@ -10,8 +10,10 @@ export * from './auth';
 // AI-powered components
 export * from './ai';
 
-// Discovery and search components
+// Discovery components
 export * from './discovery';
+
+// Search components  
 export * from './search';
 
 // Gamification components
@@ -20,8 +22,13 @@ export * from './gamification';
 // Lore submission components
 export * from './lore';
 
-// Social features
-export * from './social';
+// Social features (avoid FactCard conflict by importing specifically)
+export { FollowButton } from './social/FollowButton';
+export { SocialActivityFeed } from './social/SocialActivityFeed';
+export { SocialSharing } from './social/SocialSharing';
+export { UserProfile } from './social/UserProfile';
+export { ActivityFeed } from './social/ActivityFeed';
+export { DirectMessaging } from './social/DirectMessaging';
 
 // Real-time components
 export * from './realtime';

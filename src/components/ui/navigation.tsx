@@ -63,12 +63,11 @@ export const Navigation: React.FC = () => {
       icon: Trophy, 
       label: 'Achievements'
     },
-    { 
-      path: '/contributor', 
-      icon: Crown, 
-      label: 'Earn',
-      badge: 'New'
-    },
+      {
+        path: '/contributor',
+        icon: Crown,
+        label: 'Earn'
+      },
     { 
       path: '/media', 
       icon: Upload, 
@@ -91,7 +90,7 @@ export const Navigation: React.FC = () => {
     <>
       {/* Desktop Navigation */}
       <nav className="hidden md:flex items-center space-x-1 p-1 bg-muted rounded-lg">
-        {[...navItems, ...userItems].map(({ path, icon: Icon, label, badge }) => (
+        {[...navItems, ...userItems].map(({ path, icon: Icon, label }) => (
           <Link key={path} to={path}>
             <Button
               variant={isActive(path) ? 'default' : 'ghost'}
@@ -100,11 +99,7 @@ export const Navigation: React.FC = () => {
             >
               <Icon className="w-4 h-4 mr-2" />
               {label}
-              {badge && (
-                <Badge className="ml-2 text-xs px-1 py-0">
-                  {badge}
-                </Badge>
-              )}
+      {/* Badge removed - interface doesn't include badge */}
             </Button>
           </Link>
         ))}

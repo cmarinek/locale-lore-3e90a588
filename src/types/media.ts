@@ -61,14 +61,18 @@ export interface ModerationItem {
 export interface MediaFile {
   id: string;
   name: string;
+  originalName?: string;
   type: string;
+  mimeType?: string;
   size: number;
   url: string;
   thumbnailUrl?: string;
   uploadedAt: string;
   uploadedBy: string;
+  uploader?: { id: string; username: string; avatar_url?: string };
   status: 'pending' | 'approved' | 'rejected';
   moderationNotes?: string;
+  moderationReason?: string;
 }
 
 export interface MediaUploadProgress {

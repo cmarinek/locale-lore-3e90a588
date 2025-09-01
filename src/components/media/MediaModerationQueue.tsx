@@ -39,13 +39,16 @@ export const MediaModerationQueue: React.FC = () => {
       const mockData: MediaFile[] = [
         {
           id: '1',
+          name: 'landscape.jpg',
           originalName: 'landscape.jpg',
+          type: 'image/jpeg',
           mimeType: 'image/jpeg',
           size: 2048576,
           url: '/placeholder.svg',
           thumbnailUrl: '/placeholder.svg',
           status: 'pending',
           uploadedAt: new Date(Date.now() - 3600000).toISOString(),
+          uploadedBy: 'user1',
           uploader: {
             id: 'user1',
             username: 'explorer123',
@@ -54,13 +57,16 @@ export const MediaModerationQueue: React.FC = () => {
         },
         {
           id: '2',
+          name: 'city_night.mp4',
           originalName: 'city_night.mp4',
+          type: 'video/mp4',
           mimeType: 'video/mp4',
           size: 15728640,
           url: '/placeholder.svg',
           thumbnailUrl: '/placeholder.svg',
           status: 'pending',
           uploadedAt: new Date(Date.now() - 7200000).toISOString(),
+          uploadedBy: 'user2',
           uploader: {
             id: 'user2',
             username: 'nightowl',
