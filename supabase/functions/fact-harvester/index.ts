@@ -126,6 +126,7 @@ async function processBatch(supabase: any, params: { jobId: string; batchSize?: 
 
   let successCount = 0;
   let errorCount = 0;
+  let skippedCount = 0;
 
   for (const item of queueItems) {
     try {
@@ -148,9 +149,9 @@ async function processBatch(supabase: any, params: { jobId: string; batchSize?: 
           .insert({
             title: fact.title,
             description: fact.description,
-            latitude: fact.coordinates?.lat || 0,
-            longitude: fact.coordinates?.lon || 0,
-            location_name: fact.location || 'Unknown',
+            latitude: fact.coordinates.lat,
+            longitude: fact.coordinates.lon,
+            location_name: fact.location || fact.title,
             category_id: categoryId,
             author_id: '00000000-0000-0000-0000-000000000000', // System user
             status: 'verified',
@@ -167,14 +168,24 @@ async function processBatch(supabase: any, params: { jobId: string; batchSize?: 
           .from('acquisition_queue')
           .update({ 
             status: 'completed',
-            result_data: { fact_id: fact.title },
+            result_data: { fact_id: fact.title, coordinates: fact.coordinates },
             processed_at: new Date().toISOString()
           })
           .eq('id', item.id);
 
         successCount++;
       } else {
-        throw new Error('Failed to process Wikipedia page');
+        // Mark as skipped (no coordinates)
+        await supabase
+          .from('acquisition_queue')
+          .update({ 
+            status: 'failed',
+            error_message: 'No valid coordinates found',
+            processed_at: new Date().toISOString()
+          })
+          .eq('id', item.id);
+        
+        skippedCount++;
       }
     } catch (error) {
       console.error(`Failed to process item ${item.id}:`, error);
@@ -211,11 +222,15 @@ async function processBatch(supabase: any, params: { jobId: string; batchSize?: 
       .eq('id', jobId);
   }
 
+  console.log(`Batch processed: ${successCount} successful, ${errorCount} errors, ${skippedCount} skipped (no coordinates)`);
+
   return new Response(JSON.stringify({ 
     success: true,
     processed: queueItems.length,
     successCount,
-    errorCount
+    errorCount,
+    skippedCount,
+    message: `Processed ${queueItems.length} items: ${successCount} with coordinates, ${skippedCount} skipped`
   }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
@@ -313,10 +328,11 @@ async function processWikipediaPage(sourceData: any): Promise<WikipediaPage | nu
     const data = await response.json();
     
     if (!data.extract) {
+      console.log(`Skipping ${title}: No extract available`);
       return null;
     }
 
-    // Get coordinates if available
+    // Get coordinates - REQUIRED, no fallback
     let coordinates;
     try {
       const coordUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=coordinates&titles=${encodeURIComponent(title)}`;
@@ -327,21 +343,33 @@ async function processWikipediaPage(sourceData: any): Promise<WikipediaPage | nu
       if (pages) {
         const pageId = Object.keys(pages)[0];
         const coords = pages[pageId]?.coordinates?.[0];
-        if (coords) {
-          coordinates = { lat: coords.lat, lon: coords.lon };
+        if (coords && coords.lat && coords.lon) {
+          // Validate coordinates are within valid ranges
+          if (coords.lat >= -90 && coords.lat <= 90 && 
+              coords.lon >= -180 && coords.lon <= 180) {
+            coordinates = { lat: coords.lat, lon: coords.lon };
+          }
         }
       }
     } catch (error) {
       console.error('Failed to get coordinates:', error);
     }
 
+    // Skip if no valid coordinates found
+    if (!coordinates) {
+      console.log(`Skipping ${title}: No valid coordinates found`);
+      return null;
+    }
+
     // Get images from Wikimedia Commons
     const images = await getWikimediaImages(title);
+
+    console.log(`Successfully processed ${title} with coordinates: ${coordinates.lat}, ${coordinates.lon}`);
 
     return {
       title: data.title,
       description: data.extract,
-      coordinates: coordinates || { lat: Math.random() * 180 - 90, lon: Math.random() * 360 - 180 }, // Random fallback
+      coordinates: coordinates,
       location: data.title, // Use title as location fallback
       extract: data.extract,
       images: images.slice(0, 3), // Limit to 3 images
