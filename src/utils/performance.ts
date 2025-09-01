@@ -1,5 +1,6 @@
+
 // Performance utilities for optimization
-import { lazy, ComponentType, Suspense } from 'react';
+import React, { lazy, ComponentType, Suspense } from 'react';
 
 // Code splitting utility with error handling
 export const lazyImport = <T extends ComponentType<any>>(
@@ -8,8 +9,8 @@ export const lazyImport = <T extends ComponentType<any>>(
 ) => {
   const LazyComponent = lazy(importFn);
   
-  return (props: any) => (
-    <Suspense fallback={fallback ? <fallback /> : <div>Loading...</div>}>
+  return (props: React.ComponentProps<T>) => (
+    <Suspense fallback={fallback ? React.createElement(fallback) : <div>Loading...</div>}>
       <LazyComponent {...props} />
     </Suspense>
   );
