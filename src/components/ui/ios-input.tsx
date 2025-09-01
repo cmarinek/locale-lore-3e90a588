@@ -12,9 +12,9 @@ const inputVariants = cva(
         floating: "h-14 px-3 pt-4 pb-2",
       },
       inputSize: {
-        default: "h-10",
-        sm: "h-9",
-        lg: "h-12",
+        sm: "h-8 text-sm px-2",
+        default: "h-10 px-3",
+        lg: "h-14 text-lg px-4",
       }
     },
     defaultVariants: {

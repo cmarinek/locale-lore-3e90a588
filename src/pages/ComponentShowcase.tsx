@@ -167,14 +167,27 @@ const ComponentShowcase = () => {
           <CardContent className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-4">
+                <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Standard Variants</h4>
                 <Input placeholder="Standard input" />
                 <Input variant="floating" label="Email" type="email" />
                 <Input variant="floating" label="Password" type="password" />
               </div>
               <div className="space-y-4">
-                <Input inputSize="sm" placeholder="Small input" />
-                <Input inputSize="default" placeholder="Default input" />
-                <Input inputSize="lg" placeholder="Large input" />
+                <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Size Variants</h4>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Small Input</label>
+                    <Input inputSize="sm" placeholder="Small input (h-8)" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Default Input</label>
+                    <Input inputSize="default" placeholder="Default input (h-10)" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Large Input</label>
+                    <Input inputSize="lg" placeholder="Large input (h-14)" />
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
