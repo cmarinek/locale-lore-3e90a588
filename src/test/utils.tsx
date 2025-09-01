@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { render, RenderOptions } from '@testing-library/react';
+import { render, RenderOptions, screen, fireEvent, waitFor } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Re-export testing utilities
-export { screen, fireEvent, waitFor } from '@testing-library/react';
-export { userEvent } from '@testing-library/user-event';
+export { screen, fireEvent, waitFor, userEvent };
 
 const createTestQueryClient = () => new QueryClient({
   defaultOptions: {

@@ -33,11 +33,28 @@ export interface EnhancedFact extends Fact {
   trending_score?: number;
 }
 
+export interface Category {
+  id: string;
+  slug: string;
+  icon?: string;
+  color?: string;
+  name: string;
+}
+
+export interface CategoryTranslation {
+  id: string;
+  category_id: string;
+  language_code: string;
+  name: string;
+  description?: string;
+}
+
 export interface EnhancedCategory {
   id: string;
   slug: string;
   icon?: string;
   color?: string;
+  name: string;
   category_translations?: Array<{
     name: string;
     description?: string;
@@ -45,16 +62,40 @@ export interface EnhancedCategory {
   }>;
 }
 
+export interface UserProfile {
+  id: string;
+  username: string;
+  avatar_url?: string;
+  email?: string;
+  created_at: string;
+}
+
+export interface Vote {
+  id: string;
+  user_id: string;
+  fact_id: string;
+  vote_type: 'up' | 'down';
+  created_at: string;
+}
+
+export interface SavedFact {
+  id: string;
+  user_id: string;
+  fact_id: string;
+  created_at: string;
+}
+
 export interface SearchFilters {
   query: string;
+  search?: string;
   category?: string;
+  categories?: string[];
   verified?: boolean;
   timeRange?: string;
-  sortBy: 'relevance' | 'date' | 'popularity';
+  sortBy: 'relevance' | 'date' | 'popularity' | 'recency';
   location?: { lat: number; lng: number; name?: string };
-  categories?: string[];
   radius?: number;
-  center?: { lat: number; lng: number };
+  center?: [number, number] | null;
 }
 
 export type FactStatus = 'pending' | 'verified' | 'disputed' | 'rejected';

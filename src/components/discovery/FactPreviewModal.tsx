@@ -1,45 +1,47 @@
 
 import React from 'react';
-import { X, MapPin, ThumbsUp, ThumbsDown, Bookmark, BookmarkCheck, ExternalLink, Share } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { X, MapPin, ThumbsUp, ThumbsDown, Share2, Bookmark } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/ios-badge';
+import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent } from '@/components/ui/ios-card';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { EnhancedFact } from '@/types/fact';
 
-export const FactPreviewModal: React.FC = () => {
-  const { 
-    selectedFact, 
-    isModalOpen, 
-    savedFacts,
-    setModalOpen, 
-    toggleSavedFact 
-  } = useDiscoveryStore();
+interface FactPreviewModalProps {
+  fact: EnhancedFact | null;
+  open: boolean;
+  onClose: () => void;
+}
 
-  if (!selectedFact) return null;
+export const FactPreviewModal: React.FC<FactPreviewModalProps> = ({
+  fact,
+  open,
+  onClose
+}) => {
+  const { toggleSavedFact, savedFacts } = useDiscoveryStore();
 
-  const isSaved = savedFacts.includes(selectedFact.id);
-  const voteScore = selectedFact.vote_count_up - selectedFact.vote_count_down;
-  
-  const categoryName = selectedFact.categories?.category_translations?.find(
+  if (!fact) return null;
+
+  const isSaved = savedFacts.includes(fact.id);
+  const categoryName = fact.categories?.category_translations?.find(
     t => t.language_code === 'en'
-  )?.name || selectedFact.categories?.name || 'Unknown';
+  )?.name || fact.categories?.slug || 'Unknown';
 
-  const handleSaveToggle = () => {
-    toggleSavedFact(selectedFact.id);
+  const handleSave = () => {
+    toggleSavedFact(fact.id);
   };
 
   const handleShare = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: selectedFact.title,
-          text: selectedFact.description,
-          url: window.location.href
+          title: fact.title,
+          text: fact.description,
+          url: window.location.href,
         });
       } catch (error) {
-        console.log('Share cancelled');
+        console.log('Error sharing:', error);
       }
     } else {
       // Fallback to clipboard
@@ -47,165 +49,101 @@ export const FactPreviewModal: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
   return (
-    <Dialog open={isModalOpen} onOpenChange={setModalOpen}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
-        <div className="relative">
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="sr-only">Fact Details</DialogTitle>
+        </DialogHeader>
+
+        {/* Media */}
+        {fact.media_urls && fact.media_urls.length > 0 && (
+          <div className="relative h-64 rounded-lg overflow-hidden">
+            <img
+              src={fact.media_urls[0]}
+              alt={fact.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="space-y-4">
           {/* Header */}
-          <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Badge 
-                  variant="glass" 
-                  className="flex items-center gap-1"
-                  style={{ borderColor: selectedFact.categories?.color }}
-                >
-                  <span style={{ color: selectedFact.categories?.color }}>
-                    {selectedFact.categories?.icon}
-                  </span>
-                  <span className="capitalize">{categoryName}</span>
-                </Badge>
-                
-                {selectedFact.status === 'verified' && (
-                  <Badge variant="ios" size="sm">
-                    Verified
-                  </Badge>
-                )}
-              </div>
-              
+          <div className="space-y-2">
+            <div className="flex items-start justify-between gap-4">
+              <h2 className="text-xl font-bold leading-tight">{fact.title}</h2>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleSaveToggle}
-                  className="h-8 w-8 p-0"
-                >
-                  {isSaved ? (
-                    <BookmarkCheck className="h-4 w-4 text-yellow-500" />
-                  ) : (
-                    <Bookmark className="h-4 w-4" />
-                  )}
-                </Button>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleShare}
-                  className="h-8 w-8 p-0"
-                >
-                  <Share className="h-4 w-4" />
-                </Button>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setModalOpen(false)}
-                  className="h-8 w-8 p-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <Badge variant={fact.status === 'verified' ? 'default' : 'secondary'}>
+                  {fact.status}
+                </Badge>
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <span style={{ color: fact.categories?.color }}>
+                    {fact.categories?.icon}
+                  </span>
+                  {categoryName}
+                </Badge>
               </div>
+            </div>
+
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4" />
+              <span>{fact.location_name}</span>
             </div>
           </div>
 
-          {/* Content */}
-          <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
-            {/* Media */}
-            {selectedFact.media_urls && selectedFact.media_urls.length > 0 && (
-              <div className="aspect-video overflow-hidden">
-                <img
-                  src={selectedFact.media_urls[0]}
-                  alt={selectedFact.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              </div>
-            )}
+          {/* Description */}
+          <p className="text-muted-foreground leading-relaxed">
+            {fact.description}
+          </p>
 
-            <div className="p-6 space-y-6">
-              {/* Title & Location */}
-              <div className="space-y-3">
-                <h1 className="text-2xl font-bold">{selectedFact.title}</h1>
-                
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="h-4 w-4" />
-                  <span>{selectedFact.location_name}</span>
+          {/* Author */}
+          {fact.profiles && (
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={fact.profiles.avatar_url} />
+                <AvatarFallback>
+                  {fact.profiles.username?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="font-medium text-sm">{fact.profiles.username}</div>
+                <div className="text-xs text-muted-foreground">
+                  {new Date(fact.created_at).toLocaleDateString()}
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* Description */}
-              <div className="prose prose-sm max-w-none">
-                <p className="text-foreground">{selectedFact.description}</p>
-              </div>
-
-              {/* Stats */}
-              <Card variant="glass">
-                <CardContent className="p-4">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="flex items-center justify-center gap-1 text-green-600 mb-1">
-                        <ThumbsUp className="h-4 w-4" />
-                        <span className="font-semibold">{selectedFact.vote_count_up}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">Upvotes</p>
-                    </div>
-                    
-                    <div>
-                      <div className="flex items-center justify-center gap-1 text-red-600 mb-1">
-                        <ThumbsDown className="h-4 w-4" />
-                        <span className="font-semibold">{selectedFact.vote_count_down}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">Downvotes</p>
-                    </div>
-                    
-                    <div>
-                      <div className="mb-1">
-                        <span className={`font-semibold ${voteScore >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {voteScore >= 0 ? '+' : ''}{voteScore}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">Score</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Author & Meta */}
-              <div className="flex items-center justify-between pt-4 border-t">
-                <div className="flex items-center gap-3">
-                  {selectedFact.profiles && (
-                    <>
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={selectedFact.profiles.avatar_url || ''} />
-                        <AvatarFallback>
-                          {selectedFact.profiles.username?.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium text-sm">{selectedFact.profiles.username}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(selectedFact.created_at)}
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-                
-                <Button variant="outline" size="sm">
-                  <ExternalLink className="h-3 w-3 mr-1" />
-                  View Full
+          {/* Actions */}
+          <div className="flex items-center justify-between pt-4 border-t">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm">
+                  <ThumbsUp className="h-4 w-4 mr-1" />
+                  {fact.vote_count_up}
+                </Button>
+                <Button variant="ghost" size="sm">
+                  <ThumbsDown className="h-4 w-4 mr-1" />
+                  {fact.vote_count_down}
                 </Button>
               </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSave}
+                className={isSaved ? 'text-yellow-600' : ''}
+              >
+                <Bookmark className={`h-4 w-4 mr-1 ${isSaved ? 'fill-current' : ''}`} />
+                {isSaved ? 'Saved' : 'Save'}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleShare}>
+                <Share2 className="h-4 w-4 mr-1" />
+                Share
+              </Button>
             </div>
           </div>
         </div>

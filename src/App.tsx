@@ -1,6 +1,6 @@
 
 import React, { Suspense, useEffect } from 'react';
-import { BrowserRouter as Router, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -45,7 +45,58 @@ function AppContent() {
       <ScrollProgress />
       <PageTransition location={location.pathname}>
         <AnimatedPage>
-          <LazyRoutes />
+          <Routes>
+            <Route path="/" element={
+              <Suspense fallback={<EnhancedSkeleton />}>
+                <LazyRoutes.Explore />
+              </Suspense>
+            } />
+            <Route path="/search" element={
+              <Suspense fallback={<EnhancedSkeleton />}>
+                <LazyRoutes.Search />
+              </Suspense>
+            } />
+            <Route path="/submit" element={
+              <Suspense fallback={<EnhancedSkeleton />}>
+                <LazyRoutes.Submit />
+              </Suspense>
+            } />
+            <Route path="/profile" element={
+              <Suspense fallback={<EnhancedSkeleton />}>
+                <LazyRoutes.Profile />
+              </Suspense>
+            } />
+            <Route path="/fact/:id" element={
+              <Suspense fallback={<EnhancedSkeleton />}>
+                <LazyRoutes.Fact />
+              </Suspense>
+            } />
+            <Route path="/admin" element={
+              <Suspense fallback={<EnhancedSkeleton />}>
+                <LazyRoutes.Admin />
+              </Suspense>
+            } />
+            <Route path="/discover" element={
+              <Suspense fallback={<EnhancedSkeleton />}>
+                <LazyRoutes.Discover />
+              </Suspense>
+            } />
+            <Route path="/gamification" element={
+              <Suspense fallback={<EnhancedSkeleton />}>
+                <LazyRoutes.Gamification />
+              </Suspense>
+            } />
+            <Route path="/showcase" element={
+              <Suspense fallback={<EnhancedSkeleton />}>
+                <LazyRoutes.ComponentShowcase />
+              </Suspense>
+            } />
+            <Route path="/lore-submit" element={
+              <Suspense fallback={<EnhancedSkeleton />}>
+                <LazyRoutes.LoreSubmit />
+              </Suspense>
+            } />
+          </Routes>
         </AnimatedPage>
       </PageTransition>
     </>

@@ -1,500 +1,363 @@
 
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, HeatMapGrid } from 'recharts';
-import { TrendingUp, Users, DollarSign, Eye, MapPin, TestTube, Calendar, Download } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { 
+  LineChart, 
+  Line, 
+  AreaChart, 
+  Area, 
+  BarChart, 
+  Bar, 
+  PieChart, 
+  Pie, 
+  Cell,
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer 
+} from 'recharts';
+import { 
+  TrendingUp, 
+  Users, 
+  Eye, 
+  MapPin, 
+  DollarSign, 
+  Target,
+  Calendar,
+  Activity
+} from 'lucide-react';
 
-interface DashboardMetrics {
-  engagement: EngagementMetrics;
-  content: ContentMetrics;
-  geographic: GeographicMetrics;
-  abTesting: ABTestMetrics;
-  revenue: RevenueMetrics;
-  retention: RetentionMetrics;
+interface AnalyticsData {
+  engagement: any[];
+  performance: any[];
+  geographic: any[];
+  revenue: any[];
+  retention: any[];
+  demographics: any[];
 }
 
-interface EngagementMetrics {
-  activeUsers: number;
-  sessionDuration: number;
-  pageViews: number;
-  bounceRate: number;
-  dailyActiveUsers: Array<{ date: string; users: number }>;
-  engagementByHour: Array<{ hour: number; engagement: number }>;
+interface AnalyticsDashboardProps {
+  className?: string;
 }
 
-interface ContentMetrics {
-  topContent: Array<{ id: string; title: string; views: number; engagement: number }>;
-  contentPerformance: Array<{ date: string; views: number; shares: number; comments: number }>;
-  categoryBreakdown: Array<{ name: string; value: number; color: string }>;
-}
-
-interface GeographicMetrics {
-  topRegions: Array<{ region: string; users: number; engagement: number }>;
-  heatmapData: Array<{ lat: number; lng: number; intensity: number }>;
-  countryBreakdown: Array<{ country: string; users: number; percentage: number }>;
-}
-
-interface ABTestMetrics {
-  activeTests: Array<{ name: string; variants: string[]; conversions: Record<string, number> }>;
-  testResults: Array<{ test: string; winner: string; improvement: number; confidence: number }>;
-}
-
-interface RevenueMetrics {
-  totalRevenue: number;
-  monthlyRecurringRevenue: number;
-  averageRevenuePerUser: number;
-  churnRate: number;
-  revenueByPlan: Array<{ plan: string; revenue: number; subscribers: number }>;
-  revenueGrowth: Array<{ date: string; revenue: number; growth: number }>;
-}
-
-interface RetentionMetrics {
-  overallRetention: number;
-  cohortAnalysis: Array<{ cohort: string; day1: number; day7: number; day30: number }>;
-  churnPrediction: Array<{ segment: string; riskLevel: 'low' | 'medium' | 'high'; users: number }>;
-}
-
-export const AnalyticsDashboard: React.FC = () => {
-  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ className }) => {
+  const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState('30d');
-  const [selectedTab, setSelectedTab] = useState('overview');
+  const [timeRange, setTimeRange] = useState('7d');
 
   useEffect(() => {
-    fetchDashboardMetrics();
+    fetchAnalyticsData();
   }, [timeRange]);
 
-  const fetchDashboardMetrics = async () => {
+  const fetchAnalyticsData = async () => {
     setLoading(true);
     try {
-      // Fetch comprehensive analytics data
-      const response = await fetch(`/api/analytics/dashboard?timeRange=${timeRange}`);
-      const data = await response.json();
-      setMetrics(data);
+      // Mock data - replace with actual API calls
+      const mockData: AnalyticsData = {
+        engagement: [
+          { date: '2024-01-01', views: 1200, interactions: 450, shares: 89 },
+          { date: '2024-01-02', views: 1350, interactions: 520, shares: 95 },
+          { date: '2024-01-03', views: 1180, interactions: 480, shares: 78 },
+          { date: '2024-01-04', views: 1420, interactions: 580, shares: 112 },
+          { date: '2024-01-05', views: 1600, interactions: 650, shares: 128 },
+        ],
+        performance: [
+          { category: 'History', facts: 245, engagement: 85 },
+          { category: 'Nature', facts: 189, engagement: 72 },
+          { category: 'Culture', facts: 156, engagement: 68 },
+          { category: 'Science', facts: 123, engagement: 91 },
+        ],
+        geographic: [
+          { region: 'North America', users: 2500, percentage: 45 },
+          { region: 'Europe', users: 1800, percentage: 32 },
+          { region: 'Asia', users: 980, percentage: 18 },
+          { region: 'Other', users: 280, percentage: 5 },
+        ],
+        revenue: [
+          { month: 'Jan', revenue: 12500, subscriptions: 125 },
+          { month: 'Feb', revenue: 14200, subscriptions: 142 },
+          { month: 'Mar', revenue: 16800, subscriptions: 168 },
+          { month: 'Apr', revenue: 18900, subscriptions: 189 },
+        ],
+        retention: [
+          { cohort: 'Week 1', day1: 100, day7: 65, day30: 42 },
+          { cohort: 'Week 2', day1: 100, day7: 68, day30: 45 },
+          { cohort: 'Week 3', day1: 100, day7: 71, day30: 48 },
+          { cohort: 'Week 4', day1: 100, day7: 73, day30: 51 },
+        ],
+        demographics: [
+          { ageGroup: '18-24', users: 850, color: '#8B5CF6' },
+          { ageGroup: '25-34', users: 1240, color: '#10B981' },
+          { ageGroup: '35-44', users: 980, color: '#F59E0B' },
+          { ageGroup: '45+', users: 620, color: '#EF4444' },
+        ]
+      };
+      
+      setData(mockData);
     } catch (error) {
-      console.error('Failed to fetch dashboard metrics:', error);
+      console.error('Error fetching analytics data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const exportReport = async () => {
-    try {
-      const response = await fetch(`/api/analytics/export?timeRange=${timeRange}&format=pdf`);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `analytics-report-${timeRange}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Failed to export report:', error);
-    }
-  };
-
-  if (loading) {
+  if (loading || !data) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        {[...Array(6)].map((_, i) => (
+          <Card key={i} className="h-64 animate-pulse bg-muted/30" />
+        ))}
       </div>
     );
   }
 
-  if (!metrics) {
-    return (
-      <div className="text-center text-muted-foreground">
-        Failed to load analytics data. Please try again.
-      </div>
-    );
-  }
+  const MetricCard = ({ title, value, change, icon: Icon, color }: any) => (
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <p className="text-2xl font-bold">{value}</p>
+            <Badge variant={change > 0 ? "default" : "destructive"} className="mt-2">
+              {change > 0 ? '+' : ''}{change}%
+            </Badge>
+          </div>
+          <div className={`p-3 rounded-full ${color}`}>
+            <Icon className="h-6 w-6 text-white" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
-          <p className="text-muted-foreground">Comprehensive business intelligence and insights</p>
+    <div className={className}>
+      <div className="space-y-6">
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <MetricCard
+            title="Total Users"
+            value="5,628"
+            change={12.5}
+            icon={Users}
+            color="bg-blue-500"
+          />
+          <MetricCard
+            title="Page Views"
+            value="24,891"
+            change={8.2}
+            icon={Eye}
+            color="bg-green-500"
+          />
+          <MetricCard
+            title="Engagement Rate"
+            value="4.2%"
+            change={-2.1}
+            icon={Activity}
+            color="bg-purple-500"
+          />
+          <MetricCard
+            title="Revenue"
+            value="$18,900"
+            change={15.8}
+            icon={DollarSign}
+            color="bg-orange-500"
+          />
         </div>
-        <div className="flex items-center gap-4">
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">Last 7 days</SelectItem>
-              <SelectItem value="30d">Last 30 days</SelectItem>
-              <SelectItem value="90d">Last 3 months</SelectItem>
-              <SelectItem value="1y">Last year</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={exportReport} variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
-          </Button>
-        </div>
-      </div>
 
-      {/* Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.engagement.activeUsers.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              +12% from last period
-            </p>
-          </CardContent>
-        </Card>
+        {/* Main Analytics Tabs */}
+        <Tabs defaultValue="engagement" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="engagement">Engagement</TabsTrigger>
+            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="geographic">Geographic</TabsTrigger>
+            <TabsTrigger value="revenue">Revenue</TabsTrigger>
+            <TabsTrigger value="retention">Retention</TabsTrigger>
+          </TabsList>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${metrics.revenue.totalRevenue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              +8% from last period
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Page Views</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.engagement.pageViews.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              +15% from last period
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Retention Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.retention.overallRetention}%</div>
-            <p className="text-xs text-muted-foreground">
-              +3% from last period
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Detailed Analytics Tabs */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="engagement">Engagement</TabsTrigger>
-          <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="geographic">Geographic</TabsTrigger>
-          <TabsTrigger value="testing">A/B Testing</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+          <TabsContent value="engagement">
             <Card>
               <CardHeader>
-                <CardTitle>Daily Active Users</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  User Engagement Trends
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={metrics.engagement.dailyActiveUsers}>
+                <ResponsiveContainer width="100%" height={400}>
+                  <AreaChart data={data.engagement}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
                     <YAxis />
                     <Tooltip />
-                    <Line type="monotone" dataKey="users" stroke="#8884d8" strokeWidth={2} />
+                    <Legend />
+                    <Area 
+                      type="monotone" 
+                      dataKey="views" 
+                      stackId="1" 
+                      stroke="#8B5CF6" 
+                      fill="#8B5CF6" 
+                      fillOpacity={0.6}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="interactions" 
+                      stackId="2" 
+                      stroke="#10B981" 
+                      fill="#10B981" 
+                      fillOpacity={0.8}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="content">
+            <Card>
+              <CardHeader>
+                <CardTitle>Content Performance by Category</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart data={data.performance}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="category" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <Tooltip />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="facts" fill="#8B5CF6" />
+                    <Bar yAxisId="right" dataKey="engagement" fill="#10B981" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="geographic">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Geographic Distribution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={data.geographic}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        dataKey="users"
+                        label={({ region, percentage }) => `${region}: ${percentage}%`}
+                      >
+                        {data.geographic.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={`hsl(${index * 90}, 70%, 50%)`} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Regional Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {data.geographic.map((region, index) => (
+                    <div key={region.region} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-4 h-4 rounded-full"
+                          style={{ backgroundColor: `hsl(${index * 90}, 70%, 50%)` }}
+                        />
+                        <span className="font-medium">{region.region}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold">{region.users.toLocaleString()}</div>
+                        <div className="text-sm text-muted-foreground">{region.percentage}%</div>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="revenue">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Revenue & Subscriptions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart data={data.revenue}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <Tooltip />
+                    <Legend />
+                    <Line 
+                      yAxisId="left" 
+                      type="monotone" 
+                      dataKey="revenue" 
+                      stroke="#10B981" 
+                      strokeWidth={3}
+                    />
+                    <Line 
+                      yAxisId="right" 
+                      type="monotone" 
+                      dataKey="subscriptions" 
+                      stroke="#8B5CF6" 
+                      strokeWidth={3}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
+          </TabsContent>
 
+          <TabsContent value="retention">
             <Card>
               <CardHeader>
-                <CardTitle>Revenue Growth</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  User Retention Cohorts
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={metrics.revenue.revenueGrowth}>
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart data={data.retention}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
+                    <XAxis dataKey="cohort" />
                     <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="revenue" fill="#82ca9d" />
-                    <Bar dataKey="growth" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="engagement" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Engagement by Hour</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={metrics.engagement.engagementByHour}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="hour" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="engagement" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Key Metrics</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span>Session Duration</span>
-                  <Badge variant="secondary">{metrics.engagement.sessionDuration}m</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span>Bounce Rate</span>
-                  <Badge variant={metrics.engagement.bounceRate < 40 ? "default" : "destructive"}>
-                    {metrics.engagement.bounceRate}%
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="content" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Top Performing Content</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {metrics.content.topContent.slice(0, 5).map((content, index) => (
-                    <div key={content.id} className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium truncate">{content.title}</p>
-                        <p className="text-sm text-muted-foreground">{content.views} views</p>
-                      </div>
-                      <Badge variant={content.engagement > 0.7 ? "default" : "secondary"}>
-                        {Math.round(content.engagement * 100)}%
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Content by Category</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={metrics.content.categoryBreakdown}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      dataKey="value"
-                      label
-                    >
-                      {metrics.content.categoryBreakdown.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
                     <Tooltip />
                     <Legend />
-                  </PieChart>
+                    <Line type="monotone" dataKey="day1" stroke="#EF4444" strokeWidth={2} />
+                    <Line type="monotone" dataKey="day7" stroke="#F59E0B" strokeWidth={2} />
+                    <Line type="monotone" dataKey="day30" stroke="#10B981" strokeWidth={2} />
+                  </LineChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="geographic" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Top Regions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {metrics.geographic.topRegions.map((region, index) => (
-                    <div key={region.region} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        <span>{region.region}</span>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium">{region.users} users</p>
-                        <p className="text-sm text-muted-foreground">{region.engagement}% engagement</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Usage Heatmap</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
-                  <p className="text-muted-foreground">Interactive heatmap would be rendered here</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="testing" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Active Tests</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {metrics.abTesting.activeTests.map((test, index) => (
-                    <div key={test.name} className="border rounded-lg p-4">
-                      <h4 className="font-medium">{test.name}</h4>
-                      <div className="mt-2 space-y-2">
-                        {test.variants.map((variant) => (
-                          <div key={variant} className="flex justify-between">
-                            <span className="capitalize">{variant}</span>
-                            <Badge variant="outline">
-                              {test.conversions[variant] || 0}% CVR
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Test Results</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {metrics.abTesting.testResults.map((result, index) => (
-                    <div key={result.test} className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">{result.test}</p>
-                        <p className="text-sm text-muted-foreground">Winner: {result.winner}</p>
-                      </div>
-                      <div className="text-right">
-                        <Badge variant={result.confidence > 95 ? "default" : "secondary"}>
-                          +{result.improvement}%
-                        </Badge>
-                        <p className="text-xs text-muted-foreground">{result.confidence}% confidence</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="revenue" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue Metrics</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span>MRR</span>
-                  <Badge variant="default">${metrics.revenue.monthlyRecurringRevenue}</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span>ARPU</span>
-                  <Badge variant="secondary">${metrics.revenue.averageRevenuePerUser}</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span>Churn Rate</span>
-                  <Badge variant={metrics.revenue.churnRate < 5 ? "default" : "destructive"}>
-                    {metrics.revenue.churnRate}%
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle>Revenue by Plan</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={metrics.revenue.revenueByPlan}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="plan" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="revenue" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Churn Risk Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
-                {metrics.retention.churnPrediction.map((segment) => (
-                  <div key={segment.segment} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">{segment.segment}</h4>
-                      <Badge variant={
-                        segment.riskLevel === 'high' ? 'destructive' :
-                        segment.riskLevel === 'medium' ? 'secondary' : 'default'
-                      }>
-                        {segment.riskLevel} risk
-                      </Badge>
-                    </div>
-                    <p className="text-2xl font-bold">{segment.users}</p>
-                    <p className="text-sm text-muted-foreground">users at risk</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };
