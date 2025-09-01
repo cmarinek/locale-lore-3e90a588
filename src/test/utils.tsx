@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { render } from '@testing-library/react';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { render as rtlRender } from '@testing-library/react';
+import * as rtl from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -34,7 +34,7 @@ const MockAuthProvider = ({ children }: { children: React.ReactNode }) => {
 export const renderWithProviders = (ui: React.ReactElement, options = {}) => {
   const testQueryClient = createTestQueryClient();
   
-  return render(
+  return rtlRender(
     <QueryClientProvider client={testQueryClient}>
       <MockAuthProvider>
         <BrowserRouter>
@@ -46,6 +46,12 @@ export const renderWithProviders = (ui: React.ReactElement, options = {}) => {
   );
 };
 
-// Export testing utilities
-export { screen, fireEvent, waitFor };
-export { render };
+// Export testing utilities - use the render from renderWithProviders as default
+export const render = renderWithProviders;
+export const screen = rtl.screen;
+export const fireEvent = rtl.fireEvent;
+export const waitFor = rtl.waitFor;
+
+// Export the mock auth context for tests that need it
+export const mockAuth = mockAuthContext;
+export { MockAuthProvider };
