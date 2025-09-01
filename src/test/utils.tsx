@@ -1,11 +1,10 @@
 
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '@/contexts/AuthContext';
 
-// Re-export everything from testing library
+// Re-export everything from testing-library
 export * from '@testing-library/react';
 export { default as userEvent } from '@testing-library/user-event';
 
@@ -21,16 +20,14 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        {children}
       </BrowserRouter>
     </QueryClientProvider>
   );
 };
 
 const customRender = (
-  ui: ReactElement,
+  ui: React.ReactElement,
   options?: Omit<RenderOptions, 'wrapper'>,
 ) => render(ui, { wrapper: AllTheProviders, ...options });
 

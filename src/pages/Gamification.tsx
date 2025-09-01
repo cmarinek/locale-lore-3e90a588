@@ -1,15 +1,23 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Star, Target, Flame, Gift, Users } from 'lucide-react';
+import { Trophy, Star, Target, Flame, Gift, Users, Award, Crown } from 'lucide-react';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { GamificationHeader } from '@/components/gamification/GamificationHeader';
 import { AchievementBadge } from '@/components/gamification/AchievementBadge';
 import { ChallengeCard } from '@/components/gamification/ChallengeCard';
 import { LeaderboardCard } from '@/components/gamification/LeaderboardCard';
+import { ContributionLevelSystem } from '@/components/gamification/ContributionLevelSystem';
+import { SeasonalChallenges } from '@/components/gamification/SeasonalChallenges';
+import { SocialSharing } from '@/components/gamification/SocialSharing';
+import { VisualProgressIndicators } from '@/components/gamification/VisualProgressIndicators';
+import { PointsAnimation, usePointsNotifications } from '@/components/gamification/PointsAnimation';
+import { ReputationDisplay } from '@/components/verification/ReputationDisplay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Achievement {
   id: string;
@@ -34,10 +42,56 @@ interface Challenge {
 }
 
 export default function Gamification() {
+  const { user } = useAuth();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [earnedAchievements, setEarnedAchievements] = useState<Achievement[]>([]);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [userStats, setUserStats] = useState({
+    totalPoints: 0,
+    currentStreak: 0,
+    longestStreak: 0,
+    totalContributions: 0,
+    level: 1
+  });
   const [loading, setLoading] = useState(true);
+
+  const { notifications, addNotification, removeNotification } = usePointsNotifications();
+
+  // Mock progress steps for demonstration
+  const progressSteps = [
+    {
+      id: '1',
+      title: 'First Fact Submission',
+      description: 'Submit your first fact to the platform',
+      isCompleted: true,
+      isCurrent: false,
+      points: 50
+    },
+    {
+      id: '2',
+      title: 'Community Engagement',
+      description: 'Vote on 10 facts and leave 5 comments',
+      isCompleted: true,
+      isCurrent: false,
+      points: 100
+    },
+    {
+      id: '3',
+      title: 'Quality Contributor',
+      description: 'Get 5 facts verified by the community',
+      isCompleted: false,
+      isCurrent: true,
+      points: 200
+    },
+    {
+      id: '4',
+      title: 'Expert Explorer',
+      description: 'Discover facts in 10 different locations',
+      isCompleted: false,
+      isCurrent: false,
+      points: 300
+    }
+  ];
 
   const fetchGamificationData = async () => {
     try {
@@ -72,6 +126,19 @@ export default function Gamification() {
         .eq('is_active', true)
         .order('challenge_type', { ascending: true });
 
+      // Fetch user level and stats
+      const { data: userLevel } = await supabase
+        .from('user_levels')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      const { data: userReputation } = await supabase
+        .from('user_reputation')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
       if (allAchievements) {
         setAchievements(allAchievements);
       }
@@ -93,6 +160,17 @@ export default function Gamification() {
         setChallenges(challengesWithProgress);
       }
 
+      // Update user stats
+      if (userLevel || userReputation) {
+        setUserStats({
+          totalPoints: userLevel?.total_xp || 0,
+          currentStreak: userReputation?.streak_days || 0,
+          longestStreak: userReputation?.streak_days || 0, // Would need separate field
+          totalContributions: (userReputation?.facts_verified || 0) + (userReputation?.votes_cast || 0),
+          level: userLevel?.current_level || 1
+        });
+      }
+
     } catch (error) {
       console.error('Error fetching gamification data:', error);
     } finally {
@@ -103,6 +181,13 @@ export default function Gamification() {
   useEffect(() => {
     fetchGamificationData();
   }, []);
+
+  // Demo function to show points animation
+  const handleDemoPointsAnimation = () => {
+    addNotification(25, 'discovery');
+    setTimeout(() => addNotification(50, 'verification'), 1000);
+    setTimeout(() => addNotification(10, 'comment'), 2000);
+  };
 
   const groupAchievementsByCategory = (achievements: Achievement[]) => {
     return achievements.reduce((groups, achievement) => {
@@ -142,12 +227,17 @@ export default function Gamification() {
       {Object.entries(achievements).map(([category, categoryAchievements]) => (
         <Card key={category}>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg capitalize">
-              {getCategoryIcon(category)}
-              {category} Achievements
-              <Badge variant="outline">
-                {categoryAchievements.length}
-              </Badge>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-lg capitalize">
+                {getCategoryIcon(category)}
+                {category} Achievements
+                <Badge variant="outline">
+                  {categoryAchievements.length}
+                </Badge>
+              </div>
+              {isEarned && categoryAchievements.length > 0 && (
+                <SocialSharing achievement={categoryAchievements[0]} />
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -164,6 +254,8 @@ export default function Gamification() {
                     achievement={achievement}
                     size="lg"
                     showTooltip={true}
+                    isNew={isEarned && achievement.earned_at && 
+                           new Date(achievement.earned_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)}
                   />
                 </motion.div>
               ))}
@@ -177,11 +269,21 @@ export default function Gamification() {
   return (
     <MainLayout>
       <div className="container mx-auto p-4 space-y-6">
+        {/* Points Animation */}
+        <PointsAnimation 
+          notifications={notifications}
+          onComplete={removeNotification}
+        />
+
         {/* Header */}
         <GamificationHeader />
 
-        <Tabs defaultValue="achievements" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <Crown className="h-4 w-4" />
+              Overview
+            </TabsTrigger>
             <TabsTrigger value="achievements" className="flex items-center gap-2">
               <Trophy className="h-4 w-4" />
               Achievements
@@ -190,11 +292,58 @@ export default function Gamification() {
               <Target className="h-4 w-4" />
               Challenges
             </TabsTrigger>
+            <TabsTrigger value="levels" className="flex items-center gap-2">
+              <Award className="h-4 w-4" />
+              Levels
+            </TabsTrigger>
             <TabsTrigger value="leaderboards" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Leaderboards
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="grid gap-6 lg:grid-cols-2"
+            >
+              {/* Progress Indicators */}
+              <VisualProgressIndicators
+                steps={progressSteps}
+                overallProgress={65}
+                streak={{
+                  current: userStats.currentStreak,
+                  longest: userStats.longestStreak,
+                  type: 'daily_discovery'
+                }}
+                level={{
+                  current: userStats.level,
+                  progress: 75,
+                  nextLevelPoints: 250
+                }}
+              />
+
+              {/* Reputation Display */}
+              <ReputationDisplay 
+                userId={user?.id}
+                compact={false}
+                showAchievements={true}
+              />
+            </motion.div>
+
+            {/* Demo Button */}
+            <Card>
+              <CardContent className="p-4">
+                <button
+                  onClick={handleDemoPointsAnimation}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  Demo Points Animation
+                </button>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="achievements" className="space-y-6">
             <motion.div
@@ -238,6 +387,7 @@ export default function Gamification() {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
             >
+              {/* Regular Challenges */}
               <div className="grid gap-4 md:grid-cols-2">
                 {challenges.map((challenge, index) => (
                   <motion.div
@@ -250,6 +400,21 @@ export default function Gamification() {
                   </motion.div>
                 ))}
               </div>
+
+              {/* Seasonal Challenges */}
+              <SeasonalChallenges />
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="levels" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <ContributionLevelSystem
+                currentPoints={userStats.totalPoints}
+                totalContributions={userStats.totalContributions}
+              />
             </motion.div>
           </TabsContent>
 
