@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/ios-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/ios-badge';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, Image, Video, FileText } from 'lucide-react';
+import { Upload, X, Image, Video, FileText, Music, Archive, File } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -86,8 +86,22 @@ export const StepMedia: React.FC<StepMediaProps> = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'],
-      'video/*': ['.mp4', '.mov', '.avi', '.webm'],
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp', '.tiff'],
+      'video/*': ['.mp4', '.mov', '.avi', '.webm', '.mkv', '.flv', '.wmv', '.m4v'],
+      'audio/*': ['.mp3', '.wav', '.aac', '.ogg', '.flac', '.m4a', '.wma'],
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'application/vnd.ms-excel': ['.xls'],
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+      'application/vnd.ms-powerpoint': ['.ppt'],
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
+      'text/plain': ['.txt'],
+      'text/csv': ['.csv'],
+      'application/json': ['.json'],
+      'application/zip': ['.zip'],
+      'application/x-rar-compressed': ['.rar'],
+      'application/x-7z-compressed': ['.7z'],
     },
     maxSize,
     multiple: true
@@ -109,12 +123,34 @@ export const StepMedia: React.FC<StepMediaProps> = ({
 
   const getFileIcon = (url: string) => {
     const extension = url.split('.').pop()?.toLowerCase();
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '')) {
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'tiff'].includes(extension || '')) {
       return Image;
-    } else if (['mp4', 'mov', 'avi', 'webm'].includes(extension || '')) {
+    } else if (['mp4', 'mov', 'avi', 'webm', 'mkv', 'flv', 'wmv', 'm4v'].includes(extension || '')) {
       return Video;
+    } else if (['mp3', 'wav', 'aac', 'ogg', 'flac', 'm4a', 'wma'].includes(extension || '')) {
+      return Music;
+    } else if (['zip', 'rar', '7z'].includes(extension || '')) {
+      return Archive;
+    } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'json'].includes(extension || '')) {
+      return FileText;
     }
-    return FileText;
+    return File;
+  };
+
+  const getFileType = (url: string) => {
+    const extension = url.split('.').pop()?.toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'tiff'].includes(extension || '')) {
+      return 'image';
+    } else if (['mp4', 'mov', 'avi', 'webm', 'mkv', 'flv', 'wmv', 'm4v'].includes(extension || '')) {
+      return 'video';
+    } else if (['mp3', 'wav', 'aac', 'ogg', 'flac', 'm4a', 'wma'].includes(extension || '')) {
+      return 'audio';
+    } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(extension || '')) {
+      return 'document';
+    } else if (['zip', 'rar', '7z'].includes(extension || '')) {
+      return 'archive';
+    }
+    return 'file';
   };
 
   return (
@@ -127,7 +163,7 @@ export const StepMedia: React.FC<StepMediaProps> = ({
           </Badge>
         </div>
         <p className="text-muted-foreground">
-          Add images, videos, or documents to support your lore. Media helps readers better understand and visualize your content.
+          Add images, videos, audio, documents, or archives to support your lore. Rich media helps readers better understand and engage with your content.
         </p>
       </div>
 
@@ -150,7 +186,7 @@ export const StepMedia: React.FC<StepMediaProps> = ({
               Drag & drop files here, or <span className="text-primary">click to browse</span>
             </p>
             <p className="text-xs text-muted-foreground">
-              Supports images and videos. Max {maxSize / (1024 * 1024)}MB per file.
+              Supports images, videos, audio, documents, and archives. Max {maxSize / (1024 * 1024)}MB per file.
             </p>
           </div>
         )}
@@ -164,9 +200,9 @@ export const StepMedia: React.FC<StepMediaProps> = ({
             <AnimatePresence>
               {data.media_urls.map((url, index) => {
                 const FileIcon = getFileIcon(url);
-                const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(
-                  url.split('.').pop()?.toLowerCase() || ''
-                );
+                const fileType = getFileType(url);
+                const fileName = url.split('/').pop()?.split('.')[0] || `File ${index + 1}`;
+                const extension = url.split('.').pop()?.toUpperCase();
 
                 return (
                   <motion.div
@@ -178,15 +214,38 @@ export const StepMedia: React.FC<StepMediaProps> = ({
                     className="relative group"
                   >
                     <div className="aspect-square rounded-lg border border-border overflow-hidden bg-background/50">
-                      {isImage ? (
+                      {fileType === 'image' ? (
                         <img 
                           src={url} 
                           alt={`Upload ${index + 1}`}
                           className="w-full h-full object-cover"
                         />
+                      ) : fileType === 'video' ? (
+                        <div className="relative w-full h-full">
+                          <video 
+                            src={url}
+                            className="w-full h-full object-cover"
+                            muted
+                            preload="metadata"
+                          />
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                            <Video className="w-8 h-8 text-white" />
+                          </div>
+                        </div>
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <FileIcon className="w-8 h-8 text-muted-foreground" />
+                        <div className="w-full h-full flex flex-col items-center justify-center p-4">
+                          <FileIcon className={`w-8 h-8 mb-2 ${
+                            fileType === 'audio' ? 'text-green-500' :
+                            fileType === 'document' ? 'text-blue-500' :
+                            fileType === 'archive' ? 'text-orange-500' :
+                            'text-muted-foreground'
+                          }`} />
+                          <div className="text-center">
+                            <p className="text-xs font-medium text-foreground truncate w-full">
+                              {fileName.length > 8 ? fileName.substring(0, 8) + '...' : fileName}
+                            </p>
+                            <p className="text-xs text-muted-foreground">{extension}</p>
+                          </div>
                         </div>
                       )}
                       
@@ -227,14 +286,17 @@ export const StepMedia: React.FC<StepMediaProps> = ({
         <div className={`p-3 rounded-lg ${subscriptionTier === 'free' ? 'bg-muted/50' : 'bg-background/50'}`}>
           <h5 className="font-medium text-sm mb-1">Free</h5>
           <p className="text-xs text-muted-foreground">2 files, 5MB each</p>
+          <p className="text-xs text-muted-foreground mt-1">Images & videos only</p>
         </div>
         <div className={`p-3 rounded-lg ${subscriptionTier === 'premium' ? 'bg-primary/10 border border-primary/20' : 'bg-background/50'}`}>
           <h5 className="font-medium text-sm mb-1">Premium</h5>
           <p className="text-xs text-muted-foreground">5 files, 20MB each</p>
+          <p className="text-xs text-muted-foreground mt-1">All media types</p>
         </div>
         <div className={`p-3 rounded-lg ${subscriptionTier === 'pro' ? 'bg-primary/10 border border-primary/20' : 'bg-background/50'}`}>
           <h5 className="font-medium text-sm mb-1">Pro</h5>
           <p className="text-xs text-muted-foreground">10 files, 50MB each</p>
+          <p className="text-xs text-muted-foreground mt-1">All media types + priority</p>
         </div>
       </div>
     </Card>
