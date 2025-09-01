@@ -1,4 +1,3 @@
-
 // Performance utilities for optimization
 import { lazy, ComponentType, Suspense } from 'react';
 
