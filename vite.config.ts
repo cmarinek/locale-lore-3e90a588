@@ -33,6 +33,7 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4 MB
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\//,
@@ -49,6 +50,17 @@ export default defineConfig(({ mode }) => ({
               expiration: {
                 maxEntries: 30,
                 maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/api\.mapbox\.com\//,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "mapbox-api",
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
               },
             },
           },
@@ -71,7 +83,10 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           vendor: ["react", "react-dom"],
           router: ["react-router-dom"],
-          ui: ["@radix-ui/react-dialog", "@radix-ui/react-toast"],
+          ui: ["@radix-ui/react-dialog", "@radix-ui/react-toast", "@radix-ui/react-select", "@radix-ui/react-slider"],
+          mapbox: ["mapbox-gl"],
+          store: ["zustand"],
+          supabase: ["@supabase/supabase-js"],
         },
       },
     },
