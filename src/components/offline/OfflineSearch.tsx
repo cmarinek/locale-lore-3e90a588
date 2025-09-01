@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, MapPin, Calendar, Star } from 'lucide-react';
-import { Fact } from '@/types';
+import { FactType } from '@/types';
 
 export const OfflineSearch: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -24,7 +24,7 @@ export const OfflineSearch: React.FC = () => {
   const featuredFacts = getFeaturedOfflineFacts();
   const recentFacts = getRecentOfflineFacts();
 
-  const FactCard: React.FC<{ fact: Fact }> = ({ fact }) => (
+  const FactCard: React.FC<{ fact: FactType }> = ({ fact }) => (
     <Card className="mb-3 cursor-pointer hover:shadow-md transition-shadow">
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-2">

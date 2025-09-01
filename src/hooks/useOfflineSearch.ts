@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useOffline } from './useOffline';
-import { Fact } from '@/types';
+import { FactType } from '@/types';
 
 export const useOfflineSearch = () => {
-  const [cachedFacts, setCachedFacts] = useState<Fact[]>([]);
-  const [searchResults, setSearchResults] = useState<Fact[]>([]);
+  const [cachedFacts, setCachedFacts] = useState<FactType[]>([]);
+  const [searchResults, setSearchResults] = useState<FactType[]>([]);
   const { isOnline, getCachedFacts } = useOffline();
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export const useOfflineSearch = () => {
     setSearchResults(scored);
   };
 
-  const calculateRelevanceScore = (fact: Fact, query: string): number => {
+  const calculateRelevanceScore = (fact: FactType, query: string): number => {
     let score = 0;
     const queryLower = query.toLowerCase();
 
