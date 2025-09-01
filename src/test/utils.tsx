@@ -1,57 +1,51 @@
 
 import React from 'react';
-import { render as rtlRender } from '@testing-library/react';
-import { screen } from '@testing-library/react';
-import { fireEvent } from '@testing-library/react';
-import { waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render as rtlRender, RenderOptions } from '@testing-library/react';
+import { AuthContext } from '@/contexts/AuthContext';
+import { User } from '@supabase/supabase-js';
 
-// Create a test query client
-const createTestQueryClient = () => new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
-});
+// Re-export testing utilities
+export { screen, fireEvent, waitFor } from '@testing-library/react';
 
-// Mock auth context value
-const mockAuthContext = {
+interface MockAuthContextValue {
+  user: User | null;
+  loading: boolean;
+  signOut: () => Promise<void>;
+}
+
+const mockAuthContext: MockAuthContextValue = {
   user: null,
-  signIn: jest.fn(),
-  signOut: jest.fn(),
-  signUp: jest.fn(),
-  resetPassword: jest.fn(),
   loading: false,
-  profile: null,
-  updateProfile: jest.fn(),
+  signOut: async () => {},
 };
 
-// Mock AuthContext component
-const MockAuthProvider = ({ children }: { children: React.ReactNode }) => {
-  return <div data-testid="mock-auth-provider">{children}</div>;
-};
+const MockAuthProvider: React.FC<{ children: React.ReactNode; value?: Partial<MockAuthContextValue> }> = ({ 
+  children, 
+  value = {} 
+}) => (
+  <AuthContext.Provider value={{ ...mockAuthContext, ...value }}>
+    {children}
+  </AuthContext.Provider>
+);
 
-export const renderWithProviders = (ui: React.ReactElement, options = {}) => {
-  const testQueryClient = createTestQueryClient();
+interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
+  authValue?: Partial<MockAuthContextValue>;
+}
+
+const customRender = (ui: React.ReactElement, options: CustomRenderOptions = {}) => {
+  const { authValue, ...renderOptions } = options;
   
-  return rtlRender(
-    <QueryClientProvider client={testQueryClient}>
-      <MockAuthProvider>
-        <BrowserRouter>
-          {ui}
-        </BrowserRouter>
-      </MockAuthProvider>
-    </QueryClientProvider>,
-    options
+  const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <MockAuthProvider value={authValue}>
+      {children}
+    </MockAuthProvider>
   );
+
+  return rtlRender(ui, { wrapper: Wrapper, ...renderOptions });
 };
 
-// Export testing utilities - use the render from renderWithProviders as default
-export const render = renderWithProviders;
-export { screen, fireEvent, waitFor };
-
-// Export the mock auth context for tests that need it
+// Re-export everything
+export * from '@testing-library/react';
+export { customRender as render };
 export const mockAuth = mockAuthContext;
 export { MockAuthProvider };
