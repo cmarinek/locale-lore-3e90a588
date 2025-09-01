@@ -24,6 +24,7 @@ import { Fact } from "./pages/Fact";
 import { Profile } from "./pages/Profile";
 import Gamification from "./pages/Gamification";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -55,10 +56,11 @@ const App = () => {
               <Route path="/explore" element={<Explore />} />
               <Route path="/search" element={<Search />} />
               <Route path="/submit" element={<Submit />} />
-              <Route path="/fact/:id" element={<Fact />} />
-              <Route path="/profile/:id?" element={<Profile />} />
-              <Route path="/gamification" element={<Gamification />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="/fact/:id" element={<Fact />} />
+                <Route path="/profile/:id?" element={<Profile />} />
+                <Route path="/gamification" element={<Gamification />} />
+                <Route path="/admin" element={<Admin />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
