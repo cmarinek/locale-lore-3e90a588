@@ -42,44 +42,46 @@ export const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center gap-3">
-          <Shield className="w-8 h-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage content, users, and monitor system health</p>
+    <div className="min-h-screen bg-background p-2 sm:p-4">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+        <div className="flex items-start sm:items-center gap-3 flex-col sm:flex-row">
+          <div className="flex items-center gap-3">
+            <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+            <div>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Admin Dashboard</h1>
+              <p className="text-sm text-muted-foreground hidden sm:block">Manage content, users, and monitor system health</p>
+            </div>
           </div>
         </div>
 
-        <Alert>
+        <Alert className="text-sm">
           <Shield className="h-4 w-4" />
           <AlertDescription>
-            You are accessing the admin dashboard with elevated privileges. All actions are logged and monitored.
+            Admin access active. All actions are logged.
           </AlertDescription>
         </Alert>
 
-        <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="moderation">Moderation</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="reports">Reports</TabsTrigger>
+        <Tabs defaultValue="analytics" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-2">Analytics</TabsTrigger>
+            <TabsTrigger value="moderation" className="text-xs sm:text-sm px-2 py-2">Moderation</TabsTrigger>
+            <TabsTrigger value="users" className="text-xs sm:text-sm px-2 py-2">Users</TabsTrigger>
+            <TabsTrigger value="reports" className="text-xs sm:text-sm px-2 py-2">Reports</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="analytics" className="space-y-6">
+          <TabsContent value="analytics" className="space-y-4 sm:space-y-6">
             <AnalyticsDashboard />
           </TabsContent>
 
-          <TabsContent value="moderation" className="space-y-6">
+          <TabsContent value="moderation" className="space-y-4 sm:space-y-6">
             <ContentModerationPanel />
           </TabsContent>
 
-          <TabsContent value="users" className="space-y-6">
+          <TabsContent value="users" className="space-y-4 sm:space-y-6">
             <UserManagementPanel />
           </TabsContent>
 
-          <TabsContent value="reports" className="space-y-6">
+          <TabsContent value="reports" className="space-y-4 sm:space-y-6">
             <ReportsPanel />
           </TabsContent>
         </Tabs>

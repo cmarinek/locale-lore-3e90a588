@@ -80,17 +80,17 @@ export const ContentModerationPanel: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Content Moderation</CardTitle>
-        <div className="flex gap-4 flex-wrap">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg sm:text-xl">Content Moderation</CardTitle>
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <Input
             placeholder="Search facts..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-sm"
+            className="w-full sm:max-w-sm"
           />
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
@@ -104,39 +104,47 @@ export const ContentModerationPanel: React.FC = () => {
         </div>
         
         {selectedFacts.size > 0 && (
-          <div className="flex gap-2 flex-wrap">
-            <span className="text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row gap-2 p-3 bg-muted/50 rounded-lg">
+            <span className="text-sm text-muted-foreground mb-2 sm:mb-0">
               {selectedFacts.size} facts selected
             </span>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleBulkAction('verified')}
-            >
-              <Check className="w-4 h-4 mr-1" />
-              Approve All
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleBulkAction('rejected')}
-            >
-              <X className="w-4 h-4 mr-1" />
-              Reject All
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleBulkAction('flagged')}
-            >
-              <Flag className="w-4 h-4 mr-1" />
-              Flag All
-            </Button>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkAction('verified')}
+                className="flex-1 sm:flex-none"
+              >
+                <Check className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Approve All</span>
+                <span className="sm:hidden">Approve</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkAction('rejected')}
+                className="flex-1 sm:flex-none"
+              >
+                <X className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Reject All</span>
+                <span className="sm:hidden">Reject</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkAction('flagged')}
+                className="flex-1 sm:flex-none"
+              >
+                <Flag className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Flag All</span>
+                <span className="sm:hidden">Flag</span>
+              </Button>
+            </div>
           </div>
         )}
       </CardHeader>
       
-      <CardContent>
+      <CardContent className="p-3 sm:p-6">
         {loading ? (
           <div className="text-center py-8">Loading facts for moderation...</div>
         ) : filteredFacts.length === 0 ? (
@@ -144,7 +152,7 @@ export const ContentModerationPanel: React.FC = () => {
             No facts found matching your criteria
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">{/* Make space between cards smaller on mobile */}
             {filteredFacts.map((fact) => (
               <div key={fact.id} className="border rounded-lg p-4">
                 <div className="flex items-start gap-3">
@@ -192,6 +200,7 @@ export const ContentModerationPanel: React.FC = () => {
                       variant="ghost"
                       onClick={() => handleStatusUpdate(fact.id, 'rejected')}
                       disabled={fact.status === 'rejected'}
+                      className="p-2"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -200,10 +209,11 @@ export const ContentModerationPanel: React.FC = () => {
                       variant="ghost"
                       onClick={() => handleStatusUpdate(fact.id, 'flagged')}
                       disabled={fact.status === 'flagged'}
+                      className="p-2"
                     >
                       <Flag className="w-4 h-4" />
                     </Button>
-                    <Button size="sm" variant="ghost">
+                    <Button size="sm" variant="ghost" className="p-2">
                       <Eye className="w-4 h-4" />
                     </Button>
                   </div>

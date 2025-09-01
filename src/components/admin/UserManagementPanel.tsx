@@ -84,20 +84,20 @@ export const UserManagementPanel: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
           <Users className="w-5 h-5" />
           User Management
         </CardTitle>
-        <div className="flex gap-4 flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <Input
             placeholder="Search users..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-sm"
+            className="w-full sm:max-w-sm"
           />
           <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Filter by role" />
             </SelectTrigger>
             <SelectContent>
@@ -110,19 +110,64 @@ export const UserManagementPanel: React.FC = () => {
         </div>
       </CardHeader>
       
-      <CardContent>
+      <CardContent className="p-3 sm:p-6">
         {loading ? (
           <div className="text-center py-8">Loading users...</div>
         ) : (
           <>
+            {/* Mobile Card View */}
+            <div className="block sm:hidden space-y-3">
+              {filteredUsers.map((user) => {
+                const currentRole = user.user_roles?.[0]?.role || 'user';
+                return (
+                  <Card key={user.id} className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                          {user.username?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{user.username || 'Anonymous'}</p>
+                          <p className="text-xs text-muted-foreground">{user.email || 'No email'}</p>
+                        </div>
+                      </div>
+                      <Badge variant={getRoleBadgeVariant(currentRole)} className="flex items-center gap-1">
+                        {getRoleIcon(currentRole)}
+                        <span className="text-xs">{currentRole}</span>
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mb-3">
+                      <div>Joined: {new Date(user.created_at).toLocaleDateString()}</div>
+                      <div>Last: {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString() : 'Never'}</div>
+                    </div>
+                    <Select
+                      value={currentRole}
+                      onValueChange={(newRole) => handleRoleUpdate(user.id, newRole)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="moderator">Moderator</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden sm:block overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>User</TableHead>
-                  <TableHead>Email</TableHead>
+                  <TableHead className="hidden md:table-cell">Email</TableHead>
                   <TableHead>Role</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead>Last Active</TableHead>
+                  <TableHead className="hidden lg:table-cell">Joined</TableHead>
+                  <TableHead className="hidden lg:table-cell">Last Active</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -136,24 +181,29 @@ export const UserManagementPanel: React.FC = () => {
                           <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                             {user.username?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
                           </div>
-                          <span className="font-medium">
-                            {user.username || 'Anonymous'}
-                          </span>
+                          <div>
+                            <div className="font-medium text-sm">
+                              {user.username || 'Anonymous'}
+                            </div>
+                            <div className="text-xs text-muted-foreground md:hidden">
+                              {user.email || 'No email'}
+                            </div>
+                          </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-muted-foreground hidden md:table-cell">
                         {user.email || 'No email'}
                       </TableCell>
                       <TableCell>
                         <Badge variant={getRoleBadgeVariant(currentRole)} className="flex items-center gap-1 w-fit">
                           {getRoleIcon(currentRole)}
-                          {currentRole}
+                          <span className="text-xs">{currentRole}</span>
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-muted-foreground text-xs hidden lg:table-cell">
                         {new Date(user.created_at).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-muted-foreground text-xs hidden lg:table-cell">
                         {user.last_sign_in_at 
                           ? new Date(user.last_sign_in_at).toLocaleDateString()
                           : 'Never'
@@ -164,7 +214,7 @@ export const UserManagementPanel: React.FC = () => {
                           value={currentRole}
                           onValueChange={(newRole) => handleRoleUpdate(user.id, newRole)}
                         >
-                          <SelectTrigger className="w-32">
+                          <SelectTrigger className="w-28 sm:w-32">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -179,13 +229,14 @@ export const UserManagementPanel: React.FC = () => {
                 })}
               </TableBody>
             </Table>
+            </div>
             
             {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-4">
-                <div className="text-sm text-muted-foreground">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-4 pt-4 border-t">
+                <div className="text-sm text-muted-foreground text-center sm:text-left">
                   Showing {currentPage * 20 + 1} to {Math.min((currentPage + 1) * 20, totalUsers)} of {totalUsers} users
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-center sm:justify-end">
                   <Button
                     variant="outline"
                     size="sm"

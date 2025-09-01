@@ -62,11 +62,11 @@ export const AnalyticsDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h2 className="text-xl sm:text-2xl font-bold">Analytics Dashboard</h2>
         <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className="w-32">
+          <SelectTrigger className="w-full sm:w-32">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -79,20 +79,22 @@ export const AnalyticsDashboard: React.FC = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         {contentMetrics.map((metric) => {
           const Icon = metric.icon;
           return (
             <Card key={metric.name}>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg" style={{ backgroundColor: `${metric.color}15` }}>
-                    <Icon className="w-5 h-5" style={{ color: metric.color }} />
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-2 rounded-lg flex-shrink-0" style={{ backgroundColor: `${metric.color}15` }}>
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: metric.color }} />
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">{metric.name}</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold">{metric.value.toLocaleString()}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{metric.name}</p>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <span className="text-lg sm:text-xl lg:text-2xl font-bold">
+                        {metric.value.toLocaleString()}
+                      </span>
                       <span className={`text-xs ${metric.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
                         {metric.change}
                       </span>
@@ -105,18 +107,22 @@ export const AnalyticsDashboard: React.FC = () => {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* User Growth Chart */}
         <Card>
-          <CardHeader>
-            <CardTitle>User Growth</CardTitle>
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="text-lg sm:text-xl">User Growth</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+            <ResponsiveContainer width="100%" height={250}>
               <AreaChart data={userGrowthData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickFormatter={(value) => new Date(value).toLocaleDateString()} />
-                <YAxis />
+                <XAxis 
+                  dataKey="date" 
+                  tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                  fontSize={12}
+                />
+                <YAxis fontSize={12} />
                 <Tooltip />
                 <Area type="monotone" dataKey="users" stackId="1" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.6} />
                 <Area type="monotone" dataKey="activeUsers" stackId="2" stroke="hsl(var(--secondary))" fill="hsl(var(--secondary))" fillOpacity={0.6} />
@@ -127,18 +133,18 @@ export const AnalyticsDashboard: React.FC = () => {
 
         {/* Fact Status Distribution */}
         <Card>
-          <CardHeader>
-            <CardTitle>Fact Status Distribution</CardTitle>
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="text-lg sm:text-xl">Fact Status Distribution</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={factStatusData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
+                  innerRadius={40}
+                  outerRadius={80}
                   paddingAngle={5}
                   dataKey="value"
                 >
@@ -149,12 +155,12 @@ export const AnalyticsDashboard: React.FC = () => {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 mt-3 sm:mt-4">
               {factStatusData.map((item) => (
-                <div key={item.name} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-sm text-muted-foreground">{item.name}</span>
-                  <span className="text-sm font-medium">{item.value}</span>
+                <div key={item.name} className="flex items-center gap-1 sm:gap-2">
+                  <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                  <span className="text-xs sm:text-sm text-muted-foreground truncate">{item.name}</span>
+                  <span className="text-xs sm:text-sm font-medium">{item.value}</span>
                 </div>
               ))}
             </div>
@@ -164,15 +170,15 @@ export const AnalyticsDashboard: React.FC = () => {
 
       {/* Engagement Timeline */}
       <Card>
-        <CardHeader>
-          <CardTitle>Daily Engagement</CardTitle>
+        <CardHeader className="pb-2 sm:pb-4">
+          <CardTitle className="text-lg sm:text-xl">Daily Engagement</CardTitle>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
+        <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+          <ResponsiveContainer width="100%" height={300}>
             <LineChart data={engagementData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis />
+              <XAxis dataKey="time" fontSize={12} />
+              <YAxis fontSize={12} />
               <Tooltip />
               <Line type="monotone" dataKey="views" stroke="hsl(var(--primary))" strokeWidth={2} />
               <Line type="monotone" dataKey="votes" stroke="hsl(var(--secondary))" strokeWidth={2} />
