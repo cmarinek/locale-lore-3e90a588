@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Navigation } from '@/components/ui/navigation';
+import { BottomNavigation } from '@/components/ui/bottom-navigation';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -31,9 +32,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
       </header>
 
       {/* Main Content */}
-      <main className="relative">
+      <main className="relative pb-16 md:pb-0">
         {children}
       </main>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 };

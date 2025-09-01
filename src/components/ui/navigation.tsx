@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useAppStore } from '@/stores/appStore';
 
 interface NavItem {
   label: string;
@@ -58,13 +58,24 @@ export const Navigation: React.FC<NavigationProps> = ({ className }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isMobileMenuOpen, setMobileMenuOpen, setActiveTab } = useAppStore();
 
   const isActive = (href: string) => {
     if (href === '/') {
       return location.pathname === '/';
     }
+    if (href === '/explore' && location.pathname === '/') {
+      return true;
+    }
     return location.pathname.startsWith(href);
+  };
+
+  const handleNavClick = (href: string) => {
+    if (href === '/explore') setActiveTab('explore');
+    else if (href === '/search') setActiveTab('search');
+    else if (href === '/submit') setActiveTab('submit');
+    else if (href === '/profile') setActiveTab('profile');
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -75,8 +86,9 @@ export const Navigation: React.FC<NavigationProps> = ({ className }) => {
           <Link
             key={item.href}
             to={item.href}
+            onClick={() => handleNavClick(item.href)}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors haptic-feedback",
               isActive(item.href)
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -113,14 +125,14 @@ export const Navigation: React.FC<NavigationProps> = ({ className }) => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
         >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </Button>
       </div>
 
       {/* Mobile Navigation Menu */}
-      {mobileMenuOpen && (
+      {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur md:hidden">
           <div className="flex flex-col h-full">
             {/* Header */}
@@ -141,9 +153,9 @@ export const Navigation: React.FC<NavigationProps> = ({ className }) => {
                 <Link
                   key={item.href}
                   to={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={() => handleNavClick(item.href)}
                   className={cn(
-                    "flex items-center gap-4 p-4 rounded-lg transition-colors",
+                    "flex items-center gap-4 p-4 rounded-lg transition-colors haptic-feedback",
                     isActive(item.href)
                       ? "bg-primary text-primary-foreground"
                       : "hover:bg-muted"
@@ -165,8 +177,8 @@ export const Navigation: React.FC<NavigationProps> = ({ className }) => {
                   <div className="space-y-3">
                     <Link
                       to="/profile"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-4 p-4 rounded-lg hover:bg-muted transition-colors"
+                      onClick={() => handleNavClick('/profile')}
+                      className="flex items-center gap-4 p-4 rounded-lg hover:bg-muted transition-colors haptic-feedback"
                     >
                       <User className="w-5 h-5" />
                       <div>
