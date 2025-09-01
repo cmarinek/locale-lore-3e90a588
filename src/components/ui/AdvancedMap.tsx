@@ -627,8 +627,8 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
       )}
 
       {/* Search Bar */}
-      <Card className="absolute top-2 left-2 right-2 z-10 bg-card/95 backdrop-blur border-border">
-        <div className="flex items-center gap-3 p-2">(Reminder: You only invoked a single tool call. Remember that for the sake of efficiency, you should try to parallelize tool calls whenever possible.)
+      <Card className="absolute top-4 left-4 right-4 z-10 bg-card/95 backdrop-blur border-border">
+        <div className="flex items-center gap-3 p-4">
           <Search className="w-5 h-5 text-muted-foreground" />
           <Input
             placeholder="Search locations..."
@@ -642,8 +642,8 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
 
       {/* Map Style Controls */}
       {showControls && (
-        <Card className="absolute top-12 right-2 z-10 bg-card/95 backdrop-blur border-border">
-          <div className="p-2 space-y-1">
+        <Card className="absolute top-20 right-4 z-10 bg-card/95 backdrop-blur border-border">
+          <div className="p-3 space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <Button
                 variant={mapStyle === 'light' ? 'ios' : 'ghost'}
