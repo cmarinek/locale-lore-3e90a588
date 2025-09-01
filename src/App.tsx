@@ -1,77 +1,66 @@
+import React, { Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/sonner';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { MobileProvider } from '@/components/providers/MobileProvider';
+import { PerformanceMonitor } from '@/components/performance/PerformanceMonitor';
+import { AnimatedPage, PageTransition } from '@/components/ui/animated-page';
+import { ScrollProgress } from '@/components/ui/smooth-scroll';
+import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
+import { AnimatePresence } from 'framer-motion';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import { MobileProvider } from "./components/providers/MobileProvider";
-import { PWAInstallPrompt } from "@/components/offline/PWAInstallPrompt";
-import { OfflineIndicator } from "@/components/offline/OfflineIndicator";
-import { PerformanceMonitor } from "@/components/performance/PerformanceMonitor";
-import { LazyRoutes } from "@/components/performance/LazyRoutes";
-import { usePWA } from "@/hooks/usePWA";
-import { useEffect } from "react";
+// Lazy load routes for better performance
+import { LazyRoutes } from '@/components/performance/LazyRoutes';
 
-// Optimize QueryClient for better performance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
-      refetchOnWindowFocus: false,
-      retry: (failureCount, error: any) => {
-        if (error?.status === 404 || error?.status === 403) return false;
-        return failureCount < 2;
-      },
+      cacheTime: 10 * 60 * 1000, // 10 minutes
     },
   },
 });
 
-const App = () => {
-  const { registerServiceWorker } = usePWA();
+function AppContent() {
+  const location = useLocation();
 
-  useEffect(() => {
-    registerServiceWorker();
-    
-    // Preload critical resources
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => {
-        // Preload commonly used images
-        const criticalImages = [
-          '/placeholder.svg',
-          // Add other critical images
-        ];
-        
-        criticalImages.forEach(src => {
-          const link = document.createElement('link');
-          link.rel = 'preload';
-          link.as = 'image';
-          link.href = src;
-          document.head.appendChild(link);
-        });
-      });
-    }
-  }, []);
+  return (
+    <>
+      <ScrollProgress />
+      <PageTransition location={location.pathname}>
+        <AnimatedPage>
+          <Routes location={location}>
+            <Route path="/*" element={
+              <Suspense fallback={
+                <div className="min-h-screen p-6">
+                  <EnhancedSkeleton variant="card" lines={4} />
+                </div>
+              }>
+                <LazyRoutes />
+              </Suspense>
+            } />
+          </Routes>
+        </AnimatedPage>
+      </PageTransition>
+    </>
+  );
+}
 
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <MobileProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <OfflineIndicator />
-            <PWAInstallPrompt />
+          <Router>
             <PerformanceMonitor />
-            <BrowserRouter>
-              <LazyRoutes />
-            </BrowserRouter>
-          </TooltipProvider>
+            <AppContent />
+            <Toaster />
+          </Router>
         </MobileProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
-};
+}
 
 export default App;
