@@ -14,10 +14,35 @@ export interface SearchFilters {
   center: [number, number] | null;
 }
 
+interface Fact {
+  id: string;
+  title: string;
+  content: string;
+  status: string;
+  upvotes: number;
+  is_verified: boolean;
+  created_at: string;
+  categories?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  fact_votes?: Array<{
+    vote_type: string;
+  }>;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+}
+
 export interface DiscoveryState {
   // Data
-  facts: any[];
-  categories: any[];
+  facts: Fact[];
+  categories: Category[];
   savedFacts: string[];
   searchSuggestions: string[];
   
@@ -26,7 +51,7 @@ export interface DiscoveryState {
   isLoading: boolean;
   hasMore: boolean;
   error: string | null;
-  selectedFact: any | null;
+  selectedFact: Fact | null;
   isModalOpen: boolean;
   filters: SearchFilters;
 
@@ -38,7 +63,7 @@ export interface DiscoveryState {
   setFilters: (filters: Partial<SearchFilters>) => void;
   updateSearchSuggestions: (suggestions: string[]) => void;
   toggleSavedFact: (factId: string) => void;
-  setSelectedFact: (fact: any) => void;
+  setSelectedFact: (fact: Fact | null) => void;
   setModalOpen: (open: boolean) => void;
 }
 
@@ -113,7 +138,7 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
             vote_type
           )
         `)
-        .eq('status', 'active');
+        .eq('status', 'verified');
 
       if (query) {
         queryBuilder = queryBuilder.or(`title.ilike.%${query}%,content.ilike.%${query}%`);
@@ -169,7 +194,7 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
             vote_type
           )
         `)
-        .eq('status', 'active')
+        .eq('status', 'verified')
         .range(state.facts.length, state.facts.length + 19);
 
       if (state.filters.search) {
@@ -234,7 +259,7 @@ export const useDiscoveryStore = create<DiscoveryState>((set, get) => ({
     }
   },
 
-  setSelectedFact: (fact: any) => {
+  setSelectedFact: (fact: Fact | null) => {
     set({ selectedFact: fact });
   },
 

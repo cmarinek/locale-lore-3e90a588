@@ -4,23 +4,24 @@ import { Routes, Route } from 'react-router-dom';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 
 // Lazy load route components for better performance
-const LazyExplore = lazy(() => import('@/pages/Explore'));
-const LazySearch = lazy(() => import('@/pages/Search'));
-const LazySubmit = lazy(() => import('@/pages/Submit'));
-const LazyProfile = lazy(() => import('@/pages/Profile'));
-const LazyFact = lazy(() => import('@/pages/Fact'));
-const LazyAdmin = lazy(() => import('@/pages/Admin'));
-const LazyGamification = lazy(() => import('@/pages/Gamification'));
-const LazyDiscover = lazy(() => import('@/pages/Discover'));
-const LazyDiscovery = lazy(() => import('@/pages/Discovery'));
-const LazyIndex = lazy(() => import('@/pages/Index'));
-const LazyAuthMain = lazy(() => import('@/pages/AuthMain'));
-const LazyAuthCallback = lazy(() => import('@/pages/AuthCallback'));
-const LazyAuthConfirm = lazy(() => import('@/pages/AuthConfirm'));
-const LazyAuthResetPassword = lazy(() => import('@/pages/AuthResetPassword'));
-const LazyLoreSubmit = lazy(() => import('@/pages/LoreSubmit'));
-const LazyNotFound = lazy(() => import('@/pages/NotFound'));
-const LazyComponentShowcase = lazy(() => import('@/pages/ComponentShowcase'));
+// Handle both default and named exports
+const LazyExplore = lazy(() => import('@/pages/Explore').then(module => ({ default: module.default || module })));
+const LazySearch = lazy(() => import('@/pages/Search').then(module => ({ default: module.default || module })));
+const LazySubmit = lazy(() => import('@/pages/Submit').then(module => ({ default: module.default || module })));
+const LazyProfile = lazy(() => import('@/pages/Profile').then(module => ({ default: module.default || module })));
+const LazyFact = lazy(() => import('@/pages/Fact').then(module => ({ default: module.default || module })));
+const LazyAdmin = lazy(() => import('@/pages/Admin').then(module => ({ default: module.default || module })));
+const LazyGamification = lazy(() => import('@/pages/Gamification').then(module => ({ default: module.default || module })));
+const LazyDiscover = lazy(() => import('@/pages/Discover').then(module => ({ default: module.default || module })));
+const LazyDiscovery = lazy(() => import('@/pages/Discovery').then(module => ({ default: module.default || module })));
+const LazyIndex = lazy(() => import('@/pages/Index').then(module => ({ default: module.default || module })));
+const LazyAuthMain = lazy(() => import('@/pages/AuthMain').then(module => ({ default: module.default || module })));
+const LazyAuthCallback = lazy(() => import('@/pages/AuthCallback').then(module => ({ default: module.default || module })));
+const LazyAuthConfirm = lazy(() => import('@/pages/AuthConfirm').then(module => ({ default: module.default || module })));
+const LazyAuthResetPassword = lazy(() => import('@/pages/AuthResetPassword').then(module => ({ default: module.default || module })));
+const LazyLoreSubmit = lazy(() => import('@/pages/LoreSubmit').then(module => ({ default: module.default || module })));
+const LazyNotFound = lazy(() => import('@/pages/NotFound').then(module => ({ default: module.default || module })));
+const LazyComponentShowcase = lazy(() => import('@/pages/ComponentShowcase').then(module => ({ default: module.default || module })));
 
 const LoadingFallback = () => (
   <div className="min-h-screen p-6">
