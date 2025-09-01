@@ -21,7 +21,7 @@ export const useAnimations = () => {
       scale: 1,
       transition: {
         duration: shouldReduceMotion ? 0 : 0.4,
-        ease: [0.4, 0.0, 0.2, 1]
+        ease: "easeOut" as const
       }
     },
     exit: shouldReduceMotion ? {} : { 
@@ -30,7 +30,7 @@ export const useAnimations = () => {
       scale: 0.98,
       transition: {
         duration: 0.3,
-        ease: [0.4, 0.0, 1, 1]
+        ease: "easeOut" as const
       }
     }
   };
@@ -44,7 +44,7 @@ export const useAnimations = () => {
       x: 0,
       opacity: 1,
       transition: {
-        type: shouldReduceMotion ? 'tween' : 'spring',
+        type: shouldReduceMotion ? 'tween' as const : 'spring' as const,
         stiffness: 300,
         damping: 30
       }
@@ -69,7 +69,7 @@ export const useAnimations = () => {
       transition: {
         delay: shouldReduceMotion ? 0 : index * 0.1,
         duration: shouldReduceMotion ? 0 : 0.5,
-        ease: [0.4, 0.0, 0.2, 1]
+        ease: "easeOut" as const
       }
     }),
     hover: shouldReduceMotion ? {} : {
@@ -88,7 +88,7 @@ export const useAnimations = () => {
       transition: {
         repeat: Infinity,
         duration: 1.5,
-        ease: "linear"
+        ease: "linear" as const
       }
     }
   };

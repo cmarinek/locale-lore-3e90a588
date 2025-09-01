@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
@@ -21,7 +22,8 @@ const Discovery = () => {
     filters,
     loadCategories,
     loadSavedFacts,
-    searchFacts 
+    searchFacts,
+    setFilters
   } = useDiscoveryStore();
 
   useEffect(() => {
@@ -32,6 +34,11 @@ const Discovery = () => {
     const searchQuery = filters.search || '';
     searchFacts(searchQuery);
   }, [loadCategories, loadSavedFacts, searchFacts]);
+
+  const handleSearch = async (query: string) => {
+    setFilters({ search: query });
+    await searchFacts(query);
+  };
 
   return (
     <motion.div
@@ -47,7 +54,7 @@ const Discovery = () => {
       </Helmet>
 
       <div className="mb-6 flex items-center justify-between">
-        <SearchBar onSearch={(query: string) => searchFacts(query)} />
+        <SearchBar onQueryChange={handleSearch} />
         <Button variant="outline" size="icon" onClick={() => setShowFilters(!showFilters)}>
           {showFilters ? <Search className="h-4 w-4" /> : <Filter className="h-4 w-4" />}
           <span className="sr-only">Toggle filters</span>
@@ -69,7 +76,7 @@ const Discovery = () => {
       {loading && <p>Loading facts...</p>}
       {error && <p>Error: {error}</p>}
 
-      <InfiniteFactList facts={facts} />
+      <InfiniteFactList />
       <FactPreviewModal />
     </motion.div>
   );

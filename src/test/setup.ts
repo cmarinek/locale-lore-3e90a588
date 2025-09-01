@@ -23,6 +23,7 @@ jest.mock('framer-motion', () => ({
     mount: jest.fn(),
     unmount: jest.fn(),
   }),
+  Variants: {} as any,
 }));
 
 // Mock Intersection Observer
