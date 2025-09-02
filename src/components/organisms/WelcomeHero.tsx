@@ -18,19 +18,11 @@ Know a good spot? Add it!</p>
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12">
-          {features.map((feature, index) => <div key={feature.title} className="glass rounded-2xl p-6 elevation-1 animate-scale-in" style={{
-          animationDelay: `${index * 0.1}s`
-        }}>
-              <div className="text-3xl mb-3">{feature.icon}</div>
-              <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground">{feature.description}</p>
-            </div>)}
-        </div>
+        
 
         {/* CTA Section */}
         <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
-          <h3 className="text-xl font-semibold mb-4">Get Started</h3>
+          <h3 className="text-xl font-semibold mb-4">Join our Early Adopters Program</h3>
           <div className="space-y-4">
             <InputField label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Enter your email" description="We'll send you updates about new features" />
             <Button size="lg" className="w-full">
