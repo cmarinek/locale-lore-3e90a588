@@ -30,7 +30,7 @@ Know a good spot? Add it!</p>
 
         {/* CTA Section */}
         <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
-          <h3 className="text-xl font-semibold mb-4">Get Started</h3>
+          <h3 className="text-xl font-semibold mb-4">Become an early adopter</h3>
           <div className="space-y-4">
             <InputField label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Enter your email" description="We'll send you updates about new features" />
             <Button size="lg" className="w-full">
