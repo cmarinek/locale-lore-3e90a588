@@ -75,9 +75,10 @@ export class AdvancedRateLimiter {
 
     const results = await pipeline.exec();
 
-    // The result of ZCARD is the 3rd command in the pipeline (index 2)
+    // Destructure pipeline results for clarity and maintainability
     // Format of pipeline result is [[error, result], [error, result], ...]
-    const currentRequests = results && results[2] && !results[2][0] ? (results[2][1] as number) : 0;
+    const [zremResult, zaddResult, zcardResult, expireResult] = results || [];
+    const currentRequests = zcardResult && !zcardResult[0] ? (zcardResult[1] as number) : 0;
 
     if (currentRequests > rule.maxRequests) {
       return {
