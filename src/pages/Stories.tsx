@@ -45,40 +45,6 @@ const Stories: React.FC = () => {
     console.log('Loading more stories...');
   };
 
-  const handleSubmitStory = async (data: QuickCaptureData) => {
-    console.log('Submitting story:', data);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Add new story to the beginning
-    const newStory: Story = {
-      id: `new-${Date.now()}`,
-      user_id: user?.id || 'current-user',
-      title: data.caption.split('\n')[0] || 'New Story',
-      content: data.caption,
-      media_urls: [URL.createObjectURL(data.media)],
-      media_type: data.mediaType,
-      location_name: data.location?.name,
-      latitude: data.location?.latitude,
-      longitude: data.location?.longitude,
-      hashtags: data.hashtags,
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      view_count: 0,
-      like_count: 0,
-      comment_count: 0,
-      is_trending: false,
-      created_at: new Date().toISOString(),
-      author: {
-        id: user?.id || 'current-user',
-        username: user?.user_metadata?.username || 'you',
-        avatar_url: user?.user_metadata?.avatar_url
-      }
-    };
-
-    setStories(prev => [newStory, ...prev]);
-  };
-
   const handleStoryClick = (story) => {
     // Find the story index and switch to feed view
     const storyIndex = stories.findIndex(s => s.id === story.id);
@@ -89,8 +55,6 @@ const Stories: React.FC = () => {
   };
 
   const handleSubmitStory = async (data: QuickCaptureData) => {
-    // This would require a file upload to Supabase storage, which is complex.
-    // For now, we will assume this is handled by another part of the app.
     console.log('Submitting story:', data);
     // After successful upload and DB insertion, refresh the stories
     await handleRefresh();
