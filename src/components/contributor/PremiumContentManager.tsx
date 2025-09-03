@@ -51,7 +51,7 @@ export const PremiumContentManager: React.FC = () => {
     }
   }, [user]);
 
-  const fetchPremiumContent = async () => {
+  const fetchPremiumContent = () => {
     try {
       // Mock data for now until types are updated
       setPremiumContent([]);

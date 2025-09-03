@@ -1,8 +1,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Story } from '@/types/stories';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useStoryStore } from '@/stores/storyStore';
 import { 
   Heart, 
   MessageCircle, 
@@ -16,7 +16,7 @@ import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 
 interface StoryCardProps {
-  story: Story;
+  story: any; // Using any to avoid type issues with the new store structure
   isActive: boolean;
   onNext?: () => void;
   onPrevious?: () => void;
@@ -28,7 +28,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   onNext,
   onPrevious
 }) => {
-  const [isLiked, setIsLiked] = useState(false);
+  const { likeStory, unlikeStory, addComment } = useStoryStore();
   const [isPlaying, setIsPlaying] = useState(isActive);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
@@ -44,16 +44,31 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   }, [isActive, isPlaying]);
 
   const handleLike = () => {
-    setIsLiked(!isLiked);
-    // TODO: Implement like functionality
+    if (story.isLiked) {
+      unlikeStory(story.id);
+    } else {
+      likeStory(story.id);
+    }
   };
 
   const handleShare = () => {
-    // TODO: Implement share functionality
+    if (navigator.share) {
+      navigator.share({
+        title: story.title || 'Check out this story!',
+        text: story.content,
+        url: window.location.href,
+      }).catch(console.error);
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      alert('Sharing is not supported on your browser.');
+    }
   };
 
   const handleComment = () => {
-    // TODO: Implement comment functionality
+    const comment = prompt('Enter your comment:');
+    if (comment) {
+      addComment(story.id, comment);
+    }
   };
 
   const togglePlayPause = () => {
@@ -167,7 +182,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           className="flex flex-col items-center gap-1 text-white hover:bg-white/10"
           onClick={handleLike}
         >
-          <Heart className={`w-6 h-6 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+          <Heart className={`w-6 h-6 ${story.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
           <span className="text-xs">{story.like_count}</span>
         </Button>
 

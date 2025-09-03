@@ -68,7 +68,7 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const loadMessageThreads = async () => {
+  const loadMessageThreads = () => {
     if (!user) return;
 
     try {
@@ -110,7 +110,7 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
     }
   };
 
-  const findOrCreateThread = async (otherUserId: string) => {
+  const findOrCreateThread = (otherUserId: string) => {
     // Find existing thread or create new one
     const existingThread = threads.find(t => 
       t.participants.some(p => p.id === otherUserId)
@@ -143,7 +143,7 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
     }
   };
 
-  const loadMessages = async () => {
+  const loadMessages = () => {
     if (!currentThread) return;
 
     try {
@@ -183,7 +183,7 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({
     }
   };
 
-  const sendMessage = async () => {
+  const sendMessage = () => {
     if (!newMessage.trim() || !currentThread || !user || sending) return;
 
     setSending(true);

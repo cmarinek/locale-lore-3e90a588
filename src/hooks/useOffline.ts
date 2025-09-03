@@ -67,7 +67,11 @@ export const useOffline = () => {
       timestamp: Date.now()
     };
     
-    await store.add(fullAction);
+    await new Promise((resolve, reject) => {
+      const request = store.add(fullAction);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
     
     setPendingActions(prev => [...prev, fullAction]);
     
@@ -91,12 +95,16 @@ export const useOffline = () => {
 
       for (const action of actions) {
         try {
-          await syncAction(action);
+          syncAction(action);
           
           // Remove synced action
           const deleteTx = db.transaction(['pending_actions'], 'readwrite');
           const deleteStore = deleteTx.objectStore('pending_actions');
-          await deleteStore.delete(action.id!);
+          await new Promise<void>((resolve, reject) => {
+            const request = deleteStore.delete(action.id!);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+          });
           
           setPendingActions(prev => prev.filter(a => a.id !== action.id));
         } catch (error) {
@@ -108,7 +116,7 @@ export const useOffline = () => {
     }
   };
 
-  const syncAction = async (action: OfflineAction) => {
+  const syncAction = (action: OfflineAction) => {
     // This would integrate with your actual API calls
     console.log('Syncing action:', action);
     
@@ -136,9 +144,13 @@ export const useOffline = () => {
     const tx = db.transaction(['cached_facts'], 'readwrite');
     const store = tx.objectStore('cached_facts');
     
-    await store.put({
-      ...fact,
-      cached_at: Date.now()
+    await new Promise((resolve, reject) => {
+      const request = store.put({
+        ...fact,
+        cached_at: Date.now()
+      });
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
     });
   };
 

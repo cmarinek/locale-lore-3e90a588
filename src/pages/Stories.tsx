@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { Story, QuickCaptureData } from '@/types/stories';
+import { QuickCaptureData } from '@/types/stories';
 import { VerticalFeed } from '@/components/stories/VerticalFeed';
 import { QuickCapture } from '@/components/stories/QuickCapture';
 import { TrendingSection } from '@/components/stories/TrendingSection';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAnimations } from '@/hooks/useAnimations';
+import { useStoryStore } from '@/stores/storyStore';
 import { 
   Plus, 
   TrendingUp, 
@@ -23,100 +24,20 @@ const Stories: React.FC = () => {
   const { pageVariants } = useAnimations();
   const [activeTab, setActiveTab] = useState<'feed' | 'trending' | 'discover'>('feed');
   const [showCapture, setShowCapture] = useState(false);
-  const [stories, setStories] = useState<Story[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // Mock data for development
-  const mockStories: Story[] = [
-    {
-      id: '1',
-      user_id: 'user1',
-      title: 'Amazing sunset at the beach',
-      content: 'Just witnessed the most incredible sunset! The colors were absolutely breathtaking. Nature never fails to amaze me 🌅',
-      media_urls: ['https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=600&fit=crop'],
-      media_type: 'image',
-      location_name: 'Malibu Beach, California',
-      latitude: 34.0259,
-      longitude: -118.7798,
-      hashtags: ['sunset', 'beach', 'malibu', 'nature', 'photography'],
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      view_count: 1247,
-      like_count: 89,
-      comment_count: 23,
-      is_trending: true,
-      created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      author: {
-        id: 'user1',
-        username: 'beachexplorer',
-        avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
-      }
-    },
-    {
-      id: '2',
-      user_id: 'user2',
-      title: 'Hidden waterfall discovery',
-      content: 'Found this incredible hidden waterfall during my hike today! Sometimes the best discoveries happen when you take the path less traveled 💦',
-      media_urls: [
-        'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=400&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=600&fit=crop'
-      ],
-      media_type: 'carousel',
-      location_name: 'Yosemite National Park',
-      latitude: 37.7749,
-      longitude: -119.4194,
-      hashtags: ['waterfall', 'hiking', 'yosemite', 'nature', 'adventure'],
-      expires_at: new Date(Date.now() + 22 * 60 * 60 * 1000).toISOString(),
-      view_count: 856,
-      like_count: 124,
-      comment_count: 34,
-      is_trending: false,
-      created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-      author: {
-        id: 'user2',
-        username: 'trailblazer_sam',
-        avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
-      }
-    },
-    {
-      id: '3',
-      user_id: 'user3',
-      title: 'Street art masterpiece',
-      content: 'This incredible mural just appeared overnight! The artist captured the spirit of our neighborhood perfectly 🎨',
-      media_urls: ['https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop'],
-      media_type: 'video',
-      location_name: 'Mission District, San Francisco',
-      latitude: 37.7599,
-      longitude: -122.4148,
-      hashtags: ['streetart', 'mural', 'sanfrancisco', 'art', 'urban'],
-      expires_at: new Date(Date.now() + 20 * 60 * 60 * 1000).toISOString(),
-      view_count: 2134,
-      like_count: 456,
-      comment_count: 78,
-      is_trending: true,
-      created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-      author: {
-        id: 'user3',
-        username: 'urban_explorer',
-        avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b1c5?w=150&h=150&fit=crop&crop=face'
-      }
-    }
-  ];
+  const {
+    stories,
+    isLoading: loading,
+    fetchStories,
+    setCurrentStoryIndex,
+  } = useStoryStore();
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      setStories(mockStories);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    fetchStories();
+  }, [fetchStories]);
 
   const handleRefresh = async () => {
-    setLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setStories([...mockStories]);
-    setLoading(false);
+    await fetchStories();
   };
 
   const handleLoadMore = () => {
@@ -158,16 +79,24 @@ const Stories: React.FC = () => {
     setStories(prev => [newStory, ...prev]);
   };
 
-  const handleStoryClick = (story: Story) => {
+  const handleStoryClick = (story) => {
     // Find the story index and switch to feed view
     const storyIndex = stories.findIndex(s => s.id === story.id);
     if (storyIndex !== -1) {
       setActiveTab('feed');
-      // TODO: Set current story index in feed
+      setCurrentStoryIndex(storyIndex);
     }
   };
 
-  if (loading) {
+  const handleSubmitStory = async (data: QuickCaptureData) => {
+    // This would require a file upload to Supabase storage, which is complex.
+    // For now, we will assume this is handled by another part of the app.
+    console.log('Submitting story:', data);
+    // After successful upload and DB insertion, refresh the stories
+    await handleRefresh();
+  };
+
+  if (loading && stories.length === 0) {
     return (
       <div className="flex items-center justify-center h-screen bg-black">
         <div className="text-white text-center">

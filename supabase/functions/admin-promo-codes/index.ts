@@ -45,7 +45,7 @@ serve(async (req) => {
     let result;
 
     switch (action) {
-      case 'create':
+      case 'create': {
         // Create coupon in Stripe
         const coupon = await stripe.coupons.create({
           id: code.toLowerCase(),
@@ -60,20 +60,20 @@ serve(async (req) => {
         // Create promotion code in Stripe
         const promotionCode = await stripe.promotionCodes.create({
           coupon: coupon.id,
-          code: code,
+          code,
           active: true,
         });
 
         result = { success: true, stripe_coupon_id: coupon.id, stripe_promotion_code_id: promotionCode.id };
         break;
-
+      }
       case 'update':
         // Stripe coupons can't be updated, so we'd need to create a new one
         // For now, just return success (in a real implementation, you'd handle this properly)
         result = { success: true, message: "Updated successfully" };
         break;
 
-      case 'delete':
+      case 'delete': {
         // Delete promotion code in Stripe (coupon remains for existing uses)
         const { data: existingPromo } = await supabaseClient
           .from('promo_codes')
@@ -89,7 +89,7 @@ serve(async (req) => {
 
         result = { success: true, message: "Deleted successfully" };
         break;
-
+      }
       default:
         throw new Error("Invalid action");
     }

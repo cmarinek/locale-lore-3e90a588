@@ -20,7 +20,7 @@ export const SocialAuth = ({ onSuccess }: SocialAuthProps) => {
     }
   };
 
-  const handleAppleSignIn = async () => {
+  const handleAppleSignIn = () => {
     // Apple sign in would be implemented here
     console.log('Apple sign in not implemented yet');
   };

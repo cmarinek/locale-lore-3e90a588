@@ -107,7 +107,7 @@ export const SocialActivityFeed: React.FC<SocialActivityFeedProps> = ({
             </Link>
           </>
         );
-      case 'fact_voted':
+      case 'fact_voted': {
         const voteType = activity.metadata?.is_upvote ? 'verified' : 'disputed';
         return (
           <>
@@ -120,6 +120,7 @@ export const SocialActivityFeed: React.FC<SocialActivityFeedProps> = ({
             </Link>
           </>
         );
+      }
       case 'comment_created':
         return (
           <>

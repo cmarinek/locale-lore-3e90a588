@@ -101,7 +101,7 @@ serve(async (req) => {
     if (filters.location) {
       const { lat, lng, radius } = filters.location
       searchQuery = searchQuery
-        .lte('ST_DWithin(ST_Point(longitude, latitude), ST_Point(' + lng + ', ' + lat + '), ' + radius + ')', true)
+        .lte(`ST_DWithin(ST_Point(longitude, latitude), ST_Point(${  lng  }, ${  lat  }), ${  radius  })`, true)
     }
 
     // Apply sorting
@@ -170,8 +170,8 @@ serve(async (req) => {
         .from('search_history')
         .insert({
           user_id: userId,
-          query: query,
-          filters: filters,
+          query,
+          filters,
           results_count: count || 0
         })
     }
