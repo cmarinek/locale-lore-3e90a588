@@ -1,122 +1,130 @@
+import Redis from 'ioredis';
 
-// Redis caching layer for hot data
-export interface CacheItem<T = any> {
+// A wrapper for storing objects with their tags for invalidation purposes.
+interface CachePayload<T> {
   data: T;
-  expiry: number;
   tags?: string[];
 }
 
 export class RedisCache {
-  private cache: Map<string, CacheItem> = new Map();
-  private defaultTTL: number = 300000; // 5 minutes
-  private maxSize: number = 10000;
+  private client: Redis | null = null;
+  private defaultTTL: number = 300; // 5 minutes in seconds for Redis
 
-  constructor(maxSize: number = 10000, defaultTTL: number = 300000) {
-    this.maxSize = maxSize;
-    this.defaultTTL = defaultTTL;
-    
-    // Clean up expired items every minute
-    setInterval(() => this.cleanup(), 60000);
+  constructor() {
+    if (process.env.REDIS_URL) {
+      try {
+        this.client = new Redis(process.env.REDIS_URL, {
+          maxRetriesPerRequest: 3,
+          connectTimeout: 10000,
+        });
+        console.log("Successfully connected to Redis.");
+      } catch (error) {
+        console.error("Could not connect to Redis:", error);
+        this.client = null;
+      }
+    } else {
+      console.warn("REDIS_URL not found. RedisCache will not be operational.");
+    }
   }
 
-  // Set cache item
-  set<T>(key: string, data: T, ttl?: number, tags?: string[]): void {
-    if (this.cache.size >= this.maxSize) {
-      this.evictLRU();
+  private getTagKey(tag: string): string {
+    return `tag:${tag}`;
+  }
+
+  async set<T>(key: string, data: T, ttlInSeconds?: number, tags?: string[]): Promise<void> {
+    if (!this.client) return;
+
+    const payload: CachePayload<T> = { data, tags };
+    const finalTTL = ttlInSeconds || this.defaultTTL;
+
+    const pipeline = this.client.pipeline();
+    pipeline.set(key, JSON.stringify(payload), 'EX', finalTTL);
+
+    if (tags && tags.length > 0) {
+      for (const tag of tags) {
+        pipeline.sadd(this.getTagKey(tag), key);
+      }
     }
 
-    const expiry = Date.now() + (ttl || this.defaultTTL);
-    this.cache.set(key, { data, expiry, tags });
+    await pipeline.exec();
   }
 
-  // Get cache item
-  get<T>(key: string): T | null {
-    const item = this.cache.get(key);
-    
-    if (!item) return null;
-    
-    // Check if expired
-    if (Date.now() > item.expiry) {
-      this.cache.delete(key);
+  async get<T>(key: string): Promise<T | null> {
+    if (!this.client) return null;
+
+    const result = await this.client.get(key);
+    if (!result) return null;
+
+    try {
+      const payload: CachePayload<T> = JSON.parse(result);
+      return payload.data;
+    } catch (error) {
+      console.error(`Error parsing JSON from Redis for key "${key}":`, error);
       return null;
     }
-    
-    return item.data as T;
   }
 
-  // Delete cache item
-  delete(key: string): boolean {
-    return this.cache.delete(key);
+  async delete(key: string): Promise<boolean> {
+    if (!this.client) return false;
+    const result = await this.client.del(key);
+    return result > 0;
   }
 
-  // Clear cache by tags
-  clearByTags(tags: string[]): void {
-    for (const [key, item] of this.cache) {
-      if (item.tags && item.tags.some(tag => tags.includes(tag))) {
-        this.cache.delete(key);
-      }
+  async clearByTags(tags: string[]): Promise<void> {
+    if (!this.client || tags.length === 0) return;
+
+    const pipeline = this.client.pipeline();
+    const tagKeys = tags.map(this.getTagKey);
+
+    for (const tagKey of tagKeys) {
+        const keysToDelete = await this.client.smembers(tagKey);
+        if (keysToDelete.length > 0) {
+            pipeline.del(...keysToDelete);
+        }
+        pipeline.del(tagKey); // Remove the tag set itself
     }
+
+    await pipeline.exec();
   }
 
-  // Clear all cache
-  clear(): void {
-    this.cache.clear();
+  async clear(): Promise<void> {
+    if (!this.client) return;
+    await this.client.flushdb();
   }
 
-  // Get cache statistics
-  getStats() {
-    const now = Date.now();
-    let expired = 0;
-    let active = 0;
+  async getStats() {
+    if (!this.client) {
+      return {
+        connected: false,
+        redis_version: null,
+        used_memory_human: null,
+        keyspace_keys: null,
+      };
+    }
+    const info = await this.client.info();
+    const db_keys = await this.client.dbsize();
 
-    for (const item of this.cache.values()) {
-      if (now > item.expiry) {
-        expired++;
-      } else {
-        active++;
-      }
+    const getInfoValue = (field: string) => {
+        const match = info.match(new RegExp(`^${field}:(.*)$`, 'm'));
+        return match ? match[1].trim() : 'N/A';
     }
 
     return {
-      total: this.cache.size,
-      active,
-      expired,
-      maxSize: this.maxSize,
-      hitRate: this.getHitRate()
+        connected: true,
+        redis_version: getInfoValue('redis_version'),
+        used_memory_human: getInfoValue('used_memory_human'),
+        keyspace_keys: db_keys,
+        uptime_in_days: getInfoValue('uptime_in_days'),
     };
   }
 
-  private hits = 0;
-  private misses = 0;
-
-  private getHitRate(): number {
-    const total = this.hits + this.misses;
-    return total > 0 ? this.hits / total : 0;
-  }
-
-  // Cleanup expired items
-  private cleanup(): void {
-    const now = Date.now();
-    const toDelete: string[] = [];
-
-    for (const [key, item] of this.cache) {
-      if (now > item.expiry) {
-        toDelete.push(key);
-      }
-    }
-
-    toDelete.forEach(key => this.cache.delete(key));
-  }
-
-  // Evict least recently used items
-  private evictLRU(): void {
-    const keys = Array.from(this.cache.keys());
-    const toEvict = keys.slice(0, Math.floor(this.maxSize * 0.1)); // Evict 10%
-    toEvict.forEach(key => this.cache.delete(key));
+  disconnect(): void {
+    if (!this.client) return;
+    this.client.disconnect();
   }
 }
 
-// Hot data cache keys
+// Hot data cache keys (remain unchanged)
 export const CACHE_KEYS = {
   TRENDING_FACTS: 'trending_facts',
   TRENDING_LOCATIONS: 'trending_locations',
@@ -128,7 +136,7 @@ export const CACHE_KEYS = {
   LEADERBOARD: (type: string, period: string) => `leaderboard:${type}:${period}`,
 } as const;
 
-// Cache tags for invalidation
+// Cache tags for invalidation (remain unchanged)
 export const CACHE_TAGS = {
   FACTS: 'facts',
   USERS: 'users',

@@ -91,7 +91,7 @@ serve(async (req) => {
             categories!facts_category_id_fkey(slug, icon, color)
           `)
           .eq('status', 'verified')
-          .lte('ST_DWithin(ST_Point(longitude, latitude), ST_Point(' + lng + ', ' + lat + '), ' + radius + ')', true)
+          .lte(`ST_DWithin(ST_Point(longitude, latitude), ST_Point(${  lng  }, ${  lat  }), ${  radius  })`, true)
           .order('vote_count_up', { ascending: false })
           .limit(10)
 

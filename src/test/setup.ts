@@ -9,6 +9,7 @@ import React from 'react';
 expect.extend(toHaveNoViolations);
 
 // Extend global expect type
+// eslint-disable-next-line @typescript-eslint/no-namespace
 declare global {
   namespace jest {
     interface Matchers<R> {

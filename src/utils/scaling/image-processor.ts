@@ -98,7 +98,7 @@ export class ImageProcessor {
     const maxWidth = 1920;
     const maxHeight = 1080;
     
-    let { width, height } = this.calculateDimensions(
+    const { width, height } = this.calculateDimensions(
       img.width,
       img.height,
       maxWidth,
@@ -265,19 +265,20 @@ export class ImageProcessor {
       case 'fill':
         return { width: targetWidth, height: targetHeight };
 
-      case 'inside':
+      case 'inside': {
         const scale = Math.min(targetWidth / originalWidth, targetHeight / originalHeight);
         return {
           width: Math.round(originalWidth * scale),
           height: Math.round(originalHeight * scale)
         };
-
-      case 'outside':
+      }
+      case 'outside': {
         const scaleOut = Math.max(targetWidth / originalWidth, targetHeight / originalHeight);
         return {
           width: Math.round(originalWidth * scaleOut),
           height: Math.round(originalHeight * scaleOut)
         };
+      }
     }
   }
 

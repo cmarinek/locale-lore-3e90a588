@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-serve(async (req) => {
+serve((req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -34,7 +34,7 @@ serve(async (req) => {
     
     console.log('Environment check:', {
       checkedVariables: possibleNames,
-      foundVariable: foundVariable,
+      foundVariable,
       hasToken: !!mapboxToken,
       allEnvVars: Object.keys(Deno.env.toObject())
     });

@@ -1,189 +1,103 @@
+import Redis from 'ioredis';
 
-// Advanced rate limiting and DDoS protection
 export interface RateLimitRule {
   windowMs: number;
   maxRequests: number;
-  blockDuration?: number;
-  skipSuccessfulRequests?: boolean;
-  skipFailedRequests?: boolean;
 }
 
 export interface RateLimitResult {
   allowed: boolean;
   remaining: number;
-  resetTime: number;
-  retryAfter?: number;
+  resetTime: number; // Estimated time when the limit will reset, in ms
 }
 
 export class AdvancedRateLimiter {
+  private client: Redis | null = null;
   private rules: Map<string, RateLimitRule> = new Map();
-  private requests: Map<string, Array<{ timestamp: number; success: boolean }>> = new Map();
-  private blockedUntil: Map<string, number> = new Map();
 
   constructor() {
-    // Default rules
+    if (process.env.REDIS_URL) {
+      try {
+        this.client = new Redis(process.env.REDIS_URL, {
+          maxRetriesPerRequest: 3,
+          connectTimeout: 10000,
+        });
+        console.log("Rate Limiter successfully connected to Redis.");
+      } catch (error) {
+        console.error("Rate Limiter could not connect to Redis:", error);
+        this.client = null;
+      }
+    } else {
+      console.warn("REDIS_URL not found. Rate Limiter will not be operational.");
+    }
+
+    // Default rules can be configured here
     this.addRule('api_general', { windowMs: 60000, maxRequests: 100 });
     this.addRule('api_search', { windowMs: 60000, maxRequests: 50 });
     this.addRule('api_submit', { windowMs: 300000, maxRequests: 10 });
     this.addRule('api_vote', { windowMs: 60000, maxRequests: 200 });
     this.addRule('api_comment', { windowMs: 60000, maxRequests: 30 });
-    
-    // Cleanup old requests every 5 minutes
-    setInterval(() => this.cleanup(), 300000);
   }
 
   addRule(endpoint: string, rule: RateLimitRule): void {
     this.rules.set(endpoint, rule);
   }
 
-  checkLimit(
-    key: string,
-    endpoint: string,
-    success: boolean = true
-  ): RateLimitResult {
+  async checkLimit(key: string, endpoint: string): Promise<RateLimitResult> {
+    // If Redis isn't configured, we fail open (allow the request).
+    // In a real production scenario, you might want to fail closed depending on security requirements.
+    if (!this.client) {
+      return { allowed: true, remaining: Infinity, resetTime: Date.now() };
+    }
+
     const rule = this.rules.get(endpoint);
     if (!rule) {
-      return { allowed: true, remaining: Infinity, resetTime: 0 };
+      return { allowed: true, remaining: Infinity, resetTime: Date.now() };
     }
 
     const now = Date.now();
-    const identifier = `${endpoint}:${key}`;
-
-    // Check if currently blocked
-    const blockedUntil = this.blockedUntil.get(identifier);
-    if (blockedUntil && now < blockedUntil) {
-      return {
-        allowed: false,
-        remaining: 0,
-        resetTime: blockedUntil,
-        retryAfter: Math.ceil((blockedUntil - now) / 1000)
-      };
-    }
-
-    // Get or create request history
-    if (!this.requests.has(identifier)) {
-      this.requests.set(identifier, []);
-    }
-
-    const requestHistory = this.requests.get(identifier)!;
+    const identifier = `rate_limit:${endpoint}:${key}`;
     const windowStart = now - rule.windowMs;
 
-    // Filter requests in current window
-    const relevantRequests = requestHistory.filter(req => {
-      const isInWindow = req.timestamp > windowStart;
-      const shouldCount = rule.skipSuccessfulRequests ? !req.success : 
-                         rule.skipFailedRequests ? req.success : true;
-      return isInWindow && shouldCount;
-    });
+    const pipeline = this.client.pipeline();
 
-    // Check if limit exceeded
-    if (relevantRequests.length >= rule.maxRequests) {
-      // Block if configured
-      if (rule.blockDuration) {
-        this.blockedUntil.set(identifier, now + rule.blockDuration);
-      }
+    // Use a unique member for each request to avoid score collisions in the sorted set
+    const member = `${now}:${Math.random()}`;
 
-      const oldestRequest = Math.min(...relevantRequests.map(r => r.timestamp));
-      const resetTime = oldestRequest + rule.windowMs;
+    // 1. Remove all requests from the sorted set that are older than the window
+    pipeline.zremrangebyscore(identifier, '-inf', windowStart);
+    // 2. Add the current request's timestamp to the set
+    pipeline.zadd(identifier, now, member);
+    // 3. Count the total number of requests in the set (the new count)
+    pipeline.zcard(identifier);
+    // 4. Set the key to expire automatically after the window has passed
+    pipeline.expire(identifier, Math.ceil(rule.windowMs / 1000));
 
+    const results = await pipeline.exec();
+
+    // Destructure pipeline results for clarity and maintainability
+    // Format of pipeline result is [[error, result], [error, result], ...]
+    const [zremResult, zaddResult, zcardResult, expireResult] = results || [];
+    const currentRequests = zcardResult && !zcardResult[0] ? (zcardResult[1] as number) : 0;
+
+    if (currentRequests > rule.maxRequests) {
       return {
         allowed: false,
         remaining: 0,
-        resetTime,
-        retryAfter: Math.ceil((resetTime - now) / 1000)
+        resetTime: now + rule.windowMs, // A simple estimation
       };
     }
-
-    // Add current request
-    requestHistory.push({ timestamp: now, success });
-
-    // Clean old requests
-    this.requests.set(identifier, 
-      requestHistory.filter(req => req.timestamp > windowStart)
-    );
 
     return {
       allowed: true,
-      remaining: rule.maxRequests - relevantRequests.length - 1,
-      resetTime: windowStart + rule.windowMs
+      remaining: rule.maxRequests - currentRequests,
+      resetTime: now + rule.windowMs, // A simple estimation
     };
   }
 
-  // DDoS detection based on request patterns
-  detectDDoSPattern(key: string): boolean {
-    const identifier = `ddos:${key}`;
-    const now = Date.now();
-    const windowMs = 10000; // 10 seconds
-    const suspiciousThreshold = 100; // requests per 10 seconds
-
-    if (!this.requests.has(identifier)) {
-      this.requests.set(identifier, []);
-    }
-
-    const requestHistory = this.requests.get(identifier)!;
-    const recentRequests = requestHistory.filter(
-      req => req.timestamp > now - windowMs
-    );
-
-    // Check for suspicious patterns
-    const isHighVolume = recentRequests.length > suspiciousThreshold;
-    const isRegularInterval = this.detectRegularInterval(recentRequests);
-    const isSameUserAgent = this.detectSameUserAgent(key);
-
-    return isHighVolume && (isRegularInterval || isSameUserAgent);
-  }
-
-  private detectRegularInterval(requests: Array<{ timestamp: number; success: boolean }>): boolean {
-    if (requests.length < 10) return false;
-
-    const intervals = [];
-    for (let i = 1; i < requests.length; i++) {
-      intervals.push(requests[i].timestamp - requests[i - 1].timestamp);
-    }
-
-    const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
-    const variance = intervals.reduce((sum, interval) => 
-      sum + Math.pow(interval - avgInterval, 2), 0
-    ) / intervals.length;
-
-    // Low variance indicates regular intervals (bot-like behavior)
-    return variance < 1000; // 1 second variance threshold
-  }
-
-  private detectSameUserAgent(key: string): boolean {
-    // This would check if all requests from this key have the same user agent
-    // Implementation would depend on how user agent is tracked
-    return false; // Placeholder
-  }
-
-  private cleanup(): void {
-    const now = Date.now();
-    const maxAge = 3600000; // 1 hour
-
-    // Clean request history
-    for (const [key, requests] of this.requests) {
-      const filtered = requests.filter(req => req.timestamp > now - maxAge);
-      if (filtered.length === 0) {
-        this.requests.delete(key);
-      } else {
-        this.requests.set(key, filtered);
-      }
-    }
-
-    // Clean expired blocks
-    for (const [key, blockedUntil] of this.blockedUntil) {
-      if (now > blockedUntil) {
-        this.blockedUntil.delete(key);
-      }
-    }
-  }
-
-  getStats() {
-    return {
-      totalKeys: this.requests.size,
-      blockedKeys: this.blockedUntil.size,
-      rules: Array.from(this.rules.keys())
-    };
+  disconnect(): void {
+    if (!this.client) return;
+    this.client.disconnect();
   }
 }
 

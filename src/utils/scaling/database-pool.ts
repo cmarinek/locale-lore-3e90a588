@@ -93,7 +93,7 @@ export class DatabasePool {
   }
 
   // Close all connections
-  async closeAll() {
+  closeAll() {
     for (const [key, client] of this.pools) {
       try {
         // Supabase clients don't have explicit close method

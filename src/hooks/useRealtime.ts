@@ -140,7 +140,7 @@ export const useRealtime = (options: UseRealtimeOptions = {}) => {
     if (channel) {
       return channel.track(data);
     }
-    return Promise.reject('Channel not found');
+    return Promise.reject(new Error('Channel not found'));
   };
 
   const untrackPresence = (channelName: string) => {
@@ -148,7 +148,7 @@ export const useRealtime = (options: UseRealtimeOptions = {}) => {
     if (channel) {
       return channel.untrack();
     }
-    return Promise.reject('Channel not found');
+    return Promise.reject(new Error('Channel not found'));
   };
 
   return {
