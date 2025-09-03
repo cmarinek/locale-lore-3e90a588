@@ -50,7 +50,7 @@ export const ProductionDashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const updateMetrics = () => {
+  const updateMetrics = async () => {
     try {
       // Simulate metrics collection
       const newMetrics: SystemMetrics = {

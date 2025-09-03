@@ -77,7 +77,7 @@ serve(async (req) => {
         break;
 
       case 'upgrade':
-      case 'downgrade': {
+      case 'downgrade':
         const priceMap = {
           basic: Deno.env.get("STRIPE_BASIC_PRICE_ID"),
           premium: Deno.env.get("STRIPE_PREMIUM_PRICE_ID"),
@@ -102,7 +102,7 @@ serve(async (req) => {
           .update({ tier: newTier })
           .eq('id', subscriptionId);
         break;
-      }
+
       default:
         throw new Error("Invalid action");
     }

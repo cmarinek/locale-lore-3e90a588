@@ -29,7 +29,7 @@ const AuthConfirm = () => {
     }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     // Implementation for resending verification email
     console.log('Resend verification email');
   };

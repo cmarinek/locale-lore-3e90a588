@@ -18,14 +18,5 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true
   },
-  "include": [
-    "vite.config.ts",
-    "postcss.config.js",
-    "tailwind.config.ts",
-    "playwright.config.ts",
-    "jest.config.js",
-    "eslint.config.js",
-    "e2e/**/*.ts",
-    "supabase/functions/**/*.ts"
-  ]
+  "include": ["vite.config.ts"]
 }

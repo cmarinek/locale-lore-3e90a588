@@ -81,7 +81,7 @@ export const MediaEditor: React.FC<MediaEditorProps> = ({
     }
   };
 
-  const saveImage = () => {
+  const saveImage = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -89,7 +89,7 @@ export const MediaEditor: React.FC<MediaEditorProps> = ({
       setEditing(true);
       
       // Convert canvas to blob
-      canvas.toBlob((blob) => {
+      canvas.toBlob(async (blob) => {
         if (!blob) return;
         
         // Create object URL for the edited image

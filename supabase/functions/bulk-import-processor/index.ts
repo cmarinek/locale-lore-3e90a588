@@ -85,7 +85,7 @@ async function createJob(supabase: any, params: any) {
 
   return new Response(JSON.stringify({ 
     success: true,
-    job
+    job: job
   }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
@@ -184,7 +184,7 @@ async function processJobInBackground(supabase: any, jobId: string) {
         },
         body: JSON.stringify({
           action: 'get_status',
-          jobId
+          jobId: jobId
         })
       });
 
@@ -204,8 +204,8 @@ async function processJobInBackground(supabase: any, jobId: string) {
         },
         body: JSON.stringify({
           action: 'process_batch',
-          jobId,
-          batchSize
+          jobId: jobId,
+          batchSize: batchSize
         })
       });
 

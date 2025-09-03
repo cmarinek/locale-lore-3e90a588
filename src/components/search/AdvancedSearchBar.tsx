@@ -179,7 +179,7 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({
         audioChunks.push(event.data);
       };
 
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
         const reader = new FileReader();
         

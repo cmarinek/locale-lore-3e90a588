@@ -280,7 +280,7 @@ async function generateWikipediaQueue(categories: string[], targetCount: number,
           url: `https://en.wikipedia.org/wiki/${encodeURIComponent(article.title)}`,
           data: {
             title: article.title,
-            category,
+            category: category,
             pageid: article.pageid
           }
         });
@@ -369,7 +369,7 @@ async function processWikipediaPage(sourceData: any): Promise<WikipediaPage | nu
     return {
       title: data.title,
       description: data.extract,
-      coordinates,
+      coordinates: coordinates,
       location: data.title, // Use title as location fallback
       extract: data.extract,
       images: images.slice(0, 3), // Limit to 3 images

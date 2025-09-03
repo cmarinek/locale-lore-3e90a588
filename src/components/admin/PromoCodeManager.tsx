@@ -43,7 +43,7 @@ export const PromoCodeManager: React.FC = () => {
     loadPromoCodes();
   }, []);
 
-  const loadPromoCodes = () => {
+  const loadPromoCodes = async () => {
     setLoading(true);
     try {
       // This would be a custom table for promo codes

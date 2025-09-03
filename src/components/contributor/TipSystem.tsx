@@ -214,7 +214,7 @@ const TipJarWidget: React.FC<{ recipientId: string; recipientName: string }> = (
     fetchTipJarData();
   }, [recipientId]);
 
-  const fetchTipJarData = () => {
+  const fetchTipJarData = async () => {
     try {
       // Mock data for now until types are updated
       setTipJarData({

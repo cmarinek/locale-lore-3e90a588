@@ -41,7 +41,7 @@ export const ExpertBadgeManager: React.FC = () => {
     }
   }, [user]);
 
-  const fetchBadges = () => {
+  const fetchBadges = async () => {
     try {
       // Mock data for now until types are updated
       setBadges([]);
@@ -73,7 +73,7 @@ export const ExpertBadgeManager: React.FC = () => {
         body: {
           badge_type: badgeType,
           location_area: locationArea,
-          specialization,
+          specialization: specialization,
         }
       });
 

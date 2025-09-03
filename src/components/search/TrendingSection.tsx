@@ -208,7 +208,7 @@ export const TrendingSection: React.FC<TrendingSectionProps> = ({
                   <div className="flex flex-col items-end gap-2">
                     <Badge 
                       variant="secondary"
-                      style={{ backgroundColor: `${trending.facts.categories.color  }20` }}
+                      style={{ backgroundColor: trending.facts.categories.color + '20' }}
                     >
                       {trending.facts.categories.icon}
                     </Badge>

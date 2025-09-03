@@ -119,7 +119,7 @@ export const SocialSharing: React.FC<SocialSharingProps> = ({
     }
   };
 
-  const generateShareImage = () => {
+  const generateShareImage = async () => {
     setIsGeneratingImage(true);
     
     // Mock image generation - in real app, use canvas or service like Bannerbear

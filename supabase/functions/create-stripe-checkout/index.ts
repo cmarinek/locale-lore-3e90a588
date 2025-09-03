@@ -65,8 +65,8 @@ serve(async (req) => {
       cancel_url: `${req.headers.get("origin")}/billing/canceled`,
       metadata: {
         user_id: user.id,
-        tier,
-        type,
+        tier: tier,
+        type: type,
       },
     };
 
@@ -134,8 +134,8 @@ serve(async (req) => {
       .insert({
         user_id: user.id,
         session_id: session.id,
-        type,
-        tier,
+        type: type,
+        tier: tier,
         amount: selectedPrice.amount,
         status: 'pending',
       });

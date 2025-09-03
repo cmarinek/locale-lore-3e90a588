@@ -242,7 +242,7 @@ export const StepMedia: React.FC<StepMediaProps> = ({
                           }`} />
                           <div className="text-center">
                             <p className="text-xs font-medium text-foreground truncate w-full">
-                              {fileName.length > 8 ? `${fileName.substring(0, 8)  }...` : fileName}
+                              {fileName.length > 8 ? fileName.substring(0, 8) + '...' : fileName}
                             </p>
                             <p className="text-xs text-muted-foreground">{extension}</p>
                           </div>

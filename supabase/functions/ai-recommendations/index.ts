@@ -78,7 +78,7 @@ serve(async (req) => {
         dwellTime: h.dwell_time
       })) || [],
       preferences: userPrefs || {},
-      location,
+      location: location,
       similarUserPreferences: similarUsers || []
     };
 

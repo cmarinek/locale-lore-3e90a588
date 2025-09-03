@@ -23,9 +23,9 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   const { currentLanguage, setLanguage, supportedLanguages, isLoading } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleLanguageSelect = (languageCode: string) => {
+  const handleLanguageSelect = async (languageCode: string) => {
     if (languageCode !== currentLanguage) {
-      setLanguage(languageCode as any);
+      await setLanguage(languageCode as any);
     }
     setIsOpen(false);
   };

@@ -171,7 +171,7 @@ async function createOrUpdateSubscription(subscription: Stripe.Subscription, use
     stripe_subscription_id: subscription.id,
     stripe_customer_id: subscription.customer as string,
     status: subscription.status,
-    tier,
+    tier: tier,
     current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
     current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
     trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,

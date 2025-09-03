@@ -54,7 +54,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ classNam
     fetchAnalyticsData();
   }, [timeRange]);
 
-  const fetchAnalyticsData = () => {
+  const fetchAnalyticsData = async () => {
     setLoading(true);
     try {
       // Mock data - replace with actual API calls

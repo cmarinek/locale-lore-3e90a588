@@ -193,7 +193,7 @@ serve(async (req) => {
           user_id: userPref.user_id,
           notification_type: 'discovery_of_day',
           title: '🌟 Discovery of the Day',
-          body: `${aiSelection.ai_summary.substring(0, 100)  }...`,
+          body: aiSelection.ai_summary.substring(0, 100) + '...',
           data: {
             fact_id: selectedFact.id,
             discovery_id: discoveryOfDay.id,

@@ -142,10 +142,9 @@ export const formatActivityMessage = (activity: ActivityItem): string => {
   switch (activity.activity_type) {
     case 'fact_created':
       return `${username} discovered new lore: "${activity.facts?.title}"`;
-    case 'fact_voted': {
+    case 'fact_voted':
       const voteType = activity.metadata?.is_upvote ? 'verified' : 'disputed';
       return `${username} ${voteType} lore: "${activity.facts?.title}"`;
-    }
     case 'comment_created':
       return `${username} commented on lore: "${activity.facts?.title}"`;
     case 'fact_saved':
