@@ -53,17 +53,27 @@ const FactAcquisitionManager: React.FC = () => {
 
   const loadJobs = async () => {
     try {
+      console.log('Loading acquisition jobs...');
       const { data, error } = await supabase.functions.invoke('bulk-import-processor', {
         body: { action: 'get_jobs', limit: 50 }
       });
 
+      console.log('Jobs response:', { data, error });
+      
       if (error) throw error;
-      setJobs(data.jobs || []);
+      
+      const jobs = data?.jobs || [];
+      console.log('Loaded jobs:', jobs);
+      setJobs(jobs);
+      
+      if (jobs.length === 0) {
+        console.log('No jobs found');
+      }
     } catch (error) {
       console.error('Failed to load jobs:', error);
       toast({
         title: "Error loading jobs",
-        description: "Failed to fetch acquisition jobs",
+        description: `Failed to fetch acquisition jobs: ${error.message}`,
         variant: "destructive",
       });
     }
@@ -119,23 +129,27 @@ const FactAcquisitionManager: React.FC = () => {
   const startJob = async (jobId: string) => {
     setLoading(true);
     try {
+      console.log('Starting job:', jobId);
       const { data, error } = await supabase.functions.invoke('bulk-import-processor', {
         body: { action: 'start_processing', jobId }
       });
+
+      console.log('Start job response:', { data, error });
 
       if (error) throw error;
 
       toast({
         title: "Job started",
-        description: "Fact acquisition job started successfully",
+        description: "Fact acquisition job started successfully. Processing in background...",
       });
 
-      loadJobs();
+      // Refresh jobs immediately to show updated status
+      setTimeout(loadJobs, 1000);
     } catch (error) {
       console.error('Failed to start job:', error);
       toast({
         title: "Error starting job",
-        description: "Failed to start acquisition job",
+        description: `Failed to start acquisition job: ${error.message}`,
         variant: "destructive",
       });
     } finally {

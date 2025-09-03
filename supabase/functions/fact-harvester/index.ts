@@ -153,7 +153,7 @@ async function processBatch(supabase: any, params: { jobId: string; batchSize?: 
             longitude: fact.coordinates.lon,
             location_name: fact.location || fact.title,
             category_id: categoryId,
-            author_id: '00000000-0000-0000-0000-000000000000', // System user
+            author_id: null, // System-generated facts
             status: 'verified',
             media_urls: fact.images || []
           });

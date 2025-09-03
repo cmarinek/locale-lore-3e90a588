@@ -786,7 +786,7 @@ export type Database = {
       }
       facts: {
         Row: {
-          author_id: string
+          author_id: string | null
           category_id: string
           created_at: string
           description: string
@@ -804,7 +804,7 @@ export type Database = {
           vote_count_up: number
         }
         Insert: {
-          author_id: string
+          author_id?: string | null
           category_id: string
           created_at?: string
           description: string
@@ -822,7 +822,7 @@ export type Database = {
           vote_count_up?: number
         }
         Update: {
-          author_id?: string
+          author_id?: string | null
           category_id?: string
           created_at?: string
           description?: string

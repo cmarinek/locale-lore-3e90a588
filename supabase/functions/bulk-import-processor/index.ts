@@ -115,7 +115,8 @@ async function startProcessing(supabase: any, params: any) {
   }
 
   // Start the harvesting process
-  const harvesterUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/fact-harvester`;
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const harvesterUrl = `${supabaseUrl}/functions/v1/fact-harvester`;
   
   try {
     // Start harvest job
@@ -168,7 +169,8 @@ async function startProcessing(supabase: any, params: any) {
 async function processJobInBackground(supabase: any, jobId: string) {
   console.log('Starting background processing for job:', jobId);
   
-  const harvesterUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/fact-harvester`;
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const harvesterUrl = `${supabaseUrl}/functions/v1/fact-harvester`;
   const batchSize = 10;
   const maxRetries = 3;
   let retryCount = 0;
