@@ -33,7 +33,10 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4 MB
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
+        navigateFallback: null, // Disable navigate fallback for large apps
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\//,
@@ -78,18 +81,60 @@ export default defineConfig(({ mode }) => ({
     minify: "esbuild",
     cssMinify: true,
     sourcemap: mode === "development",
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ["react", "react-dom"],
-          router: ["react-router-dom"],
-          ui: ["@radix-ui/react-dialog", "@radix-ui/react-toast", "@radix-ui/react-select", "@radix-ui/react-slider"],
-          mapbox: ["mapbox-gl"],
-          store: ["zustand"],
-          supabase: ["@supabase/supabase-js"],
+        rollupOptions: {
+          output: {
+            manualChunks: (id) => {
+              // Vendor libraries
+              if (id.includes('node_modules')) {
+                if (id.includes('react') || id.includes('react-dom')) {
+                  return 'vendor-react';
+                }
+                if (id.includes('mapbox-gl')) {
+                  return 'vendor-mapbox';
+                }
+                if (id.includes('@radix-ui')) {
+                  return 'vendor-ui';
+                }
+                if (id.includes('@supabase')) {
+                  return 'vendor-supabase';
+                }
+                if (id.includes('framer-motion') || id.includes('lucide-react')) {
+                  return 'vendor-animations';
+                }
+                if (id.includes('i18next') || id.includes('react-i18next')) {
+                  return 'vendor-i18n';
+                }
+                return 'vendor-misc';
+              }
+              
+              // Application chunks
+              if (id.includes('/pages/')) {
+                return 'pages';
+              }
+              if (id.includes('/admin/')) {
+                return 'admin';
+              }
+              if (id.includes('/components/')) {
+                if (id.includes('/ui/')) {
+                  return 'components-ui';
+                }
+                if (id.includes('/discovery/') || id.includes('/search/')) {
+                  return 'components-discovery';
+                }
+                if (id.includes('/social/') || id.includes('/gamification/')) {
+                  return 'components-social';
+                }
+                return 'components-misc';
+              }
+              if (id.includes('/hooks/')) {
+                return 'hooks';
+              }
+              if (id.includes('/utils/')) {
+                return 'utils';
+              }
+            },
+          },
         },
-      },
-    },
   },
   optimizeDeps: {
     include: ["react", "react-dom", "react-router-dom"],
