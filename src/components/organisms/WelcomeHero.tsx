@@ -17,16 +17,6 @@ export const WelcomeHero = () => {
 Know a good spot? Add it!</p>
         </div>
 
-        {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12">
-          {features.map((feature, index) => (
-            <div key={index} className="bg-card p-6 rounded-xl elevation-1">
-              <div className="text-3xl mb-3">{feature.icon}</div>
-              <h3 className="font-semibold mb-2">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground">{feature.description}</p>
-            </div>
-          ))}
-        </div>
 
         {/* CTA Section */}
         <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
@@ -41,16 +31,3 @@ Know a good spot? Add it!</p>
       </div>
     </div>;
 };
-const features = [{
-  icon: "⚡",
-  title: "Fast & Modern",
-  description: "Built with Vite, React 18, and TypeScript for optimal performance"
-}, {
-  icon: "📱",
-  title: "Mobile First",
-  description: "iOS-inspired design with PWA capabilities for native-like experience"
-}, {
-  icon: "🎨",
-  title: "Design System",
-  description: "Atomic design principles with shadcn/ui and Tailwind CSS"
-}];
