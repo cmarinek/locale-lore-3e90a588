@@ -1,64 +1,62 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Heart, Search, BookOpen, User, Home } from 'lucide-react';
+import { 
+  Home, 
+  Compass, 
+  Search, 
+  Plus, 
+  User,
+  Trophy,
+  Crown,
+  Users,
+  Camera,
+  Shield
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAdmin } from '@/hooks/useAdmin';
 import { useAppStore } from '@/stores/appStore';
-
-const tabs = [
-  {
-    id: 'discover' as const,
-    label: 'Discover',
-    href: '/discover',
-    icon: Heart,
-  },
-  {
-    id: 'explore' as const,
-    label: 'Explore',
-    href: '/explore',
-    icon: Home,
-  },
-  {
-    id: 'search' as const,
-    label: 'Search',
-    href: '/search',
-    icon: Search,
-  },
-  {
-    id: 'submit' as const,
-    label: 'Submit',
-    href: '/submit',
-    icon: BookOpen,
-  },
-  {
-    id: 'profile' as const,
-    label: 'Profile',
-    href: '/profile',
-    icon: User,
-  },
-];
 
 export const BottomNavigation: React.FC = () => {
   const location = useLocation();
+  const { user } = useAuth();
+  const { isAdmin } = useAdmin();
   const { 
-    activeTab, 
-    setActiveTab, 
-    mobile, 
     triggerHapticFeedback,
-    handleTouchInteraction 
+    handleTouchInteraction,
+    mobile
   } = useAppStore();
 
-  const isActive = (href: string) => {
-    if (href === '/discover' && location.pathname === '/') {
-      return true;
-    }
-    if (href === '/explore' && (location.pathname === '/explore' || location.pathname === '/discover')) {
-      return true;
-    }
-    return location.pathname.startsWith(href);
+  const isActive = (path: string) => {
+    if (path === '/' && location.pathname === '/') return true;
+    if (path === '/explore' && (location.pathname === '/explore' || location.pathname === '/discover')) return true;
+    return location.pathname.startsWith(path);
   };
 
-  const handleTabClick = (tabId: typeof activeTab) => {
-    setActiveTab(tabId);
+  // Core navigation items - always visible
+  const coreNavItems = [
+    { path: '/', icon: Home, label: 'Home' },
+    { path: '/explore', icon: Compass, label: 'Explore' },
+    { path: '/search', icon: Search, label: 'Search' },
+    { path: '/stories', icon: Camera, label: 'Stories' },
+  ];
+
+  // User-specific items
+  const userNavItems = user ? [
+    { path: '/submit', icon: Plus, label: 'Submit' },
+  ] : [];
+
+  // Profile/Auth item
+  const profileItem = user ? [
+    { path: `/profile/${user.id}`, icon: User, label: 'Profile' }
+  ] : [
+    { path: '/auth', icon: User, label: 'Login' }
+  ];
+
+  // Combine all navigation items (max 5 for clean mobile layout)
+  const allNavItems = [...coreNavItems, ...userNavItems].slice(0, 4).concat(profileItem);
+
+  const handleTabClick = () => {
     handleTouchInteraction('tap');
   };
 
@@ -84,52 +82,44 @@ export const BottomNavigation: React.FC = () => {
     <nav 
       className={cn(
         "fixed bottom-0 left-0 right-0 z-50 md:hidden",
-        "glass border-t bg-background/95 backdrop-blur-lg",
+        "border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
         "safe-area-padding-bottom"
       )}
       style={{
         paddingBottom: `max(env(safe-area-inset-bottom), ${mobile?.safeAreaInsets?.bottom || 0}px)`,
       }}
     >
-      <div className="grid grid-cols-5 h-16">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const active = isActive(tab.href);
+      <div className="grid grid-cols-5 h-16 px-1">
+        {allNavItems.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item.path);
           
           return (
             <Link
-              key={tab.id}
-              to={tab.href}
-              onClick={() => handleTabClick(tab.id)}
+              key={item.path}
+              to={item.path}
+              onClick={handleTabClick}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 px-2 py-1 text-xs font-medium",
-                "transition-all duration-200 tap-highlight-none touch-manipulation",
-                !mobile?.reduceAnimations && "haptic-feedback",
+                "flex flex-col items-center justify-center gap-1 px-1 py-2",
+                "transition-all duration-200 rounded-lg",
+                "touch-manipulation tap-highlight-none",
                 active
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground active:text-primary"
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
               onTouchStart={() => triggerHapticFeedback('light')}
             >
-              <div
+              <Icon 
                 className={cn(
-                  "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200",
-                  active && "bg-primary/10",
-                  !mobile?.reduceAnimations && active && "scale-110"
-                )}
-              >
-                <Icon 
-                  className={cn(
-                    "w-5 h-5 transition-transform duration-200",
-                    !mobile?.reduceAnimations && active && "scale-110"
-                  )} 
-                />
-              </div>
+                  "w-5 h-5 transition-all duration-200",
+                  active && "scale-110"
+                )} 
+              />
               <span className={cn(
-                "transition-all duration-200 leading-tight",
-                active ? "font-semibold" : "font-medium"
+                "text-xs font-medium transition-all duration-200 leading-tight",
+                active && "font-semibold"
               )}>
-                {tab.label}
+                {item.label}
               </span>
             </Link>
           );
