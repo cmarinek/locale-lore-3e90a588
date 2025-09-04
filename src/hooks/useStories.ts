@@ -17,7 +17,7 @@ export const useStories = () => {
         .from('stories')
         .select(`
           *,
-          profiles!stories_user_id_fkey (
+          profiles (
             username,
             avatar_url
           )
@@ -28,13 +28,13 @@ export const useStories = () => {
 
       if (error) throw error;
 
-      const transformedStories: Story[] = data.map(story => ({
+      const transformedStories: Story[] = (data || []).map(story => ({
         id: story.id,
         user_id: story.user_id,
         title: story.title,
         content: story.content,
         media_urls: story.media_urls || [],
-        media_type: story.media_type,
+        media_type: story.media_type as 'image' | 'video' | 'carousel',
         location_name: story.location_name,
         latitude: story.latitude ? Number(story.latitude) : undefined,
         longitude: story.longitude ? Number(story.longitude) : undefined,
@@ -47,8 +47,8 @@ export const useStories = () => {
         created_at: story.created_at,
         author: story.profiles ? {
           id: story.user_id,
-          username: story.profiles.username,
-          avatar_url: story.profiles.avatar_url
+          username: (story.profiles as any).username,
+          avatar_url: (story.profiles as any).avatar_url
         } : undefined
       }));
 
@@ -71,7 +71,7 @@ export const useStories = () => {
         .from('stories')
         .select(`
           *,
-          profiles!stories_user_id_fkey (
+          profiles (
             username,
             avatar_url
           )
@@ -83,13 +83,13 @@ export const useStories = () => {
 
       if (error) throw error;
 
-      const transformedStories: Story[] = data.map(story => ({
+      const transformedStories: Story[] = (data || []).map(story => ({
         id: story.id,
         user_id: story.user_id,
         title: story.title,
         content: story.content,
         media_urls: story.media_urls || [],
-        media_type: story.media_type,
+        media_type: story.media_type as 'image' | 'video' | 'carousel',
         location_name: story.location_name,
         latitude: story.latitude ? Number(story.latitude) : undefined,
         longitude: story.longitude ? Number(story.longitude) : undefined,
@@ -102,8 +102,8 @@ export const useStories = () => {
         created_at: story.created_at,
         author: story.profiles ? {
           id: story.user_id,
-          username: story.profiles.username,
-          avatar_url: story.profiles.avatar_url
+          username: (story.profiles as any).username,
+          avatar_url: (story.profiles as any).avatar_url
         } : undefined
       }));
 
@@ -142,7 +142,7 @@ export const useStories = () => {
           title: data.caption.split('\n')[0] || 'New Story',
           content: data.caption,
           media_urls: [publicUrl],
-          media_type: data.mediaType,
+          media_type: data.mediaType as 'image' | 'video' | 'carousel',
           location_name: data.location?.name,
           latitude: data.location?.latitude,
           longitude: data.location?.longitude,
@@ -150,7 +150,7 @@ export const useStories = () => {
         })
         .select(`
           *,
-          profiles!stories_user_id_fkey (
+          profiles (
             username,
             avatar_url
           )
@@ -165,7 +165,7 @@ export const useStories = () => {
         title: story.title,
         content: story.content,
         media_urls: story.media_urls || [],
-        media_type: story.media_type,
+        media_type: story.media_type as 'image' | 'video' | 'carousel',
         location_name: story.location_name,
         latitude: story.latitude ? Number(story.latitude) : undefined,
         longitude: story.longitude ? Number(story.longitude) : undefined,
@@ -178,8 +178,8 @@ export const useStories = () => {
         created_at: story.created_at,
         author: story.profiles ? {
           id: story.user_id,
-          username: story.profiles.username,
-          avatar_url: story.profiles.avatar_url
+          username: (story.profiles as any).username,
+          avatar_url: (story.profiles as any).avatar_url
         } : undefined
       };
 
