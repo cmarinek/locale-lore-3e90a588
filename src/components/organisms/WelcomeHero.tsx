@@ -19,13 +19,7 @@ Know a good spot? Add it!</p>
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12">
-          {features.map((feature, index) => <div key={feature.title} className="glass rounded-2xl p-6 elevation-1 animate-scale-in" style={{
-          animationDelay: `${index * 0.1}s`
-        }}>
-              <div className="text-3xl mb-3">{feature.icon}</div>
-              <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground">{feature.description}</p>
-            </div>)}
+          {features.map((feature, index) => {})}
         </div>
 
         {/* CTA Section */}
