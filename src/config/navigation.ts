@@ -50,8 +50,7 @@ export const CORE_NAVIGATION: NavigationItem[] = [
     path: '/stories',
     icon: Camera,
     description: 'View and create stories',
-    requiresAuth: true,
-    category: 'primary'
+    category: 'primary' // Remove requiresAuth - everyone can view stories
   }
 ];
 
@@ -170,8 +169,7 @@ export const MOBILE_PRIMARY_NAVIGATION: NavigationItem[] = [
     label: 'Stories',
     path: '/stories',
     icon: Camera,
-    requiresAuth: true,
-    category: 'primary'
+    category: 'primary' // Remove requiresAuth - everyone can view stories
   },
   {
     id: 'profile',
@@ -199,10 +197,10 @@ export const GUEST_NAVIGATION: NavigationItem[] = [
     category: 'primary'
   },
   {
-    id: 'search',
-    label: 'Search',
-    path: '/search',
-    icon: Search,
+    id: 'stories',
+    label: 'Stories',
+    path: '/stories',
+    icon: Camera,
     category: 'primary'
   },
   {
