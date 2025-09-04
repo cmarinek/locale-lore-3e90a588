@@ -95,20 +95,37 @@ export const Navigation: React.FC = () => {
   ];
 
   return (
-    /* Desktop Navigation Only */
-    <nav className="hidden md:flex items-center space-x-1 p-1 bg-muted rounded-lg">
-      {[...navItems, ...userItems].map(({ path, icon: Icon, label }) => (
-        <Link key={path} to={path}>
-          <Button
-            variant={isActive(path) ? 'default' : 'ghost'}
-            size="sm"
-            className="relative"
-          >
-            <Icon className="w-4 h-4 mr-2" />
-            {label}
-          </Button>
-        </Link>
-      ))}
-    </nav>
+    <>
+      {/* Desktop Navigation */}
+      <nav className="hidden md:flex items-center space-x-1 p-1 bg-muted rounded-lg">
+        {[...navItems, ...userItems].map(({ path, icon: Icon, label }) => (
+          <Link key={path} to={path}>
+            <Button
+              variant={isActive(path) ? 'default' : 'ghost'}
+              size="sm"
+              className="relative"
+            >
+              <Icon className="w-4 h-4 mr-2" />
+              {label}
+            </Button>
+          </Link>
+        ))}
+      </nav>
+
+      {/* Mobile Navigation */}
+      <nav className="md:hidden flex items-center space-x-1 p-1 bg-muted rounded-lg overflow-x-auto">
+        {[...navItems, ...userItems].map(({ path, icon: Icon, label }) => (
+          <Link key={path} to={path} className="flex-shrink-0">
+            <Button
+              variant={isActive(path) ? 'default' : 'ghost'}
+              size="sm"
+              className="relative"
+            >
+              <Icon className="w-4 h-4" />
+            </Button>
+          </Link>
+        ))}
+      </nav>
+    </>
   );
 };
