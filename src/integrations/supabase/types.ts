@@ -1361,6 +1361,177 @@ export type Database = {
         }
         Relationships: []
       }
+      stories: {
+        Row: {
+          comment_count: number
+          content: string
+          created_at: string
+          expires_at: string
+          geolocation: unknown | null
+          hashtags: string[] | null
+          id: string
+          is_active: boolean
+          is_trending: boolean
+          latitude: number | null
+          like_count: number
+          location_name: string | null
+          longitude: number | null
+          media_type: string
+          media_urls: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+          view_count: number
+        }
+        Insert: {
+          comment_count?: number
+          content: string
+          created_at?: string
+          expires_at?: string
+          geolocation?: unknown | null
+          hashtags?: string[] | null
+          id?: string
+          is_active?: boolean
+          is_trending?: boolean
+          latitude?: number | null
+          like_count?: number
+          location_name?: string | null
+          longitude?: number | null
+          media_type: string
+          media_urls?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+          view_count?: number
+        }
+        Update: {
+          comment_count?: number
+          content?: string
+          created_at?: string
+          expires_at?: string
+          geolocation?: unknown | null
+          hashtags?: string[] | null
+          id?: string
+          is_active?: boolean
+          is_trending?: boolean
+          latitude?: number | null
+          like_count?: number
+          location_name?: string | null
+          longitude?: number | null
+          media_type?: string
+          media_urls?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
+      story_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          story_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          story_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          story_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_comments_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      story_likes: {
+        Row: {
+          created_at: string
+          id: string
+          story_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          story_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          story_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_likes_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      story_views: {
+        Row: {
+          id: string
+          ip_address: unknown | null
+          session_id: string | null
+          story_id: string
+          user_agent: string | null
+          user_id: string | null
+          viewed_at: string
+          watch_duration: number | null
+        }
+        Insert: {
+          id?: string
+          ip_address?: unknown | null
+          session_id?: string | null
+          story_id: string
+          user_agent?: string | null
+          user_id?: string | null
+          viewed_at?: string
+          watch_duration?: number | null
+        }
+        Update: {
+          id?: string
+          ip_address?: unknown | null
+          session_id?: string | null
+          story_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+          viewed_at?: string
+          watch_duration?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_views_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscribers: {
         Row: {
           created_at: string
@@ -2512,6 +2683,10 @@ export type Database = {
       calculate_user_similarity: {
         Args: { user1_id: string; user2_id: string }
         Returns: number
+      }
+      cleanup_expired_stories: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       disablelongtransactions: {
         Args: Record<PropertyKey, never>
@@ -4221,6 +4396,10 @@ export type Database = {
         Returns: number
       }
       update_trending_scores: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      update_trending_stories: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
