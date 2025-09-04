@@ -12,6 +12,17 @@ import { Play, Pause, Square, RefreshCw, Settings, Database } from 'lucide-react
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 
+interface ImportedFact {
+  id: string;
+  title: string;
+  description: string;
+  location_name: string;
+  latitude: number;
+  longitude: number;
+  created_at: string;
+  category: { slug: string };
+}
+
 interface AcquisitionJob {
   id: string;
   name: string;
@@ -29,9 +40,11 @@ interface AcquisitionJob {
 
 const FactAcquisitionManager: React.FC = () => {
   const [jobs, setJobs] = useState<AcquisitionJob[]>([]);
+  const [importedFacts, setImportedFacts] = useState<ImportedFact[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState<'jobs' | 'preview'>('jobs');
   const { toast } = useToast();
 
   const [newJobForm, setNewJobForm] = useState({
@@ -45,9 +58,13 @@ const FactAcquisitionManager: React.FC = () => {
 
   useEffect(() => {
     loadJobs();
+    loadImportedFacts();
     
     // Auto-refresh every 30 seconds
-    const interval = setInterval(loadJobs, 30000);
+    const interval = setInterval(() => {
+      loadJobs();
+      loadImportedFacts();
+    }, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -74,6 +91,42 @@ const FactAcquisitionManager: React.FC = () => {
       toast({
         title: "Error loading jobs",
         description: `Failed to fetch acquisition jobs: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const loadImportedFacts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('facts')
+        .select(`
+          id,
+          title,
+          description,
+          location_name,
+          latitude,
+          longitude,
+          created_at,
+          categories!inner(slug)
+        `)
+        .is('author_id', null) // System-generated facts
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      
+      const factsWithCategory = data?.map(fact => ({
+        ...fact,
+        category: fact.categories
+      })) || [];
+      
+      setImportedFacts(factsWithCategory);
+    } catch (error) {
+      console.error('Failed to load imported facts:', error);
+      toast({
+        title: "Error loading imported facts",
+        description: `Failed to fetch imported facts: ${error.message}`,
         variant: "destructive",
       });
     }
@@ -144,7 +197,10 @@ const FactAcquisitionManager: React.FC = () => {
       });
 
       // Refresh jobs immediately to show updated status
-      setTimeout(loadJobs, 1000);
+      setTimeout(() => {
+        loadJobs();
+        loadImportedFacts();
+      }, 1000);
     } catch (error) {
       console.error('Failed to start job:', error);
       toast({
@@ -170,8 +226,9 @@ const FactAcquisitionManager: React.FC = () => {
         title: "Job paused",
         description: "Fact acquisition job paused successfully",
       });
-
+      
       loadJobs();
+      loadImportedFacts();
     } catch (error) {
       console.error('Failed to pause job:', error);
       toast({
@@ -269,6 +326,22 @@ const FactAcquisitionManager: React.FC = () => {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
+          <div className="flex bg-muted p-1 rounded-lg">
+            <Button
+              variant={activeTab === 'jobs' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveTab('jobs')}
+            >
+              Jobs
+            </Button>
+            <Button
+              variant={activeTab === 'preview' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveTab('preview')}
+            >
+              Imported Facts ({importedFacts.length})
+            </Button>
+          </div>
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
             <DialogTrigger asChild>
               <Button>
@@ -383,7 +456,8 @@ const FactAcquisitionManager: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid gap-4">
+      {activeTab === 'jobs' && (
+        <div className="grid gap-4">
         {jobs.map((job) => (
           <Card key={job.id}>
             <CardHeader>
@@ -501,7 +575,63 @@ const FactAcquisitionManager: React.FC = () => {
             </CardContent>
           </Card>
         )}
-      </div>
+        </div>
+      )}
+
+      {activeTab === 'preview' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Recently Imported Facts</h3>
+            <Button onClick={loadImportedFacts} variant="outline" size="sm">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
+          
+          {importedFacts.length === 0 ? (
+            <Card>
+              <CardContent className="text-center py-8">
+                <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="font-semibold mb-2">No facts imported yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Create and run an acquisition job to see imported facts here
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4">
+              {importedFacts.map((fact) => (
+                <Card key={fact.id}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <CardTitle className="text-lg">{fact.title}</CardTitle>
+                        <CardDescription className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {fact.category.slug}
+                          </Badge>
+                          <span>📍 {fact.location_name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            Imported {new Date(fact.created_at).toLocaleDateString()}
+                          </span>
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
+                      {fact.description}
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>📍 {fact.latitude.toFixed(6)}, {fact.longitude.toFixed(6)}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
