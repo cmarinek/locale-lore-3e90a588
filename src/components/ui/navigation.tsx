@@ -1,54 +1,80 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
-import { 
-  Settings,
-  Shield,
-  User
-} from 'lucide-react';
+import { User } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { getNavigationItems } from '@/config/navigation';
+import type { UserRole } from '@/types/navigation';
 
 export const Navigation: React.FC = () => {
+  const location = useLocation();
   const { user } = useAuth();
   const { isAdmin } = useAdmin();
 
-  // Only essential header actions for desktop
-  const headerActions = user ? [
-    ...(isAdmin ? [{ 
-      path: '/admin', 
-      icon: Shield, 
-      label: 'Admin'
-    }] : []),
-    { 
-      path: `/profile/${user.id}`, 
-      icon: User, 
-      label: 'Profile'
+  // Determine user role
+  const userRole: UserRole = user ? 'user' : 'guest';
+  
+  // Get navigation configuration
+  const navigationConfig = getNavigationItems(userRole, isAdmin);
+  
+  // Filter utility navigation items for desktop header
+  const headerActions = navigationConfig.utility.filter(item => {
+    // Only show profile and admin items in header
+    return item.id === 'profile' || item.id === 'admin';
+  });
+
+  // Add auth item for guests
+  if (userRole === 'guest') {
+    headerActions.push({
+      id: 'auth',
+      label: 'Login',
+      path: '/auth',
+      icon: User,
+      category: 'utility' as const
+    });
+  }
+
+  const isActive = (path: string) => {
+    if (path === '/profile' && location.pathname.startsWith('/profile')) return true;
+    return location.pathname === path;
+  };
+
+  const getNavigationPath = (item: any) => {
+    if (item.id === 'profile' && user) {
+      return `/profile/${user.id}`;
     }
-  ] : [
-    { 
-      path: '/auth', 
-      icon: User, 
-      label: 'Login'
-    }
-  ];
+    return item.path;
+  };
 
   return (
-    // Desktop only - minimal header actions
-    <nav className="hidden md:flex items-center space-x-1">
-      {headerActions.map(({ path, icon: Icon, label }) => (
-        <Link key={path} to={path}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="relative"
-          >
-            <Icon className="w-4 h-4 mr-2" />
-            {label}
-          </Button>
-        </Link>
-      ))}
+    // Desktop only - essential header actions
+    <nav className="hidden md:flex items-center space-x-1" role="navigation" aria-label="Main navigation">
+      {headerActions.map((item) => {
+        const Icon = item.icon;
+        const navigationPath = getNavigationPath(item);
+        const active = isActive(navigationPath);
+
+        return (
+          <Link key={item.id} to={navigationPath}>
+            <Button
+              variant={active ? "secondary" : "ghost"}
+              size="sm"
+              className={cn(
+                "relative story-link", // Apply underline animation
+                active && "bg-primary/10 text-primary"
+              )}
+              aria-label={`Navigate to ${item.label}`}
+              title={item.description}
+            >
+              <Icon className="w-4 h-4 mr-2" />
+              {item.label}
+            </Button>
+          </Link>
+        );
+      })}
     </nav>
   );
 };

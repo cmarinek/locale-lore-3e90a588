@@ -8,6 +8,7 @@ import { QuickCapture } from '@/components/stories/QuickCapture';
 import { TrendingSection } from '@/components/stories/TrendingSection';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MainLayout } from '@/components/templates/MainLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAnimations } from '@/hooks/useAnimations';
 import { useStories } from '@/hooks/useStories';
@@ -83,17 +84,18 @@ const Stories: React.FC = () => {
   }
 
   return (
-    <motion.div
-      variants={pageVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="min-h-screen bg-background"
-    >
-      <Helmet>
-        <title>Stories - Awesome Facts</title>
-        <meta name="description" content="Share and discover amazing stories and moments" />
-      </Helmet>
+    <MainLayout>
+      <motion.div
+        variants={pageVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        className="min-h-screen bg-background"
+      >
+        <Helmet>
+          <title>Stories - LocaleLore</title>
+          <meta name="description" content="Share and discover amazing stories and moments" />
+        </Helmet>
 
       <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)} className="h-screen">
         <div className="hidden">
@@ -137,56 +139,38 @@ const Stories: React.FC = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Navigation tabs - Mobile */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border z-40 md:hidden">
-        <div className="flex items-center justify-around py-2">
-          <Button
-            variant={activeTab === 'discover' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setActiveTab('discover')}
-            className="flex flex-col gap-1"
-          >
-            <Compass className="w-5 h-5" />
-            <span className="text-xs">Discover</span>
-          </Button>
-
-          <Button
-            variant={activeTab === 'feed' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setActiveTab('feed')}
-            className="flex flex-col gap-1"
-          >
-            <Clock className="w-5 h-5" />
-            <span className="text-xs">Stories</span>
-          </Button>
-
-          <Button
-            size="sm"
-            onClick={() => setShowCapture(true)}
-            className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-full w-12 h-12"
-          >
-            <Camera className="w-6 h-6" />
-          </Button>
-
-          <Button
-            variant={activeTab === 'trending' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setActiveTab('trending')}
-            className="flex flex-col gap-1"
-          >
-            <TrendingUp className="w-5 h-5" />
-            <span className="text-xs">Trending</span>
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowCapture(true)}
-            className="flex flex-col gap-1"
-          >
-            <Plus className="w-5 h-5" />
-            <span className="text-xs">Create</span>
-          </Button>
+      {/* Story navigation - Integrated with main tabs */}
+      <div className="fixed top-20 left-0 right-0 bg-background/80 backdrop-blur-md border-b border-border z-30">
+        <div className="flex items-center justify-center py-2">
+          <div className="flex bg-muted rounded-lg p-1">
+            <Button
+              variant={activeTab === 'feed' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveTab('feed')}
+              className="text-xs"
+            >
+              <Clock className="w-4 h-4 mr-1" />
+              Feed
+            </Button>
+            <Button
+              variant={activeTab === 'trending' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveTab('trending')}
+              className="text-xs"
+            >
+              <TrendingUp className="w-4 h-4 mr-1" />
+              Trending
+            </Button>
+            <Button
+              variant={activeTab === 'discover' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveTab('discover')}
+              className="text-xs"
+            >
+              <Compass className="w-4 h-4 mr-1" />
+              Discover
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -202,13 +186,14 @@ const Stories: React.FC = () => {
         </Button>
       </div>
 
-      {/* Quick capture modal */}
-      <QuickCapture
-        isOpen={showCapture}
-        onClose={() => setShowCapture(false)}
-        onSubmit={handleSubmitStory}
-      />
-    </motion.div>
+        {/* Quick capture modal */}
+        <QuickCapture
+          isOpen={showCapture}
+          onClose={() => setShowCapture(false)}
+          onSubmit={handleSubmitStory}
+        />
+      </motion.div>
+    </MainLayout>
   );
 };
 

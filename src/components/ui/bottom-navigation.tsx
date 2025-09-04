@@ -1,21 +1,11 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  Home, 
-  Compass, 
-  Search, 
-  Plus, 
-  User,
-  Trophy,
-  Crown,
-  Users,
-  Camera,
-  Shield
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAppStore } from '@/stores/appStore';
+import { getMobileNavigationItems } from '@/config/navigation';
+import type { UserRole } from '@/types/navigation';
 
 export const BottomNavigation: React.FC = () => {
   const location = useLocation();
@@ -27,34 +17,38 @@ export const BottomNavigation: React.FC = () => {
     mobile
   } = useAppStore();
 
+  // Determine user role
+  const userRole: UserRole = user ? 'user' : 'guest';
+  
+  // Get mobile navigation items based on user role and admin status
+  const navigationItems = getMobileNavigationItems(userRole, isAdmin);
+
   const isActive = (path: string) => {
+    // Handle exact home path matching
     if (path === '/' && location.pathname === '/') return true;
+    
+    // Handle explore/discover path aliasing
     if (path === '/explore' && (location.pathname === '/explore' || location.pathname === '/discover')) return true;
-    return location.pathname.startsWith(path);
+    
+    // Handle profile path matching with dynamic user ID
+    if (path === '/profile' && location.pathname.startsWith('/profile')) return true;
+    
+    // Handle general path matching
+    if (path !== '/' && location.pathname.startsWith(path)) return true;
+    
+    return false;
   };
 
-  // Core navigation items - always visible
-  const coreNavItems = [
-    { path: '/', icon: Home, label: 'Home' },
-    { path: '/explore', icon: Compass, label: 'Explore' },
-    { path: '/search', icon: Search, label: 'Search' },
-    { path: '/stories', icon: Camera, label: 'Stories' },
-  ];
-
-  // User-specific items
-  const userNavItems = user ? [
-    { path: '/submit', icon: Plus, label: 'Submit' },
-  ] : [];
-
-  // Profile/Auth item
-  const profileItem = user ? [
-    { path: `/profile/${user.id}`, icon: User, label: 'Profile' }
-  ] : [
-    { path: '/auth', icon: User, label: 'Login' }
-  ];
-
-  // Combine all navigation items (max 5 for clean mobile layout)
-  const allNavItems = [...coreNavItems, ...userNavItems].slice(0, 4).concat(profileItem);
+  // Adjust paths for dynamic content
+  const getNavigationPath = (item: any) => {
+    if (item.id === 'profile' && user) {
+      return `/profile/${user.id}`;
+    }
+    if (item.id === 'create') {
+      return '/submit'; // Map create to submit for consistency
+    }
+    return item.path;
+  };
 
   const handleTabClick = () => {
     handleTouchInteraction('tap');
@@ -89,34 +83,43 @@ export const BottomNavigation: React.FC = () => {
         paddingBottom: `max(env(safe-area-inset-bottom), ${mobile?.safeAreaInsets?.bottom || 0}px)`,
       }}
     >
-      <div className="grid grid-cols-5 h-16 px-1">
-        {allNavItems.map((item) => {
+      <div className={cn(
+        "grid h-16 px-1",
+        navigationItems.length === 5 ? "grid-cols-5" : 
+        navigationItems.length === 4 ? "grid-cols-4" : "grid-cols-3"
+      )}>
+        {navigationItems.map((item) => {
           const Icon = item.icon;
-          const active = isActive(item.path);
+          const navigationPath = getNavigationPath(item);
+          const active = isActive(navigationPath);
           
           return (
             <Link
-              key={item.path}
-              to={item.path}
+              key={item.id}
+              to={navigationPath}
               onClick={handleTabClick}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 px-1 py-2",
                 "transition-all duration-200 rounded-lg",
                 "touch-manipulation tap-highlight-none",
+                "hover-scale", // Apply hover scale animation
                 active
-                  ? "text-primary bg-primary/10"
+                  ? "text-primary bg-primary/10 shadow-sm"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
               onTouchStart={() => triggerHapticFeedback('light')}
+              aria-label={`Navigate to ${item.label}`}
+              title={item.description}
             >
               <Icon 
                 className={cn(
                   "w-5 h-5 transition-all duration-200",
-                  active && "scale-110"
+                  active && "scale-110 drop-shadow-sm"
                 )} 
               />
               <span className={cn(
                 "text-xs font-medium transition-all duration-200 leading-tight",
+                "truncate max-w-full",
                 active && "font-semibold"
               )}>
                 {item.label}
