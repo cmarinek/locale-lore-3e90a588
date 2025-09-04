@@ -296,25 +296,63 @@ async function generateWikipediaQueue(categories: string[], targetCount: number,
 async function getWikipediaArticles(category: string, limit: number) {
   const url = `https://en.wikipedia.org/api/rest_v1/page/random/summary`;
   const articles = [];
+  let attempts = 0;
+  const maxAttempts = limit * 5; // Try more articles to find ones with coordinates
   
-  // Get random articles - simplified approach
-  for (let i = 0; i < limit && i < 50; i++) {
+  console.log(`Searching for ${limit} articles with coordinates for category: ${category}`);
+  
+  // Get random articles and check for coordinates
+  while (articles.length < limit && attempts < maxAttempts) {
+    attempts++;
+    
     try {
       const response = await fetch(url);
       const data = await response.json();
       
-      if (data.title && data.extract) {
-        articles.push({
-          title: data.title,
-          pageid: data.pageid || i,
-          extract: data.extract
-        });
+      if (!data.title || !data.extract) {
+        continue;
       }
+      
+      // Skip disambiguation pages, lists, categories, and very short articles
+      if (data.title.includes('disambiguation') || 
+          data.title.includes('List of') || 
+          data.title.includes('Category:') ||
+          data.extract.length < 100) {
+        continue;
+      }
+      
+      // Check if this article has coordinates
+      try {
+        const coordUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=coordinates&titles=${encodeURIComponent(data.title)}`;
+        const coordResponse = await fetch(coordUrl);
+        const coordData = await coordResponse.json();
+        
+        const pages = coordData.query?.pages;
+        if (pages) {
+          const pageId = Object.keys(pages)[0];
+          const coords = pages[pageId]?.coordinates?.[0];
+          if (coords && coords.lat && coords.lon) {
+            articles.push({
+              title: data.title,
+              pageid: data.pageid || attempts,
+              extract: data.extract,
+              coordinates: { lat: coords.lat, lon: coords.lon }
+            });
+            console.log(`Found article with coordinates: ${data.title}`);
+          }
+        }
+      } catch (coordError) {
+        console.warn(`Failed to check coordinates for ${data.title}:`, coordError);
+      }
+      
+      // Brief delay to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 100));
     } catch (error) {
       console.error('Failed to fetch random article:', error);
     }
   }
   
+  console.log(`Found ${articles.length} articles with coordinates out of ${attempts} attempts for ${category}`);
   return articles;
 }
 
