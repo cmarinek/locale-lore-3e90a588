@@ -95,68 +95,20 @@ export const Navigation: React.FC = () => {
   ];
 
   return (
-    <>
-      {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center space-x-1 p-1 bg-muted rounded-lg">
-        {[...navItems, ...userItems].map(({ path, icon: Icon, label }) => (
-          <Link key={path} to={path}>
-            <Button
-              variant={isActive(path) ? 'default' : 'ghost'}
-              size="sm"
-              className="relative"
-            >
-              <Icon className="w-4 h-4 mr-2" />
-              {label}
-      {/* Badge removed - interface doesn't include badge */}
-            </Button>
-          </Link>
-        ))}
-      </nav>
-
-      {/* Mobile Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border z-40">
-        <div className="flex items-center justify-around py-2">
-          {navItems.slice(0, 4).map(({ path, icon: Icon, label }) => (
-            <Link key={path} to={path}>
-              <Button
-                variant={isActive(path) ? 'default' : 'ghost'}
-                size="sm"
-                className="flex flex-col gap-1 h-auto py-2"
-              >
-                <Icon className="w-5 h-5" />
-                <span className="text-xs">{label}</span>
-              </Button>
-            </Link>
-          ))}
-
-          {user ? (
-            <Link to="/contributor">
-              <Button
-                variant={isActive('/contributor') ? 'default' : 'ghost'}
-                size="sm"
-                className="flex flex-col gap-1 h-auto py-2 relative"
-              >
-                <Crown className="w-5 h-5 text-yellow-500" />
-                <span className="text-xs">Earn</span>
-                <Badge className="absolute -top-1 -right-1 text-xs px-1 py-0">
-                  New
-                </Badge>
-              </Button>
-            </Link>
-          ) : (
-            <Link to="/auth">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex flex-col gap-1 h-auto py-2"
-              >
-                <User className="w-5 h-5" />
-                <span className="text-xs">Login</span>
-              </Button>
-            </Link>
-          )}
-        </div>
-      </nav>
-    </>
+    /* Desktop Navigation Only */
+    <nav className="hidden md:flex items-center space-x-1 p-1 bg-muted rounded-lg">
+      {[...navItems, ...userItems].map(({ path, icon: Icon, label }) => (
+        <Link key={path} to={path}>
+          <Button
+            variant={isActive(path) ? 'default' : 'ghost'}
+            size="sm"
+            className="relative"
+          >
+            <Icon className="w-4 h-4 mr-2" />
+            {label}
+          </Button>
+        </Link>
+      ))}
+    </nav>
   );
 };
