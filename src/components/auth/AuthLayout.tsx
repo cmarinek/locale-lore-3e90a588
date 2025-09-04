@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface AuthLayoutProps {
@@ -8,6 +9,7 @@ interface AuthLayoutProps {
   title: string;
   description: string;
   showBackButton?: boolean;
+  showHomeLink?: boolean;
   onBack?: () => void;
 }
 
@@ -15,34 +17,58 @@ export const AuthLayout = ({
   children, 
   title, 
   description, 
-  showBackButton = false, 
+  showBackButton = false,
+  showHomeLink = true,
   onBack 
 }: AuthLayoutProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
-      <Card className="w-full max-w-md border-0 shadow-2xl bg-card/80 backdrop-blur-xl animate-in slide-in-from-bottom-4 duration-500">
-        <CardHeader className="text-center pb-6 relative">
-          {showBackButton && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onBack}
-              className="absolute left-0 top-6 h-8 w-8 p-0"
-            >
-              <ArrowLeft className="h-4 w-4" />
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
+      {/* Top navigation bar */}
+      {showHomeLink && (
+        <header className="w-full p-4">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-2 hover-scale">
+              <Star className="w-6 h-6 text-primary" />
+              <span className="font-bold text-xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                LocaleLore
+              </span>
+            </Link>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Site
+              </Link>
             </Button>
-          )}
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            {title}
-          </CardTitle>
-          <CardDescription className="text-base">
-            {description}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {children}
-        </CardContent>
-      </Card>
+          </div>
+        </header>
+      )}
+
+      {/* Main content */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border-0 shadow-2xl bg-card/80 backdrop-blur-xl animate-in slide-in-from-bottom-4 duration-500">
+          <CardHeader className="text-center pb-6 relative">
+            {showBackButton && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBack}
+                className="absolute left-0 top-6 h-8 w-8 p-0"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            )}
+            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              {title}
+            </CardTitle>
+            <CardDescription className="text-base">
+              {description}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {children}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
