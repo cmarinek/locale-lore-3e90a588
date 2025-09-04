@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
+import { useStories } from '@/hooks/useStories';
 
 interface StoryCardProps {
   story: Story;
@@ -32,6 +33,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   const [isPlaying, setIsPlaying] = useState(isActive);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const { likeStory, unlikeStory, checkIfLiked, trackView } = useStories();
 
   useEffect(() => {
     if (story.media_type === 'video' && videoRef.current) {
@@ -43,9 +45,26 @@ export const StoryCard: React.FC<StoryCardProps> = ({
     }
   }, [isActive, isPlaying]);
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    // TODO: Implement like functionality
+  // Check if story is liked and track view when it becomes active
+  useEffect(() => {
+    if (isActive) {
+      checkIfLiked(story.id).then(setIsLiked);
+      trackView(story.id);
+    }
+  }, [isActive, story.id, checkIfLiked, trackView]);
+
+  const handleLike = async () => {
+    try {
+      if (isLiked) {
+        await unlikeStory(story.id);
+        setIsLiked(false);
+      } else {
+        await likeStory(story.id);
+        setIsLiked(true);
+      }
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+    }
   };
 
   const handleShare = () => {
