@@ -37,8 +37,6 @@ export const useAuth = () => {
   const signInWithEmail = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     setLoading(true);
     try {
-      cleanupAuthState();
-      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -71,8 +69,6 @@ export const useAuth = () => {
   ): Promise<AuthResult> => {
     setLoading(true);
     try {
-      cleanupAuthState();
-
       const redirectUrl = `${window.location.origin}/auth/confirm`;
       
       const { data, error } = await supabase.auth.signUp({
@@ -137,8 +133,6 @@ export const useAuth = () => {
   const signInWithGoogle = useCallback(async (): Promise<AuthResult> => {
     setLoading(true);
     try {
-      cleanupAuthState();
-      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
