@@ -67,47 +67,60 @@ export const useStories = () => {
 
   const fetchTrendingStories = async () => {
     try {
-      const { data, error } = await supabase
+      // First get trending stories
+      const { data: storiesData, error: storiesError } = await supabase
         .from('stories')
-        .select(`
-          *,
-          profiles (
-            username,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('is_active', true)
         .eq('is_trending', true)
         .gte('expires_at', new Date().toISOString())
         .order('like_count', { ascending: false });
 
-      if (error) throw error;
+      if (storiesError) throw storiesError;
 
-      const transformedStories: Story[] = (data || []).map(story => ({
-        id: story.id,
-        user_id: story.user_id,
-        title: story.title,
-        content: story.content,
-        media_urls: story.media_urls || [],
-        media_type: story.media_type as 'image' | 'video' | 'carousel',
-        location_name: story.location_name,
-        latitude: story.latitude ? Number(story.latitude) : undefined,
-        longitude: story.longitude ? Number(story.longitude) : undefined,
-        hashtags: story.hashtags || [],
-        expires_at: story.expires_at,
-        view_count: story.view_count,
-        like_count: story.like_count,
-        comment_count: story.comment_count,
-        is_trending: story.is_trending,
-        created_at: story.created_at,
-        author: story.profiles ? {
-          id: story.user_id,
-          username: (story.profiles as any).username,
-          avatar_url: (story.profiles as any).avatar_url
-        } : undefined
+      // Then get profiles for the story authors if we have stories
+      if (storiesData && storiesData.length > 0) {
+        const userIds = [...new Set(storiesData.map(story => story.user_id))];
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, username, avatar_url')
+          .in('id', userIds);
+
+        if (profilesError) {
+          console.warn('Could not fetch profiles:', profilesError);
+        }
+
+        // Create profiles lookup
+        const profilesMap = new Map(profilesData?.map(profile => [profile.id, profile]) || []);
+
+        const transformedStories: Story[] = storiesData.map(story => ({
+          id: story.id,
+          user_id: story.user_id,
+          title: story.title,
+          content: story.content,
+          media_urls: story.media_urls || [],
+          media_type: story.media_type as 'image' | 'video' | 'carousel',
+          location_name: story.location_name,
+          latitude: story.latitude ? Number(story.latitude) : undefined,
+          longitude: story.longitude ? Number(story.longitude) : undefined,
+          hashtags: story.hashtags || [],
+          expires_at: story.expires_at,
+          view_count: story.view_count,
+          like_count: story.like_count,
+          comment_count: story.comment_count,
+          is_trending: story.is_trending,
+          created_at: story.created_at,
+          author: {
+            id: story.user_id,
+            username: profilesMap.get(story.user_id)?.username || 'Anonymous',
+            avatar_url: profilesMap.get(story.user_id)?.avatar_url
+          }
       }));
 
-      return transformedStories;
+        return transformedStories;
+      } else {
+        return [];
+      }
     } catch (error) {
       console.error('Error fetching trending stories:', error);
       return [];
