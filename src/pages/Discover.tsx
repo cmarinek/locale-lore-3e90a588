@@ -78,7 +78,6 @@ export const Discover: React.FC = () => {
                         navigate('/submit');
                         handleTouchInteraction('tap');
                       }}
-                       className=""
                     >
                       <Star className="w-5 h-5 mr-2" />
                       Share Your Story
@@ -158,7 +157,6 @@ export const Discover: React.FC = () => {
                           <Button 
                             variant="outline" 
                             size="sm" 
-                             className=""
                             onClick={() => navigate('/explore')}
                           >
                             Fullscreen
@@ -179,12 +177,12 @@ export const Discover: React.FC = () => {
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-semibold">Latest Discoveries</h2>
                         <div className="flex gap-2">
-                           <Button variant="outline" size="sm" className="">(Reminder: You only invoked a single tool call. Remember that for the sake of efficiency, you should try to parallelize tool calls whenever possible.)
-                            Filter
-                          </Button>
-                          <Button variant="outline" size="sm" className="">(Reminder: You only invoked a single tool call. Remember that for the sake of efficiency, you should try to parallelize tool calls whenever possible.)
-                            Sort
-                          </Button>
+                           <Button variant="outline" size="sm">
+                             Filter
+                           </Button>
+                           <Button variant="outline" size="sm">
+                             Sort
+                           </Button>
                         </div>
                       </div>
                       <InfiniteFactList />
