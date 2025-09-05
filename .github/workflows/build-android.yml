@@ -1,0 +1,151 @@
+name: Build Android App
+
+on:
+  repository_dispatch:
+    types: [build-android]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Java 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Update build status to building
+      run: |
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "in_progress",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "android",
+            "progress": 10
+          }'
+          
+    - name: Install dependencies
+      run: |
+        npm ci
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "in_progress",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "android",
+            "progress": 30
+          }'
+          
+    - name: Build web app
+      run: |
+        npm run build
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "in_progress",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "android",
+            "progress": 50
+          }'
+          
+    - name: Add Android platform
+      run: |
+        npx cap add android
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "in_progress",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "android",
+            "progress": 60
+          }'
+          
+    - name: Sync Capacitor
+      run: |
+        npx cap sync android
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "in_progress",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "android",
+            "progress": 70
+          }'
+          
+    - name: Decode keystore
+      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      run: |
+        echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+        
+    - name: Build Android APK
+      run: |
+        cd android
+        ./gradlew assembleRelease
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "in_progress",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "android",
+            "progress": 90
+          }'
+      env:
+        ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        
+    - name: Upload APK to Supabase Storage
+      run: |
+        BUILD_ID="${{ github.event.client_payload.build_id }}"
+        APK_PATH="android/app/build/outputs/apk/release/app-release.apk"
+        
+        # Upload to Supabase Storage
+        curl -X POST "${{ secrets.SUPABASE_URL }}/storage/v1/object/builds/${BUILD_ID}.apk" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+          -H "Content-Type: application/vnd.android.package-archive" \
+          --data-binary @"$APK_PATH"
+          
+        # Update build status to completed
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"action\": \"completed\",
+            \"build_id\": \"$BUILD_ID\",
+            \"platform\": \"android\",
+            \"progress\": 100,
+            \"download_url\": \"builds/${BUILD_ID}.apk\"
+          }"
+          
+    - name: Handle build failure
+      if: failure()
+      run: |
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "failed",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "android",
+            "error_message": "Build failed. Check GitHub Actions logs for details."
+          }'

@@ -1,5 +1,4 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,250 +7,152 @@ const corsHeaders = {
 
 interface BuildRequest {
   platform: 'android' | 'ios'
-  buildId: string
-  appName: string
-  bundleId: string
+  app_name: string
+  bundle_id: string
+  build_config?: any
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        auth: {
-          persistSession: false,
-        },
-      }
-    )
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
+    const githubToken = Deno.env.get('GITHUB_TOKEN')!
+    const githubRepo = Deno.env.get('GITHUB_REPO')! // Format: "owner/repo"
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: { persistSession: false }
+    })
 
-    const authHeader = req.headers.get('Authorization')!
-    const token = authHeader.replace('Bearer ', '')
-    const { data: { user } } = await supabase.auth.getUser(token)
-
-    if (!user) {
-      return new Response('Unauthorized', { status: 401, headers: corsHeaders })
+    // Get the authorization header
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'No authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
-    // Check if user is admin
-    const { data: userRole } = await supabase
+    // Set the auth token for this request
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication failed' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Check if user has admin role
+    const { data: userRole, error: roleError } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .single()
 
-    if (userRole?.role !== 'admin') {
-      return new Response('Forbidden', { status: 403, headers: corsHeaders })
+    if (roleError || userRole?.role !== 'admin') {
+      return new Response(
+        JSON.stringify({ error: 'Admin access required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
-    const { platform, buildId, appName, bundleId }: BuildRequest = await req.json()
+    const buildRequest: BuildRequest = await req.json()
+    console.log('Build request:', buildRequest)
 
-    // Create build log entry
-    const { error: insertError } = await supabase
+    // Create initial build log entry
+    const buildId = crypto.randomUUID()
+    const { data: buildLog, error: insertError } = await supabase
       .from('build_logs')
       .insert({
         build_id: buildId,
-        platform,
-        status: 'pending',
         user_id: user.id,
-        app_name: appName,
-        bundle_id: bundleId,
+        platform: buildRequest.platform,
+        app_name: buildRequest.app_name,
+        bundle_id: buildRequest.bundle_id,
+        build_config: buildRequest.build_config || {},
+        status: 'pending',
         progress: 0
       })
+      .select()
+      .single()
 
     if (insertError) {
-      throw new Error(`Failed to create build log: ${insertError.message}`)
+      console.error('Error creating build log:', insertError)
+      return new Response(
+        JSON.stringify({ error: 'Failed to create build log' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
-    // Start background build process
-    EdgeRuntime.waitUntil(buildMobileApp(platform, buildId, appName, bundleId, user.id, supabase))
+    // Trigger GitHub Actions workflow
+    const workflowType = buildRequest.platform === 'android' ? 'build-android' : 'build-ios'
+    
+    const githubResponse = await fetch(`https://api.github.com/repos/${githubRepo}/dispatches`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `token ${githubToken}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        event_type: workflowType,
+        client_payload: {
+          build_id: buildId,
+          platform: buildRequest.platform,
+          app_name: buildRequest.app_name,
+          bundle_id: buildRequest.bundle_id,
+          build_config: buildRequest.build_config || {}
+        }
+      })
+    })
+
+    if (!githubResponse.ok) {
+      console.error('GitHub Actions trigger failed:', await githubResponse.text())
+      
+      // Update build status to failed
+      await supabase
+        .from('build_logs')
+        .update({
+          status: 'failed',
+          error_message: 'Failed to trigger GitHub Actions workflow',
+          completed_at: new Date().toISOString()
+        })
+        .eq('build_id', buildId)
+
+      return new Response(
+        JSON.stringify({ error: 'Failed to trigger build workflow' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log(`GitHub Actions workflow triggered for ${buildRequest.platform} build`)
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        buildId,
-        message: `${platform} build started`
+      JSON.stringify({ 
+        success: true, 
+        build_id: buildId,
+        message: `${buildRequest.platform} build triggered via GitHub Actions`
       }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     )
 
   } catch (error) {
     console.error('Build error:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+      JSON.stringify({ error: 'Build initiation failed' }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     )
   }
 })
-
-async function buildMobileApp(
-  platform: 'android' | 'ios',
-  buildId: string,
-  appName: string,
-  bundleId: string,
-  userId: string,
-  supabase: any
-) {
-  try {
-    // Update status to building
-    await supabase
-      .from('build_logs')
-      .update({ 
-        status: 'building',
-        started_at: new Date().toISOString(),
-        progress: 5
-      })
-      .eq('build_id', buildId)
-
-    console.log(`Starting ${platform} build for ${appName} (${bundleId})`)
-
-    // Simulate real build process with progress updates
-    const progressSteps = [10, 25, 40, 55, 70, 85, 95]
-    for (const progress of progressSteps) {
-      await new Promise(resolve => setTimeout(resolve, 2000)) // 2 second intervals
-      
-      // Check if build was cancelled
-      const { data: buildCheck } = await supabase
-        .from('build_logs')
-        .select('status')
-        .eq('build_id', buildId)
-        .single()
-      
-      if (buildCheck?.status === 'cancelled') {
-        console.log(`Build ${buildId} was cancelled`)
-        return
-      }
-      
-      await supabase
-        .from('build_logs')
-        .update({ progress })
-        .eq('build_id', buildId)
-    }
-
-    // Simulate actual build process
-    if (platform === 'android') {
-      await buildAndroidAPK(buildId, appName, bundleId, supabase)
-    } else {
-      await buildIOSIPA(buildId, appName, bundleId, supabase)
-    }
-
-    // Create dummy build file for demonstration
-    const fileName = `${buildId}.${platform === 'android' ? 'apk' : 'ipa'}`
-    const dummyContent = new TextEncoder().encode(`Dummy ${platform} build file for ${appName}`)
-    
-    // Upload to storage
-    const { error: uploadError } = await supabase.storage
-      .from('builds')
-      .upload(fileName, dummyContent, {
-        contentType: platform === 'android' ? 'application/vnd.android.package-archive' : 'application/octet-stream'
-      })
-
-    if (uploadError) {
-      throw new Error(`Failed to upload build: ${uploadError.message}`)
-    }
-
-    // Update status to completed
-    await supabase
-      .from('build_logs')
-      .update({ 
-        status: 'completed',
-        download_url: `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/builds/${fileName}`,
-        completed_at: new Date().toISOString(),
-        progress: 100
-      })
-      .eq('build_id', buildId)
-
-    console.log(`Build ${buildId} completed successfully`)
-
-  } catch (error) {
-    console.error('Build failed:', error)
-    
-    // Update status to failed
-    await supabase
-      .from('build_logs')
-      .update({ 
-        status: 'failed',
-        error_message: error.message,
-        completed_at: new Date().toISOString()
-      })
-      .eq('build_id', buildId)
-  }
-}
-
-async function buildAndroidAPK(buildId: string, appName: string, bundleId: string, supabase: any) {
-  console.log(`Building Android APK for ${appName} (${bundleId})`)
-  
-  // In a real implementation, this would:
-  // 1. Clone the repository from GitHub
-  // 2. Install dependencies: npm install
-  // 3. Build web assets: npm run build
-  // 4. Add Android platform: npx cap add android
-  // 5. Sync Capacitor: npx cap sync android
-  // 6. Build APK: cd android && ./gradlew assembleRelease
-  // 7. Sign the APK with keystore
-  // 8. Optimize and align the APK
-  
-  // Simulate build steps with database updates
-  const steps = [
-    'Cloning repository...',
-    'Installing dependencies...',
-    'Building web assets...',
-    'Adding Android platform...',
-    'Syncing Capacitor...',
-    'Building APK...',
-    'Signing APK...',
-    'Finalizing build...'
-  ]
-
-  for (let i = 0; i < steps.length; i++) {
-    console.log(steps[i])
-    await new Promise(resolve => setTimeout(resolve, 1000))
-  }
-  
-  console.log(`Android APK build completed: ${buildId}`)
-}
-
-async function buildIOSIPA(buildId: string, appName: string, bundleId: string, supabase: any) {
-  console.log(`Building iOS IPA for ${appName} (${bundleId})`)
-  
-  // In a real implementation, this would:
-  // 1. Clone the repository from GitHub
-  // 2. Install dependencies: npm install
-  // 3. Build web assets: npm run build
-  // 4. Add iOS platform: npx cap add ios
-  // 5. Sync Capacitor: npx cap sync ios
-  // 6. Build with Xcode: xcodebuild archive
-  // 7. Export IPA with provisioning profile
-  // 8. Code sign with Apple certificates
-  
-  // Note: iOS builds require macOS environment and Apple Developer certificates
-  
-  const steps = [
-    'Cloning repository...',
-    'Installing dependencies...',
-    'Building web assets...',
-    'Adding iOS platform...',
-    'Syncing Capacitor...',
-    'Building with Xcode...',
-    'Code signing...',
-    'Exporting IPA...',
-    'Finalizing build...'
-  ]
-
-  for (let i = 0; i < steps.length; i++) {
-    console.log(steps[i])
-    await new Promise(resolve => setTimeout(resolve, 1200))
-  }
-  
-  console.log(`iOS IPA build completed: ${buildId}`)
-}

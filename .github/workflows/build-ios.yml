@@ -1,0 +1,155 @@
+name: Build iOS App
+
+on:
+  repository_dispatch:
+    types: [build-ios]
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Update build status to building
+      run: |
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "in_progress",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "ios",
+            "progress": 10
+          }'
+          
+    - name: Install dependencies
+      run: |
+        npm ci
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "in_progress",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "ios",
+            "progress": 30
+          }'
+          
+    - name: Build web app
+      run: |
+        npm run build
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "in_progress",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "ios",
+            "progress": 50
+          }'
+          
+    - name: Add iOS platform
+      run: |
+        npx cap add ios
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "in_progress",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "ios",
+            "progress": 60
+          }'
+          
+    - name: Sync Capacitor
+      run: |
+        npx cap sync ios
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "in_progress",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "ios",
+            "progress": 70
+          }'
+          
+    - name: Install iOS certificates
+      if: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+      run: |
+        # Create keychain
+        security create-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
+        security default-keychain -s build.keychain
+        security unlock-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
+        
+        # Install certificate
+        echo "${{ secrets.IOS_CERTIFICATE_BASE64 }}" | base64 -d > certificate.p12
+        security import certificate.p12 -k build.keychain -P "${{ secrets.IOS_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
+        
+        # Install provisioning profile
+        mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+        echo "${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}" | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+        
+    - name: Build iOS IPA
+      run: |
+        cd ios/App
+        xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination generic/platform=iOS -archivePath App.xcarchive archive
+        xcodebuild -exportArchive -archivePath App.xcarchive -exportPath . -exportOptionsPlist exportOptions.plist
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "in_progress",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "ios",
+            "progress": 90
+          }'
+          
+    - name: Upload IPA to Supabase Storage
+      run: |
+        BUILD_ID="${{ github.event.client_payload.build_id }}"
+        IPA_PATH="ios/App/App.ipa"
+        
+        # Upload to Supabase Storage
+        curl -X POST "${{ secrets.SUPABASE_URL }}/storage/v1/object/builds/${BUILD_ID}.ipa" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @"$IPA_PATH"
+          
+        # Update build status to completed
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"action\": \"completed\",
+            \"build_id\": \"$BUILD_ID\",
+            \"platform\": \"ios\",
+            \"progress\": 100,
+            \"download_url\": \"builds/${BUILD_ID}.ipa\"
+          }"
+          
+    - name: Handle build failure
+      if: failure()
+      run: |
+        curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/github-webhook" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "failed",
+            "build_id": "${{ github.event.client_payload.build_id }}",
+            "platform": "ios",
+            "error_message": "Build failed. Check GitHub Actions logs for details."
+          }'
