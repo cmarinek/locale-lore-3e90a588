@@ -16,6 +16,9 @@
       "style": "DARK",
       "resizeOnFullScreen": true
     },
-    "Haptics": {}
+    "Haptics": {},
+    "Geolocation": {
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
+    }
   }
 }

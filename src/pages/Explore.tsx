@@ -82,21 +82,32 @@ export const Explore: React.FC = () => {
 
     initializeMap();
 
-    // Get user location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation([position.coords.longitude, position.coords.latitude]);
-        },
-        (error) => {
-          console.log('Location access denied, using default');
-          setUserLocation([-0.1276, 51.5074]); // London default
-        }
-      );
-    } else {
-      setUserLocation([-0.1276, 51.5074]); // London default
-    }
+    // Get user location with improved detection
+    getUserLocation();
   }, []);
+
+  const getUserLocation = async () => {
+    try {
+      const { locationService } = await import('@/utils/location');
+      const result = await locationService.getDeviceLocation();
+      
+      setUserLocation(result.coordinates);
+      console.log(`Location found: ${result.source} (${result.accuracy})`);
+      
+      // Show toast based on accuracy
+      if (result.accuracy === 'precise') {
+        toast.success('Using your current location');
+      } else if (result.accuracy === 'region') {
+        toast.info('Using your region location');
+      } else {
+        toast.info('Using fallback location');
+      }
+    } catch (error) {
+      console.error('Failed to get location:', error);
+      setUserLocation([-0.1276, 51.5074]); // London fallback
+      toast.error('Could not detect location, using default');
+    }
+  };
 
   // Map initialization
   useEffect(() => {
