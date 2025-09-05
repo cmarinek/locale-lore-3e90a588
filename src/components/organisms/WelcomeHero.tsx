@@ -15,11 +15,11 @@ export const WelcomeHero = () => {
         <div className="space-y-4 animate-fade-in">
           <h1 className="text-4xl md:text-6xl font-bold leading-tight">
             <span className="bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">
-              {t('title')}
+              {t('title', 'LocaleLore')}
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-lg mx-auto">
-            {t('subtitle')}
+            {t('subtitle', 'Discover and share fascinating local stories')}
           </p>
         </div>
 
