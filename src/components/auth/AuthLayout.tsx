@@ -28,7 +28,7 @@ export const AuthLayout = ({
         <header className="w-full p-4">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 hover-scale">
-              <img src="/lovable-uploads/5729b722-5fd5-4d7d-b192-c6f4bd70ad99.png" alt="LocaleLore" className="w-8 h-8" />
+              <img src="/lovable-uploads/5729b722-5fd5-4d7d-b192-c6f4bd70ad99.png" alt="LocaleLore" className="w-10 h-8" />
               <span className="font-bold text-xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 LocaleLore
               </span>
