@@ -1,4 +1,4 @@
-import { Button } from "@/components/atoms";
+import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/molecules/InputField";
 import { useState } from "react";
 
