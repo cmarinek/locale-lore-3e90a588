@@ -7,7 +7,9 @@ export const WelcomeHero = () => {
   console.log('WelcomeHero rendering...');
   const [email, setEmail] = useState("");
   const { t } = useTranslation('lore');
-  return <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
+  
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
       <div className="max-w-2xl mx-auto space-y-8">
         {/* Hero Content */}
         <div className="space-y-4 animate-fade-in">
@@ -37,14 +39,22 @@ export const WelcomeHero = () => {
         <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
           <h3 className="text-xl font-semibold mb-4">Become an early contributor</h3>
           <div className="space-y-4">
-            <InputField label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Enter your email" description="We'll send you updates about new features" />
+            <InputField 
+              label="Email" 
+              type="email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              placeholder="Enter your email" 
+              description="We'll send you updates about new features" 
+            />
             <Button size="lg" className="w-full">
               Subscribe
             </Button>
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 const features = [
