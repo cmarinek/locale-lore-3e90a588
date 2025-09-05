@@ -20,6 +20,8 @@ import {
   Monitor
 } from 'lucide-react';
 import { useProfile, UserSettings } from '@/hooks/useProfile';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const languages = [
   { value: 'en', label: 'English' },
@@ -47,6 +49,8 @@ interface SettingsPanelProps {
 
 export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProps) => {
   const [localSettings, setLocalSettings] = useState(settings);
+  const { setTheme } = useTheme();
+  const { setLanguage } = useLanguage();
 
   if (!settings || !localSettings) {
     return <div>Loading settings...</div>;
@@ -81,7 +85,10 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
                   <Button
                     key={theme.value}
                     variant={localSettings.theme === theme.value ? "default" : "outline"}
-                    onClick={() => updateSetting('theme', theme.value)}
+                    onClick={() => {
+                      updateSetting('theme', theme.value);
+                      setTheme(theme.value as 'light' | 'dark' | 'auto');
+                    }}
                     className="flex flex-col items-center gap-2 h-auto py-3"
                     disabled={loading}
                   >
@@ -97,7 +104,10 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
             <Label>Language</Label>
             <Select
               value={localSettings.language}
-              onValueChange={(value) => updateSetting('language', value)}
+              onValueChange={(value) => {
+                updateSetting('language', value);
+                setLanguage(value as any);
+              }}
               disabled={loading}
             >
               <SelectTrigger>

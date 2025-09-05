@@ -26,6 +26,7 @@ import TranslationTest from '@/pages/TranslationTest';
 
 import { AuthProvider } from '@/contexts/AuthContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Toaster } from '@/components/ui/toaster';
 import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from '@/components/monitoring/ErrorBoundary';
@@ -37,7 +38,8 @@ function App() {
     <ErrorBoundary>
       <HelmetProvider>
         <AuthProvider>
-          <LanguageProvider>
+          <ThemeProvider>
+            <LanguageProvider>
             <Router>
               <div className="App">
                 <Routes>
@@ -70,8 +72,9 @@ function App() {
                 <Toaster />
                 <CookieConsent />
               </div>
-            </Router>
-          </LanguageProvider>
+              </Router>
+            </LanguageProvider>
+          </ThemeProvider>
         </AuthProvider>
       </HelmetProvider>
     </ErrorBoundary>

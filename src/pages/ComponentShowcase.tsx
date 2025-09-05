@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Skeleton, SkeletonAvatar, SkeletonCard, SkeletonText } from '@/components/ui/ios-skeleton';
 import MapShowcase from '@/components/showcase/MapShowcase';
 import { VerificationShowcase } from '@/components/showcase/VerificationShowcase';
+import { DisplaySettingsTest } from '@/components/test/DisplaySettingsTest';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -382,6 +383,9 @@ const ComponentShowcase = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Display Settings Test */}
+        <DisplaySettingsTest />
 
         {/* Verification System Showcase */}
         <section className="space-y-4">
