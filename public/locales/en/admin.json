@@ -94,7 +94,7 @@
     "passwordPolicy": "Password Policy",
     "sessionManagement": "Session Management"
   },
-  "reports": {
+  "reportsSection": {
     "title": "Reports & Analytics",
     "userEngagement": "User Engagement",
     "contentPerformance": "Content Performance",
