@@ -1,5 +1,5 @@
 
-import { format as formatDate, formatDistanceToNow } from 'date-fns';
+import { format as formatDateFns, formatDistanceToNow } from 'date-fns';
 import { 
   enUS, es, fr, de, ptBR, ru, ar, ja, zhCN 
 } from 'date-fns/locale';
@@ -26,10 +26,10 @@ export const formatLocalizedDate = (
   const locale = DATE_LOCALES[language as keyof typeof DATE_LOCALES] || enUS;
   
   try {
-    return formatDate(new Date(date), formatStr, { locale });
+    return formatDateFns(new Date(date), formatStr, { locale });
   } catch (error) {
     console.error('Date formatting error:', error);
-    return formatDate(new Date(date), formatStr, { locale: enUS });
+    return formatDateFns(new Date(date), formatStr, { locale: enUS });
   }
 };
 
