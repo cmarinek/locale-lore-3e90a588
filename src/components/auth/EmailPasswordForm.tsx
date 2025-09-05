@@ -122,7 +122,7 @@ export const EmailPasswordForm = ({ mode, onSuccess, onSwitchMode }: EmailPasswo
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input
                       type="email"
-                      placeholder="Enter your email"
+                      placeholder={t('enterEmail', { defaultValue: 'Enter your email' })}
                       className="pl-10 h-12 transition-all duration-200 focus:scale-[1.02]"
                       {...field}
                     />
@@ -180,7 +180,7 @@ export const EmailPasswordForm = ({ mode, onSuccess, onSwitchMode }: EmailPasswo
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                       <Input
                         type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm your password"
+                        placeholder={t('confirmPassword')}
                         className="pl-10 pr-10 h-12 transition-all duration-200 focus:scale-[1.02]"
                         {...field}
                       />

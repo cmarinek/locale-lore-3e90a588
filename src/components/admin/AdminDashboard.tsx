@@ -13,9 +13,11 @@ import FactAcquisitionManager from './FactAcquisitionManager';
 import { MobileAppBuilder } from './MobileAppBuilder';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, AlertTriangle } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const AdminDashboard: React.FC = () => {
   const { isAdmin, loading } = useAdmin();
+  const { t } = useTranslation('admin');
 
   if (loading) {
     return (
@@ -35,9 +37,9 @@ export const AdminDashboard: React.FC = () => {
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
               <AlertTriangle className="w-12 h-12 text-destructive mx-auto" />
-              <h2 className="text-2xl font-bold">Access Denied</h2>
+              <h2 className="text-2xl font-bold">{t('accessDenied', { defaultValue: 'Access Denied' })}</h2>
               <p className="text-muted-foreground">
-                You don't have permission to access the admin dashboard.
+                {t('accessDeniedDescription', { defaultValue: "You don't have permission to access the admin dashboard." })}
               </p>
             </div>
           </CardContent>
@@ -53,7 +55,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex items-center gap-3">
             <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
             <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Admin Dashboard</h1>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">{t('dashboard')}</h1>
               <p className="text-sm text-muted-foreground hidden sm:block">Manage content, users, payments, and monitor system health</p>
             </div>
           </div>
@@ -68,14 +70,14 @@ export const AdminDashboard: React.FC = () => {
 
         <Tabs defaultValue="analytics" className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full grid-cols-4 sm:grid-cols-8 h-auto">
-            <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-2">Analytics</TabsTrigger>
-            <TabsTrigger value="payments" className="text-xs sm:text-sm px-2 py-2">Payments</TabsTrigger>
-            <TabsTrigger value="promos" className="text-xs sm:text-sm px-2 py-2">Promos</TabsTrigger>
-            <TabsTrigger value="moderation" className="text-xs sm:text-sm px-2 py-2">Moderation</TabsTrigger>
-            <TabsTrigger value="users" className="text-xs sm:text-sm px-2 py-2">Users</TabsTrigger>
-            <TabsTrigger value="reports" className="text-xs sm:text-sm px-2 py-2">Reports</TabsTrigger>
-            <TabsTrigger value="acquisition" className="text-xs sm:text-sm px-2 py-2">Acquisition</TabsTrigger>
-            <TabsTrigger value="mobile" className="text-xs sm:text-sm px-2 py-2">Mobile</TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-2">{t('analytics')}</TabsTrigger>
+            <TabsTrigger value="payments" className="text-xs sm:text-sm px-2 py-2">{t('payments', { defaultValue: 'Payments' })}</TabsTrigger>
+            <TabsTrigger value="promos" className="text-xs sm:text-sm px-2 py-2">{t('promos', { defaultValue: 'Promos' })}</TabsTrigger>
+            <TabsTrigger value="moderation" className="text-xs sm:text-sm px-2 py-2">{t('moderation')}</TabsTrigger>
+            <TabsTrigger value="users" className="text-xs sm:text-sm px-2 py-2">{t('users')}</TabsTrigger>
+            <TabsTrigger value="reports" className="text-xs sm:text-sm px-2 py-2">{t('reports')}</TabsTrigger>
+            <TabsTrigger value="acquisition" className="text-xs sm:text-sm px-2 py-2">{t('acquisition', { defaultValue: 'Acquisition' })}</TabsTrigger>
+            <TabsTrigger value="mobile" className="text-xs sm:text-sm px-2 py-2">{t('mobile', { defaultValue: 'Mobile' })}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics" className="space-y-4 sm:space-y-6">

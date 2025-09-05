@@ -10,6 +10,7 @@ import { SocialAuth } from '@/components/auth/SocialAuth';
 import { PasswordResetForm } from '@/components/auth/PasswordResetForm';
 import { TwoFactorSetup } from '@/components/auth/TwoFactorSetup';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type AuthView = 'main' | 'signin' | 'signup' | 'magic-link' | 'reset-password' | 'two-factor-setup';
 
@@ -18,6 +19,7 @@ const AuthMain = () => {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation('auth');
 
   useEffect(() => {
     // Check if user is already logged in
@@ -84,8 +86,8 @@ const AuthMain = () => {
       case 'magic-link':
         return (
           <AuthLayout
-            title="Magic Link Sign In"
-            description="Sign in securely without a password"
+            title={t('magicLink')}
+            description={t('magicLinkDescription', { defaultValue: 'Sign in securely without a password' })}
             showBackButton={true}
             onBack={() => setView('main')}
           >
@@ -99,8 +101,8 @@ const AuthMain = () => {
       case 'reset-password':
         return (
           <AuthLayout
-            title="Reset Password"
-            description="Reset your account password"
+            title={t('resetPassword')}
+            description={t('resetPasswordDescription', { defaultValue: 'Reset your account password' })}
             showBackButton={true}
             onBack={() => setView('main')}
           >
@@ -128,8 +130,8 @@ const AuthMain = () => {
       default:
         return (
           <AuthLayout
-            title="Welcome to Locale Lore"
-            description="Discover and share stories with a global community"
+            title={t('welcomeTitle', { defaultValue: 'Welcome to LocaleLore' })}
+            description={t('welcomeDescription', { defaultValue: 'Discover and share stories with a global community' })}
           >
             <div className="space-y-6">
               {/* Social Auth */}
@@ -155,7 +157,7 @@ const AuthMain = () => {
                   className="w-full h-12 transition-all duration-200 hover:scale-[1.02] border-border/50"
                 >
                   <Mail className="mr-2 h-4 w-4" />
-                  Sign in with Email
+                  {t('signInWithEmail')}
                 </Button>
 
                 <Button
@@ -164,7 +166,7 @@ const AuthMain = () => {
                   className="w-full h-12 transition-all duration-200 hover:scale-[1.02] border-border/50"
                 >
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Magic Link Sign In
+                  {t('magicLink')}
                 </Button>
 
                 <Button
@@ -175,7 +177,7 @@ const AuthMain = () => {
                   className="w-full h-12 transition-all duration-200 hover:scale-[1.02]"
                 >
                   <Shield className="mr-2 h-4 w-4" />
-                  Create New Account
+                  {t('createAccount')}
                 </Button>
               </div>
 
@@ -186,7 +188,7 @@ const AuthMain = () => {
                   onClick={() => setView('reset-password')}
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
-                  Forgot your password?
+                  {t('forgotPassword')}
                 </Button>
               </div>
             </div>
