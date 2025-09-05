@@ -1,14 +1,13 @@
-
 import { test, expect } from '@playwright/test';
 import { injectAxe, checkA11y } from '@axe-core/playwright';
 
-test.describe('Discovery Page E2E Tests', () => {
+test.describe('Explore Page E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/explore');
     await injectAxe(page);
   });
 
-  test('should display discovery page', async ({ page }) => {
+  test('should display explore page', async ({ page }) => {
     await expect(page.getByRole('main')).toBeVisible();
     
     // Wait for content to load

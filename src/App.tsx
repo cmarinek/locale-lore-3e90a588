@@ -55,8 +55,6 @@ function App() {
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/showcase" element={<ComponentShowcase />} />
                   {/* Legacy redirects */}
-                  <Route path="/discovery" element={<Explore />} />
-                  <Route path="/discover" element={<Explore />} />
                   <Route path="/lore/submit" element={<Submit />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
