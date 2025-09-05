@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAppStore } from '@/stores/appStore';
 import { getMobileNavigationItems } from '@/config/navigation';
+import { useMobileFocus } from '@/hooks/useFocusManagement';
 import type { UserRole } from '@/types/navigation';
 
 export const BottomNavigation: React.FC = () => {
@@ -16,6 +17,9 @@ export const BottomNavigation: React.FC = () => {
     handleTouchInteraction,
     mobile
   } = useAppStore();
+
+  // Initialize mobile focus management
+  useMobileFocus();
 
   // Determine user role
   const userRole: UserRole = user ? 'user' : 'guest';
@@ -76,15 +80,18 @@ export const BottomNavigation: React.FC = () => {
     <nav 
       className={cn(
         "fixed bottom-0 left-0 right-0 z-50 md:hidden",
-        "border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "border-t border-border/50 bg-background/90 backdrop-blur-lg",
+        "supports-[backdrop-filter]:bg-background/80",
+        "shadow-lg shadow-black/10",
         "safe-area-padding-bottom"
       )}
       style={{
         paddingBottom: `max(env(safe-area-inset-bottom), ${mobile?.safeAreaInsets?.bottom || 0}px)`,
+        background: 'linear-gradient(to top, hsl(var(--background)/0.95), hsl(var(--background)/0.85))',
       }}
     >
       <div className={cn(
-        "grid h-16 px-1",
+        "grid h-20 px-2",
         navigationItems.length === 5 ? "grid-cols-5" : 
         navigationItems.length === 4 ? "grid-cols-4" : "grid-cols-3"
       )}>
@@ -99,28 +106,36 @@ export const BottomNavigation: React.FC = () => {
               to={navigationPath}
               onClick={handleTabClick}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 px-1 py-2",
-                "transition-all duration-200 rounded-lg",
+                "flex flex-col items-center justify-center gap-1.5 px-2 py-3",
+                "transition-all duration-300 rounded-xl",
                 "touch-manipulation tap-highlight-none",
-                "hover-scale", // Apply hover scale animation
+                "hover-scale min-h-[44px]", // Apple's minimum touch target
+                "relative group",
                 active
-                  ? "text-primary bg-primary/10 shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  ? "text-primary bg-primary/15 shadow-md border border-primary/20"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
               )}
               onTouchStart={() => triggerHapticFeedback('light')}
               aria-label={`Navigate to ${item.label}`}
               title={item.description}
             >
+              {/* Active indicator */}
+              {active && (
+                <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-primary rounded-full" />
+              )}
+              
               <Icon 
                 className={cn(
-                  "w-5 h-5 transition-all duration-200",
-                  active && "scale-110 drop-shadow-sm"
+                  "w-6 h-6 transition-all duration-300",
+                  active && "scale-110 drop-shadow-md text-primary",
+                  !active && "group-hover:scale-105"
                 )} 
               />
               <span className={cn(
-                "text-xs font-medium transition-all duration-200 leading-tight",
-                "truncate max-w-full",
-                active && "font-semibold"
+                "text-[11px] font-medium transition-all duration-300 leading-tight",
+                "truncate max-w-full text-center",
+                active && "font-semibold text-primary",
+                !active && "group-hover:text-foreground"
               )}>
                 {item.label}
               </span>

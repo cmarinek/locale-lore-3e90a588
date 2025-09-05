@@ -122,3 +122,91 @@
 :lang(zh) {
   font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
 }
+
+/* Mobile Navigation Enhancements */
+@layer utilities {
+  .safe-area-padding-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .mobile-nav-blur {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+  
+  .tap-highlight-none {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  .haptic-feedback {
+    will-change: transform;
+  }
+  
+  .hover-scale {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+  
+  .hover-scale:active {
+    transform: scale(0.95);
+  }
+  
+  /* Enhanced contrast for mobile */
+  .mobile-contrast {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mobile-surface {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--background) / 0.95) 0%,
+      hsl(var(--background) / 0.85) 100%
+    );
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+  
+  /* Focus management for touch vs keyboard */
+  .using-touch *:focus {
+    outline: none !important;
+  }
+  
+  /* Enhanced focus indicators for keyboard users */
+  :not(.using-touch) *:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .mobile-contrast {
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    }
+    
+    nav {
+      border-width: 2px !important;
+    }
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .hover-scale,
+    .haptic-feedback {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+}

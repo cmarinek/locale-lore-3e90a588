@@ -23,7 +23,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
       className
     )}>
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background/90 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
@@ -44,7 +44,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
       </header>
 
       {/* Main Content */}
-      <main className="relative pb-16 md:pb-0">
+      <main className="relative pb-20 md:pb-0">
         {children}
       </main>
 

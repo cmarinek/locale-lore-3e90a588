@@ -36,9 +36,9 @@ const Index: React.FC = () => {
                 transition={{ delay: 0.3 }}
               >
                 <Button 
-                  size="lg" 
+                  variant="mobile"
                   onClick={() => navigate('/discover')}
-                  className="w-full h-24 bg-primary hover:bg-primary/90 mobile-button"
+                  className="w-full h-24 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   <div className="flex flex-col items-center gap-2">
                     <Compass className="w-8 h-8" />
@@ -53,10 +53,9 @@ const Index: React.FC = () => {
                 transition={{ delay: 0.4 }}
               >
                 <Button 
-                  size="lg" 
                   variant="outline"
                   onClick={() => navigate('/explore')}
-                  className="w-full h-24 mobile-button"
+                  className="w-full h-24 border-2 hover:bg-accent/50"
                 >
                   <div className="flex flex-col items-center gap-2">
                     <MapPin className="w-8 h-8" />
@@ -83,7 +82,7 @@ const Index: React.FC = () => {
                 <Button 
                   variant="outline" 
                   onClick={() => navigate('/search')}
-                  className="mobile-button"
+                  className="min-h-[44px]"
                 >
                   Search Stories
                 </Button>
@@ -104,7 +103,7 @@ const Index: React.FC = () => {
                 <Button 
                   variant="outline" 
                   onClick={() => navigate('/submit')}
-                  className="mobile-button"
+                  className="min-h-[44px]"
                 >
                   Submit Story
                 </Button>
@@ -125,7 +124,7 @@ const Index: React.FC = () => {
                 <Button 
                   variant="outline" 
                   onClick={() => navigate('/profile')}
-                  className="mobile-button"
+                  className="min-h-[44px]"
                 >
                   Learn More
                 </Button>

@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 haptic-feedback tap-highlight-none touch-manipulation",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 haptic-feedback tap-highlight-none touch-manipulation mobile-contrast",
   {
     variants: {
       variant: {
@@ -21,7 +21,9 @@ const buttonVariants = cva(
         // iOS-inspired variants
         ios: "bg-gradient-to-b from-primary to-primary/90 text-primary-foreground shadow-lg hover:shadow-xl active:scale-95 transition-all duration-150 border border-primary/20",
         glass: "glass text-foreground hover:bg-background/90 active:bg-background/70 shadow-lg backdrop-blur-xl",
-        floating: "bg-primary text-primary-foreground shadow-xl hover:shadow-2xl rounded-full aspect-square p-0 elevation-3 hover:scale-105 active:scale-95"
+        floating: "bg-primary text-primary-foreground shadow-xl hover:shadow-2xl rounded-full aspect-square p-0 elevation-3 hover:scale-105 active:scale-95",
+        // Mobile-optimized variants
+        mobile: "min-h-[44px] px-6 text-base font-semibold shadow-md hover:shadow-lg active:scale-98 transition-all duration-200"
       },
       size: {
         default: "h-10 px-4 py-2",
