@@ -13,8 +13,10 @@ export const WelcomeHero = () => {
       <div className="max-w-2xl mx-auto space-y-8">
         {/* Hero Content */}
         <div className="space-y-4 animate-fade-in">
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-            {t('title')}
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+            <span className="bg-gradient-to-r from-primary via-primary to-primary/80 bg-clip-text text-transparent">
+              {t('title')}
+            </span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-lg mx-auto">
             {t('subtitle')}
