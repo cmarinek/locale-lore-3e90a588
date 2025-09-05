@@ -219,33 +219,8 @@ export const Explore: React.FC = () => {
                   {/* Map Container */}
                   <div ref={mapContainer} className="absolute inset-0" />
                   
-                  {/* Map Overlay UI */}
-                  <div className="absolute inset-0 pointer-events-none">
-                    {/* Top Search Bar */}
-                    <div className="absolute top-4 left-4 right-4 pointer-events-auto safe-area-padding-top">
-                      <Card className="p-3 glass">
-                        <div className="flex items-center gap-3">
-                          <MapPin className="w-5 h-5 text-primary" />
-                          <span className="flex-1 text-sm font-medium">Exploring Your Area (5 miles)</span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              if (navigator.geolocation) {
-                                navigator.geolocation.getCurrentPosition((position) => {
-                                  const coords: [number, number] = [position.coords.longitude, position.coords.latitude];
-                                  setUserLocation(coords);
-                                  map.current?.flyTo({ center: coords, zoom: 12 });
-                                });
-                              }
-                            }}
-                            className="mobile-button"
-                          >
-                            <Locate className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </Card>
-                    </div>
+                   {/* Map Overlay UI */}
+                   <div className="absolute inset-0 pointer-events-none">
 
                     {/* Bottom Controls */}
                     <div className="absolute bottom-20 left-4 right-4 pointer-events-auto thumb-zone">
