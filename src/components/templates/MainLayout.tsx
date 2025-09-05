@@ -43,12 +43,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
       </header>
 
       {/* Main Content */}
-      <main className="relative pb-20 md:pb-0">
+      <main className="relative min-h-[calc(100vh-16rem)] pb-28 md:pb-0">
         {children}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border/50 bg-muted/30 py-8 mt-12">
+      <footer className="border-t border-border/50 bg-muted/30 py-8 mt-12 mb-20 md:mb-0 safe-area-padding-bottom">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
