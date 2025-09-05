@@ -207,128 +207,128 @@ export const Explore: React.FC = () => {
         </Helmet>
         
         <PullToRefresh onRefresh={handleRefresh}>
-          <div className="min-h-screen">
-                {isListView ? (
-                  // Discovery List View
-                  <div className="container mx-auto px-4 py-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h1 className="text-2xl font-bold">Discover Stories</h1>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => setShowFilters(!showFilters)}
-                          className="shrink-0"
-                        >
-                          <Filter className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="default"
-                          onClick={() => setIsListView(false)}
-                          className="shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground"
-                        >
-                          <MapIcon className="w-4 h-4 mr-2" />
-                          <span className="hidden sm:inline">Map View</span>
-                          <span className="sm:hidden">Map</span>
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Search Bar */}
-                    <div className="mb-6">
-                      <SearchBar onQueryChange={handleSearch} />
-                    </div>
-
-                    {/* Filters */}
-                    {showFilters && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="mb-6"
-                      >
-                        <FilterPanel />
-                      </motion.div>
-                    )}
-
-                    {/* Loading/Error States */}
-                    {loading && <p className="text-center py-8">Loading stories...</p>}
-                    {error && <p className="text-center py-8 text-destructive">Error: {error}</p>}
-
-                    {/* Facts List */}
-                    <InfiniteFactList />
-
-                    {/* Fact Preview Modal */}
-                    <FactPreviewModal 
-                      fact={selectedFact}
-                      open={modalOpen}
-                      onClose={handleCloseModal}
-                    />
+          {isListView ? (
+            // Discovery List View - Completely separate layout
+            <div className="min-h-screen bg-background">
+              <div className="container mx-auto px-4 py-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h1 className="text-2xl font-bold">Discover Stories</h1>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setShowFilters(!showFilters)}
+                      className="shrink-0"
+                    >
+                      <Filter className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="default"
+                      onClick={() => setIsListView(false)}
+                      className="shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground"
+                    >
+                      <MapIcon className="w-4 h-4 mr-2" />
+                      <span className="hidden sm:inline">Map View</span>
+                      <span className="sm:hidden">Map</span>
+                    </Button>
                   </div>
-                ) : (
-                  // Map View
-                  <div className="relative h-screen w-full overflow-hidden">
-                    {/* Map Container */}
-                    <div ref={mapContainer} className="absolute inset-0" />
-                    
-                    {/* Map Overlay UI */}
-                    <div className="absolute inset-0 pointer-events-none">
-                      {/* Search Bar */}
-                      <div className="absolute top-4 left-4 right-4 pointer-events-auto safe-area-padding-top">
-                        <Card className="p-3 glass">
-                          <SearchBar onQueryChange={handleSearch} />
-                        </Card>
-                      </div>
+                </div>
 
-                      {/* Bottom Controls */}
-                      <div className="absolute bottom-28 left-4 right-4 pointer-events-auto thumb-zone mb-safe">
-                        <div className="flex justify-center gap-3">
-                          <Button
-                            size="lg"
-                            variant="secondary"
-                            onClick={() => setShowFilters(!showFilters)}
-                            className="mobile-button glass"
-                          >
-                            <Filter className="w-5 h-5 mr-2" />
-                            Filter
-                          </Button>
-                          <Button
-                            size="lg"
-                            onClick={() => setIsListView(true)}
-                            className="mobile-button"
-                          >
-                            <List className="w-5 h-5 mr-2" />
-                            List View
-                          </Button>
-                        </div>
-                      </div>
+                {/* Search Bar */}
+                <div className="mb-6">
+                  <SearchBar onQueryChange={handleSearch} />
+                </div>
 
-                      {/* Filter Panel Overlay */}
-                      <AnimatePresence>
-                        {showFilters && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 50 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 50 }}
-                            className="absolute bottom-40 left-4 right-4 pointer-events-auto"
-                          >
-                            <Card className="p-4 glass max-h-64 overflow-y-auto">
-                              <FilterPanel />
-                            </Card>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-
-                      {/* Fact Preview Modal */}
-                      <FactPreviewModal 
-                        fact={selectedFact}
-                        open={modalOpen}
-                        onClose={handleCloseModal}
-                      />
-                    </div>
-                  </div>
+                {/* Filters */}
+                {showFilters && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mb-6"
+                  >
+                    <FilterPanel />
+                  </motion.div>
                 )}
-          </div>
+
+                {/* Loading/Error States */}
+                {loading && <p className="text-center py-8">Loading stories...</p>}
+                {error && <p className="text-center py-8 text-destructive">Error: {error}</p>}
+
+                {/* Facts List */}
+                <InfiniteFactList />
+
+                {/* Fact Preview Modal */}
+                <FactPreviewModal 
+                  fact={selectedFact}
+                  open={modalOpen}
+                  onClose={handleCloseModal}
+                />
+              </div>
+            </div>
+          ) : (
+            // Map View - Completely separate layout
+            <div className="h-screen w-full overflow-hidden relative">
+              {/* Map Container - takes full screen */}
+              <div ref={mapContainer} className="absolute inset-0" />
+              
+              {/* Map Overlay UI */}
+              <div className="absolute inset-0 pointer-events-none z-10">
+                {/* Search Bar */}
+                <div className="absolute top-4 left-4 right-4 pointer-events-auto safe-area-padding-top">
+                  <Card className="p-3 glass">
+                    <SearchBar onQueryChange={handleSearch} />
+                  </Card>
+                </div>
+
+                {/* Bottom Controls */}
+                <div className="absolute bottom-28 left-4 right-4 pointer-events-auto thumb-zone mb-safe">
+                  <div className="flex justify-center gap-3">
+                    <Button
+                      size="lg"
+                      variant="secondary"
+                      onClick={() => setShowFilters(!showFilters)}
+                      className="mobile-button glass"
+                    >
+                      <Filter className="w-5 h-5 mr-2" />
+                      Filter
+                    </Button>
+                    <Button
+                      size="lg"
+                      onClick={() => setIsListView(true)}
+                      className="mobile-button"
+                    >
+                      <List className="w-5 h-5 mr-2" />
+                      List View
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Filter Panel Overlay */}
+                <AnimatePresence>
+                  {showFilters && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 50 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 50 }}
+                      className="absolute bottom-40 left-4 right-4 pointer-events-auto z-20"
+                    >
+                      <Card className="p-4 glass max-h-64 overflow-y-auto">
+                        <FilterPanel />
+                      </Card>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Fact Preview Modal */}
+                <FactPreviewModal 
+                  fact={selectedFact}
+                  open={modalOpen}
+                  onClose={handleCloseModal}
+                />
+              </div>
+            </div>
+          )}
         </PullToRefresh>
       </MainLayout>
     </Swipeable>
