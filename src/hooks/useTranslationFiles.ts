@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/i18n';
+import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 interface TranslationFile {
   [key: string]: string | object;

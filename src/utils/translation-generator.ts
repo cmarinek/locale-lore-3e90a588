@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/i18n';
+import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 interface TranslationRequest {
   content: string;

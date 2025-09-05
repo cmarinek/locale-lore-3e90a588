@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from '@/utils/i18n';
+import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from '@/utils/languages';
 
 interface LanguageContextType {
   currentLanguage: SupportedLanguage;
