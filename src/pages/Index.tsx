@@ -38,7 +38,7 @@ const Index: React.FC = () => {
               >
                 <Button 
                   size="lg"
-                  onClick={() => navigate('/discover')}
+                  onClick={() => navigate('/explore')}
                   className="w-full h-24 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   <div className="flex flex-col items-center gap-2">

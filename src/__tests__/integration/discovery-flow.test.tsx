@@ -1,23 +1,23 @@
 
 import { render, screen, fireEvent, waitFor } from '@/test/utils';
 import { server } from '@/test/mocks/server';
-import Discovery from '@/pages/Discovery';
+import { Explore } from '@/pages/Explore';
 
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-describe('Discovery Flow Integration', () => {
-  it('loads and displays facts', async () => {
-    render(<Discovery />);
+describe('Explore Flow Integration', () => {
+  it('loads and displays content', async () => {
+    render(<Explore />);
     
     await waitFor(() => {
       expect(screen.getByText(/test fact/i)).toBeInTheDocument();
     });
   });
 
-  it('allows filtering facts by category', async () => {
-    render(<Discovery />);
+  it('allows filtering content by category', async () => {
+    render(<Explore />);
     
     // Wait for facts to load
     await waitFor(() => {
@@ -38,7 +38,7 @@ describe('Discovery Flow Integration', () => {
   });
 
   it('handles search functionality', async () => {
-    render(<Discovery />);
+    render(<Explore />);
     
     const searchInput = screen.queryByPlaceholderText(/search/i);
     if (searchInput) {

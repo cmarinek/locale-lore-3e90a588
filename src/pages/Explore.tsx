@@ -1,111 +1,136 @@
 import React, { useEffect, useRef, useState } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Swipeable } from '@/components/ui/swipeable';
+import { PullToRefresh } from '@/components/ui/pull-to-refresh';
+import { useAppStore } from '@/stores/appStore';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Filter, 
+  List, 
+  Map as MapIcon, 
+  Locate,
+  MapPin,
+  Search as SearchIcon
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import { InfiniteFactList } from '@/components/discovery/InfiniteFactList';
 import { FilterPanel } from '@/components/discovery/FilterPanel';
-import { PullToRefresh } from '@/components/ui/pull-to-refresh';
-import { Swipeable } from '@/components/ui/swipeable';
-import { Map, List, MapPin, Navigation, Locate, Filter } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { useAppStore } from '@/stores/appStore';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { supabase } from '@/integrations/supabase/client';
+import { TrendingSection } from '@/components/search/TrendingSection';
+import { SearchBar } from '@/components/discovery/SearchBar';
+import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
+import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { Helmet } from 'react-helmet-async';
 
 export const Explore: React.FC = () => {
-  const navigate = useNavigate();
-  const { triggerHapticFeedback, handleTouchInteraction, mobile } = useAppStore();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [isListView, setIsListView] = useState(false);
+  const [mapboxToken, setMapboxToken] = useState<string>('');
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [mapboxToken, setMapboxToken] = useState<string | null>(null);
-  const [showTokenInput, setShowTokenInput] = useState(false);
-  const [tempToken, setTempToken] = useState('');
+  const [tokenPrompt, setTokenPrompt] = useState(false);
+  const [isListView, setIsListView] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const { triggerHapticFeedback, handleTouchInteraction } = useAppStore();
+  const navigate = useNavigate();
 
-  // Get Mapbox token from Supabase Edge Function
+  // Discovery integration
+  const { 
+    facts, 
+    loading, 
+    error, 
+    filters,
+    selectedFact,
+    modalOpen,
+    setModalOpen,
+    loadCategories,
+    loadSavedFacts,
+    searchFacts,
+    setFilters
+  } = useDiscoveryStore();
+
+  // Initialize discovery data
   useEffect(() => {
-    const getMapboxToken = async () => {
+    loadCategories();
+    loadSavedFacts();
+    
+    // Load initial facts with current filters
+    const searchQuery = filters.search || '';
+    searchFacts(searchQuery);
+  }, [loadCategories, loadSavedFacts, searchFacts]);
+
+  // Initial setup - get token and location
+  useEffect(() => {
+    const initializeMap = async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('get-mapbox-token');
-        if (error) throw error;
-        if (data?.token) {
+        // Try to get token from Edge Function
+        const response = await fetch('/api/mapbox-token');
+        if (response.ok) {
+          const data = await response.json();
           setMapboxToken(data.token);
         } else {
-          setShowTokenInput(true);
+          setTokenPrompt(true);
         }
       } catch (error) {
-        console.log('Mapbox token not configured, showing input');
-        setShowTokenInput(true);
+        console.log('No token found, prompting user');
+        setTokenPrompt(true);
       }
     };
 
-    getMapboxToken();
-  }, []);
+    initializeMap();
 
-  // Get user's current location
-  useEffect(() => {
+    // Get user location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setUserLocation([position.coords.longitude, position.coords.latitude]);
         },
         (error) => {
-          console.log('Location access denied, using default location');
-          // Default to San Francisco
-          setUserLocation([-122.4194, 37.7749]);
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
+          console.log('Location access denied, using default');
+          setUserLocation([-0.1276, 51.5074]); // London default
+        }
       );
     } else {
-      // Default location if geolocation not supported
-      setUserLocation([-122.4194, 37.7749]);
+      setUserLocation([-0.1276, 51.5074]); // London default
     }
   }, []);
 
-  // Initialize map when token and location are available
+  // Map initialization
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken || !userLocation) return;
 
-    // Set mapbox access token
     mapboxgl.accessToken = mapboxToken;
     
-    // Initialize map
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/light-v11',
       center: userLocation,
-      zoom: 12, // 5-mile zoom level approximately
+      zoom: 12,
       pitch: 45,
     });
 
-    // Add navigation controls
-    map.current.addControl(
-      new mapboxgl.NavigationControl({
-        visualizePitch: true,
-      }),
-      'top-right'
-    );
+    // Add controls
+    map.current.addControl(new mapboxgl.NavigationControl({
+      visualizePitch: true,
+    }), 'top-right');
 
-    // Add geolocate control
-    const geolocate = new mapboxgl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true
-      },
+    map.current.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
       trackUserLocation: true,
       showUserHeading: true
-    });
-    
-    map.current.addControl(geolocate, 'top-right');
+    }), 'top-right');
 
     // Add user location marker
     new mapboxgl.Marker({ color: '#007bff' })
       .setLngLat(userLocation)
       .addTo(map.current);
 
-    // Add sample fact markers (in a real app, these would come from your database)
+    // Add sample markers
     const sampleFacts = [
       { id: 1, coords: [userLocation[0] + 0.01, userLocation[1] + 0.01], title: "Historic Landmark" },
       { id: 2, coords: [userLocation[0] - 0.01, userLocation[1] + 0.005], title: "Local Legend" },
@@ -122,180 +147,222 @@ export const Explore: React.FC = () => {
         .addTo(map.current!);
     });
 
-    // Cleanup
     return () => {
       map.current?.remove();
     };
   }, [mapboxToken, userLocation]);
 
   const handleRefresh = async () => {
-    await new Promise(resolve => setTimeout(resolve, 1500));
     triggerHapticFeedback('medium');
+    handleTouchInteraction('tap');
+    
+    // Refresh both map and discovery data
+    await Promise.all([
+      loadSavedFacts(),
+      searchFacts(filters.search || '')
+    ]);
+    toast.success('Content refreshed!');
   };
 
   const handleSwipeLeft = () => {
-    navigate('/discover');
-    handleTouchInteraction('swipe');
+    triggerHapticFeedback('light');
+    navigate('/search');
   };
 
   const handleSwipeRight = () => {
-    navigate('/search');
-    handleTouchInteraction('swipe');
+    triggerHapticFeedback('light');
+    navigate('/profile');
   };
 
-  const toggleView = () => {
-    setIsListView(!isListView);
-    handleTouchInteraction('tap');
+  const handleSearch = async (query: string) => {
+    setFilters({ search: query });
+    await searchFacts(query);
   };
 
-  const handleTokenSubmit = () => {
-    if (tempToken.trim()) {
-      setMapboxToken(tempToken.trim());
-      setShowTokenInput(false);
-    }
+  const handleCloseModal = () => {
+    setModalOpen(false);
   };
-
-  if (showTokenInput) {
-    return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-screen p-4">
-          <Card className="p-6 max-w-md w-full">
-            <div className="text-center mb-6">
-              <MapPin className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Mapbox Token Required</h2>
-              <p className="text-muted-foreground text-sm">
-                To use the map, please enter your Mapbox public token. 
-                Get yours at <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">mapbox.com</a>
-              </p>
-            </div>
-            
-            <div className="space-y-4">
-              <input
-                type="text"
-                value={tempToken}
-                onChange={(e) => setTempToken(e.target.value)}
-                placeholder="pk.eyJ1Ijoi..."
-                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <Button 
-                onClick={handleTokenSubmit}
-                className="w-full mobile-button"
-                disabled={!tempToken.trim()}
-              >
-                Use Token
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => navigate('/discover')}
-                className="w-full mobile-button"
-              >
-                Skip to Discover Page
-              </Button>
-            </div>
-          </Card>
-        </div>
-      </MainLayout>
-    );
-  }
 
   return (
     <Swipeable
       onSwipeLeft={handleSwipeLeft}
       onSwipeRight={handleSwipeRight}
+      className="min-h-screen"
     >
       <MainLayout>
+        <Helmet>
+          <title>Explore - Local Stories & Lore</title>
+          <meta name="description" content="Discover fascinating stories and local lore on an interactive map or browse through our curated collection." />
+        </Helmet>
+        
         <PullToRefresh onRefresh={handleRefresh}>
-          <div className="relative h-screen w-full overflow-hidden">
-            {/* Map View */}
-            <AnimatePresence mode="wait">
-              {!isListView ? (
-                <motion.div
-                  key="map"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0"
-                >
-                  {/* Map Container */}
-                  <div ref={mapContainer} className="absolute inset-0" />
-                  
-                   {/* Map Overlay UI */}
-                   <div className="absolute inset-0 pointer-events-none">
-
-                    {/* Bottom Controls */}
-                    <div className="absolute bottom-20 left-4 right-4 pointer-events-auto thumb-zone">
-                      <div className="flex justify-between items-end gap-4">
-                        {/* Filter Button */}
-                        <Button
-                          size="lg"
-                          variant="outline"
-                          className="glass mobile-button"
-                          onClick={() => {
-                            // Open filter modal or navigate to filter page
-                            handleTouchInteraction('tap');
-                          }}
-                        >
-                          <Filter className="w-5 h-5" />
-                        </Button>
-
-                        {/* View Toggle */}
-                        <Button
-                          size="lg"
-                          onClick={toggleView}
-                          className="glass bg-primary hover:bg-primary/90 mobile-button"
-                        >
-                          <List className="w-5 h-5 mr-2" />
-                          List View
-                        </Button>
-                      </div>
-                    </div>
+          <AnimatePresence mode="wait">
+            {tokenPrompt ? (
+              <motion.div
+                key="token-prompt"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="min-h-screen flex items-center justify-center p-4"
+              >
+                <Card className="w-full max-w-md p-6 text-center">
+                  <h2 className="text-xl font-bold mb-4">Mapbox Token Required</h2>
+                  <p className="text-muted-foreground mb-4">
+                    To use the map feature, please enter your Mapbox public token.
+                    You can get one from{' '}
+                    <a 
+                      href="https://mapbox.com" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary underline"
+                    >
+                      mapbox.com
+                    </a>
+                  </p>
+                  <div className="space-y-4">
+                    <Input
+                      placeholder="Enter your Mapbox token..."
+                      value={mapboxToken}
+                      onChange={(e) => setMapboxToken(e.target.value)}
+                    />
+                    <Button 
+                      onClick={() => setTokenPrompt(false)}
+                      disabled={!mapboxToken}
+                      className="w-full"
+                    >
+                      Continue
+                    </Button>
                   </div>
-                </motion.div>
-              ) : (
-                /* List View */
-                <motion.div
-                  key="list"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="absolute inset-0 bg-background"
-                >
-                  <div className="h-full overflow-auto">
-                    {/* List Header */}
-                    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b safe-area-padding-top">
-                      <div className="p-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <h1 className="text-2xl font-bold">Nearby Stories</h1>
-                          <Button
-                            variant="outline"
-                            onClick={toggleView}
-                            className="mobile-button"
-                          >
-                            <Map className="w-4 h-4 mr-2" />
-                            Map View
-                          </Button>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Navigation className="w-4 h-4" />
-                          <span>Within 5 miles of your location</span>
-                        </div>
+                </Card>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="main-content"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="min-h-screen"
+              >
+                {isListView ? (
+                  // Discovery List View
+                  <div className="container mx-auto px-4 py-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h1 className="text-2xl font-bold">Discover Stories</h1>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setShowFilters(!showFilters)}
+                        >
+                          <Filter className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setIsListView(false)}
+                        >
+                          <MapIcon className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
 
-                    {/* Filter Panel */}
-                    <div className="p-4 border-b">
-                      <FilterPanel />
+                    {/* Search Bar */}
+                    <div className="mb-6">
+                      <SearchBar onQueryChange={handleSearch} />
                     </div>
+
+                    {/* Filters */}
+                    {showFilters && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mb-6"
+                      >
+                        <FilterPanel />
+                      </motion.div>
+                    )}
+
+                    {/* Loading/Error States */}
+                    {loading && <p className="text-center py-8">Loading stories...</p>}
+                    {error && <p className="text-center py-8 text-destructive">Error: {error}</p>}
 
                     {/* Facts List */}
-                    <div className="p-4">
-                      <InfiniteFactList />
+                    <InfiniteFactList />
+
+                    {/* Fact Preview Modal */}
+                    <FactPreviewModal 
+                      fact={selectedFact}
+                      open={modalOpen}
+                      onClose={handleCloseModal}
+                    />
+                  </div>
+                ) : (
+                  // Map View
+                  <div className="relative h-screen w-full overflow-hidden">
+                    {/* Map Container */}
+                    <div ref={mapContainer} className="absolute inset-0" />
+                    
+                    {/* Map Overlay UI */}
+                    <div className="absolute inset-0 pointer-events-none">
+                      {/* Search Bar */}
+                      <div className="absolute top-4 left-4 right-4 pointer-events-auto safe-area-padding-top">
+                        <Card className="p-3 glass">
+                          <SearchBar onQueryChange={handleSearch} />
+                        </Card>
+                      </div>
+
+                      {/* Bottom Controls */}
+                      <div className="absolute bottom-20 left-4 right-4 pointer-events-auto thumb-zone">
+                        <div className="flex justify-center gap-3">
+                          <Button
+                            size="lg"
+                            variant="secondary"
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="mobile-button glass"
+                          >
+                            <Filter className="w-5 h-5 mr-2" />
+                            Filter
+                          </Button>
+                          <Button
+                            size="lg"
+                            onClick={() => setIsListView(true)}
+                            className="mobile-button"
+                          >
+                            <List className="w-5 h-5 mr-2" />
+                            List View
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Filter Panel Overlay */}
+                      <AnimatePresence>
+                        {showFilters && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 50 }}
+                            className="absolute bottom-32 left-4 right-4 pointer-events-auto"
+                          >
+                            <Card className="p-4 glass max-h-64 overflow-y-auto">
+                              <FilterPanel />
+                            </Card>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Fact Preview Modal */}
+                      <FactPreviewModal 
+                        fact={selectedFact}
+                        open={modalOpen}
+                        onClose={handleCloseModal}
+                      />
                     </div>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </PullToRefresh>
       </MainLayout>
     </Swipeable>
