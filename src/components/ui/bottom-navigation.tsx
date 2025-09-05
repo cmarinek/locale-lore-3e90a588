@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAppStore } from '@/stores/appStore';
-import { getMobileNavigationItems } from '@/config/navigation';
+import { useMobileNavigationItems } from '@/hooks/useNavigationItems';
 import type { UserRole } from '@/types/navigation';
 
 export const BottomNavigation: React.FC = () => {
@@ -21,7 +21,7 @@ export const BottomNavigation: React.FC = () => {
   const userRole: UserRole = user ? 'user' : 'guest';
   
   // Get mobile navigation items based on user role and admin status
-  const navigationItems = getMobileNavigationItems(userRole, isAdmin);
+  const navigationItems = useMobileNavigationItems(userRole, isAdmin);
 
   const isActive = (path: string) => {
     // Handle exact home path matching

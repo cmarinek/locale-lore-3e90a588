@@ -1,22 +1,25 @@
 import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/molecules/InputField";
 import { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export const WelcomeHero = () => {
   console.log('WelcomeHero rendering...');
   const [email, setEmail] = useState("");
+  const { t } = useTranslation('lore');
   return <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
       <div className="max-w-2xl mx-auto space-y-8">
         {/* Hero Content */}
         <div className="space-y-4 animate-fade-in">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground leading-tight">
-            Welcome to{" "}
+            {t('title')} {" "}
             <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              Locale Lore
+              LocaleLore
             </span>
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-lg mx-auto">Discover and explore local stories, culture, and hidden gems in your area.
-Know a good spot? Add it!</p>
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-lg mx-auto">
+            {t('subtitle')}
+          </p>
         </div>
 
         {/* Feature Cards */}

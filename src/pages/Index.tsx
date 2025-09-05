@@ -6,10 +6,12 @@ import { Card } from '@/components/ui/card';
 import { Compass, Search, BookOpen, Star, MapPin, TrendingUp, Users, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const Index: React.FC = () => {
   console.log('Index page rendering...');
   const navigate = useNavigate();
+  const { t } = useTranslation('lore');
 
   return (
     <MainLayout>
@@ -25,9 +27,9 @@ const Index: React.FC = () => {
             transition={{ delay: 0.2 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold mb-6">Start Your Journey</h2>
+            <h2 className="text-3xl font-bold mb-6">{t('exploreStories')}</h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Choose how you'd like to explore the fascinating world of local stories and legends.
+              {t('subtitle')}
             </p>
             
             <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
@@ -43,7 +45,7 @@ const Index: React.FC = () => {
                 >
                   <div className="flex flex-col items-center gap-2">
                     <Compass className="w-8 h-8" />
-                    <span className="text-lg font-semibold">Discover Stories</span>
+                    <span className="text-lg font-semibold">{t('exploreStories')}</span>
                   </div>
                 </Button>
               </motion.div>

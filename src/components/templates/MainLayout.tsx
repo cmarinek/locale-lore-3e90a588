@@ -6,6 +6,7 @@ import { LanguageSelector } from '@/components/ui/language-selector';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,7 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) => {
   const { isRTL } = useLanguage();
+  const { t } = useTranslation('navigation');
 
   return (
     <div className={cn(
@@ -57,16 +59,16 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <Link to="/privacy" className="hover:text-primary transition-colors">
-                Privacy Policy
+                {t('privacy')}
               </Link>
               <Link to="/terms" className="hover:text-primary transition-colors">
-                Terms of Service
+                {t('terms')}
               </Link>
               <a 
                 href="mailto:contact@localelore.com" 
                 className="hover:text-primary transition-colors"
               >
-                Contact
+                {t('contact')}
               </a>
             </div>
           </div>

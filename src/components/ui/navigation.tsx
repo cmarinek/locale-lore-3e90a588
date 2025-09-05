@@ -4,21 +4,23 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useTranslation } from '@/hooks/useTranslation';
 import { User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getNavigationItems } from '@/config/navigation';
+import { useNavigationConfig } from '@/hooks/useNavigationItems';
 import type { UserRole } from '@/types/navigation';
 
 export const Navigation: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
   const { isAdmin } = useAdmin();
+  const { t } = useTranslation('auth');
 
   // Determine user role
   const userRole: UserRole = user ? 'user' : 'guest';
   
   // Get navigation configuration
-  const navigationConfig = getNavigationItems(userRole, isAdmin);
+  const navigationConfig = useNavigationConfig(userRole, isAdmin);
   
   // Filter utility navigation items for desktop header
   const headerActions = navigationConfig.utility.filter(item => {
@@ -30,7 +32,7 @@ export const Navigation: React.FC = () => {
   if (userRole === 'guest') {
     headerActions.push({
       id: 'auth',
-      label: 'Login',
+      label: t('login'),
       path: '/auth',
       icon: User,
       category: 'utility' as const
