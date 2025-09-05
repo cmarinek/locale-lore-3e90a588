@@ -13,7 +13,7 @@ export const ContentModerationPanel: React.FC = () => {
   const { getFactsForModeration, updateFactStatus, bulkUpdateFactStatus } = useAdmin();
   const [facts, setFacts] = useState<any[]>([]);
   const [selectedFacts, setSelectedFacts] = useState<Set<string>>(new Set());
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -24,7 +24,7 @@ export const ContentModerationPanel: React.FC = () => {
   const loadFacts = async () => {
     try {
       setLoading(true);
-      const data = await getFactsForModeration(statusFilter || undefined);
+      const data = await getFactsForModeration(statusFilter === 'all' ? undefined : statusFilter);
       setFacts(data);
     } catch (error) {
       console.error('Error loading facts:', error);
@@ -94,7 +94,7 @@ export const ContentModerationPanel: React.FC = () => {
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All statuses</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="verified">Verified</SelectItem>
               <SelectItem value="rejected">Rejected</SelectItem>
