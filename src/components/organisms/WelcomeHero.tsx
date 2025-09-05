@@ -14,9 +14,8 @@ export const WelcomeHero = () => {
         {/* Hero Content */}
         <div className="space-y-4 animate-fade-in">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground leading-tight">
-            {t('title')} {" "}
             <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              LocaleLore
+              {t('title')}
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-lg mx-auto">
