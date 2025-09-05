@@ -12,8 +12,9 @@ console.log('DIAGNOSTIC: App component imported');
 import './index.css';
 console.log('DIAGNOSTIC: CSS imported');
 
-// i18n will be initialized in App component to avoid circular dependencies
-console.log('DIAGNOSTIC: Skipping early i18n import to prevent circular dependency');
+// Initialize i18n before React to avoid circular dependencies
+import './utils/i18n';
+console.log('DIAGNOSTIC: i18n initialized successfully');
 
 // Import our diagnostic error boundary
 import { DiagnosticErrorBoundary } from './components/diagnostics/ErrorBoundary';

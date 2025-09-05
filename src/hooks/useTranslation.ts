@@ -1,6 +1,6 @@
 
 import { useTranslation as useI18nTranslation } from 'react-i18next';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useContext } from 'react';
 import { 
   formatLocalizedDate, 
   formatLocalizedRelativeTime, 
@@ -9,6 +9,7 @@ import {
   formatLocalizedDistance,
   getPlural
 } from '@/utils/localization';
+import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 interface TranslationOptions {
   context?: string;
@@ -36,7 +37,10 @@ interface ExtendedTFunction {
 
 export const useTranslation = (namespace?: string | string[]) => {
   const { t: originalT, i18n, ready } = useI18nTranslation(namespace);
-  const { currentLanguage, isRTL } = useLanguage();
+  
+  // Get language info directly from i18n to avoid circular dependency
+  const currentLanguage = (i18n.language?.split('-')[0] || 'en') as SupportedLanguage;
+  const isRTL = SUPPORTED_LANGUAGES[currentLanguage]?.rtl || false;
 
   // Enhanced translation function with context support
   const t: ExtendedTFunction = Object.assign(
