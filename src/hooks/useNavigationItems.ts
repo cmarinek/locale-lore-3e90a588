@@ -17,7 +17,8 @@ import {
   FileText,
   Share2,
   BarChart3,
-  Star
+  Star,
+  MapPin
 } from 'lucide-react';
 
 export function useNavigationItems() {
@@ -40,6 +41,14 @@ export function useNavigationItems() {
         path: '/explore',
         icon: Compass,
         description: 'Browse stories by location',
+        category: 'primary'
+      },
+      {
+        id: 'map',
+        label: 'Map',
+        path: '/map',
+        icon: MapPin,
+        description: 'Explore stories on interactive map',
         category: 'primary'
       },
       {

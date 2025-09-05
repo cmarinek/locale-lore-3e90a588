@@ -30,11 +30,7 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 
 export const Explore: React.FC = () => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>('');
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [isListView, setIsListView] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const { triggerHapticFeedback, handleTouchInteraction } = useAppStore();
   const navigate = useNavigate();
@@ -65,26 +61,8 @@ export const Explore: React.FC = () => {
     searchFacts(searchQuery);
   }, [loadCategories, loadSavedFacts, searchFacts]);
 
-  // Initial setup - get token and location
+  // Get user location on load
   useEffect(() => {
-    const initializeMap = async () => {
-      try {
-        // Get token from Supabase Edge Function
-        const response = await fetch('https://mwufulzthoqrwbwtvogx.supabase.co/functions/v1/get-mapbox-token');
-        if (response.ok) {
-          const data = await response.json();
-          setMapboxToken(data.token);
-        } else {
-          console.error('Failed to get Mapbox token');
-        }
-      } catch (error) {
-        console.error('Error fetching Mapbox token:', error);
-      }
-    };
-
-    initializeMap();
-
-    // Get user location with improved detection
     getUserLocation();
   }, []);
 
@@ -111,57 +89,6 @@ export const Explore: React.FC = () => {
     }
   };
 
-  // Map initialization
-  useEffect(() => {
-    if (!mapContainer.current || !mapboxToken || !userLocation) return;
-
-    mapboxgl.accessToken = mapboxToken;
-    
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: userLocation,
-      zoom: 12,
-      pitch: 45,
-    });
-
-    // Add controls
-    map.current.addControl(new mapboxgl.NavigationControl({
-      visualizePitch: true,
-    }), 'top-right');
-
-    map.current.addControl(new mapboxgl.GeolocateControl({
-      positionOptions: { enableHighAccuracy: true },
-      trackUserLocation: true,
-      showUserHeading: true
-    }), 'top-right');
-
-    // Add user location marker
-    new mapboxgl.Marker({ color: '#007bff' })
-      .setLngLat(userLocation)
-      .addTo(map.current);
-
-    // Add sample markers
-    const sampleFacts = [
-      { id: 1, coords: [userLocation[0] + 0.01, userLocation[1] + 0.01], title: "Historic Landmark" },
-      { id: 2, coords: [userLocation[0] - 0.01, userLocation[1] + 0.005], title: "Local Legend" },
-      { id: 3, coords: [userLocation[0] + 0.005, userLocation[1] - 0.01], title: "Hidden Story" },
-    ];
-
-    sampleFacts.forEach(fact => {
-      const popup = new mapboxgl.Popup({ offset: 25 })
-        .setHTML(`<h3 class="font-semibold">${fact.title}</h3><p class="text-sm">Click to learn more...</p>`);
-
-      new mapboxgl.Marker({ color: '#10b981' })
-        .setLngLat(fact.coords as [number, number])
-        .setPopup(popup)
-        .addTo(map.current!);
-    });
-
-    return () => {
-      map.current?.remove();
-    };
-  }, [mapboxToken, userLocation]);
 
   const handleRefresh = async () => {
     triggerHapticFeedback('medium');
@@ -207,128 +134,64 @@ export const Explore: React.FC = () => {
         </Helmet>
         
         <PullToRefresh onRefresh={handleRefresh}>
-          {isListView ? (
-            // Discovery List View - Completely separate layout
-            <div className="min-h-screen bg-background">
-              <div className="container mx-auto px-4 py-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h1 className="text-2xl font-bold">Discover Stories</h1>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setShowFilters(!showFilters)}
-                      className="shrink-0"
-                    >
-                      <Filter className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="default"
-                      onClick={() => setIsListView(false)}
-                      className="shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground"
-                    >
-                      <MapIcon className="w-4 h-4 mr-2" />
-                      <span className="hidden sm:inline">Map View</span>
-                      <span className="sm:hidden">Map</span>
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Search Bar */}
-                <div className="mb-6">
-                  <SearchBar onQueryChange={handleSearch} />
-                </div>
-
-                {/* Filters */}
-                {showFilters && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mb-6"
+          {/* Discovery List View - Always show list */}
+          <div className="min-h-screen bg-background">
+            <div className="container mx-auto px-4 py-6">
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-2xl font-bold">Discover Stories</h1>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="shrink-0"
                   >
-                    <FilterPanel />
-                  </motion.div>
-                )}
-
-                {/* Loading/Error States */}
-                {loading && <p className="text-center py-8">Loading stories...</p>}
-                {error && <p className="text-center py-8 text-destructive">Error: {error}</p>}
-
-                {/* Facts List */}
-                <InfiniteFactList />
-
-                {/* Fact Preview Modal */}
-                <FactPreviewModal 
-                  fact={selectedFact}
-                  open={modalOpen}
-                  onClose={handleCloseModal}
-                />
-              </div>
-            </div>
-          ) : (
-            // Map View - Completely separate layout
-            <div className="h-screen w-full overflow-hidden relative">
-              {/* Map Container - takes full screen */}
-              <div ref={mapContainer} className="absolute inset-0" />
-              
-              {/* Map Overlay UI */}
-              <div className="absolute inset-0 pointer-events-none z-10">
-                {/* Search Bar */}
-                <div className="absolute top-4 left-4 right-4 pointer-events-auto safe-area-padding-top">
-                  <Card className="p-3 glass">
-                    <SearchBar onQueryChange={handleSearch} />
-                  </Card>
+                    <Filter className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={() => navigate('/map')}
+                    className="shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    <MapIcon className="w-4 h-4 mr-2" />
+                    <span className="hidden sm:inline">Map View</span>
+                    <span className="sm:hidden">Map</span>
+                  </Button>
                 </div>
-
-                {/* Bottom Controls */}
-                <div className="absolute bottom-28 left-4 right-4 pointer-events-auto thumb-zone mb-safe">
-                  <div className="flex justify-center gap-3">
-                    <Button
-                      size="lg"
-                      variant="secondary"
-                      onClick={() => setShowFilters(!showFilters)}
-                      className="mobile-button glass"
-                    >
-                      <Filter className="w-5 h-5 mr-2" />
-                      Filter
-                    </Button>
-                    <Button
-                      size="lg"
-                      onClick={() => setIsListView(true)}
-                      className="mobile-button"
-                    >
-                      <List className="w-5 h-5 mr-2" />
-                      List View
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Filter Panel Overlay */}
-                <AnimatePresence>
-                  {showFilters && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 50 }}
-                      className="absolute bottom-40 left-4 right-4 pointer-events-auto z-20"
-                    >
-                      <Card className="p-4 glass max-h-64 overflow-y-auto">
-                        <FilterPanel />
-                      </Card>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Fact Preview Modal */}
-                <FactPreviewModal 
-                  fact={selectedFact}
-                  open={modalOpen}
-                  onClose={handleCloseModal}
-                />
               </div>
+
+              {/* Search Bar */}
+              <div className="mb-6">
+                <SearchBar onQueryChange={handleSearch} />
+              </div>
+
+              {/* Filters */}
+              {showFilters && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-6"
+                >
+                  <FilterPanel />
+                </motion.div>
+              )}
+
+              {/* Loading/Error States */}
+              {loading && <p className="text-center py-8">Loading stories...</p>}
+              {error && <p className="text-center py-8 text-destructive">Error: {error}</p>}
+
+              {/* Facts List */}
+              <InfiniteFactList />
+
+              {/* Fact Preview Modal */}
+              <FactPreviewModal 
+                fact={selectedFact}
+                open={modalOpen}
+                onClose={handleCloseModal}
+              />
             </div>
-          )}
+          </div>
         </PullToRefresh>
       </MainLayout>
     </Swipeable>

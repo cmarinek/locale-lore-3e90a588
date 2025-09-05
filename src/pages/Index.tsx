@@ -8,12 +8,15 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCommunityStats } from '@/hooks/useCommunityStats';
+import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
+import { useOnboarding } from '@/hooks/useOnboarding';
 
 const Index: React.FC = () => {
   console.log('Index page rendering...');
   const navigate = useNavigate();
   const { t } = useTranslation('lore');
   const { storiesShared, activeContributors, locationsCovered, isLoading, error } = useCommunityStats();
+  const { showOnboarding, completeOnboarding, skipOnboarding } = useOnboarding();
 
   return (
     <MainLayout>
@@ -59,7 +62,7 @@ const Index: React.FC = () => {
               >
                 <Button 
                   variant="outline"
-                  onClick={() => navigate('/explore')}
+                  onClick={() => navigate('/map')}
                   className="w-full h-24 border-2 hover:bg-accent/50"
                 >
                   <div className="flex flex-col items-center gap-2">
@@ -184,6 +187,14 @@ const Index: React.FC = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Onboarding Tour */}
+      {showOnboarding && (
+        <OnboardingTour
+          onComplete={completeOnboarding}
+          onSkip={skipOnboarding}
+        />
+      )}
     </MainLayout>
   );
 };
