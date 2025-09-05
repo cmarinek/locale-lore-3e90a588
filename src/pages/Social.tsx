@@ -125,7 +125,7 @@ export const Social: React.FC = () => {
             </motion.div>
           ) : (
             <Tabs defaultValue="following" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="w-full overflow-x-auto">
                 <TabsTrigger value="following" className="flex items-center gap-2">
                   <Users className="w-4 h-4" />
                   Following

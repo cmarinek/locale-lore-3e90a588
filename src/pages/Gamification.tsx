@@ -210,7 +210,7 @@ export const Gamification: React.FC = () => {
 
           <div className="mt-8">
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="w-full overflow-x-auto">
                 <TabsTrigger value="overview" className="flex items-center gap-2">
                   <Trophy className="w-4 h-4" />
                   Overview

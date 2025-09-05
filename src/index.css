@@ -209,4 +209,14 @@
       transform: none !important;
     }
   }
+  
+  /* Scrollbar utilities for mobile tabs */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

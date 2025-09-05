@@ -132,7 +132,7 @@ export const ContributorEconomy: React.FC = () => {
           </motion.div>
 
           <Tabs defaultValue="badges" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="w-full overflow-x-auto">
               <TabsTrigger value="badges" className="flex items-center gap-2">
                 <Award className="w-4 h-4" />
                 Expert Badges

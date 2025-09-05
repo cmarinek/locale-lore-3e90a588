@@ -76,7 +76,7 @@ export const Profile: React.FC = () => {
           </motion.div>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="w-full overflow-x-auto">
               <TabsTrigger value="profile">{t('editProfile')}</TabsTrigger>
               <TabsTrigger value="statistics">{t('statistics.title', { defaultValue: 'Statistics' })}</TabsTrigger>
               <TabsTrigger value="achievements">{t('achievements.title')}</TabsTrigger>
