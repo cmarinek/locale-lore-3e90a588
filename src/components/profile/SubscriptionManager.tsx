@@ -31,20 +31,21 @@ export const SubscriptionManager = ({ subscription, onRefresh, loading }: Subscr
   const subscriptionTiers = [
     {
       id: 'basic',
-      name: 'Basic',
-      price: '$5.99',
+      name: 'Basic Contributor',
+      price: '$9.99',
       icon: Star,
       features: [
         'Submit up to 50 facts per month',
         'Basic search functionality',
         'Standard support',
         'Mobile app access',
+        'Comment on facts',
       ],
     },
     {
       id: 'premium',
-      name: 'Premium',
-      price: '$12.99',
+      name: 'Premium Contributor',
+      price: '$19.99',
       icon: Crown,
       features: [
         'Unlimited fact submissions',
@@ -53,12 +54,13 @@ export const SubscriptionManager = ({ subscription, onRefresh, loading }: Subscr
         'Early access to new features',
         'Custom profile themes',
         'Enhanced discovery radius',
+        'Export data',
       ],
       popular: true,
     },
     {
-      id: 'enterprise',
-      name: 'Enterprise',
+      id: 'pro',
+      name: 'Pro Contributor',
       price: '$29.99',
       icon: Zap,
       features: [
@@ -68,6 +70,7 @@ export const SubscriptionManager = ({ subscription, onRefresh, loading }: Subscr
         'White-label options',
         'Dedicated account manager',
         'Custom integrations',
+        'Unlimited exports',
       ],
     },
   ];
@@ -75,8 +78,12 @@ export const SubscriptionManager = ({ subscription, onRefresh, loading }: Subscr
   const handleSubscribe = async (tier: string) => {
     setActionLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { tier }
+      const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
+        body: { 
+          tier,
+          type: 'subscription',
+          trialDays: 14
+        }
       });
 
       if (error) throw error;

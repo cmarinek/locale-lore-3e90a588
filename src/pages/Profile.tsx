@@ -70,19 +70,19 @@ export const Profile: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <h1 className="text-3xl font-bold">
-                {t('myProfile')}
+                {t('myProfile', { defaultValue: 'My Profile' })}
               </h1>
             </div>
           </motion.div>
 
           <Tabs defaultValue="profile" className="space-y-6">
             <TabsList className="w-full overflow-x-auto">
-              <TabsTrigger value="profile">{t('editProfile')}</TabsTrigger>
+              <TabsTrigger value="profile">{t('editProfile', { defaultValue: 'Edit Profile' })}</TabsTrigger>
               <TabsTrigger value="statistics">{t('statistics.title', { defaultValue: 'Statistics' })}</TabsTrigger>
-              <TabsTrigger value="achievements">{t('achievements.title')}</TabsTrigger>
-              <TabsTrigger value="settings">{t('preferences.title')}</TabsTrigger>
-              <TabsTrigger value="subscription">Subscription</TabsTrigger>
-              <TabsTrigger value="data">{t('dataManagement.title')}</TabsTrigger>
+              <TabsTrigger value="achievements">{t('achievements.title', { defaultValue: 'Achievements' })}</TabsTrigger>
+              <TabsTrigger value="settings">{t('preferences.title', { defaultValue: 'Preferences' })}</TabsTrigger>
+              <TabsTrigger value="subscription">{t('subscription.title', { defaultValue: 'Subscription' })}</TabsTrigger>
+              <TabsTrigger value="data">{t('dataManagement.title', { defaultValue: 'Data Management' })}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile">
@@ -117,10 +117,16 @@ export const Profile: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="data">
-              <DataDeletionPanel
-                onExportData={exportUserData}
-                loading={loading}
-              />
+              <div className="space-y-6">
+                <DataExportPanel
+                  onExportData={exportUserData}
+                  loading={loading}
+                />
+                <DataDeletionPanel
+                  onRequestDeletion={requestAccountDeletion}
+                  loading={loading}
+                />
+              </div>
             </TabsContent>
           </Tabs>
         </div>

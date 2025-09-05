@@ -12,56 +12,59 @@ import {
   Eye,
   Target,
   Flame
-} from 'lucide-react';
+ } from 'lucide-react';
 import { UserStatistics } from '@/hooks/useProfile';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface StatisticsCardProps {
   statistics: UserStatistics | null;
 }
 
 export const StatisticsCard = ({ statistics }: StatisticsCardProps) => {
+  const { t } = useTranslation('profile');
+  
   if (!statistics) {
-    return <div>Loading statistics...</div>;
+    return <div>{t('loading', { defaultValue: 'Loading statistics...' })}</div>;
   }
 
   const statItems = [
     {
-      label: 'Facts Submitted',
+      label: t('statistics.factsSubmitted', { defaultValue: 'Facts Submitted' }),
       value: statistics.facts_submitted,
       icon: TrendingUp,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
     },
     {
-      label: 'Facts Verified',
+      label: t('statistics.factsVerified', { defaultValue: 'Facts Verified' }),
       value: statistics.facts_verified,
       icon: Star,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
     },
     {
-      label: 'Comments Made',
+      label: t('statistics.commentsMade', { defaultValue: 'Comments Made' }),
       value: statistics.comments_made,
       icon: MessageSquare,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
     },
     {
-      label: 'Votes Cast',
+      label: t('statistics.votesCast', { defaultValue: 'Votes Cast' }),
       value: statistics.votes_cast,
       icon: ThumbsUp,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100',
     },
     {
-      label: 'Achievements',
+      label: t('statistics.achievementsEarned', { defaultValue: 'Achievements' }),
       value: statistics.achievements_earned,
       icon: Trophy,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-100',
     },
     {
-      label: 'Locations Discovered',
+      label: t('statistics.locationsDiscovered', { defaultValue: 'Locations Discovered' }),
       value: statistics.locations_discovered,
       icon: MapPin,
       color: 'text-red-600',
@@ -115,7 +118,7 @@ export const StatisticsCard = ({ statistics }: StatisticsCardProps) => {
                 Level {level}
               </Badge>
               <div>
-                <p className="font-semibold">{statistics.total_points.toLocaleString()} Points</p>
+                <p className="font-semibold">{statistics.total_points.toLocaleString()} {t('statistics.totalPoints', { defaultValue: 'Points' })}</p>
                 <p className="text-sm text-muted-foreground">
                   {pointsToNextLevel.toLocaleString()} points to Level {level + 1}
                 </p>

@@ -13,14 +13,25 @@
   "uploadPhoto": "Upload Photo",
   "removePhoto": "Remove Photo",
   "statistics": {
+    "title": "Statistics",
     "storiesSubmitted": "Stories Submitted",
-    "storiesVerified": "Stories Verified",
+    "storiesVerified": "Stories Verified", 
     "votesReceived": "Votes Received",
     "verificationScore": "Verification Score",
     "joinedDate": "Joined",
     "lastActive": "Last Active",
     "totalViews": "Total Views",
-    "totalLikes": "Total Likes"
+    "totalLikes": "Total Likes",
+    "factsSubmitted": "Facts Submitted",
+    "factsVerified": "Facts Verified",
+    "commentsMade": "Comments Made",
+    "votesCast": "Votes Cast",
+    "achievementsEarned": "Achievements Earned",
+    "totalPoints": "Total Points",
+    "currentStreak": "Current Streak",
+    "longestStreak": "Longest Streak",
+    "locationsDiscovered": "Locations Discovered",
+    "profileViews": "Profile Views"
   },
   "achievements": {
     "title": "Achievements",
@@ -66,5 +77,15 @@
     "deleteWarning": "This action cannot be undone.",
     "dataExported": "Your data has been exported successfully",
     "exportInProgress": "Export in progress..."
-  }
+  },
+  "subscription": {
+    "title": "Subscription",
+    "currentPlan": "Current Plan",
+    "managePlan": "Manage Plan",
+    "upgradePlan": "Upgrade Plan",
+    "cancelPlan": "Cancel Plan",
+    "billing": "Billing",
+    "paymentMethod": "Payment Method"
+  },
+  "loading": "Loading profile..."
 }

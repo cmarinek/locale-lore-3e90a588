@@ -21,11 +21,11 @@ const deletionReasons = [
 ];
 
 interface DataDeletionPanelProps {
-  onExportData: () => Promise<void>;
+  onRequestDeletion: (reason?: string, feedback?: string) => Promise<void>;
   loading: boolean;
 }
 
-export const DataDeletionPanel = ({ onExportData, loading }: DataDeletionPanelProps) => {
+export const DataDeletionPanel = ({ onRequestDeletion, loading }: DataDeletionPanelProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [reason, setReason] = useState('');
   const [feedback, setFeedback] = useState('');
@@ -46,42 +46,18 @@ export const DataDeletionPanel = ({ onExportData, loading }: DataDeletionPanelPr
     try {
       setIsDeleting(true);
       
-      // Send deletion request to backend
-      const response = await fetch('/api/account/delete', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          reason,
-          feedback,
-          confirmedAt: new Date().toISOString(),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to process deletion request');
-      }
-
-      toast({
-        title: 'Account Deletion Requested',
-        description: 'We have received your deletion request. You will receive an email confirmation shortly.',
-      });
-
+      // Use the provided onRequestDeletion function
+      await onRequestDeletion(reason, feedback);
+      
       // Clear local data
       localStorage.clear();
       sessionStorage.clear();
-      
-      // Redirect to home after short delay
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 3000);
 
     } catch (error) {
       console.error('Account deletion error:', error);
       toast({
         title: 'Deletion Failed',
-        description: 'There was an error processing your request. Please contact support.',
+        description: 'There was an error processing your request. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -91,37 +67,6 @@ export const DataDeletionPanel = ({ onExportData, loading }: DataDeletionPanelPr
 
   return (
     <div className="space-y-6">
-      {/* Data Export */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5" />
-            Export Your Data
-          </CardTitle>
-          <CardDescription>
-            Download a copy of all your data including profile, content, and activity history.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Alert>
-            <Shield className="h-4 w-4" />
-            <AlertDescription>
-              Your export will include: Profile information, submitted content, votes, comments, 
-              location data, and account settings. Files will be provided in JSON format.
-            </AlertDescription>
-          </Alert>
-          
-          <Button 
-            onClick={onExportData} 
-            disabled={loading}
-            className="w-full"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            {loading ? 'Preparing Export...' : 'Download My Data'}
-          </Button>
-        </CardContent>
-      </Card>
-
       {/* Account Deletion */}
       <Card className="border-destructive">
         <CardHeader>
