@@ -1,83 +1,45 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAdminAnalytics } from '@/hooks/useAdminAnalytics';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Activity, Users, MessageSquare, TrendingUp, Eye, ThumbsUp, Flag, CheckCircle } from 'lucide-react';
 
 export const AnalyticsDashboard: React.FC = () => {
   const [timeRange, setTimeRange] = useState('7d');
-  const { data, loading, error } = useAdminAnalytics(timeRange);
+  const [loading] = useState(false);
 
-  if (loading) {
-    return (
-      <div className="space-y-4 sm:space-y-6">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <Activity className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-            <p className="text-muted-foreground">Loading analytics...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Temporary mock data for stable rendering - will replace with real data later
+  const userGrowthData = [
+    { date: 'Jan 1', users: 120 },
+    { date: 'Jan 2', users: 135 },
+    { date: 'Jan 3', users: 149 },
+    { date: 'Jan 4', users: 168 },
+    { date: 'Jan 5', users: 189 },
+    { date: 'Jan 6', users: 203 },
+    { date: 'Jan 7', users: 221 }
+  ];
 
-  if (error) {
-    return (
-      <div className="space-y-4 sm:space-y-6">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <Flag className="w-8 h-8 mx-auto mb-4 text-destructive" />
-            <p className="text-destructive">Error loading analytics: {error}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="space-y-4 sm:space-y-6">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <MessageSquare className="w-8 h-8 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground">No analytics data available</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Real content metrics from Supabase data
   const contentMetrics = [
-    { 
-      name: 'Total Facts', 
-      value: data.totalFacts, 
-      change: data.totalFacts > 0 ? '+' + Math.round((data.totalFacts / Math.max(data.totalFacts * 0.9, 1)) * 100 - 100) + '%' : '0%', 
-      icon: MessageSquare, 
-      color: 'hsl(var(--primary))' 
-    },
-    { 
-      name: 'Active Users', 
-      value: data.activeUsers, 
-      change: data.activeUsers > 0 ? '+' + Math.round((data.activeUsers / Math.max(data.totalUsers * 0.6, 1)) * 100) + '%' : '0%', 
-      icon: Users, 
-      color: 'hsl(var(--secondary))' 
-    },
-    { 
-      name: 'Monthly Revenue', 
-      value: `$${data.monthlyRevenue.toFixed(0)}`, 
-      change: data.monthlyRevenue > 0 ? '+' + Math.round(data.monthlyRevenue / Math.max(data.monthlyRevenue * 0.8, 1) * 100 - 100) + '%' : '0%', 
-      icon: TrendingUp, 
-      color: 'hsl(var(--accent))' 
-    },
-    { 
-      name: 'Contributors', 
-      value: data.totalContributors, 
-      change: data.totalContributors > 0 ? '+' + Math.round(data.totalContributors / Math.max(data.totalContributors * 0.85, 1) * 100 - 100) + '%' : '0%', 
-      icon: CheckCircle, 
-      color: 'hsl(142, 76%, 36%)' 
-    }
+    { name: 'Total Facts', value: 847, change: '+12%', icon: MessageSquare, color: 'hsl(var(--primary))' },
+    { name: 'Active Users', value: 234, change: '+8%', icon: Users, color: 'hsl(var(--secondary))' },
+    { name: 'Monthly Revenue', value: '$2,450', change: '+15%', icon: TrendingUp, color: 'hsl(var(--accent))' },
+    { name: 'Contributors', value: 56, change: '+5%', icon: CheckCircle, color: 'hsl(142, 76%, 36%)' }
+  ];
+
+  const factsByStatus = [
+    { status: 'Verified', count: 634, color: '#22c55e' },
+    { status: 'Pending', count: 156, color: '#f59e0b' },
+    { status: 'Disputed', count: 34, color: '#ef4444' },
+    { status: 'Rejected', count: 23, color: '#64748b' }
+  ];
+
+  const userActivity = [
+    { hour: '00:00', active: 234 },
+    { hour: '04:00', active: 189 },
+    { hour: '08:00', active: 567 },
+    { hour: '12:00', active: 892 },
+    { hour: '16:00', active: 734 },
+    { hour: '20:00', active: 456 }
   ];
 
   return (
@@ -134,7 +96,7 @@ export const AnalyticsDashboard: React.FC = () => {
           </CardHeader>
           <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
             <ResponsiveContainer width="100%" height={250}>
-              <AreaChart data={data.userGrowth}>
+              <AreaChart data={userGrowthData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
                   dataKey="date" 
@@ -157,7 +119,7 @@ export const AnalyticsDashboard: React.FC = () => {
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
-                  data={data.factsByStatus}
+                  data={factsByStatus}
                   cx="50%"
                   cy="50%"
                   innerRadius={40}
@@ -165,7 +127,7 @@ export const AnalyticsDashboard: React.FC = () => {
                   paddingAngle={5}
                   dataKey="count"
                 >
-                  {data.factsByStatus.map((entry, index) => (
+                  {factsByStatus.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -173,7 +135,7 @@ export const AnalyticsDashboard: React.FC = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="grid grid-cols-2 gap-2 sm:gap-4 mt-3 sm:mt-4">
-              {data.factsByStatus.map((item) => (
+              {factsByStatus.map((item) => (
                 <div key={item.status} className="flex items-center gap-1 sm:gap-2">
                   <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
                   <span className="text-xs sm:text-sm text-muted-foreground truncate">{item.status}</span>
@@ -192,7 +154,7 @@ export const AnalyticsDashboard: React.FC = () => {
         </CardHeader>
         <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data.userActivity}>
+            <LineChart data={userActivity}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="hour" fontSize={12} />
               <YAxis fontSize={12} />
