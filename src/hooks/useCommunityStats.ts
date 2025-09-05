@@ -18,6 +18,7 @@ export const useCommunityStats = (): CommunityStats => {
   });
 
   useEffect(() => {
+    console.log('useCommunityStats: Starting to fetch stats...');
     const fetchStats = async () => {
       try {
         // Fetch stories count
@@ -64,6 +65,11 @@ export const useCommunityStats = (): CommunityStats => {
           activeContributors: uniqueContributors,
           locationsCovered: uniqueLocations,
           isLoading: false,
+        });
+        console.log('useCommunityStats: Successfully fetched stats:', {
+          storiesShared: storiesCount || 0,
+          activeContributors: uniqueContributors,
+          locationsCovered: uniqueLocations
         });
       } catch (error) {
         console.error('Error fetching community stats:', error);

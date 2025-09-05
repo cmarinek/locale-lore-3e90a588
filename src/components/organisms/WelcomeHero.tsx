@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 export const WelcomeHero = () => {
-  console.log('WelcomeHero rendering...');
+  console.log('WelcomeHero: Component rendering...');
   const [email, setEmail] = useState("");
   const { t } = useTranslation('lore');
   
