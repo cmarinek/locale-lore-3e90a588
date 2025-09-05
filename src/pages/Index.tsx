@@ -3,15 +3,17 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { WelcomeHero } from '@/components/organisms/WelcomeHero';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Compass, Search, BookOpen, Star, MapPin, TrendingUp, Users, Shield } from 'lucide-react';
+import { Compass, Search, BookOpen, Star, MapPin, TrendingUp, Users, Shield, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useCommunityStats } from '@/hooks/useCommunityStats';
 
 const Index: React.FC = () => {
   console.log('Index page rendering...');
   const navigate = useNavigate();
   const { t } = useTranslation('lore');
+  const { storiesShared, activeContributors, locationsCovered, isLoading, error } = useCommunityStats();
 
   return (
     <MainLayout>
@@ -147,20 +149,37 @@ const Index: React.FC = () => {
                 <TrendingUp className="w-6 h-6 text-primary" />
                 Community Impact
               </h3>
-              <div className="grid md:grid-cols-3 gap-8">
-                <div>
-                  <div className="text-3xl font-bold text-primary mb-2">12,847</div>
-                  <div className="text-muted-foreground">Stories Shared</div>
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <span className="ml-2 text-muted-foreground">Loading community stats...</span>
                 </div>
-                <div>
-                  <div className="text-3xl font-bold text-primary mb-2">3,456</div>
-                  <div className="text-muted-foreground">Active Contributors</div>
+              ) : error ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Unable to load community stats</p>
                 </div>
-                <div>
-                  <div className="text-3xl font-bold text-primary mb-2">2,134</div>
-                  <div className="text-muted-foreground">Locations Covered</div>
+              ) : (
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div>
+                    <div className="text-3xl font-bold text-primary mb-2">
+                      {storiesShared.toLocaleString()}
+                    </div>
+                    <div className="text-muted-foreground">Stories Shared</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-primary mb-2">
+                      {activeContributors.toLocaleString()}
+                    </div>
+                    <div className="text-muted-foreground">Active Contributors</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-primary mb-2">
+                      {locationsCovered.toLocaleString()}
+                    </div>
+                    <div className="text-muted-foreground">Locations Covered</div>
+                  </div>
                 </div>
-              </div>
+              )}
             </Card>
           </motion.div>
         </div>
