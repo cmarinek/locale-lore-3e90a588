@@ -20,12 +20,21 @@ if (import.meta.env.PROD) {
   });
 }
 
-console.log('App starting to render...');
-createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+console.log('About to render React app...');
+const root = document.getElementById("root");
+console.log('Root element found:', !!root);
+
+if (!root) {
+  console.error('Root element not found!');
+} else {
+  console.log('Creating React root and rendering...');
+  createRoot(root).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+  console.log('React app rendered successfully');
+}
 
 // Register service worker for PWA functionality
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
