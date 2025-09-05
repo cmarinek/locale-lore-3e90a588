@@ -14,7 +14,7 @@ export const WelcomeHero = () => {
         {/* Hero Content */}
         <div className="space-y-4 animate-fade-in">
           <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-            <span className="bg-gradient-to-r from-primary via-primary to-primary/80 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">
               {t('title')}
             </span>
           </h1>

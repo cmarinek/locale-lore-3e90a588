@@ -30,7 +30,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
               <img src="/lovable-uploads/5729b722-5fd5-4d7d-b192-c6f4bd70ad99.png" alt="LocaleLore" className="w-10 h-8" />
-              <span className="font-bold text-xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <span className="font-bold text-xl bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">
                 LocaleLore
               </span>
             </Link>
@@ -55,7 +55,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <img src="/lovable-uploads/5729b722-5fd5-4d7d-b192-c6f4bd70ad99.png" alt="LocaleLore" className="w-6 h-5" />
-              <span className="font-semibold">LocaleLore</span>
+              <span className="font-semibold bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">LocaleLore</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <Link to="/privacy" className="hover:text-primary transition-colors">
