@@ -34,7 +34,6 @@ import { CookieConsent } from '@/components/compliance/CookieConsent';
 
 function App() {
   console.log('App component rendering...');
-  console.log('About to return JSX structure...');
   return (
     <ErrorBoundary>
       <HelmetProvider>

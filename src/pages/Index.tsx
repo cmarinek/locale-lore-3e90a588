@@ -10,13 +10,10 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useCommunityStats } from '@/hooks/useCommunityStats';
 
 const Index: React.FC = () => {
-  console.log('Index page component rendering...');
+  console.log('Index page rendering...');
   const navigate = useNavigate();
-  console.log('Navigate hook initialized');
   const { t } = useTranslation('lore');
-  console.log('Translation hook initialized');
   const { storiesShared, activeContributors, locationsCovered, isLoading, error } = useCommunityStats();
-  console.log('Community stats hook initialized:', { isLoading, error });
 
   return (
     <MainLayout>
