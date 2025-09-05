@@ -2684,6 +2684,14 @@ export type Database = {
         Args: { user1_id: string; user2_id: string }
         Returns: number
       }
+      check_rls_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          is_system_table: boolean
+          rls_enabled: boolean
+          table_name: string
+        }[]
+      }
       cleanup_expired_stories: {
         Args: Record<PropertyKey, never>
         Returns: undefined
