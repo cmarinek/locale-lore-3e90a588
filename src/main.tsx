@@ -1,46 +1,50 @@
+console.log('DIAGNOSTIC: Starting main.tsx imports...');
+
 import React from 'react';
+console.log('DIAGNOSTIC: React imported');
+
 import { createRoot } from 'react-dom/client';
+console.log('DIAGNOSTIC: React DOM imported');
+
 import App from './App.tsx';
+console.log('DIAGNOSTIC: App component imported');
+
 import './index.css';
+console.log('DIAGNOSTIC: CSS imported');
+
+// Import only essential utilities that exist
 import './utils/i18n'; // Initialize i18n before React
-import { initializeErrorTracking, initializePerformanceMonitoring } from './utils/monitoring';
-import { initializeSecurityMonitoring } from './lib/supabase-secure';
-import { productionMonitor } from '@/utils/production-monitor';
+console.log('DIAGNOSTIC: i18n imported successfully');
 
-// Initialize monitoring and error tracking
-initializeErrorTracking();
-initializePerformanceMonitoring();
-initializeSecurityMonitoring();
-
-// Initialize production monitoring
-if (import.meta.env.PROD) {
-  productionMonitor.trackCustomEvent('app_initialized', {
-    environment: 'production',
-    timestamp: new Date()
-  });
-}
+// Import our diagnostic error boundary
+import { DiagnosticErrorBoundary } from './components/diagnostics/ErrorBoundary';
+console.log('DIAGNOSTIC: Error boundary imported');
 
 // Force cache refresh - updated at 2025-01-05 21:34:30
 console.log('App starting to render...');
-createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
 
-// Register service worker for PWA functionality
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        console.log('SW registered: ', registration);
-        productionMonitor.trackCustomEvent('service_worker_registered');
-      })
-      .catch((registrationError) => {
-        console.log('SW registration failed: ', registrationError);
-        productionMonitor.trackCustomEvent('service_worker_failed', {
-          error: registrationError.message
-        });
-      });
-  });
+// Add comprehensive error handling and logging
+try {
+  console.log('1. DOM element check:', document.getElementById("root"));
+  
+  const root = createRoot(document.getElementById("root")!);
+  console.log('2. React root created successfully');
+  
+  root.render(
+    <React.StrictMode>
+      <DiagnosticErrorBoundary>
+        <App />
+      </DiagnosticErrorBoundary>
+    </React.StrictMode>
+  );
+  console.log('3. React app rendered successfully');
+} catch (error) {
+  console.error('Fatal error during app initialization:', error);
+  document.body.innerHTML = `<div style="padding: 20px; color: red;">
+    <h1>App Failed to Load</h1>
+    <p>Error: ${error instanceof Error ? error.message : String(error)}</p>
+  </div>`;
 }
+
+// Register service worker for PWA functionality (simplified for diagnostic)
+console.log('DIAGNOSTIC: Main.tsx execution completed');
