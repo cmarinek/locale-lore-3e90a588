@@ -1,7 +1,7 @@
 import React from 'react';
 import { LoreSubmissionWizard } from '@/components/lore/LoreSubmissionWizard';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { PaywallModal } from '@/components/lore/PaywallModal';
+import { ContributorPaywall } from '@/components/lore/ContributorPaywall';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -73,10 +73,10 @@ export const Submit: React.FC = () => {
 
   const handleUpgrade = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
+      const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
         body: { 
-          user_id: user?.id,
-          price_id: 'price_premium' 
+          type: 'subscription',
+          trialDays: 7
         }
       });
 
@@ -106,11 +106,11 @@ export const Submit: React.FC = () => {
   if (showPaywall) {
     return (
       <MainLayout>
-        <PaywallModal 
-          isOpen={showPaywall}
-          onClose={() => setShowPaywall(false)}
-          onUpgrade={handleUpgrade}
-        />
+      <ContributorPaywall 
+        isOpen={showPaywall} 
+        onClose={() => setShowPaywall(false)}
+        onUpgrade={handleUpgrade}
+      />
       </MainLayout>
     );
   }

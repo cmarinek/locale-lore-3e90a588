@@ -26,7 +26,7 @@ serve(async (req) => {
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
 
-    const { tier = "premium", type = "subscription", trialDays, promoCode } = await req.json();
+    const { type = "subscription", trialDays, promoCode } = await req.json();
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
@@ -39,21 +39,12 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    // Pricing tiers
-    const subscriptionPrices = {
-      basic: { amount: 999, name: "Basic Contributor", features: ["Submit up to 50 facts/month", "Basic search", "Mobile access"] },
-      premium: { amount: 1999, name: "Premium Contributor", features: ["Unlimited submissions", "Advanced search", "Priority support", "Early access"] },
-      pro: { amount: 2999, name: "Pro Contributor", features: ["All Premium features", "Analytics dashboard", "API access", "Custom integrations"] },
+    // Single contributor pricing at $1.97/month
+    const contributorPlan = { 
+      amount: 197, 
+      name: "Contributor", 
+      features: ["Submit facts", "Comment and interact", "Participate in gamification", "Join the community"] 
     };
-
-    const oneTimePrices = {
-      premium_feature: { amount: 499, name: "Premium Feature Pack", description: "Unlock advanced features for lifetime" },
-      advanced_analytics: { amount: 999, name: "Advanced Analytics", description: "Detailed insights and reporting" },
-    };
-
-    const selectedPrice = type === "subscription" 
-      ? subscriptionPrices[tier as keyof typeof subscriptionPrices] || subscriptionPrices.premium
-      : oneTimePrices[tier as keyof typeof oneTimePrices] || oneTimePrices.premium_feature;
 
     const sessionConfig: any = {
       customer: customerId,
@@ -65,7 +56,7 @@ serve(async (req) => {
       cancel_url: `${req.headers.get("origin")}/billing/canceled`,
       metadata: {
         user_id: user.id,
-        tier: tier,
+        tier: 'contributor',
         type: type,
       },
     };
@@ -77,10 +68,10 @@ serve(async (req) => {
           price_data: {
             currency: "usd",
             product_data: { 
-              name: selectedPrice.name,
-              description: selectedPrice.features?.join(", ") || "Premium features"
+              name: contributorPlan.name,
+              description: contributorPlan.features.join(", ")
             },
-            unit_amount: selectedPrice.amount,
+            unit_amount: contributorPlan.amount,
             recurring: { interval: "month" },
           },
           quantity: 1,
@@ -110,16 +101,17 @@ serve(async (req) => {
         }
       }
     } else {
+      // For one-time payments, still use contributor pricing for now
       sessionConfig.mode = "payment";
       sessionConfig.line_items = [
         {
           price_data: {
             currency: "usd",
             product_data: { 
-              name: selectedPrice.name,
-              description: selectedPrice.description || "One-time premium feature unlock"
+              name: contributorPlan.name,
+              description: "One-time contributor access"
             },
-            unit_amount: selectedPrice.amount,
+            unit_amount: contributorPlan.amount,
           },
           quantity: 1,
         },
@@ -135,8 +127,8 @@ serve(async (req) => {
         user_id: user.id,
         session_id: session.id,
         type: type,
-        tier: tier,
-        amount: selectedPrice.amount,
+        tier: 'contributor',
+        amount: contributorPlan.amount,
         status: 'pending',
       });
 

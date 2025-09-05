@@ -56,16 +56,7 @@ serve(async (req) => {
     let tier = "free";
 
     if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
-      const priceId = subscription.items.data[0].price.id;
-      const price = await stripe.prices.retrieve(priceId);
-      const amount = price.unit_amount || 0;
-      
-      if (amount >= 1999) {
-        tier = "pro";
-      } else if (amount >= 999) {
-        tier = "premium";
-      }
+      tier = "contributor";
     }
 
     return new Response(JSON.stringify({

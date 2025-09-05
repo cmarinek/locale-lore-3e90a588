@@ -1152,7 +1152,6 @@ export type Database = {
           id: string
           session_id: string
           status: string
-          tier: string
           type: string
           user_id: string | null
         }
@@ -1162,7 +1161,6 @@ export type Database = {
           id?: string
           session_id: string
           status?: string
-          tier?: string
           type?: string
           user_id?: string | null
         }
@@ -1172,7 +1170,6 @@ export type Database = {
           id?: string
           session_id?: string
           status?: string
-          tier?: string
           type?: string
           user_id?: string | null
         }
@@ -1588,35 +1585,38 @@ export type Database = {
       }
       subscribers: {
         Row: {
+          contributor_since: string | null
           created_at: string
           email: string
           id: string
+          is_contributor: boolean | null
           stripe_customer_id: string | null
           subscribed: boolean
           subscription_end: string | null
-          subscription_tier: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          contributor_since?: string | null
           created_at?: string
           email: string
           id?: string
+          is_contributor?: boolean | null
           stripe_customer_id?: string | null
           subscribed?: boolean
           subscription_end?: string | null
-          subscription_tier?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          contributor_since?: string | null
           created_at?: string
           email?: string
           id?: string
+          is_contributor?: boolean | null
           stripe_customer_id?: string | null
           subscribed?: boolean
           subscription_end?: string | null
-          subscription_tier?: string | null
           updated_at?: string
           user_id?: string | null
         }

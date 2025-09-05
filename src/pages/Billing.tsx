@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SubscriptionPlans } from '@/components/billing/SubscriptionPlans';
+import { ContributorPlans } from '@/components/billing/ContributorPlans';
 import { SubscriptionDashboard } from '@/components/billing/SubscriptionDashboard';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
@@ -48,7 +48,7 @@ export const Billing: React.FC = () => {
               </TabsTrigger>
               <TabsTrigger value="plans" className="flex items-center gap-2">
                 <Package className="h-4 w-4" />
-                Plans & Pricing
+                Become a Contributor
               </TabsTrigger>
             </TabsList>
 
@@ -68,7 +68,7 @@ export const Billing: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                <SubscriptionPlans />
+                <ContributorPlans />
               </motion.div>
             </TabsContent>
           </Tabs>
