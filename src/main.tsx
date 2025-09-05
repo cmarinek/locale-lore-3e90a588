@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import './utils/i18n'; // Initialize i18n before React
 import { initializeErrorTracking, initializePerformanceMonitoring } from './utils/monitoring';
 import { initializeSecurityMonitoring } from './lib/supabase-secure';
 import { productionMonitor } from '@/utils/production-monitor';
