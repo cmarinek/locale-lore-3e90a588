@@ -23,13 +23,13 @@ interface StepBasicInfoProps {
     category_id: string;
   };
   onChange: (updates: { title?: string; category_id?: string }) => void;
-  subscriptionTier: 'free' | 'premium' | 'pro';
+  isContributor: boolean;
 }
 
 export const StepBasicInfo: React.FC<StepBasicInfoProps> = ({
   data,
   onChange,
-  subscriptionTier
+  isContributor
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -121,14 +121,14 @@ export const StepBasicInfo: React.FC<StepBasicInfoProps> = ({
           )}
         </div>
 
-        {subscriptionTier === 'pro' && (
+        {isContributor && (
           <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="default" className="bg-primary/20 text-primary">Pro</Badge>
-              <span className="text-sm font-medium text-foreground">Enhanced Features</span>
+              <Badge variant="default" className="bg-primary/20 text-primary">Contributor</Badge>
+              <span className="text-sm font-medium text-foreground">Thank you for contributing!</span>
             </div>
             <p className="text-xs text-muted-foreground">
-              As a Pro subscriber, you'll get AI-powered title suggestions and category recommendations after completing this step.
+              Your contribution helps keep our platform free and accessible to everyone.
             </p>
           </div>
         )}

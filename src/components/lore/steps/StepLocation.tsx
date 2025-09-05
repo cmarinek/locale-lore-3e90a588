@@ -19,13 +19,13 @@ interface StepLocationProps {
     latitude?: number | null; 
     longitude?: number | null; 
   }) => void;
-  subscriptionTier: 'free' | 'premium' | 'pro';
+  isContributor: boolean;
 }
 
 export const StepLocation: React.FC<StepLocationProps> = ({
   data,
   onChange,
-  subscriptionTier
+  isContributor
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -96,11 +96,11 @@ export const StepLocation: React.FC<StepLocationProps> = ({
                 </motion.div>
               )}
 
-              {subscriptionTier !== 'free' && (
+              {isContributor && (
                 <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="default" className="bg-primary/20 text-primary">
-                      {subscriptionTier}
+                      Contributor
                     </Badge>
                     <span className="text-sm font-medium text-foreground">Enhanced Map</span>
                   </div>
@@ -134,7 +134,7 @@ export const StepLocation: React.FC<StepLocationProps> = ({
               <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-foreground font-medium mb-2">No location selected</p>
               <p className="text-sm text-muted-foreground">
-                {subscriptionTier === 'free' 
+                {!isContributor 
                   ? 'Enter a location name above to continue'
                   : 'Click on the map above or enter a location name to select a precise location'
                 }
@@ -144,20 +144,20 @@ export const StepLocation: React.FC<StepLocationProps> = ({
         </div>
       </Card>
 
-      {subscriptionTier === 'free' && (
+      {!isContributor && (
         <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
           <div className="text-center space-y-4">
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
               <MapPin className="w-8 h-8 text-primary" />
             </div>
             <div>
-              <h4 className="font-semibold text-foreground mb-2">Upgrade for Interactive Maps</h4>
+              <h4 className="font-semibold text-foreground mb-2">Become a Contributor for Interactive Maps</h4>
               <p className="text-sm text-muted-foreground mb-4">
-                Premium and Pro subscribers get access to interactive maps with precise coordinate selection, 
+                Contributors get access to interactive maps with precise coordinate selection, 
                 multiple map styles, and enhanced location features.
               </p>
               <Button variant="outline" className="border-primary/30 text-primary hover:bg-primary/10">
-                Learn More About Premium
+                Learn More About Contributing
               </Button>
             </div>
           </div>

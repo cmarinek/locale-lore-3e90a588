@@ -18,21 +18,21 @@ interface StepContentProps {
     category_id: string;
   };
   onChange: (updates: { description?: string }) => void;
-  subscriptionTier: 'free' | 'premium' | 'pro';
+  isContributor: boolean;
 }
 
 export const StepContent: React.FC<StepContentProps> = ({
   data,
   onChange,
-  subscriptionTier
+  isContributor
 }) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('write');
   const [aiSuggestions, setAiSuggestions] = useState<string>('');
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
-  const hasAdvancedEditor = subscriptionTier === 'premium' || subscriptionTier === 'pro';
-  const hasAiSuggestions = subscriptionTier === 'pro';
+  const hasAdvancedEditor = isContributor;
+  const hasAiSuggestions = false; // Removed for simplicity
 
   const getAiSuggestions = async () => {
     if (!hasAiSuggestions || !data.title || !data.description) {
@@ -84,7 +84,7 @@ export const StepContent: React.FC<StepContentProps> = ({
               <div className="flex items-center justify-between">
                 <Label className="text-foreground">Description * (Markdown Supported)</Label>
                 <Badge variant="default" className="bg-primary/20 text-primary">
-                  {subscriptionTier} Editor
+                  Contributor Editor
                 </Badge>
               </div>
               
@@ -130,7 +130,7 @@ export const StepContent: React.FC<StepContentProps> = ({
                 className="min-h-[200px] bg-background/50"
               />
               <p className="text-xs text-muted-foreground">
-                Upgrade to Premium for markdown support and rich text editing features.
+                Become a contributor for markdown support and rich text editing features.
               </p>
             </div>
           )}

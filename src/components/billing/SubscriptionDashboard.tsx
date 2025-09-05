@@ -57,17 +57,27 @@ export const SubscriptionDashboard: React.FC = () => {
   const fetchSubscriptionData = async () => {
     try {
       const { data, error } = await supabase
-        .from('subscriptions')
+        .from('subscribers')
         .select('*')
         .eq('user_id', user?.id)
-        .eq('status', 'active')
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
 
-      setSubscription(data);
+      // Convert subscribers data to subscription format
+      if (data && data.subscribed) {
+        setSubscription({
+          id: data.id,
+          tier: 'contributor',
+          status: 'active',
+          current_period_start: data.created_at,
+          current_period_end: data.subscription_end || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        });
+      } else {
+        setSubscription(null);
+      }
     } catch (error: any) {
       console.error('Error fetching subscription:', error);
     }
@@ -91,12 +101,10 @@ export const SubscriptionDashboard: React.FC = () => {
     }
   };
 
-  const handleManageSubscription = async (action: string, tier?: string) => {
+  const handleManageSubscription = async (action: string) => {
     setActionLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('manage-subscription', {
-        body: { action, tier }
-      });
+      const { data, error } = await supabase.functions.invoke('customer-portal');
 
       if (error) throw error;
 
@@ -210,33 +218,13 @@ export const SubscriptionDashboard: React.FC = () => {
             <Separator />
 
             <div className="flex gap-2 flex-wrap">
-              <Button
-                onClick={() => handleManageSubscription('create_portal_session')}
+                 <Button
+                onClick={() => handleManageSubscription('portal')}
                 disabled={actionLoading}
               >
                 <Settings className="mr-2 h-4 w-4" />
-                Manage Billing
+                Manage Subscription
               </Button>
-              
-              {subscription.status === 'active' && !subscription.cancel_at_period_end && (
-                <Button
-                  variant="outline"
-                  onClick={() => handleManageSubscription('cancel')}
-                  disabled={actionLoading}
-                >
-                  Cancel Subscription
-                </Button>
-              )}
-              
-              {subscription.cancel_at_period_end && (
-                <Button
-                  variant="outline"
-                  onClick={() => handleManageSubscription('reactivate')}
-                  disabled={actionLoading}
-                >
-                  Reactivate
-                </Button>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -244,7 +232,7 @@ export const SubscriptionDashboard: React.FC = () => {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            You don't have an active subscription. Choose a plan to get started.
+            You're currently on the free plan. Become a contributor to submit content and join discussions.
           </AlertDescription>
         </Alert>
       )}
@@ -258,18 +246,14 @@ export const SubscriptionDashboard: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="text-center">
               <p className="text-2xl font-bold">0</p>
               <p className="text-sm text-muted-foreground">Facts Submitted</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">API Calls</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">Exports</p>
+              <p className="text-sm text-muted-foreground">Comments Posted</p>
             </div>
           </div>
         </CardContent>

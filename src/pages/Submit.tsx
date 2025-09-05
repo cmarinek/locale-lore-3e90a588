@@ -15,7 +15,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 
 interface SubscriptionStatus {
   subscribed: boolean;
-  tier: 'free' | 'premium' | 'pro';
+  subscription_tier: 'free' | 'contributor';
   canSubmit: boolean;
 }
 
@@ -25,7 +25,7 @@ export const Submit: React.FC = () => {
   const { t } = useTranslation('lore');
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus>({
     subscribed: false,
-    tier: 'free',
+    subscription_tier: 'free',
     canSubmit: true
   });
   const [showPaywall, setShowPaywall] = useState(false);
@@ -49,8 +49,8 @@ export const Submit: React.FC = () => {
 
       const status: SubscriptionStatus = {
         subscribed: data.subscribed || false,
-        tier: data.tier || 'free',
-        canSubmit: data.can_submit !== false
+        subscription_tier: data.subscription_tier || 'free',
+        canSubmit: data.subscribed || false
       };
 
       setSubscriptionStatus(status);
@@ -63,8 +63,8 @@ export const Submit: React.FC = () => {
       // Default to allowing submission on error
       setSubscriptionStatus({
         subscribed: false,
-        tier: 'free',
-        canSubmit: true
+        subscription_tier: 'free',
+        canSubmit: false
       });
     } finally {
       setLoading(false);
@@ -147,13 +147,12 @@ export const Submit: React.FC = () => {
             {/* Subscription Tier Badge */}
             <div className="flex justify-center mb-8">
               <Badge 
-                variant={subscriptionStatus.tier === 'free' ? 'secondary' : 'default'}
+                variant={subscriptionStatus.subscription_tier === 'free' ? 'secondary' : 'default'}
                 className="px-4 py-2 text-sm"
               >
-                {subscriptionStatus.tier === 'free' && <Star className="w-4 h-4 mr-2" />}
-                {subscriptionStatus.tier === 'premium' && <Shield className="w-4 h-4 mr-2" />}
-                {subscriptionStatus.tier === 'pro' && <Zap className="w-4 h-4 mr-2" />}
-                {subscriptionStatus.tier.charAt(0).toUpperCase() + subscriptionStatus.tier.slice(1)} Member
+                {subscriptionStatus.subscription_tier === 'free' && <Star className="w-4 h-4 mr-2" />}
+                {subscriptionStatus.subscription_tier === 'contributor' && <Shield className="w-4 h-4 mr-2" />}
+                {subscriptionStatus.subscription_tier.charAt(0).toUpperCase() + subscriptionStatus.subscription_tier.slice(1)} {subscriptionStatus.subscription_tier === 'contributor' ? '' : 'Member'}
               </Badge>
             </div>
           </motion.div>
@@ -196,7 +195,7 @@ export const Submit: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <LoreSubmissionWizard subscriptionTier={subscriptionStatus.tier} />
+            <LoreSubmissionWizard isContributor={subscriptionStatus.subscribed} />
           </motion.div>
         </div>
       </div>

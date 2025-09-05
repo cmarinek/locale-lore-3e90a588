@@ -17,14 +17,14 @@ interface StepPreviewProps {
     media_urls: string[];
   };
   onChange: (updates: any) => void;
-  subscriptionTier: 'free' | 'premium' | 'pro';
+  isContributor: boolean;
 }
 
 export const StepPreview: React.FC<StepPreviewProps> = ({
   data,
-  subscriptionTier
+  isContributor
 }) => {
-  const hasAdvancedEditor = subscriptionTier === 'premium' || subscriptionTier === 'pro';
+  const hasAdvancedEditor = isContributor;
 
   return (
     <div className="space-y-6">
@@ -188,11 +188,11 @@ export const StepPreview: React.FC<StepPreviewProps> = ({
             </div>
           </div>
           
-          {subscriptionTier === 'pro' && (
+          {isContributor && (
             <div className="mt-4 p-3 bg-background/50 border border-border rounded-lg">
-              <Badge variant="default" className="bg-primary/20 text-primary mb-2">Pro Priority</Badge>
+              <Badge variant="default" className="bg-primary/20 text-primary mb-2">Contributor</Badge>
               <p className="text-xs text-muted-foreground">
-                As a Pro subscriber, your submission will receive priority review and typically be processed within 24 hours.
+                Thank you for being a contributor! Your support helps keep our platform free and accessible.
               </p>
             </div>
           )}

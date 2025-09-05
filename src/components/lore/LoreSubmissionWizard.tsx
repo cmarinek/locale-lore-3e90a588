@@ -26,7 +26,7 @@ interface LoreSubmissionData {
 }
 
 interface LoreSubmissionWizardProps {
-  subscriptionTier: 'free' | 'premium' | 'pro';
+  isContributor: boolean;
 }
 
 const steps = [
@@ -38,7 +38,7 @@ const steps = [
 ];
 
 export const LoreSubmissionWizard: React.FC<LoreSubmissionWizardProps> = ({
-  subscriptionTier
+  isContributor
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -195,7 +195,7 @@ export const LoreSubmissionWizard: React.FC<LoreSubmissionWizardProps> = ({
     const stepProps = {
       data: submissionData,
       onChange: updateSubmissionData,
-      subscriptionTier
+      isContributor
     };
 
     switch (currentStep) {

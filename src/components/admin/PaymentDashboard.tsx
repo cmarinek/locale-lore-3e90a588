@@ -152,7 +152,7 @@ export const PaymentDashboard: React.FC = () => {
 
   const loadSubscriptions = async () => {
     const { data } = await supabase
-      .from('subscriptions')
+      .from('subscribers')
       .select(`
         *,
         profiles:user_id (username)
@@ -160,7 +160,18 @@ export const PaymentDashboard: React.FC = () => {
       .order('created_at', { ascending: false });
 
     if (data) {
-      setSubscriptions(data);
+      // Convert to subscription format for display
+      const convertedSubs = data.map(sub => ({
+        id: sub.id,
+        user_id: sub.user_id,
+        tier: 'contributor',
+        status: sub.subscribed ? 'active' : 'canceled',
+        current_period_start: sub.created_at,
+        current_period_end: sub.subscription_end || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        cancel_at_period_end: false,
+        profiles: sub.profiles
+      }));
+      setSubscriptions(convertedSubs);
     }
   };
 
@@ -425,16 +436,9 @@ export const PaymentDashboard: React.FC = () => {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => handleSubscriptionAction(subscription.id, 'cancel')}
+                          onClick={() => handleSubscriptionAction(subscription.id, subscription.status === 'active' ? 'cancel' : 'reactivate')}
                         >
-                          Cancel
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleSubscriptionAction(subscription.id, 'upgrade', 'premium')}
-                        >
-                          Upgrade
+                          {subscription.status === 'active' ? 'Cancel' : 'Reactivate'}
                         </Button>
                       </div>
                     </div>
@@ -457,16 +461,12 @@ export const PaymentDashboard: React.FC = () => {
                   <h3 className="font-semibold mb-2">Subscription Distribution</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span>Basic</span>
-                      <span>{subscriptions.filter(s => s.tier === 'basic').length}</span>
+                      <span>Free Users</span>
+                      <span>{subscriptions.filter(s => s.status === 'canceled').length}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Premium</span>
-                      <span>{subscriptions.filter(s => s.tier === 'premium').length}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Pro</span>
-                      <span>{subscriptions.filter(s => s.tier === 'pro').length}</span>
+                      <span>Contributors</span>
+                      <span>{subscriptions.filter(s => s.tier === 'contributor' && s.status === 'active').length}</span>
                     </div>
                   </div>
                 </div>

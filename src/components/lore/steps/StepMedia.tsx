@@ -14,20 +14,20 @@ interface StepMediaProps {
     media_urls: string[];
   };
   onChange: (updates: { media_urls?: string[] }) => void;
-  subscriptionTier: 'free' | 'premium' | 'pro';
+  isContributor: boolean;
 }
 
 export const StepMedia: React.FC<StepMediaProps> = ({
   data,
   onChange,
-  subscriptionTier
+  isContributor
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [uploading, setUploading] = useState<string[]>([]);
 
-  const maxFiles = subscriptionTier === 'pro' ? 10 : subscriptionTier === 'premium' ? 5 : 2;
-  const maxSize = subscriptionTier === 'pro' ? 50 * 1024 * 1024 : subscriptionTier === 'premium' ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
+  const maxFiles = isContributor ? 10 : 2;
+  const maxSize = isContributor ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!user) return;
@@ -38,7 +38,7 @@ export const StepMedia: React.FC<StepMediaProps> = ({
     if (acceptedFiles.length > remainingSlots) {
       toast({
         title: "Upload Limit",
-        description: `You can only upload ${remainingSlots} more file(s) with your ${subscriptionTier} plan.`,
+        description: `You can only upload ${remainingSlots} more file(s) with your ${isContributor ? 'contributor' : 'free'} plan.`,
         variant: "destructive"
       });
     }
@@ -81,7 +81,7 @@ export const StepMedia: React.FC<StepMediaProps> = ({
     if (validUrls.length > 0) {
       onChange({ media_urls: [...data.media_urls, ...validUrls] });
     }
-  }, [user, data.media_urls, maxFiles, subscriptionTier, onChange, toast]);
+  }, [user, data.media_urls, maxFiles, isContributor, onChange, toast]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -282,21 +282,16 @@ export const StepMedia: React.FC<StepMediaProps> = ({
       )}
 
       {/* Subscription Benefits */}
-      <div className="grid md:grid-cols-3 gap-4 pt-4 border-t border-border">
-        <div className={`p-3 rounded-lg ${subscriptionTier === 'free' ? 'bg-muted/50' : 'bg-background/50'}`}>
+      <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-border">
+        <div className={`p-3 rounded-lg ${!isContributor ? 'bg-muted/50' : 'bg-background/50'}`}>
           <h5 className="font-medium text-sm mb-1">Free</h5>
           <p className="text-xs text-muted-foreground">2 files, 5MB each</p>
           <p className="text-xs text-muted-foreground mt-1">Images & videos only</p>
         </div>
-        <div className={`p-3 rounded-lg ${subscriptionTier === 'premium' ? 'bg-primary/10 border border-primary/20' : 'bg-background/50'}`}>
-          <h5 className="font-medium text-sm mb-1">Premium</h5>
-          <p className="text-xs text-muted-foreground">5 files, 20MB each</p>
+        <div className={`p-3 rounded-lg ${isContributor ? 'bg-primary/10 border border-primary/20' : 'bg-background/50'}`}>
+          <h5 className="font-medium text-sm mb-1">Contributor</h5>
+          <p className="text-xs text-muted-foreground">10 files, 20MB each</p>
           <p className="text-xs text-muted-foreground mt-1">All media types</p>
-        </div>
-        <div className={`p-3 rounded-lg ${subscriptionTier === 'pro' ? 'bg-primary/10 border border-primary/20' : 'bg-background/50'}`}>
-          <h5 className="font-medium text-sm mb-1">Pro</h5>
-          <p className="text-xs text-muted-foreground">10 files, 50MB each</p>
-          <p className="text-xs text-muted-foreground mt-1">All media types + priority</p>
         </div>
       </div>
     </Card>
