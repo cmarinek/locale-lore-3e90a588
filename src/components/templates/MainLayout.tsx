@@ -47,6 +47,32 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
         {children}
       </main>
 
+      {/* Footer */}
+      <footer className="border-t border-border/50 bg-muted/30 py-8 mt-12">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Star className="w-5 h-5 text-primary" />
+              <span className="font-semibold">LocaleLore</span>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <Link to="/privacy" className="hover:text-primary transition-colors">
+                Privacy Policy
+              </Link>
+              <Link to="/terms" className="hover:text-primary transition-colors">
+                Terms of Service
+              </Link>
+              <a 
+                href="mailto:contact@localelore.com" 
+                className="hover:text-primary transition-colors"
+              >
+                Contact
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
+
       {/* Bottom Navigation - Mobile Only */}
       <BottomNavigation />
     </div>

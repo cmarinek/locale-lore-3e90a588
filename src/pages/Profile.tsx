@@ -9,6 +9,7 @@ import { SubscriptionManager } from '@/components/profile/SubscriptionManager';
 import { StatisticsCard } from '@/components/profile/StatisticsCard';
 import { AchievementShowcase } from '@/components/profile/AchievementShowcase';
 import { DataExportPanel } from '@/components/profile/DataExportPanel';
+import { DataDeletionPanel } from '@/components/profile/DataDeletionPanel';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 
@@ -114,9 +115,8 @@ export const Profile: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="data">
-              <DataExportPanel
+              <DataDeletionPanel
                 onExportData={exportUserData}
-                onRequestDeletion={requestAccountDeletion}
                 loading={loading}
               />
             </TabsContent>

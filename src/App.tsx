@@ -19,12 +19,15 @@ import { Social } from '@/pages/Social';
 import Stories from '@/pages/Stories';
 import ContributorEconomy from '@/pages/ContributorEconomy';
 import Admin from '@/pages/Admin';
+import { Privacy } from '@/pages/Privacy';
+import { Terms } from '@/pages/Terms';
 
 import { AuthProvider } from '@/contexts/AuthContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { Toaster } from '@/components/ui/toaster';
 import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from '@/components/monitoring/ErrorBoundary';
+import { CookieConsent } from '@/components/compliance/CookieConsent';
 
 function App() {
   console.log('App component rendering...');
@@ -53,12 +56,15 @@ function App() {
                   <Route path="/stories" element={<Stories />} />
                   <Route path="/contributor" element={<ContributorEconomy />} />
                   <Route path="/admin" element={<Admin />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/terms" element={<Terms />} />
                   <Route path="/showcase" element={<ComponentShowcase />} />
                   {/* Legacy redirects */}
                   <Route path="/lore/submit" element={<Submit />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Toaster />
+                <CookieConsent />
               </div>
             </Router>
           </LanguageProvider>
