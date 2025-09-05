@@ -218,15 +218,18 @@ export const Explore: React.FC = () => {
                           variant="outline"
                           size="icon"
                           onClick={() => setShowFilters(!showFilters)}
+                          className="shrink-0"
                         >
                           <Filter className="w-4 h-4" />
                         </Button>
                         <Button
-                          variant="outline"
-                          size="icon"
+                          variant="default"
                           onClick={() => setIsListView(false)}
+                          className="shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground"
                         >
-                          <MapIcon className="w-4 h-4" />
+                          <MapIcon className="w-4 h-4 mr-2" />
+                          <span className="hidden sm:inline">Map View</span>
+                          <span className="sm:hidden">Map</span>
                         </Button>
                       </div>
                     </div>
