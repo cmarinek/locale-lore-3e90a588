@@ -32,6 +32,9 @@ import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from '@/components/monitoring/ErrorBoundary';
 import { CookieConsent } from '@/components/compliance/CookieConsent';
 
+// Initialize i18n here to avoid circular dependencies
+import '@/utils/i18n';
+
 function App() {
   console.log('App component rendering...');
   return (

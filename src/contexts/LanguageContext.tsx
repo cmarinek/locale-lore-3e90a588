@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation as useI18nTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from '@/utils/languages';
 
 interface LanguageContextType {
@@ -26,7 +26,7 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const { i18n } = useTranslation();
+  const { i18n } = useI18nTranslation();
   const [isLoading, setIsLoading] = useState(false);
   
   const currentLanguage = (i18n.language?.split('-')[0] || 'en') as SupportedLanguage;
