@@ -30,6 +30,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from '@/components/monitoring/ErrorBoundary';
 
 function App() {
+  console.log('App component rendering...');
   return (
     <ErrorBoundary>
       <HelmetProvider>

@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 const Index: React.FC = () => {
+  console.log('Index page rendering...');
   const navigate = useNavigate();
 
   return (

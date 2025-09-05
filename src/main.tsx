@@ -9,4 +9,5 @@ initializeErrorTracking();
 initializePerformanceMonitoring();
 initializeSecurityMonitoring();
 
+console.log('App starting to render...');
 createRoot(document.getElementById("root")!).render(<App />);

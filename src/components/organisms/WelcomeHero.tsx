@@ -3,6 +3,7 @@ import { InputField } from "@/components/molecules/InputField";
 import { useState } from "react";
 
 export const WelcomeHero = () => {
+  console.log('WelcomeHero rendering...');
   const [email, setEmail] = useState("");
   return <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
       <div className="max-w-2xl mx-auto space-y-8">

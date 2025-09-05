@@ -17,31 +17,29 @@ export const useFocusManagement = (
   useEffect(() => {
     if (!isOpen) return;
 
-    // Store previously focused element
+    // Store the currently focused element
     if (restoreFocus) {
       previouslyFocusedElementRef.current = document.activeElement;
     }
 
-    // Auto focus first focusable element
+    // Auto focus the first focusable element
     if (autoFocus && containerRef.current) {
       const focusableElements = containerRef.current.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
-      
-      const firstFocusable = focusableElements[0] as HTMLElement;
-      if (firstFocusable) {
-        firstFocusable.focus();
+      const firstElement = focusableElements[0] as HTMLElement;
+      if (firstElement) {
+        firstElement.focus();
       }
     }
 
-    // Focus trap
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!trapFocus || e.key !== 'Tab' || !containerRef.current) return;
+    // Trap focus within the container
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (!trapFocus || !containerRef.current || e.key !== 'Tab') return;
 
       const focusableElements = containerRef.current.querySelectorAll(
-        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
-
       const firstElement = focusableElements[0] as HTMLElement;
       const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 
@@ -58,12 +56,12 @@ export const useFocusManagement = (
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleTabKey);
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleTabKey);
       
-      // Restore focus when component unmounts
+      // Restore focus to the previously focused element
       if (restoreFocus && previouslyFocusedElementRef.current) {
         (previouslyFocusedElementRef.current as HTMLElement).focus?.();
       }
@@ -73,10 +71,9 @@ export const useFocusManagement = (
   return containerRef;
 };
 
-// Hook for mobile-specific focus behavior
+// Hook for mobile focus management
 export const useMobileFocus = () => {
   useEffect(() => {
-    // Prevent focus outline on touch devices
     const handleTouchStart = () => {
       document.body.classList.add('using-touch');
     };
