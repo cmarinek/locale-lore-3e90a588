@@ -80,58 +80,63 @@ export const SUPPORTED_LANGUAGES = {
 
 export type SupportedLanguage = keyof typeof SUPPORTED_LANGUAGES;
 
-i18n
-  .use(Backend)
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    fallbackLng: 'en',
-    debug: import.meta.env.DEV,
-    
-    // Namespace organization
-    ns: ['common', 'navigation', 'auth', 'lore', 'profile', 'admin', 'errors'],
-    defaultNS: 'common',
+const initI18n = () => {
+  i18n
+    .use(Backend)
+    .use(LanguageDetector)
+    .use(initReactI18next)
+    .init({
+      fallbackLng: 'en',
+      debug: import.meta.env.DEV,
+      
+      // Namespace organization
+      ns: ['common', 'navigation', 'auth', 'lore', 'profile', 'admin', 'errors'],
+      defaultNS: 'common',
 
-    // Language detection
-    detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      lookupLocalStorage: 'locale-lore-language',
-      caches: ['localStorage'],
-    },
+      // Language detection
+      detection: {
+        order: ['localStorage', 'navigator', 'htmlTag'],
+        lookupLocalStorage: 'locale-lore-language',
+        caches: ['localStorage'],
+      },
 
-    // Backend configuration for lazy loading
-    backend: {
-      loadPath: '/locales/{{lng}}/{{ns}}.json',
-    },
+      // Backend configuration for lazy loading
+      backend: {
+        loadPath: '/locales/{{lng}}/{{ns}}.json',
+      },
 
-    // Interpolation options
-    interpolation: {
-      escapeValue: false, // React already escapes values
-      format: (value, format, lng) => {
-        if (format === 'uppercase') return value.toUpperCase();
-        if (format === 'lowercase') return value.toLowerCase();
-        if (format === 'capitalize') return value.charAt(0).toUpperCase() + value.slice(1);
-        return value;
-      }
-    },
+      // Interpolation options
+      interpolation: {
+        escapeValue: false, // React already escapes values
+        format: (value, format, lng) => {
+          if (format === 'uppercase') return value.toUpperCase();
+          if (format === 'lowercase') return value.toLowerCase();
+          if (format === 'capitalize') return value.charAt(0).toUpperCase() + value.slice(1);
+          return value;
+        }
+      },
 
-    // React options
-    react: {
-      useSuspense: false,
-    },
+      // React options
+      react: {
+        useSuspense: false,
+      },
 
-    // Pluralization
-    pluralSeparator: '_',
-    contextSeparator: '_',
+      // Pluralization
+      pluralSeparator: '_',
+      contextSeparator: '_',
 
-    // Resources loading
-    load: 'languageOnly',
-    preload: ['en'],
-    
-    // Keyseparator
-    keySeparator: '.',
-    nsSeparator: ':',
-  });
+      // Resources loading
+      load: 'languageOnly',
+      preload: ['en'],
+      
+      // Keyseparator
+      keySeparator: '.',
+      nsSeparator: ':',
+    });
+};
+
+// Initialize immediately
+initI18n();
 
 // RTL language detection
 export const isRTLLanguage = (language: string): boolean => {
