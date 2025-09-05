@@ -2,11 +2,16 @@
 {
   "title": "Local Lore",
   "subtitle": "Discover stories around you",
+  "lore": "Lore",
+  "createLore": "Create Lore",
+  "editLore": "Edit Lore",
   "submitLore": "Submit Lore",
   "myLore": "My Lore",
-  "favoriteLore": "Favorite Lore",
+  "exploreLore": "Explore Lore",
+  "featuredLore": "Featured Lore",
   "recentLore": "Recent Lore",
   "popularLore": "Popular Lore",
+  "favoriteLore": "Favorite Lore",
   "trendingLore": "Trending Lore",
   "nearbyLore": "Nearby Lore",
   "categories": {
@@ -34,5 +39,36 @@
     "addLocation": "Add Location",
     "addMedia": "Add Media",
     "submitForReview": "Submit for Review"
+  },
+  "verification": {
+    "verificationStatus": "Verification Status",
+    "pending": "Pending",
+    "verified": "Verified",
+    "rejected": "Rejected",
+    "votes": "Votes",
+    "upvote": "Upvote",
+    "downvote": "Downvote"
+  },
+  "interaction": {
+    "comments": "Comments",
+    "addComment": "Add Comment",
+    "reportLore": "Report Lore",
+    "shareLore": "Share Lore",
+    "bookmarkLore": "Bookmark Lore"
+  },
+  "upload": {
+    "uploadImages": "Upload Images",
+    "uploadVideos": "Upload Videos",
+    "uploadAudio": "Upload Audio",
+    "dragAndDrop": "Drag and drop files here",
+    "selectFiles": "Select Files",
+    "maxFileSize": "Maximum file size",
+    "supportedFormats": "Supported formats"
+  },
+  "actions": {
+    "publishLore": "Publish Lore",
+    "saveDraft": "Save Draft",
+    "lorePublished": "Lore published successfully",
+    "loreSaved": "Lore saved as draft"
   }
 }
