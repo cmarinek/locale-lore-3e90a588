@@ -15,7 +15,7 @@ export const UserManagementPanel: React.FC = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export const UserManagementPanel: React.FC = () => {
       user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesRole = !roleFilter || 
+    const matchesRole = roleFilter === 'all' || !roleFilter || 
       user.user_roles?.some((r: any) => r.role === roleFilter);
     
     return matchesSearch && matchesRole;
@@ -101,7 +101,7 @@ export const UserManagementPanel: React.FC = () => {
               <SelectValue placeholder="Filter by role" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All roles</SelectItem>
+              <SelectItem value="all">All roles</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
               <SelectItem value="moderator">Moderator</SelectItem>
               <SelectItem value="user">User</SelectItem>
