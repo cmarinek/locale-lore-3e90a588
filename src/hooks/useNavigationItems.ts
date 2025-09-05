@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useTranslation } from 'react-i18next';
 import { NavigationItem, NavigationConfig, UserRole } from '@/types/navigation';
 import { 
   Home, 

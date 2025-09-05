@@ -16,7 +16,7 @@ interface MainLayoutProps {
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) => {
   const { t, i18n } = useTranslation('navigation');
   
-  // Get language info directly from i18n to avoid circular dependency
+  // Get language info directly from i18n - no context dependency
   const currentLanguage = (i18n.language?.split('-')[0] || 'en') as SupportedLanguage;
   const isRTL = SUPPORTED_LANGUAGES[currentLanguage]?.rtl || false;
 

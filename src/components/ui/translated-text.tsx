@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useTranslation } from 'react-i18next';
 
 interface TranslatedTextProps {
   i18nKey: string;
