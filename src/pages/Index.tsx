@@ -79,7 +79,7 @@ const Index: React.FC = () => {
               transition={{ delay: 0.5 }}
             >
               <Card className="p-6 h-full">
-                <Search className="w-12 h-12 text-primary mb-4" />
+                <Search className="w-12 h-12 text-secondary mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Advanced Search</h3>
                 <p className="text-muted-foreground mb-4">
                   Find stories by location, category, or keywords with powerful filters.
@@ -100,7 +100,7 @@ const Index: React.FC = () => {
               transition={{ delay: 0.6 }}
             >
               <Card className="p-6 h-full">
-                <BookOpen className="w-12 h-12 text-primary mb-4" />
+                <BookOpen className="w-12 h-12 text-secondary mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Share Your Story</h3>
                 <p className="text-muted-foreground mb-4">
                   Contribute your own local stories and legends to the community.
@@ -146,7 +146,7 @@ const Index: React.FC = () => {
           >
             <Card className="p-8 bg-primary/5">
               <h3 className="text-2xl font-semibold mb-6 flex items-center justify-center gap-2">
-                <TrendingUp className="w-6 h-6 text-primary" />
+                <TrendingUp className="w-6 h-6 text-secondary" />
                 Community Impact
               </h3>
               {isLoading ? (
@@ -161,19 +161,19 @@ const Index: React.FC = () => {
               ) : (
                 <div className="grid md:grid-cols-3 gap-8">
                   <div>
-                    <div className="text-3xl font-bold text-primary mb-2">
+                    <div className="text-3xl font-bold text-secondary mb-2">
                       {storiesShared.toLocaleString()}
                     </div>
                     <div className="text-muted-foreground">Stories Shared</div>
                   </div>
                   <div>
-                    <div className="text-3xl font-bold text-primary mb-2">
+                    <div className="text-3xl font-bold text-secondary mb-2">
                       {activeContributors.toLocaleString()}
                     </div>
                     <div className="text-muted-foreground">Active Contributors</div>
                   </div>
                   <div>
-                    <div className="text-3xl font-bold text-primary mb-2">
+                    <div className="text-3xl font-bold text-secondary mb-2">
                       {locationsCovered.toLocaleString()}
                     </div>
                     <div className="text-muted-foreground">Locations Covered</div>
