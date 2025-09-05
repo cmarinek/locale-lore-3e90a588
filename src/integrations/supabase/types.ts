@@ -3367,6 +3367,15 @@ export type Database = {
           vote_count_up: number
         }[]
       }
+      security_status_report: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          category: string
+          details: string
+          item: string
+          status: string
+        }[]
+      }
       set_limit: {
         Args: { "": number }
         Returns: number
