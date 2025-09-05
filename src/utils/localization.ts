@@ -1,18 +1,35 @@
 
 import { format as formatDateFns, formatDistanceToNow } from 'date-fns';
+import { 
+  enUS, es, fr, de, ptBR, ru, ar, ja, zhCN 
+} from 'date-fns/locale';
 
-// Simple fallback approach - use basic formatting without locales to avoid initialization issues
+// Date-fns locale mapping
+const DATE_LOCALES = {
+  en: enUS,
+  es,
+  fr,
+  de,
+  pt: ptBR,
+  ru,
+  ar,
+  ja,
+  zh: zhCN,
+  sw: enUS, // Fallback to English for Swahili
+};
+
 export const formatLocalizedDate = (
   date: string | Date,
   formatStr: string = 'PPP',
   language: string = 'en'
 ): string => {
+  const locale = DATE_LOCALES[language as keyof typeof DATE_LOCALES] || enUS;
+  
   try {
-    // Use basic date formatting without locales to avoid circular dependency
-    return formatDateFns(new Date(date), formatStr);
+    return formatDateFns(new Date(date), formatStr, { locale });
   } catch (error) {
     console.error('Date formatting error:', error);
-    return formatDateFns(new Date(date), 'PPP');
+    return formatDateFns(new Date(date), formatStr, { locale: enUS });
   }
 };
 
@@ -20,12 +37,13 @@ export const formatLocalizedRelativeTime = (
   date: string | Date,
   language: string = 'en'
 ): string => {
+  const locale = DATE_LOCALES[language as keyof typeof DATE_LOCALES] || enUS;
+  
   try {
-    // Use basic relative time formatting without locales
-    return formatDistanceToNow(new Date(date), { addSuffix: true });
+    return formatDistanceToNow(new Date(date), { addSuffix: true, locale });
   } catch (error) {
     console.error('Relative time formatting error:', error);
-    return formatDistanceToNow(new Date(date), { addSuffix: true });
+    return formatDistanceToNow(new Date(date), { addSuffix: true, locale: enUS });
   }
 };
 

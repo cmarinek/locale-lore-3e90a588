@@ -12,14 +12,9 @@ console.log('DIAGNOSTIC: App component imported');
 import './index.css';
 console.log('DIAGNOSTIC: CSS imported');
 
-// Import minimal i18n setup to avoid circular dependencies
-try {
-  console.log('DIAGNOSTIC: About to import minimal i18n...');
-  await import('./utils/i18n-minimal'); // Initialize minimal i18n before React
-  console.log('DIAGNOSTIC: minimal i18n imported successfully');
-} catch (error) {
-  console.error('DIAGNOSTIC: minimal i18n import failed:', error);
-}
+// Import only essential utilities that exist
+import './utils/i18n'; // Initialize i18n before React
+console.log('DIAGNOSTIC: i18n imported successfully');
 
 // Import our diagnostic error boundary
 import { DiagnosticErrorBoundary } from './components/diagnostics/ErrorBoundary';
