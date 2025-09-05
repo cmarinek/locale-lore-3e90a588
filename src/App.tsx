@@ -21,6 +21,7 @@ import ContributorEconomy from '@/pages/ContributorEconomy';
 import Admin from '@/pages/Admin';
 import { Privacy } from '@/pages/Privacy';
 import { Terms } from '@/pages/Terms';
+import { ProductionReadiness } from '@/pages/ProductionReadiness';
 
 import { AuthProvider } from '@/contexts/AuthContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -58,6 +59,7 @@ function App() {
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/terms" element={<Terms />} />
+                  <Route path="/production-readiness" element={<ProductionReadiness />} />
                   <Route path="/showcase" element={<ComponentShowcase />} />
                   {/* Legacy redirects */}
                   <Route path="/lore/submit" element={<Submit />} />

@@ -1,15 +1,27 @@
 {
-  "appId": "app.lovable.8ee9bb219cd64b2281a4e2322ff21c98",
-  "appName": "locale-lore",
+  "appId": "com.localelore.app",
+  "appName": "Locale Lore",
   "webDir": "dist",
+  "bundledWebRuntime": false,
   "server": {
     "url": "https://8ee9bb21-9cd6-4b22-81a4-e2322ff21c98.lovableproject.com?forceHideBadge=true",
     "cleartext": true
   },
+  "ios": {
+    "scheme": "Locale Lore",
+    "contentInset": "automatic"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "appendUserAgent": "LocaleLore/1.0",
+    "backgroundColor": "#FFFFFF",
+    "webContentsDebuggingEnabled": false
+  },
   "plugins": {
     "StatusBar": {
       "style": "DARK",
-      "backgroundColor": "#FFFFFF"
+      "backgroundColor": "#FFFFFF",
+      "overlay": false
     },
     "Keyboard": {
       "resize": "body",
@@ -19,6 +31,26 @@
     "Haptics": {},
     "Geolocation": {
       "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
+    },
+    "Device": {},
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "LocalNotifications": {},
+    "Camera": {
+      "permissions": ["camera"]
+    },
+    "Share": {}
+  },
+  "cordova": {
+    "preferences": {
+      "ScrollEnabled": "false",
+      "BackupWebStorage": "none",
+      "SplashMaintainAspectRatio": "true",
+      "FadeSplashScreenDuration": "300",
+      "SplashShowOnlyFirstTime": "false",
+      "SplashScreen": "screen",
+      "SplashScreenDelay": "3000"
     }
   }
 }
