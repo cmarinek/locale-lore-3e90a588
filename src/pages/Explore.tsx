@@ -33,7 +33,6 @@ export const Explore: React.FC = () => {
   const map = useRef<mapboxgl.Map | null>(null);
   const [mapboxToken, setMapboxToken] = useState<string>('');
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [tokenPrompt, setTokenPrompt] = useState(false);
   const [isListView, setIsListView] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const { triggerHapticFeedback, handleTouchInteraction } = useAppStore();
@@ -68,17 +67,16 @@ export const Explore: React.FC = () => {
   useEffect(() => {
     const initializeMap = async () => {
       try {
-        // Try to get token from Edge Function
-        const response = await fetch('/api/mapbox-token');
+        // Get token from Supabase Edge Function
+        const response = await fetch('https://mwufulzthoqrwbwtvogx.supabase.co/functions/v1/get-mapbox-token');
         if (response.ok) {
           const data = await response.json();
           setMapboxToken(data.token);
         } else {
-          setTokenPrompt(true);
+          console.error('Failed to get Mapbox token');
         }
       } catch (error) {
-        console.log('No token found, prompting user');
-        setTokenPrompt(true);
+        console.error('Error fetching Mapbox token:', error);
       }
     };
 
@@ -196,53 +194,7 @@ export const Explore: React.FC = () => {
         </Helmet>
         
         <PullToRefresh onRefresh={handleRefresh}>
-          <AnimatePresence mode="wait">
-            {tokenPrompt ? (
-              <motion.div
-                key="token-prompt"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="min-h-screen flex items-center justify-center p-4"
-              >
-                <Card className="w-full max-w-md p-6 text-center">
-                  <h2 className="text-xl font-bold mb-4">Mapbox Token Required</h2>
-                  <p className="text-muted-foreground mb-4">
-                    To use the map feature, please enter your Mapbox public token.
-                    You can get one from{' '}
-                    <a 
-                      href="https://mapbox.com" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-primary underline"
-                    >
-                      mapbox.com
-                    </a>
-                  </p>
-                  <div className="space-y-4">
-                    <Input
-                      placeholder="Enter your Mapbox token..."
-                      value={mapboxToken}
-                      onChange={(e) => setMapboxToken(e.target.value)}
-                    />
-                    <Button 
-                      onClick={() => setTokenPrompt(false)}
-                      disabled={!mapboxToken}
-                      className="w-full"
-                    >
-                      Continue
-                    </Button>
-                  </div>
-                </Card>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="main-content"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="min-h-screen"
-              >
+          <div className="min-h-screen">
                 {isListView ? (
                   // Discovery List View
                   <div className="container mx-auto px-4 py-6">
@@ -360,9 +312,7 @@ export const Explore: React.FC = () => {
                     </div>
                   </div>
                 )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+          </div>
         </PullToRefresh>
       </MainLayout>
     </Swipeable>
