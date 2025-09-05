@@ -1,8 +1,14 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /private/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /private/
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +18,9 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /private/
+Crawl-delay: 1
+
+Sitemap: https://localelore.com/sitemap.xml
