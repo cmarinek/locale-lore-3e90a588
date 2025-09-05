@@ -249,4 +249,50 @@
   .gradient-logo {
     background: linear-gradient(135deg, hsl(var(--logo-blue)) 0%, hsl(var(--logo-blue-light)) 50%, hsl(var(--logo-green-light)) 100%);
   }
+
+  /* Elevation utilities */
+  .elevation-1 {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+
+  .elevation-2 {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .elevation-3 {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Dark mode glass effect */
+  .dark .glass {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Mobile button enhancements */
+  .mobile-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Safe area utilities */
+  .safe-area-padding-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .thumb-zone {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .mb-safe {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
 }
