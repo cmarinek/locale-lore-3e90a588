@@ -2671,6 +2671,15 @@ export type Database = {
             }
         Returns: string
       }
+      audit_table_security: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          policy_count: number
+          rls_enabled: boolean
+          security_status: string
+          table_name: string
+        }[]
+      }
       award_points: {
         Args: {
           p_action_type: string
@@ -3084,10 +3093,12 @@ export type Database = {
         Returns: number
       }
       has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["user_role_type"]
-          _user_id: string
-        }
+        Args:
+          | {
+              _role: Database["public"]["Enums"]["user_role_type"]
+              _user_id: string
+            }
+          | { _role: string; _user_id: string }
         Returns: boolean
       }
       hnsw_bit_support: {
@@ -3105,6 +3116,10 @@ export type Database = {
       hnswhandler: {
         Args: { "": unknown }
         Returns: unknown
+      }
+      is_admin: {
+        Args: { _user_id?: string }
+        Returns: boolean
       }
       ivfflat_bit_support: {
         Args: { "": unknown }
