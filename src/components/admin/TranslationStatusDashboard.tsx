@@ -9,10 +9,10 @@ import {
   getUntranslatedComponents,
   getComponentsByCategory 
 } from '@/utils/component-translation-status';
-import { useCommonTranslations } from '@/hooks/useCommonTranslations';
+import { useTranslation } from 'react-i18next';
 
 export const TranslationStatusDashboard: React.FC = () => {
-  const { t } = useCommonTranslations();
+  const { t } = useTranslation('admin');
   const stats = getTranslationStats();
   const untranslated = getUntranslatedComponents();
   const categories = getComponentsByCategory();
