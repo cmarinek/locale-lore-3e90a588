@@ -12,42 +12,48 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --primary: 82 39% 30%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 198 93% 60%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 82 20% 95%;
+    --muted-foreground: 82 15% 45%;
+    --accent: 82 30% 85%;
+    --accent-foreground: 82 39% 15%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --border: 82 15% 88%;
+    --input: 82 15% 88%;
+    --ring: 82 39% 30%;
     --radius: 0.75rem;
+    --camouflage-primary: 82 39% 30%;
+    --camouflage-secondary: 82 45% 25%;
+    --camouflage-tertiary: 82 35% 35%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --background: 82 20% 8%;
+    --foreground: 82 10% 95%;
+    --card: 82 20% 10%;
+    --card-foreground: 82 10% 95%;
+    --popover: 82 20% 10%;
+    --popover-foreground: 82 10% 95%;
+    --primary: 82 50% 45%;
+    --primary-foreground: 82 20% 8%;
+    --secondary: 198 80% 50%;
+    --secondary-foreground: 82 10% 95%;
+    --muted: 82 30% 15%;
+    --muted-foreground: 82 15% 65%;
+    --accent: 82 30% 15%;
+    --accent-foreground: 82 10% 95%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
+    --border: 82 30% 15%;
+    --input: 82 30% 15%;
+    --ring: 82 50% 45%;
+    --camouflage-primary: 82 50% 45%;
+    --camouflage-secondary: 82 55% 40%;
+    --camouflage-tertiary: 82 45% 50%;
   }
 }
 
@@ -218,5 +224,24 @@
   
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+  
+  /* Camouflage texture patterns */
+  .camouflage-bg {
+    background: 
+      radial-gradient(circle at 20% 50%, hsl(var(--camouflage-secondary)) 12%, transparent 13%),
+      radial-gradient(circle at 40% 40%, hsl(var(--camouflage-tertiary)) 15%, transparent 16%),
+      radial-gradient(circle at 90% 60%, hsl(var(--camouflage-secondary)) 8%, transparent 9%),
+      radial-gradient(circle at 60% 80%, hsl(var(--camouflage-tertiary)) 10%, transparent 11%),
+      linear-gradient(135deg, hsl(var(--camouflage-primary)) 0%, hsl(var(--primary)) 100%);
+    background-size: 80px 60px, 120px 80px, 90px 70px, 110px 90px, 100% 100%;
+  }
+  
+  .camouflage-subtle {
+    background: 
+      radial-gradient(circle at 30% 20%, hsl(var(--camouflage-secondary) / 0.3) 8%, transparent 9%),
+      radial-gradient(circle at 70% 70%, hsl(var(--camouflage-tertiary) / 0.2) 10%, transparent 11%),
+      linear-gradient(135deg, hsl(var(--primary) / 0.05) 0%, hsl(var(--secondary) / 0.03) 100%);
+    background-size: 60px 40px, 80px 60px, 100% 100%;
   }
 }
