@@ -68,19 +68,41 @@ export const validateQuery = (query: string): boolean => {
  */
 export const auditRLSStatus = async () => {
   try {
-    // Use a simple query instead of RPC call for now
-    const { data, error } = await supabase
-      .from('user_activity_log')
-      .select('count')
-      .limit(1);
+    // Call the database function to check RLS status
+    const { data, error } = await supabase.rpc('check_rls_status');
     
     if (error) {
-      console.error('Security audit failed:', error);
+      console.error('RLS audit failed:', error);
       return;
     }
     
-    console.log('[SECURITY] RLS audit completed - database accessible');
+    console.log('[SECURITY] RLS audit completed', data);
+    
+    // Check for any tables with RLS disabled (excluding known system tables)
+    const disabledRLS = data?.filter(table => 
+      !table.rls_enabled && !table.is_system_table
+    );
+    
+    if (disabledRLS && disabledRLS.length > 0) {
+      console.error('[SECURITY] Tables with RLS disabled:', disabledRLS);
+    }
+    
+    return data;
   } catch (error) {
     console.error('Security audit error:', error);
+    
+    // Fallback: just test database connectivity
+    try {
+      const { error: testError } = await supabase
+        .from('user_activity_log')
+        .select('count')
+        .limit(1);
+      
+      if (!testError) {
+        console.log('[SECURITY] Fallback audit - database accessible');
+      }
+    } catch (fallbackError) {
+      console.error('Database connectivity test failed:', fallbackError);
+    }
   }
 };
