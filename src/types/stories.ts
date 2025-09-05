@@ -49,7 +49,7 @@ export interface StoryInteraction {
 export interface QuickCaptureData {
   media: File;
   mediaType: 'image' | 'video';
-  location?: {
+  location: {
     latitude: number;
     longitude: number;
     name: string;

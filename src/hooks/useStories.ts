@@ -129,6 +129,7 @@ export const useStories = () => {
 
   const createStory = async (data: QuickCaptureData) => {
     if (!user) throw new Error('User not authenticated');
+    if (!data.location) throw new Error('Location is required for story submission');
 
     setSubmitting(true);
     try {
@@ -156,9 +157,9 @@ export const useStories = () => {
           content: data.caption,
           media_urls: [publicUrl],
           media_type: data.mediaType as 'image' | 'video' | 'carousel',
-          location_name: data.location?.name,
-          latitude: data.location?.latitude,
-          longitude: data.location?.longitude,
+          location_name: data.location.name,
+          latitude: data.location.latitude,
+          longitude: data.location.longitude,
           hashtags: data.hashtags
         })
         .select(`

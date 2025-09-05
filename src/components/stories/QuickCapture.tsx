@@ -208,7 +208,7 @@ export const QuickCapture: React.FC<QuickCaptureProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!capturedMedia) return;
+    if (!capturedMedia || !location) return;
 
     setSubmitting(true);
     
@@ -216,7 +216,7 @@ export const QuickCapture: React.FC<QuickCaptureProps> = ({
       await onSubmit({
         media: capturedMedia,
         mediaType,
-        location: location || undefined,
+        location,
         caption,
         hashtags
       });
@@ -429,16 +429,19 @@ export const QuickCapture: React.FC<QuickCaptureProps> = ({
                   </div>
                 )}
 
-                {location && (
-                  <div className="flex items-center gap-1 text-white/80">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm">{location.name}</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-1 text-white/80">
+                  <MapPin className="w-4 h-4" />
+                  <span className="text-sm">
+                    {location ? location.name : 'Getting location...'}
+                  </span>
+                  {!location && (
+                    <span className="text-red-300 text-xs ml-2">Location required</span>
+                  )}
+                </div>
 
                 <Button
                   onClick={handleSubmit}
-                  disabled={submitting || !caption.trim()}
+                  disabled={submitting || !caption.trim() || !location}
                   className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
                 >
                   {submitting ? (
