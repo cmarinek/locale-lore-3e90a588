@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,171 +10,267 @@ import {
   Building, 
   CheckCircle, 
   AlertCircle,
-  Clock
+  Clock,
+  Trash2,
+  RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
-interface BuildStatus {
+interface BuildLog {
   id: string;
-  platform: 'android' | 'ios';
-  status: 'pending' | 'building' | 'completed' | 'failed';
+  build_id: string;
+  platform: string;
+  status: string;
   progress: number;
-  downloadUrl?: string;
-  error?: string;
-  createdAt: Date;
+  download_url?: string | null;
+  error_message?: string | null;
+  app_name: string;
+  bundle_id: string;
+  created_at: string;
+  started_at?: string | null;
+  completed_at?: string | null;
+  expires_at: string;
+  user_id: string;
+  build_config?: any;
 }
 
 export const MobileAppBuilder: React.FC = () => {
   const { toast } = useToast();
-  const [builds, setBuilds] = useState<BuildStatus[]>([]);
+  const [builds, setBuilds] = useState<BuildLog[]>([]);
   const [isBuilding, setIsBuilding] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Load builds from database
+  useEffect(() => {
+    loadBuilds();
+    
+    // Set up real-time subscription for build updates
+    const subscription = supabase
+      .channel('build_logs')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'build_logs' },
+        () => {
+          loadBuilds();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const loadBuilds = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('build_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      setBuilds(data || []);
+    } catch (error) {
+      console.error('Error loading builds:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load build history.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const startBuild = async (platform: 'android' | 'ios') => {
     const buildId = `build_${Date.now()}_${platform}`;
-    
-    const newBuild: BuildStatus = {
-      id: buildId,
-      platform,
-      status: 'pending',
-      progress: 0,
-      createdAt: new Date()
-    };
-
-    setBuilds(prev => [newBuild, ...prev]);
     setIsBuilding(true);
 
     try {
-      // Simulate build process - in production this would call Supabase Edge Function
-      const response = await fetch('/api/build-mobile-app', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+      const { data, error } = await supabase.functions.invoke('build-mobile-app', {
+        body: {
           platform,
           buildId,
-          // Add configuration options here
           appName: 'LocaleLore',
           bundleId: 'app.lovable.8ee9bb219cd64b2281a4e2322ff21c98'
-        })
+        }
       });
 
-      if (!response.ok) {
-        throw new Error(`Build failed: ${response.statusText}`);
-      }
+      if (error) throw error;
 
-      // Update build status
-      setBuilds(prev => prev.map(build => 
-        build.id === buildId 
-          ? { ...build, status: 'building', progress: 10 }
-          : build
-      ));
+      toast({
+        title: "Build Started",
+        description: `${platform === 'android' ? 'Android APK' : 'iOS IPA'} build has been initiated.`,
+      });
 
-      // Simulate progress updates
-      const progressInterval = setInterval(() => {
-        setBuilds(prev => prev.map(build => {
-          if (build.id === buildId && build.status === 'building') {
-            const newProgress = Math.min(build.progress + 15, 90);
-            return { ...build, progress: newProgress };
-          }
-          return build;
-        }));
-      }, 2000);
-
-      // Simulate completion after 15 seconds
-      setTimeout(() => {
-        clearInterval(progressInterval);
-        setBuilds(prev => prev.map(build => 
-          build.id === buildId 
-            ? { 
-                ...build, 
-                status: 'completed', 
-                progress: 100,
-                downloadUrl: `/downloads/${buildId}.${platform === 'android' ? 'apk' : 'ipa'}`
-              }
-            : build
-        ));
-        setIsBuilding(false);
-        
-        toast({
-          title: "Build Complete",
-          description: `${platform === 'android' ? 'Android APK' : 'iOS IPA'} is ready for download.`,
-        });
-      }, 15000);
+      // Refresh builds to show the new one
+      await loadBuilds();
 
     } catch (error) {
-      setBuilds(prev => prev.map(build => 
-        build.id === buildId 
-          ? { 
-              ...build, 
-              status: 'failed', 
-              error: error instanceof Error ? error.message : 'Unknown error'
-            }
-          : build
-      ));
-      setIsBuilding(false);
-      
+      console.error('Build error:', error);
       toast({
         title: "Build Failed",
-        description: `Failed to build ${platform} app. Please try again.`,
+        description: `Failed to start ${platform} build. Please try again.`,
+        variant: "destructive"
+      });
+    } finally {
+      setIsBuilding(false);
+    }
+  };
+
+  const downloadBuild = async (build: BuildLog) => {
+    if (build.download_url) {
+      try {
+        // Get signed URL for secure download
+        const { data, error } = await supabase.storage
+          .from('builds')
+          .createSignedUrl(`${build.build_id}.${build.platform === 'android' ? 'apk' : 'ipa'}`, 300);
+
+        if (error) throw error;
+
+        const link = document.createElement('a');
+        link.href = data.signedUrl;
+        link.download = `LocaleLore_${build.platform}_${build.build_id}.${build.platform === 'android' ? 'apk' : 'ipa'}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({
+          title: "Download Started",
+          description: `Downloading ${build.platform === 'android' ? 'Android APK' : 'iOS IPA'} file.`,
+        });
+      } catch (error) {
+        console.error('Download error:', error);
+        toast({
+          title: "Download Failed",
+          description: "Failed to download the build file.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const cancelBuild = async (buildId: string) => {
+    try {
+      const { error } = await supabase
+        .from('build_logs')
+        .update({ status: 'cancelled' })
+        .eq('build_id', buildId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Build Cancelled",
+        description: "The build has been cancelled successfully.",
+      });
+
+      await loadBuilds();
+    } catch (error) {
+      console.error('Cancel error:', error);
+      toast({
+        title: "Cancel Failed",
+        description: "Failed to cancel the build.",
         variant: "destructive"
       });
     }
   };
 
-  const downloadBuild = (build: BuildStatus) => {
-    if (build.downloadUrl) {
-      // In production, this would download from secure storage
-      const link = document.createElement('a');
-      link.href = build.downloadUrl;
-      link.download = `LocaleLore_${build.platform}_${build.id}.${build.platform === 'android' ? 'apk' : 'ipa'}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
+  const deleteBuild = async (build: BuildLog) => {
+    try {
+      // Delete from storage if exists
+      if (build.download_url) {
+        await supabase.storage
+          .from('builds')
+          .remove([`${build.build_id}.${build.platform === 'android' ? 'apk' : 'ipa'}`]);
+      }
+
+      // Delete from database
+      const { error } = await supabase
+        .from('build_logs')
+        .delete()
+        .eq('id', build.id);
+
+      if (error) throw error;
+
       toast({
-        title: "Download Started",
-        description: `Downloading ${build.platform === 'android' ? 'Android APK' : 'iOS IPA'} file.`,
+        title: "Build Deleted",
+        description: "The build has been deleted successfully.",
+      });
+
+      await loadBuilds();
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete the build.",
+        variant: "destructive"
       });
     }
   };
 
-  const getStatusIcon = (status: BuildStatus['status']) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending':
         return <Clock className="w-4 h-4 text-muted-foreground" />;
       case 'building':
         return <Building className="w-4 h-4 text-primary animate-pulse" />;
       case 'completed':
-        return <CheckCircle className="w-4 h-4 text-success" />;
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'failed':
         return <AlertCircle className="w-4 h-4 text-destructive" />;
+      case 'cancelled':
+        return <AlertCircle className="w-4 h-4 text-muted-foreground" />;
+      default:
+        return <Clock className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
-  const getStatusBadge = (status: BuildStatus['status']) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
         return <Badge variant="secondary">Pending</Badge>;
       case 'building':
         return <Badge variant="outline" className="text-primary border-primary">Building</Badge>;
       case 'completed':
-        return <Badge variant="default" className="bg-success text-success-foreground">Complete</Badge>;
+        return <Badge variant="default" className="bg-green-600 text-white">Complete</Badge>;
       case 'failed':
         return <Badge variant="destructive">Failed</Badge>;
+      case 'cancelled':
+        return <Badge variant="outline">Cancelled</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <RefreshCw className="w-6 h-6 animate-spin" />
+        <span className="ml-2">Loading builds...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-3">
-            <Smartphone className="w-6 h-6 text-primary" />
-            <div>
-              <CardTitle>Mobile App Builder</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Build and distribute mobile applications for Android and iOS
-              </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Smartphone className="w-6 h-6 text-primary" />
+              <div>
+                <CardTitle>Mobile App Builder</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Build and distribute mobile applications for Android and iOS
+                </p>
+              </div>
             </div>
+            <Button variant="outline" size="sm" onClick={loadBuilds}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -182,7 +278,7 @@ export const MobileAppBuilder: React.FC = () => {
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
               Building mobile apps requires proper signing certificates and can take 10-20 minutes. 
-              iOS builds require Apple Developer certificates.
+              iOS builds require Apple Developer certificates. Built files expire after 7 days.
             </AlertDescription>
           </Alert>
 
@@ -248,7 +344,10 @@ export const MobileAppBuilder: React.FC = () => {
                           {build.platform === 'android' ? 'Android APK' : 'iOS IPA'}
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          {build.createdAt.toLocaleString()}
+                          {new Date(build.created_at).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          ID: {build.build_id}
                         </p>
                       </div>
                     </div>
@@ -265,25 +364,50 @@ export const MobileAppBuilder: React.FC = () => {
                         <span>{build.progress}%</span>
                       </div>
                       <Progress value={build.progress} className="w-full" />
+                      <Button 
+                        onClick={() => cancelBuild(build.build_id)}
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                      >
+                        Cancel Build
+                      </Button>
                     </div>
                   )}
 
-                  {build.status === 'failed' && build.error && (
+                  {build.status === 'failed' && build.error_message && (
                     <Alert variant="destructive">
                       <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>{build.error}</AlertDescription>
+                      <AlertDescription>{build.error_message}</AlertDescription>
                     </Alert>
                   )}
 
-                  {build.status === 'completed' && build.downloadUrl && (
+                  {build.status === 'completed' && build.download_url && (
+                    <div className="space-y-2">
+                      <Button 
+                        onClick={() => downloadBuild(build)}
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download {build.platform === 'android' ? 'APK' : 'IPA'}
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center">
+                        Expires: {new Date(build.expires_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
+
+                  {(build.status === 'completed' || build.status === 'failed' || build.status === 'cancelled') && (
                     <Button 
-                      onClick={() => downloadBuild(build)}
+                      onClick={() => deleteBuild(build)}
                       variant="outline"
                       size="sm"
-                      className="w-full"
+                      className="w-full text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
                     >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download {build.platform === 'android' ? 'APK' : 'IPA'}
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Build
                     </Button>
                   )}
                 </div>

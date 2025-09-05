@@ -50,17 +50,22 @@ serve(async (req) => {
 
     const { platform, buildId, appName, bundleId }: BuildRequest = await req.json()
 
-    // Log build request
-    await supabase
+    // Create build log entry
+    const { error: insertError } = await supabase
       .from('build_logs')
       .insert({
         build_id: buildId,
         platform,
-        status: 'started',
+        status: 'pending',
         user_id: user.id,
         app_name: appName,
-        bundle_id: bundleId
+        bundle_id: bundleId,
+        progress: 0
       })
+
+    if (insertError) {
+      throw new Error(`Failed to create build log: ${insertError.message}`)
+    }
 
     // Start background build process
     EdgeRuntime.waitUntil(buildMobileApp(platform, buildId, appName, bundleId, user.id, supabase))
@@ -101,20 +106,58 @@ async function buildMobileApp(
     // Update status to building
     await supabase
       .from('build_logs')
-      .update({ status: 'building' })
+      .update({ 
+        status: 'building',
+        started_at: new Date().toISOString(),
+        progress: 5
+      })
       .eq('build_id', buildId)
 
-    // Simulate build process (in production, this would:)
-    // 1. Clone the repository
-    // 2. Install dependencies
-    // 3. Run Capacitor build commands
-    // 4. Sign the app with certificates
-    // 5. Upload to secure storage
-    
+    console.log(`Starting ${platform} build for ${appName} (${bundleId})`)
+
+    // Simulate real build process with progress updates
+    const progressSteps = [10, 25, 40, 55, 70, 85, 95]
+    for (const progress of progressSteps) {
+      await new Promise(resolve => setTimeout(resolve, 2000)) // 2 second intervals
+      
+      // Check if build was cancelled
+      const { data: buildCheck } = await supabase
+        .from('build_logs')
+        .select('status')
+        .eq('build_id', buildId)
+        .single()
+      
+      if (buildCheck?.status === 'cancelled') {
+        console.log(`Build ${buildId} was cancelled`)
+        return
+      }
+      
+      await supabase
+        .from('build_logs')
+        .update({ progress })
+        .eq('build_id', buildId)
+    }
+
+    // Simulate actual build process
     if (platform === 'android') {
-      await buildAndroidAPK(buildId, appName, bundleId)
+      await buildAndroidAPK(buildId, appName, bundleId, supabase)
     } else {
-      await buildIOSIPA(buildId, appName, bundleId)
+      await buildIOSIPA(buildId, appName, bundleId, supabase)
+    }
+
+    // Create dummy build file for demonstration
+    const fileName = `${buildId}.${platform === 'android' ? 'apk' : 'ipa'}`
+    const dummyContent = new TextEncoder().encode(`Dummy ${platform} build file for ${appName}`)
+    
+    // Upload to storage
+    const { error: uploadError } = await supabase.storage
+      .from('builds')
+      .upload(fileName, dummyContent, {
+        contentType: platform === 'android' ? 'application/vnd.android.package-archive' : 'application/octet-stream'
+      })
+
+    if (uploadError) {
+      throw new Error(`Failed to upload build: ${uploadError.message}`)
     }
 
     // Update status to completed
@@ -122,10 +165,13 @@ async function buildMobileApp(
       .from('build_logs')
       .update({ 
         status: 'completed',
-        download_url: `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/builds/${buildId}.${platform === 'android' ? 'apk' : 'ipa'}`,
-        completed_at: new Date().toISOString()
+        download_url: `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/builds/${fileName}`,
+        completed_at: new Date().toISOString(),
+        progress: 100
       })
       .eq('build_id', buildId)
+
+    console.log(`Build ${buildId} completed successfully`)
 
   } catch (error) {
     console.error('Build failed:', error)
@@ -142,36 +188,70 @@ async function buildMobileApp(
   }
 }
 
-async function buildAndroidAPK(buildId: string, appName: string, bundleId: string) {
-  // Simulate Android build process
+async function buildAndroidAPK(buildId: string, appName: string, bundleId: string, supabase: any) {
   console.log(`Building Android APK for ${appName} (${bundleId})`)
   
-  // In production, this would:
-  // 1. Run: npx cap add android
-  // 2. Run: npx cap build android
-  // 3. Sign the APK with keystore
-  // 4. Upload to Supabase Storage
+  // In a real implementation, this would:
+  // 1. Clone the repository from GitHub
+  // 2. Install dependencies: npm install
+  // 3. Build web assets: npm run build
+  // 4. Add Android platform: npx cap add android
+  // 5. Sync Capacitor: npx cap sync android
+  // 6. Build APK: cd android && ./gradlew assembleRelease
+  // 7. Sign the APK with keystore
+  // 8. Optimize and align the APK
   
-  // Simulate build time
-  await new Promise(resolve => setTimeout(resolve, 12000))
+  // Simulate build steps with database updates
+  const steps = [
+    'Cloning repository...',
+    'Installing dependencies...',
+    'Building web assets...',
+    'Adding Android platform...',
+    'Syncing Capacitor...',
+    'Building APK...',
+    'Signing APK...',
+    'Finalizing build...'
+  ]
+
+  for (let i = 0; i < steps.length; i++) {
+    console.log(steps[i])
+    await new Promise(resolve => setTimeout(resolve, 1000))
+  }
   
   console.log(`Android APK build completed: ${buildId}`)
 }
 
-async function buildIOSIPA(buildId: string, appName: string, bundleId: string) {
-  // Simulate iOS build process
+async function buildIOSIPA(buildId: string, appName: string, bundleId: string, supabase: any) {
   console.log(`Building iOS IPA for ${appName} (${bundleId})`)
   
-  // In production, this would:
-  // 1. Run: npx cap add ios
-  // 2. Run: npx cap build ios
-  // 3. Archive and export IPA with provisioning profile
-  // 4. Upload to Supabase Storage
+  // In a real implementation, this would:
+  // 1. Clone the repository from GitHub
+  // 2. Install dependencies: npm install
+  // 3. Build web assets: npm run build
+  // 4. Add iOS platform: npx cap add ios
+  // 5. Sync Capacitor: npx cap sync ios
+  // 6. Build with Xcode: xcodebuild archive
+  // 7. Export IPA with provisioning profile
+  // 8. Code sign with Apple certificates
   
   // Note: iOS builds require macOS environment and Apple Developer certificates
   
-  // Simulate build time
-  await new Promise(resolve => setTimeout(resolve, 15000))
+  const steps = [
+    'Cloning repository...',
+    'Installing dependencies...',
+    'Building web assets...',
+    'Adding iOS platform...',
+    'Syncing Capacitor...',
+    'Building with Xcode...',
+    'Code signing...',
+    'Exporting IPA...',
+    'Finalizing build...'
+  ]
+
+  for (let i = 0; i < steps.length; i++) {
+    console.log(steps[i])
+    await new Promise(resolve => setTimeout(resolve, 1200))
+  }
   
   console.log(`iOS IPA build completed: ${buildId}`)
 }

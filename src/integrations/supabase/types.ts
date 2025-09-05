@@ -337,6 +337,60 @@ export type Database = {
           },
         ]
       }
+      build_logs: {
+        Row: {
+          app_name: string
+          build_config: Json | null
+          build_id: string
+          bundle_id: string
+          completed_at: string | null
+          created_at: string | null
+          download_url: string | null
+          error_message: string | null
+          expires_at: string | null
+          id: string
+          platform: string
+          progress: number | null
+          started_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          app_name: string
+          build_config?: Json | null
+          build_id: string
+          bundle_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          download_url?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          id?: string
+          platform: string
+          progress?: number | null
+          started_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          app_name?: string
+          build_config?: Json | null
+          build_id?: string
+          bundle_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          download_url?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          id?: string
+          platform?: string
+          progress?: number | null
+          started_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           color: string | null
@@ -2691,6 +2745,10 @@ export type Database = {
           rls_enabled: boolean
           table_name: string
         }[]
+      }
+      cleanup_expired_builds: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       cleanup_expired_stories: {
         Args: Record<PropertyKey, never>
