@@ -5,7 +5,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAppStore } from '@/stores/appStore';
 import { getMobileNavigationItems } from '@/config/navigation';
-import { useMobileFocus } from '@/hooks/useFocusManagement';
 import type { UserRole } from '@/types/navigation';
 
 export const BottomNavigation: React.FC = () => {
@@ -17,9 +16,6 @@ export const BottomNavigation: React.FC = () => {
     handleTouchInteraction,
     mobile
   } = useAppStore();
-
-  // Initialize mobile focus management
-  useMobileFocus();
 
   // Determine user role
   const userRole: UserRole = user ? 'user' : 'guest';

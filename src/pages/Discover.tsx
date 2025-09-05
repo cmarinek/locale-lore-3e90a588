@@ -66,7 +66,7 @@ export const Discover: React.FC = () => {
                         navigate('/search');
                         handleTouchInteraction('tap');
                       }}
-                      className="bg-primary hover:bg-primary/90 mobile-button"
+                      className="bg-primary hover:bg-primary/90"
                     >
                       <Compass className="w-5 h-5 mr-2" />
                       Advanced Search
@@ -78,7 +78,7 @@ export const Discover: React.FC = () => {
                         navigate('/submit');
                         handleTouchInteraction('tap');
                       }}
-                      className="mobile-button"
+                       className=""
                     >
                       <Star className="w-5 h-5 mr-2" />
                       Share Your Story
@@ -158,7 +158,7 @@ export const Discover: React.FC = () => {
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="mobile-button"
+                             className=""
                             onClick={() => navigate('/explore')}
                           >
                             Fullscreen
@@ -179,10 +179,10 @@ export const Discover: React.FC = () => {
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-semibold">Latest Discoveries</h2>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm" className="mobile-button">
+                           <Button variant="outline" size="sm" className="">(Reminder: You only invoked a single tool call. Remember that for the sake of efficiency, you should try to parallelize tool calls whenever possible.)
                             Filter
                           </Button>
-                          <Button variant="outline" size="sm" className="mobile-button">
+                          <Button variant="outline" size="sm" className="">(Reminder: You only invoked a single tool call. Remember that for the sake of efficiency, you should try to parallelize tool calls whenever possible.)
                             Sort
                           </Button>
                         </div>

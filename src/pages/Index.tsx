@@ -36,7 +36,7 @@ const Index: React.FC = () => {
                 transition={{ delay: 0.3 }}
               >
                 <Button 
-                  variant="mobile"
+                  size="lg"
                   onClick={() => navigate('/discover')}
                   className="w-full h-24 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
