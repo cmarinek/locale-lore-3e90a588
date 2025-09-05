@@ -5,8 +5,8 @@ import { BottomNavigation } from '@/components/ui/bottom-navigation';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useTranslation } from 'react-i18next';
+import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -14,8 +14,11 @@ interface MainLayoutProps {
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) => {
-  const { isRTL } = useLanguage();
-  const { t } = useTranslation('navigation');
+  const { t, i18n } = useTranslation('navigation');
+  
+  // Get language info directly from i18n to avoid circular dependency
+  const currentLanguage = (i18n.language?.split('-')[0] || 'en') as SupportedLanguage;
+  const isRTL = SUPPORTED_LANGUAGES[currentLanguage]?.rtl || false;
 
   return (
     <div className={cn(
