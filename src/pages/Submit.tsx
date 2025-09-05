@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { BookOpen, Star, Shield, Zap, ArrowLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface SubscriptionStatus {
   subscribed: boolean;
@@ -21,6 +22,7 @@ interface SubscriptionStatus {
 export const Submit: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation('lore');
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus>({
     subscribed: false,
     tier: 'free',
@@ -131,16 +133,15 @@ export const Submit: React.FC = () => {
                 className="mb-4"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Explore
+                {t('search.goBack', { defaultValue: 'Back to Explore' })}
               </Button>
             </div>
 
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-              Share Your Story
+              {t('submitStory')}
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              Contribute to our global collection of local lore. Share historical facts, 
-              legends, ghost stories, or interesting trivia about places you know.
+              {t('subtitle')}
             </p>
 
             {/* Subscription Tier Badge */}

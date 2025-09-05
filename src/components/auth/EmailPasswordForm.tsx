@@ -7,24 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Mail, Lock, User, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useValidationSchemas } from '@/hooks/useValidationSchemas';
 
-const signInSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-const signUpSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain uppercase, lowercase, and numbers'),
-  confirmPassword: z.string(),
-  username: z.string().min(3, 'Username must be at least 3 characters'),
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
 
 interface EmailPasswordFormProps {
   mode: 'signin' | 'signup';
@@ -36,6 +21,8 @@ export const EmailPasswordForm = ({ mode, onSuccess, onSwitchMode }: EmailPasswo
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { signInWithEmail, signUpWithEmail, loading } = useAuth();
+  const { t } = useTranslation('auth');
+  const { signInSchema, signUpSchema } = useValidationSchemas();
 
   const schema = mode === 'signin' ? signInSchema : signUpSchema;
   const form = useForm({
@@ -85,12 +72,12 @@ export const EmailPasswordForm = ({ mode, onSuccess, onSwitchMode }: EmailPasswo
                 name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel>{t('fullName', { defaultValue: 'Full Name' })}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                         <Input
-                          placeholder="Enter your full name"
+                          placeholder={t('enterFullName', { defaultValue: 'Enter your full name' })}
                           className="pl-10 h-12 transition-all duration-200 focus:scale-[1.02]"
                           {...field}
                         />
@@ -106,12 +93,12 @@ export const EmailPasswordForm = ({ mode, onSuccess, onSwitchMode }: EmailPasswo
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel>{t('username', { defaultValue: 'Username' })}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                         <Input
-                          placeholder="Choose a username"
+                          placeholder={t('chooseUsername', { defaultValue: 'Choose a username' })}
                           className="pl-10 h-12 transition-all duration-200 focus:scale-[1.02]"
                           {...field}
                         />
@@ -129,7 +116,7 @@ export const EmailPasswordForm = ({ mode, onSuccess, onSwitchMode }: EmailPasswo
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t('email')}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />

@@ -27,6 +27,7 @@ import { SearchBar } from '@/components/discovery/SearchBar';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const Explore: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -37,6 +38,7 @@ export const Explore: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const { triggerHapticFeedback, handleTouchInteraction } = useAppStore();
   const navigate = useNavigate();
+  const { t } = useTranslation('lore');
 
   // Discovery integration
   const { 

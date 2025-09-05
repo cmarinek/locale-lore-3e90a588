@@ -12,10 +12,12 @@ import { DataExportPanel } from '@/components/profile/DataExportPanel';
 import { DataDeletionPanel } from '@/components/profile/DataDeletionPanel';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const Profile: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const { user } = useAuth();
+  const { t } = useTranslation('profile');
   
   const {
     settings,
@@ -36,7 +38,7 @@ export const Profile: React.FC = () => {
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading profile...</p>
+            <p className="text-muted-foreground">{t('loading', { defaultValue: 'Loading profile...' })}</p>
           </div>
         </div>
       </MainLayout>
@@ -68,19 +70,19 @@ export const Profile: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <h1 className="text-3xl font-bold">
-                My Profile
+                {t('myProfile')}
               </h1>
             </div>
           </motion.div>
 
           <Tabs defaultValue="profile" className="space-y-6">
             <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="statistics">Statistics</TabsTrigger>
-              <TabsTrigger value="achievements">Achievements</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="profile">{t('editProfile')}</TabsTrigger>
+              <TabsTrigger value="statistics">{t('statistics.title', { defaultValue: 'Statistics' })}</TabsTrigger>
+              <TabsTrigger value="achievements">{t('achievements.title')}</TabsTrigger>
+              <TabsTrigger value="settings">{t('preferences.title')}</TabsTrigger>
               <TabsTrigger value="subscription">Subscription</TabsTrigger>
-              <TabsTrigger value="data">Data & Privacy</TabsTrigger>
+              <TabsTrigger value="data">{t('dataManagement.title')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile">
