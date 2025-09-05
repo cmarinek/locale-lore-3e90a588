@@ -6,13 +6,17 @@ import { auditRLSStatus } from '@/utils/security-monitor';
 export const initializeSecurityMonitoring = () => {
   console.log('[SECURITY] Initializing security monitoring...');
   
-  // Run initial RLS audit
-  auditRLSStatus();
-  
-  // Set up periodic security checks (every hour)
-  setInterval(() => {
+  try {
+    // Run initial RLS audit
     auditRLSStatus();
-  }, 60 * 60 * 1000);
+    
+    // Set up periodic security checks (every hour)
+    setInterval(() => {
+      auditRLSStatus();
+    }, 60 * 60 * 1000);
+  } catch (error) {
+    console.error('[SECURITY] Failed to initialize monitoring:', error);
+  }
 };
 
 // Re-export the supabase client

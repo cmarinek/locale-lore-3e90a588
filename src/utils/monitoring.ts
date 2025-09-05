@@ -4,65 +4,77 @@ import { config } from '@/config/environments';
 
 // Initialize Sentry for error tracking
 export const initializeErrorTracking = () => {
-  if (config.enableErrorTracking && config.sentryDsn) {
-    Sentry.init({
-      dsn: config.sentryDsn,
-      environment: config.environment,
-      integrations: [
-        Sentry.browserTracingIntegration(),
-        Sentry.replayIntegration({
-          maskAllText: true,
-          blockAllMedia: true,
-        }),
-      ],
-      tracesSampleRate: config.environment === 'production' ? 0.1 : 1.0,
-      replaysSessionSampleRate: 0.1,
-      replaysOnErrorSampleRate: 1.0,
-    });
+  try {
+    if (config.enableErrorTracking && config.sentryDsn) {
+      Sentry.init({
+        dsn: config.sentryDsn,
+        environment: config.environment,
+        integrations: [
+          Sentry.browserTracingIntegration(),
+          Sentry.replayIntegration({
+            maskAllText: true,
+            blockAllMedia: true,
+          }),
+        ],
+        tracesSampleRate: config.environment === 'production' ? 0.1 : 1.0,
+        replaysSessionSampleRate: 0.1,
+        replaysOnErrorSampleRate: 1.0,
+      });
+    }
+  } catch (error) {
+    console.error('Failed to initialize error tracking:', error);
   }
 };
 
 // Performance monitoring with Web Vitals
 export const initializePerformanceMonitoring = () => {
-  if ('PerformanceObserver' in window) {
-    // Core Web Vitals monitoring
-    const observer = new PerformanceObserver((list) => {
-      list.getEntries().forEach((entry) => {
-        if (entry.entryType === 'largest-contentful-paint') {
-          console.log('LCP:', entry.startTime);
-          trackMetric('lcp', entry.startTime);
-        }
-        
-        if (entry.entryType === 'first-input') {
-          const fid = (entry as any).processingStart - entry.startTime;
-          console.log('FID:', fid);
-          trackMetric('fid', fid);
-        }
-        
-        if (entry.entryType === 'layout-shift' && !(entry as any).hadRecentInput) {
-          console.log('CLS:', (entry as any).value);
-          trackMetric('cls', (entry as any).value);
-        }
+  try {
+    if ('PerformanceObserver' in window) {
+      // Core Web Vitals monitoring
+      const observer = new PerformanceObserver((list) => {
+        list.getEntries().forEach((entry) => {
+          if (entry.entryType === 'largest-contentful-paint') {
+            console.log('LCP:', entry.startTime);
+            trackMetric('lcp', entry.startTime);
+          }
+          
+          if (entry.entryType === 'first-input') {
+            const fid = (entry as any).processingStart - entry.startTime;
+            console.log('FID:', fid);
+            trackMetric('fid', fid);
+          }
+          
+          if (entry.entryType === 'layout-shift' && !(entry as any).hadRecentInput) {
+            console.log('CLS:', (entry as any).value);
+            trackMetric('cls', (entry as any).value);
+          }
+        });
       });
-    });
 
-    observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
-    
-    // Navigation timing
-    window.addEventListener('load', () => {
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
       
-      const metrics = {
-        fcp: navigation.responseStart - navigation.fetchStart,
-        ttfb: navigation.responseStart - navigation.requestStart,
-        domLoad: navigation.domContentLoadedEventEnd - navigation.fetchStart,
-        windowLoad: navigation.loadEventEnd - navigation.fetchStart,
-      };
-      
-      Object.entries(metrics).forEach(([key, value]) => {
-        trackMetric(key, value);
+      // Navigation timing
+      window.addEventListener('load', () => {
+        try {
+          const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+          
+          const metrics = {
+            fcp: navigation.responseStart - navigation.fetchStart,
+            ttfb: navigation.responseStart - navigation.requestStart,
+            domLoad: navigation.domContentLoadedEventEnd - navigation.fetchStart,
+            windowLoad: navigation.loadEventEnd - navigation.fetchStart,
+          };
+          
+          Object.entries(metrics).forEach(([key, value]) => {
+            trackMetric(key, value);
+          });
+        } catch (error) {
+          console.error('Performance timing error:', error);
+        }
       });
-    });
+    }
+  } catch (error) {
+    console.error('Failed to initialize performance monitoring:', error);
   }
 };
 
