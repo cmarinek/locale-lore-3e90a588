@@ -265,7 +265,7 @@ export const Explore: React.FC = () => {
                       </div>
 
                       {/* Bottom Controls */}
-                      <div className="absolute bottom-20 left-4 right-4 pointer-events-auto thumb-zone">
+                      <div className="absolute bottom-28 left-4 right-4 pointer-events-auto thumb-zone mb-safe">
                         <div className="flex justify-center gap-3">
                           <Button
                             size="lg"
@@ -294,7 +294,7 @@ export const Explore: React.FC = () => {
                             initial={{ opacity: 0, y: 50 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 50 }}
-                            className="absolute bottom-32 left-4 right-4 pointer-events-auto"
+                            className="absolute bottom-40 left-4 right-4 pointer-events-auto"
                           >
                             <Card className="p-4 glass max-h-64 overflow-y-auto">
                               <FilterPanel />
