@@ -10,6 +10,7 @@ import { ReportsPanel } from '@/components/admin/ReportsPanel';
 import { PaymentDashboard } from '@/components/admin/PaymentDashboard';
 import { PromoCodeManager } from '@/components/admin/PromoCodeManager';
 import FactAcquisitionManager from './FactAcquisitionManager';
+import { MobileAppBuilder } from './MobileAppBuilder';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, AlertTriangle } from 'lucide-react';
 
@@ -66,7 +67,7 @@ export const AdminDashboard: React.FC = () => {
         </Alert>
 
         <Tabs defaultValue="analytics" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-7 h-auto">
+          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-8 h-auto">
             <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-2">Analytics</TabsTrigger>
             <TabsTrigger value="payments" className="text-xs sm:text-sm px-2 py-2">Payments</TabsTrigger>
             <TabsTrigger value="promos" className="text-xs sm:text-sm px-2 py-2">Promos</TabsTrigger>
@@ -74,6 +75,7 @@ export const AdminDashboard: React.FC = () => {
             <TabsTrigger value="users" className="text-xs sm:text-sm px-2 py-2">Users</TabsTrigger>
             <TabsTrigger value="reports" className="text-xs sm:text-sm px-2 py-2">Reports</TabsTrigger>
             <TabsTrigger value="acquisition" className="text-xs sm:text-sm px-2 py-2">Acquisition</TabsTrigger>
+            <TabsTrigger value="mobile" className="text-xs sm:text-sm px-2 py-2">Mobile</TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics" className="space-y-4 sm:space-y-6">
@@ -102,6 +104,10 @@ export const AdminDashboard: React.FC = () => {
 
           <TabsContent value="acquisition" className="space-y-4 sm:space-y-6">
             <FactAcquisitionManager />
+          </TabsContent>
+
+          <TabsContent value="mobile" className="space-y-4 sm:space-y-6">
+            <MobileAppBuilder />
           </TabsContent>
         </Tabs>
       </div>
