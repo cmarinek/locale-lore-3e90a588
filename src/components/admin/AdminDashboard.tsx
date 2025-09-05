@@ -69,7 +69,7 @@ export const AdminDashboard: React.FC = () => {
         </Alert>
 
         <Tabs defaultValue="analytics" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-8 h-auto">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 h-auto overflow-x-auto">
             <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-2">{t('analytics')}</TabsTrigger>
             <TabsTrigger value="payments" className="text-xs sm:text-sm px-2 py-2">{t('payments', { defaultValue: 'Payments' })}</TabsTrigger>
             <TabsTrigger value="promos" className="text-xs sm:text-sm px-2 py-2">{t('promos', { defaultValue: 'Promos' })}</TabsTrigger>
