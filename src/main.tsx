@@ -20,6 +20,7 @@ if (import.meta.env.PROD) {
   });
 }
 
+// Force cache refresh - updated at 2025-01-05
 console.log('App starting to render...');
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
