@@ -182,7 +182,7 @@ export const useProfile = () => {
     } catch (error: any) {
       console.error('Error updating settings:', error);
       toast({
-        title: "Error",
+        title: "Error", 
         description: "Failed to update settings",
         variant: "destructive",
       });
