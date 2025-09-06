@@ -140,7 +140,7 @@ async function startProcessing(supabase: any, params: any) {
     }
 
     // Process in background
-    EdgeRuntime.waitUntil(processJobInBackground(supabase, job.id));
+    processJobInBackground(supabase, job.id);
 
     return new Response(JSON.stringify({ 
       success: true,
@@ -302,7 +302,7 @@ async function resumeJob(supabase: any, params: any) {
     .single();
 
   if (job) {
-    EdgeRuntime.waitUntil(processJobInBackground(supabase, job.id));
+    processJobInBackground(supabase, job.id);
   }
 
   return new Response(JSON.stringify({ 
