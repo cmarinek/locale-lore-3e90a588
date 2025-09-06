@@ -2,11 +2,16 @@ import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/molecules/InputField";
 import { useState } from "react";
 import { useTranslation } from 'react-i18next';
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { LogIn, UserPlus } from "lucide-react";
 
 export const WelcomeHero = () => {
   console.log('WelcomeHero: Component rendering...');
   const [email, setEmail] = useState("");
   const { t } = useTranslation('lore');
+  const { user } = useAuth();
+  const navigate = useNavigate();
   
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
@@ -36,20 +41,38 @@ export const WelcomeHero = () => {
 
         {/* CTA Section */}
         <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
-          <h3 className="text-xl font-semibold mb-4">Become an early contributor</h3>
-          <div className="space-y-4">
-            <InputField 
-              label="Email" 
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              placeholder="Enter your email" 
-              description="We'll send you updates about new features" 
-            />
-            <Button size="lg" className="w-full">
-              Subscribe
-            </Button>
-          </div>
+          {user ? (
+            <div className="text-center space-y-4">
+              <h3 className="text-xl font-semibold">Welcome back, {user.email?.split('@')[0]}!</h3>
+              <p className="text-muted-foreground">Ready to explore more local stories?</p>
+              <Button size="lg" className="w-full" onClick={() => navigate('/explore')}>
+                Explore Stories
+              </Button>
+            </div>
+          ) : (
+            <>
+              <h3 className="text-xl font-semibold mb-4">Join LocaleLore Community</h3>
+              <div className="space-y-3">
+                <Button 
+                  size="lg" 
+                  className="w-full" 
+                  onClick={() => navigate('/auth')}
+                >
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Sign Up Free
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="w-full"
+                  onClick={() => navigate('/auth')}
+                >
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Sign In
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
