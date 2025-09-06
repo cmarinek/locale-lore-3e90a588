@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useProfile } from '@/hooks/useProfile';
 
 type Theme = 'light' | 'dark' | 'auto';
 
@@ -24,10 +23,12 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const { settings, updateSettings } = useProfile();
+  // Use localStorage for theme persistence instead of depending on user authentication
+  const [theme, setThemeState] = useState<Theme>(() => {
+    const stored = localStorage.getItem('locale-lore-theme');
+    return (stored as Theme) || 'auto';
+  });
   const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light');
-
-  const theme = (settings?.theme as Theme) || 'auto';
 
   const applyTheme = (themeToApply: Theme) => {
     const root = document.documentElement;
@@ -50,9 +51,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     setActualTheme(finalTheme);
   };
 
-  const setTheme = async (newTheme: Theme) => {
-    // Update user settings
-    await updateSettings({ theme: newTheme });
+  const setTheme = (newTheme: Theme) => {
+    // Store theme in localStorage for persistence
+    localStorage.setItem('locale-lore-theme', newTheme);
+    setThemeState(newTheme);
     applyTheme(newTheme);
   };
 
