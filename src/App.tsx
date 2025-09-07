@@ -51,7 +51,7 @@ function App() {
                   <Route path="/auth/confirm" element={<AuthConfirm />} />
                   <Route path="/auth/reset-password" element={<AuthResetPassword />} />
                   <Route path="/explore" element={<Explore />} />
-                  <Route path="/map" element={<Suspense fallback={<div>Loading...</div>}><LazyMap /></Suspense>} />
+                  <Route path="/map" element={<React.Suspense fallback={<div>Loading...</div>}><LazyMap /></React.Suspense>} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/submit" element={<Submit />} />
                   <Route path="/profile/:id?" element={<Profile />} />
