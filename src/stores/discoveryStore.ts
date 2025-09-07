@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { EnhancedFact, EnhancedCategory, SearchFilters } from '@/types/fact';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DiscoveryState {
   // Facts
@@ -36,6 +37,7 @@ interface DiscoveryState {
   loadCategories: () => Promise<void>;
   loadSavedFacts: () => Promise<void>;
   searchFacts: (query: string) => Promise<void>;
+  initializeData: () => Promise<void>;
 }
 
 export const useDiscoveryStore = create<DiscoveryState>()(
@@ -63,31 +65,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       },
       
       searchSuggestions: [],
-      
-      categories: [
-        {
-          id: '1',
-          slug: 'history',
-          icon: '🏛️',
-          color: '#8B5CF6',
-          name: 'History'
-        },
-        {
-          id: '2',
-          slug: 'nature',
-          icon: '🌿',
-          color: '#10B981',
-          name: 'Nature'
-        },
-        {
-          id: '3',
-          slug: 'culture',
-          icon: '🎭',
-          color: '#F59E0B',
-          name: 'Culture'
-        }
-      ],
-      
+      categories: [],
       modalOpen: false,
       savedFacts: [],
       
@@ -117,39 +95,66 @@ export const useDiscoveryStore = create<DiscoveryState>()(
         set({ isLoading: true });
         
         try {
-          // Mock API call - replace with actual implementation
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          const limit = 10;
+          const offset = state.facts.length;
           
-          const mockFacts: EnhancedFact[] = Array.from({ length: 10 }, (_, i) => ({
-            id: `fact-${state.facts.length + i + 1}`,
-            title: `Mock Fact ${state.facts.length + i + 1}`,
-            description: 'This is a mock fact for testing purposes.',
-            author_id: 'user-1',
-            category_id: 'category-1',
-            status: 'verified' as const,
-            vote_count_up: Math.floor(Math.random() * 100),
-            vote_count_down: Math.floor(Math.random() * 20),
-            latitude: 40.7128 + (Math.random() - 0.5) * 0.1,
-            longitude: -74.0060 + (Math.random() - 0.5) * 0.1,
-            location_name: 'New York, NY',
-            media_urls: [],
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            profiles: {
-              id: 'user-1',
-              username: 'testuser',
-              avatar_url: undefined
+          const { data: facts, error } = await supabase
+            .from('facts')
+            .select(`
+              id,
+              title,
+              description,
+              location_name,
+              latitude,
+              longitude,
+              status,
+              vote_count_up,
+              vote_count_down,
+              category_id,
+              author_id,
+              created_at,
+              updated_at,
+              media_urls,
+              categories!facts_category_id_fkey(
+                slug,
+                icon,
+                color,
+                category_translations!inner(
+                  name,
+                  language_code
+                )
+              ),
+              profiles!facts_author_id_fkey(
+                id,
+                username,
+                avatar_url
+              )
+            `)
+            .eq('categories.category_translations.language_code', 'en')
+            .range(offset, offset + limit - 1)
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+          
+          const enhancedFacts: EnhancedFact[] = (facts || []).map(fact => ({
+            ...fact,
+            category: fact.categories?.slug || 'unknown',
+            verified: fact.status === 'verified',
+            categories: fact.categories ? {
+              ...fact.categories,
+              category_translations: fact.categories.category_translations || []
+            } : {
+              slug: 'unknown',
+              icon: '📍',
+              color: '#3B82F6',
+              category_translations: [{ name: 'Unknown', language_code: 'en' }]
             },
-            categories: {
-              slug: 'history',
-              icon: '🏛️',
-              color: '#8B5CF6'
-            }
+            profiles: fact.profiles || { id: '', username: 'Anonymous', avatar_url: null }
           }));
           
           set((state) => ({
-            facts: [...state.facts, ...mockFacts],
-            hasMore: state.facts.length + mockFacts.length < 100,
+            facts: [...state.facts, ...enhancedFacts],
+            hasMore: enhancedFacts.length === limit,
             isLoading: false
           }));
         } catch (error) {
@@ -159,25 +164,53 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       },
 
       loadCategories: async () => {
-        set({ loading: true, error: null });
         try {
-          // Mock implementation - replace with actual API call
-          await new Promise(resolve => setTimeout(resolve, 500));
-          set({ loading: false });
+          const { data: categories, error } = await supabase
+            .from('categories')
+            .select(`
+              id,
+              slug,
+              icon,
+              color,
+              category_translations!inner(
+                name,
+                language_code
+              )
+            `)
+            .eq('category_translations.language_code', 'en');
+
+          if (error) throw error;
+
+          const enhancedCategories: EnhancedCategory[] = (categories || []).map(cat => ({
+            ...cat,
+            name: cat.category_translations?.[0]?.name || cat.slug,
+            category_translations: cat.category_translations || []
+          }));
+
+          set({ categories: enhancedCategories });
         } catch (error) {
-          set({ 
-            loading: false, 
-            error: error instanceof Error ? error.message : 'Failed to load categories' 
-          });
+          console.error('Error loading categories:', error);
         }
       },
 
       loadSavedFacts: async () => {
         set({ loading: true, error: null });
         try {
-          // Mock implementation - replace with actual API call
-          await new Promise(resolve => setTimeout(resolve, 500));
-          set({ loading: false });
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            set({ loading: false });
+            return;
+          }
+
+          const { data: savedFacts, error } = await supabase
+            .from('saved_facts')
+            .select('fact_id')
+            .eq('user_id', user.id);
+
+          if (error) throw error;
+
+          const savedFactIds = (savedFacts || []).map(sf => sf.fact_id);
+          set({ savedFacts: savedFactIds, loading: false });
         } catch (error) {
           set({ 
             loading: false, 
@@ -189,46 +222,83 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       searchFacts: async (query: string) => {
         set({ loading: true, error: null });
         try {
-          // Mock implementation - replace with actual API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          let queryBuilder = supabase
+            .from('facts')
+            .select(`
+              id,
+              title,
+              description,
+              location_name,
+              latitude,
+              longitude,
+              status,
+              vote_count_up,
+              vote_count_down,
+              category_id,
+              author_id,
+              created_at,
+              updated_at,
+              media_urls,
+              categories!facts_category_id_fkey(
+                slug,
+                icon,
+                color,
+                category_translations!inner(
+                  name,
+                  language_code
+                )
+              ),
+              profiles!facts_author_id_fkey(
+                id,
+                username,
+                avatar_url
+              )
+            `)
+            .eq('categories.category_translations.language_code', 'en');
+
+          if (query.trim()) {
+            queryBuilder = queryBuilder.or(`title.ilike.%${query}%,description.ilike.%${query}%,location_name.ilike.%${query}%`);
+          }
+
+          const { data: facts, error } = await queryBuilder
+            .limit(50)
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
           
-          const mockFacts: EnhancedFact[] = Array.from({ length: 10 }, (_, i) => ({
-            id: `search-fact-${i + 1}`,
-            title: `Search Result ${i + 1}: ${query}`,
-            description: `This is a search result for "${query}". Mock fact for testing purposes.`,
-            author_id: 'user-1',
-            category_id: 'category-1',
-            status: 'verified' as const,
-            vote_count_up: Math.floor(Math.random() * 100),
-            vote_count_down: Math.floor(Math.random() * 20),
-            latitude: 40.7128 + (Math.random() - 0.5) * 0.1,
-            longitude: -74.0060 + (Math.random() - 0.5) * 0.1,
-            location_name: 'New York, NY',
-            media_urls: [],
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            profiles: {
-              id: 'user-1',
-              username: 'testuser',
-              avatar_url: undefined
+          const enhancedFacts: EnhancedFact[] = (facts || []).map(fact => ({
+            ...fact,
+            category: fact.categories?.slug || 'unknown',
+            verified: fact.status === 'verified',
+            categories: fact.categories ? {
+              ...fact.categories,
+              category_translations: fact.categories.category_translations || []
+            } : {
+              slug: 'unknown',
+              icon: '📍',
+              color: '#3B82F6',
+              category_translations: [{ name: 'Unknown', language_code: 'en' }]
             },
-            categories: {
-              slug: 'history',
-              icon: '🏛️',
-              color: '#8B5CF6',
-              category_translations: [{
-                name: 'History',
-                language_code: 'en'
-              }]
-            }
+            profiles: fact.profiles || { id: '', username: 'Anonymous', avatar_url: null }
           }));
           
-          set({ facts: mockFacts, loading: false });
+          set({ facts: enhancedFacts, loading: false, hasMore: false });
         } catch (error) {
           set({ 
             loading: false, 
             error: error instanceof Error ? error.message : 'Failed to search facts' 
           });
+        }
+      },
+
+      initializeData: async () => {
+        const state = get();
+        if (state.facts.length === 0) {
+          await Promise.all([
+            get().loadMoreFacts(),
+            get().loadCategories(),
+            get().loadSavedFacts()
+          ]);
         }
       }
     }),

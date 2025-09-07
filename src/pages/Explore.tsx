@@ -48,18 +48,14 @@ export const Explore: React.FC = () => {
     loadCategories,
     loadSavedFacts,
     searchFacts,
+    initializeData,
     setFilters
   } = useDiscoveryStore();
 
   // Initialize discovery data
   useEffect(() => {
-    loadCategories();
-    loadSavedFacts();
-    
-    // Load initial facts with current filters
-    const searchQuery = filters.search || '';
-    searchFacts(searchQuery);
-  }, [loadCategories, loadSavedFacts, searchFacts]);
+    initializeData();
+  }, [initializeData]);
 
   // Get user location on load
   useEffect(() => {
