@@ -13,3 +13,4 @@ export const LazyMediaManagement = lazy(() => import('@/pages/MediaManagement'))
 export const LazyBilling = lazy(() => import('@/pages/Billing').then(module => ({ default: module.Billing })));
 export const LazySocial = lazy(() => import('@/pages/Social').then(module => ({ default: module.Social })));
 export const LazyStories = lazy(() => import('@/pages/Stories'));
+export const LazyMap = lazy(() => import('@/pages/Map').then(module => ({ default: module.Map })));

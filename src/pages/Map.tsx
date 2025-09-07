@@ -30,8 +30,8 @@ export const Map: React.FC = () => {
   useEffect(() => {
     const initializeMap = async () => {
       try {
-        // Get Mapbox token
-        const response = await fetch('/api/mapbox-token');
+        // Get Mapbox token from Supabase edge function
+        const response = await fetch('https://mwufulzthoqrwbwtvogx.supabase.co/functions/v1/get-mapbox-token');
         let mapboxToken = '';
         
         if (response.ok) {

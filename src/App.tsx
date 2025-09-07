@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Index from '@/pages/Index';
 import AuthMain from '@/pages/AuthMain';
@@ -6,7 +6,7 @@ import AuthCallback from '@/pages/AuthCallback';
 import AuthConfirm from '@/pages/AuthConfirm';
 import AuthResetPassword from '@/pages/AuthResetPassword';
 import { Explore } from '@/pages/Explore';
-import { Map } from '@/pages/Map';
+import { LazyMap } from '@/components/performance/LazyRoutes';
 import { Search } from '@/pages/Search';
 import { Submit } from '@/pages/Submit';
 import { Profile } from '@/pages/Profile';
@@ -51,7 +51,7 @@ function App() {
                   <Route path="/auth/confirm" element={<AuthConfirm />} />
                   <Route path="/auth/reset-password" element={<AuthResetPassword />} />
                   <Route path="/explore" element={<Explore />} />
-                  <Route path="/map" element={<Map />} />
+                  <Route path="/map" element={<Suspense fallback={<div>Loading...</div>}><LazyMap /></Suspense>} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/submit" element={<Submit />} />
                   <Route path="/profile/:id?" element={<Profile />} />
