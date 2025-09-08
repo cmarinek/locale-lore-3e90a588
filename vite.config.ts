@@ -90,28 +90,31 @@ export default defineConfig(({ mode }) => ({
         manualChunks: (id) => {
           // Vendor libraries
           if (id.includes("node_modules")) {
-            // Keep React, ReactDOM, and Framer Motion together
-            if (
-              id.includes("react") ||
-              id.includes("react-dom") ||
-              id.includes("framer-motion")
-            ) {
+            const isReact =
+              /[\\/]node_modules[\\/]react[\\/]/.test(id) ||
+              /[\\/]node_modules[\\/]react-dom[\\/]/.test(id);
+            const isFramer = /[\\/]node_modules[\\/]framer-motion[\\/]/.test(id);
+
+            if (isReact || isFramer) {
               return "vendor-react";
             }
-            if (id.includes("mapbox-gl")) {
+            if (/[\\/]node_modules[\\/]mapbox-gl[\\/]/.test(id)) {
               return "vendor-mapbox";
             }
-            if (id.includes("@radix-ui")) {
+            if (/[\\/]node_modules[\\/]@radix-ui[\\/]/.test(id)) {
               return "vendor-ui";
             }
-            if (id.includes("@supabase")) {
+            if (/[\\/]node_modules[\\/]@supabase[\\/]/.test(id)) {
               return "vendor-supabase";
             }
             // Only lucide-react remains in vendor-animations
-            if (id.includes("lucide-react")) {
+            if (/[\\/]node_modules[\\/]lucide-react[\\/]/.test(id)) {
               return "vendor-animations";
             }
-            if (id.includes("i18next") || id.includes("react-i18next")) {
+            if (
+              /[\\/]node_modules[\\/]i18next[\\/]/.test(id) ||
+              /[\\/]node_modules[\\/]react-i18next[\\/]/.test(id)
+            ) {
               return "vendor-i18n";
             }
             return "vendor-misc";
