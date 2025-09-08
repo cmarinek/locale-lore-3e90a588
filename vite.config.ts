@@ -94,8 +94,10 @@ export default defineConfig(({ mode }) => ({
               /[\\/]node_modules[\\/]react[\\/]/.test(id) ||
               /[\\/]node_modules[\\/]react-dom[\\/]/.test(id);
             const isFramer = /[\\/]node_modules[\\/]framer-motion[\\/]/.test(id);
+            const isLucide = /[\\/]node_modules[\\/]lucide-react[\\/]/.test(id);
 
-            if (isReact || isFramer) {
+            // Keep React, ReactDOM, Framer Motion, and Lucide together
+            if (isReact || isFramer || isLucide) {
               return "vendor-react";
             }
             if (/[\\/]node_modules[\\/]mapbox-gl[\\/]/.test(id)) {
@@ -106,10 +108,6 @@ export default defineConfig(({ mode }) => ({
             }
             if (/[\\/]node_modules[\\/]@supabase[\\/]/.test(id)) {
               return "vendor-supabase";
-            }
-            // Only lucide-react remains in vendor-animations
-            if (/[\\/]node_modules[\\/]lucide-react[\\/]/.test(id)) {
-              return "vendor-animations";
             }
             if (
               /[\\/]node_modules[\\/]i18next[\\/]/.test(id) ||
