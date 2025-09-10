@@ -66,10 +66,10 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
         variant="ghost"
         size="sm"
         onClick={handleLocationClick}
-        className={`h-10 w-10 p-0 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 ${className || ''}`}
+        className={`h-10 w-10 p-0 rounded-full gradient-logo hover:shadow-lg hover:shadow-primary/30 transition-all duration-200 hover:scale-105 border border-white/20 ${className || ''}`}
         title={`Go to ${locationName || 'location'} on map`}
       >
-        <Navigation className="h-5 w-5 text-white" />
+        <Navigation className="h-5 w-5 text-white drop-shadow-sm" />
       </Button>
     );
   }
