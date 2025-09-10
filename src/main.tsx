@@ -1,33 +1,49 @@
 console.log('🚀 MAIN: Starting full app...');
 
-import App from './App.tsx';
-import './index.css';
-
-// Import React first to ensure it's available globally
-console.log('🔧 MAIN: Importing React...');
+// Import React FIRST and make it immediately available globally before ANY other imports
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
-// Ensure React is available globally for i18n libraries
+// Make React available globally IMMEDIATELY - this must happen before any i18n code runs
 (window as any).React = React;
-console.log('✅ MAIN: React made globally available');
+(window as any).createContext = React.createContext;
+(window as any).useContext = React.useContext;
+(window as any).useState = React.useState;
+(window as any).useEffect = React.useEffect;
+console.log('✅ MAIN: React made globally available with all hooks');
 
-// Dynamically import i18n after React is confirmed loaded
-console.log('🔧 MAIN: About to dynamically import i18n...');
-const initI18n = async () => {
-  try {
-    await import('./utils/i18n');
-    console.log('✅ MAIN: i18n initialized successfully');
-    return true;
-  } catch (error) {
-    console.error('❌ MAIN: i18n initialization failed:', error);
-    return false;
-  }
-};
+// Now import other modules
+import App from './App.tsx';
+import './index.css';
 
 // Import error boundary
 import { DiagnosticErrorBoundary } from './components/diagnostics/ErrorBoundary';
 console.log('✅ MAIN: Components imported');
+
+// Create a safe i18n initializer that ensures React is available
+const initI18n = () => {
+  return new Promise((resolve, reject) => {
+    // Double-check React is available
+    if (typeof (window as any).React !== 'undefined' && (window as any).createContext) {
+      console.log('🔧 MAIN: React confirmed available, importing i18n...');
+      
+      // Use setTimeout to ensure this runs after the current execution context
+      setTimeout(() => {
+        import('./utils/i18n')
+          .then(() => {
+            console.log('✅ MAIN: i18n initialized successfully');
+            resolve(true);
+          })
+          .catch((error) => {
+            console.error('❌ MAIN: i18n initialization failed:', error);
+            reject(error);
+          });
+      }, 0);
+    } else {
+      reject(new Error('React not available for i18n initialization'));
+    }
+  });
+};
 
 const startApp = async () => {
   try {
@@ -44,11 +60,7 @@ const startApp = async () => {
     
     // Initialize i18n first, then render the app
     console.log('🎯 MAIN: Initializing i18n...');
-    const i18nSuccess = await initI18n();
-    
-    if (!i18nSuccess) {
-      throw new Error('Failed to initialize i18n');
-    }
+    await initI18n();
     
     console.log('🎯 MAIN: Rendering full App with providers...');
     root.render(
@@ -92,14 +104,14 @@ const startApp = async () => {
           <details style="margin: 20px 0; text-align: left;">
             <summary style="cursor: pointer; margin-bottom: 10px;">🔍 Technical Details</summary>
             <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; font-size: 12px; overflow: auto; max-height: 200px;">
-  DOM Ready: ${document.readyState}
-  Root Element: ${rootElement ? 'Found' : 'Missing'}
-  Document Body: ${document.body ? 'Present' : 'Missing'}
-  Window Location: ${window.location.href}
-  User Agent: ${navigator.userAgent}
-  
-  Error Stack:
-  ${error instanceof Error ? error.stack : 'No stack trace available'}
+DOM Ready: ${document.readyState}
+Root Element: ${rootElement ? 'Found' : 'Missing'}
+Document Body: ${document.body ? 'Present' : 'Missing'}
+Window Location: ${window.location.href}
+User Agent: ${navigator.userAgent}
+
+Error Stack:
+${error instanceof Error ? error.stack : 'No stack trace available'}
             </pre>
           </details>
           <button onclick="window.location.reload()" style="
