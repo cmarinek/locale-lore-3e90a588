@@ -8,14 +8,15 @@ interface ThemeContextType {
   actualTheme: 'light' | 'dark';
 }
 
-const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
+// Temporarily disable context to prevent bundling issues
+let globalThemeState: ThemeContextType = {
+  theme: 'auto',
+  setTheme: () => {},
+  actualTheme: 'light'
+};
 
 export const useTheme = () => {
-  const context = React.useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
+  return globalThemeState;
 };
 
 interface ThemeProviderProps {
@@ -72,16 +73,13 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     }
   }, [theme]);
 
-  const value: ThemeContextType = {
+  // Update global state
+  globalThemeState = {
     theme,
     setTheme,
     actualTheme,
   };
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <div>{children}</div>;
 };
 
