@@ -53,17 +53,21 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   };
 
   const setTheme = (newTheme: Theme) => {
-    // Store theme in localStorage for persistence
     localStorage.setItem('locale-lore-theme', newTheme);
     setThemeState(newTheme);
     applyTheme(newTheme);
+    
+    // Update global state
+    globalThemeState = {
+      theme: newTheme,
+      setTheme,
+      actualTheme
+    };
   };
 
   useEffect(() => {
-    // Apply theme on mount and when theme changes
     applyTheme(theme);
 
-    // Listen for system theme changes when in auto mode
     if (theme === 'auto') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = () => applyTheme(theme);
