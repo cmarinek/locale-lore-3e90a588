@@ -150,49 +150,48 @@ export const Explore: React.FC = () => {
           {/* Discovery List View - Always show list */}
           <div className="min-h-screen bg-background">
             <div className="container mx-auto px-4 py-6">
-              <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold">Discover Stories</h1>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="shrink-0"
-                  >
-                    <Filter className="w-4 h-4" />
-                  </Button>
-                  
-                  {/* View Mode Toggle */}
-                  <div className="flex rounded-lg border bg-background p-1">
+              {/* Header with glass effect */}
+              <div className="glass rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h1 className="text-2xl font-bold">Discover Stories</h1>
+                  <div className="flex gap-2">
                     <Button
-                      variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                      variant="secondary"
                       size="sm"
-                      onClick={() => handleViewModeChange('grid')}
-                      className="h-8 px-3"
+                      onClick={() => setShowFilters(!showFilters)}
+                      className="glass border-0 shadow-lg bg-background/80 backdrop-blur-sm"
                     >
-                      <Grid3X3 className="w-4 h-4" />
-                      <span className="sr-only">Grid view</span>
+                      <Filter className="w-4 h-4 mr-2" />
+                      <span className="hidden sm:inline">Filters</span>
                     </Button>
-                    <Button
-                      variant={viewMode === 'list' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => handleViewModeChange('list')}
-                      className="h-8 px-3"
-                    >
-                      <LayoutList className="w-4 h-4" />
-                      <span className="sr-only">List view</span>
-                    </Button>
+                    
+                    {/* View Mode Toggle with glass effect */}
+                    <div className="flex rounded-lg border-0 glass bg-background/80 backdrop-blur-sm p-1 shadow-lg">
+                      <Button
+                        variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => handleViewModeChange('grid')}
+                        className="h-8 px-3"
+                      >
+                        <Grid3X3 className="w-4 h-4" />
+                        <span className="sr-only">Grid view</span>
+                      </Button>
+                      <Button
+                        variant={viewMode === 'list' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => handleViewModeChange('list')}
+                        className="h-8 px-3"
+                      >
+                        <LayoutList className="w-4 h-4" />
+                        <span className="sr-only">List view</span>
+                      </Button>
+                    </div>
+                    
+                    <ViewModeToggle variant="glass" />
                   </div>
-                  
-                  <ViewModeToggle 
-                    variant="default"
-                    className="shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground"
-                  />
                 </div>
-              </div>
 
-              {/* Search Bar */}
-              <div className="mb-6">
+                {/* Search Bar */}
                 <SearchBar onQueryChange={handleSearch} />
               </div>
 
