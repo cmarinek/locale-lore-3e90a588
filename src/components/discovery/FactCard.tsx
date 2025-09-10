@@ -92,6 +92,12 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                     <MapPin className="h-3 w-3" />
                     <span className="truncate">{fact.location_name}</span>
                   </div>
+                  <div className="text-xs text-muted-foreground/70 font-mono">
+                    {Number(fact.latitude).toFixed(4)}, {Number(fact.longitude).toFixed(4)}
+                  </div>
+            <div className="text-xs text-muted-foreground/70 font-mono">
+              {Number(fact.latitude).toFixed(4)}, {Number(fact.longitude).toFixed(4)}
+            </div>
                 </div>
                 
                 {/* Quick Actions */}
@@ -245,6 +251,9 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="h-3 w-3" />
               <span className="truncate">{fact.location_name}</span>
+            </div>
+            <div className="text-xs text-muted-foreground/70 font-mono">
+              {Number(fact.latitude).toFixed(4)}, {Number(fact.longitude).toFixed(4)}
             </div>
           </div>
 
