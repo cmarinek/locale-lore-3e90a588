@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from '@/utils/languages';
 
@@ -14,7 +14,7 @@ const LanguageContext = React.createContext<LanguageContextType | null>(null);
 
 // Optional hook - app should work without this context
 export const useLanguage = () => {
-  const context = useContext(LanguageContext);
+  const context = React.useContext(LanguageContext);
   if (!context) {
     // Return fallback values instead of throwing error
     console.warn('useLanguage called outside LanguageProvider, using fallback values');
