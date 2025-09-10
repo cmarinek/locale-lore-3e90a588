@@ -27,18 +27,23 @@ export const WelcomeHero = () => {
     <div className="flex flex-col items-center justify-center min-h-screen px-4 py-20">
       <HeroSearchBar className="w-full mb-16" />
       
-      {/* CTA Section */}
-      <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
-        {user ? (
-          <div className="text-center space-y-4">
-            <h3 className="text-xl font-semibold">Welcome back, {user.email?.split('@')[0]}!</h3>
-            <p className="text-muted-foreground">Ready to explore more local stories?</p>
-            <Button size="lg" className="w-full" onClick={() => navigate('/explore')}>
-              Explore Stories
-            </Button>
+      {user ? (
+        <>
+          {/* Explore Stories Section */}
+          <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto mb-8">
+            <div className="text-center space-y-4">
+              <h3 className="text-xl font-semibold">Welcome back, {user.email?.split('@')[0]}!</h3>
+              <p className="text-muted-foreground">Ready to explore more local stories?</p>
+              <Button size="lg" className="w-full" onClick={() => navigate('/explore')}>
+                Explore Stories
+              </Button>
+            </div>
           </div>
-        ) : (
-          <>
+        </>
+      ) : (
+        <>
+          {/* Join LocaleLore Section */}
+          <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
             <h3 className="text-xl font-semibold mb-4">Join LocaleLore Community</h3>
             <div className="space-y-3">
               <Button 
@@ -59,9 +64,9 @@ export const WelcomeHero = () => {
                 Sign In
               </Button>
             </div>
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
