@@ -112,9 +112,9 @@ export const FactCard: React.FC<FactCardProps> = ({
               </div>
 
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 flex-1 min-w-0">
                   <div className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
+                    <MapPin className="w-3 h-3 shrink-0" />
                     <span className="truncate">{fact.location_name}</span>
                   </div>
                   {fact.latitude && fact.longitude && (
@@ -124,13 +124,14 @@ export const FactCard: React.FC<FactCardProps> = ({
                   )}
                 </div>
                 {fact.latitude && fact.longitude && (
-                  <LocationNavigationButton
-                    latitude={fact.latitude}
-                    longitude={fact.longitude}
-                    locationName={fact.location_name}
-                    variant="icon"
-                    size="sm"
-                  />
+                  <div className="shrink-0 ml-2">
+                    <LocationNavigationButton
+                      latitude={fact.latitude}
+                      longitude={fact.longitude}
+                      locationName={fact.location_name}
+                      variant="icon"
+                    />
+                  </div>
                 )}
               </div>
               
@@ -204,10 +205,10 @@ export const FactCard: React.FC<FactCardProps> = ({
           </div>
 
           <div className="flex items-center justify-between mt-3">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 flex-1 min-w-0">
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <MapPin className="w-4 h-4" />
-                <span>{fact.location_name}</span>
+                <MapPin className="w-4 h-4 shrink-0" />
+                <span className="truncate">{fact.location_name}</span>
               </div>
               {fact.latitude && fact.longitude && (
                 <div className="text-xs text-muted-foreground/70 font-mono ml-5">
@@ -217,13 +218,14 @@ export const FactCard: React.FC<FactCardProps> = ({
             </div>
             
             {fact.latitude && fact.longitude && (
-              <LocationNavigationButton
-                latitude={fact.latitude}
-                longitude={fact.longitude}
-                locationName={fact.location_name}
-                variant="icon"
-                size="sm"
-              />
+              <div className="shrink-0 ml-3">
+                <LocationNavigationButton
+                  latitude={fact.latitude}
+                  longitude={fact.longitude}
+                  locationName={fact.location_name}
+                  variant="icon"
+                />
+              </div>
             )}
           </div>
           

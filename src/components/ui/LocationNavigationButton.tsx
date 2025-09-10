@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, Navigation } from 'lucide-react';
+import { MapPin, Navigation } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { toast } from 'sonner';
@@ -26,7 +26,11 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
   const location = useLocation();
   const { setMapCenter } = useDiscoveryStore();
 
-  const handleLocationClick = () => {
+  const handleLocationClick = (e: React.MouseEvent) => {
+    // Critical: Stop event propagation to prevent card click
+    e.stopPropagation();
+    e.preventDefault();
+    
     const currentPath = location.pathname;
     
     // Set the map center coordinates
@@ -48,12 +52,12 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
     return (
       <Button
         variant="ghost"
-        size={size}
+        size="sm"
         onClick={handleLocationClick}
-        className={className}
+        className={`h-9 w-9 p-0 rounded-full hover:bg-primary/10 hover:text-primary transition-colors ${className || ''}`}
         title={`View ${locationName || 'location'} on map`}
       >
-        <ChevronRight className="h-4 w-4" />
+        <MapPin className="h-4 w-4" />
       </Button>
     );
   }
