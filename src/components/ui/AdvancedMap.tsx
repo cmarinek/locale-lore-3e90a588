@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Fact, FactMarker } from '@/types/map';
+import { useDiscoveryStore } from '@/stores/discoveryStore';
 
 // Get theme-aware border color
 const getThemeBorderColor = () => {
@@ -61,6 +62,9 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<{ [key: string]: mapboxgl.Marker }>({});
   const realtimeChannelRef = useRef<any>(null);
+  
+  // Get mapCenter from discovery store
+  const { mapCenter, setMapCenter } = useDiscoveryStore();
   
   const [mapStyle, setMapStyle] = useState<keyof typeof mapStyles>('light');
   const [isLoading, setIsLoading] = useState(true);
@@ -598,6 +602,24 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
       });
     }
   }, [facts]);
+
+  // Handle map center changes from store (for location navigation)
+  useEffect(() => {
+    if (map.current && mapCenter) {
+      console.log('Centering map on:', mapCenter);
+      map.current.easeTo({
+        center: mapCenter,
+        zoom: 16,
+        duration: 1500,
+        essential: true
+      });
+      
+      // Clear the mapCenter after using it to avoid repeated centering
+      setTimeout(() => {
+        setMapCenter(null);
+      }, 1600);
+    }
+  }, [mapCenter, setMapCenter]);
 
   // Search functionality
   const handleSearch = useCallback(async (query: string) => {

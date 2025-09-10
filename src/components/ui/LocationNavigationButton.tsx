@@ -31,16 +31,21 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
     e.stopPropagation();
     e.preventDefault();
     
+    console.log('Location button clicked:', { latitude, longitude, locationName });
+    
     const currentPath = location.pathname;
     
     // Set the map center coordinates
+    console.log('Setting map center to:', [longitude, latitude]);
     setMapCenter([longitude, latitude]);
     
     if (currentPath === '/hybrid') {
       // If already on hybrid page, just center the map
+      console.log('Already on hybrid page, centering map');
       toast.success(`Centered map on ${locationName || 'location'}`);
     } else {
       // Navigate to hybrid view for map centering
+      console.log('Navigating to hybrid page');
       navigate('/hybrid', { 
         state: { centerMap: [longitude, latitude], locationName } 
       });
