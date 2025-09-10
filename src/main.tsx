@@ -1,15 +1,21 @@
 console.log('🚀 MAIN: Starting full app...');
 
-import React from 'react';
-import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Initialize i18n before React to avoid circular dependencies
+// Import React first to ensure it's available globally
+console.log('🔧 MAIN: Importing React...');
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+
+// Ensure React is available globally for i18n libraries
+(window as any).React = React;
+console.log('✅ MAIN: React made globally available');
+
+// Now initialize i18n after React is loaded
 console.log('🔧 MAIN: About to import i18n...');
-// Temporarily disable i18n to isolate the issue
-// import './utils/i18n';
-console.log('✅ MAIN: i18n skipped for debugging');
+import './utils/i18n';
+console.log('✅ MAIN: i18n initialized');
 
 // Import error boundary
 import { DiagnosticErrorBoundary } from './components/diagnostics/ErrorBoundary';
