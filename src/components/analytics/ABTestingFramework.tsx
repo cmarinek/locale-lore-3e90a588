@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { analytics } from '@/utils/analytics-engine';
 
 interface ABTest {
@@ -21,7 +21,7 @@ interface ABTestContext {
 const ABTestContext = React.createContext<ABTestContext | null>(null);
 
 export const useABTest = () => {
-  const context = useContext(ABTestContext);
+  const context = React.useContext(ABTestContext);
   if (!context) {
     throw new Error('useABTest must be used within an ABTestProvider');
   }
