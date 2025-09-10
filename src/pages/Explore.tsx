@@ -18,8 +18,10 @@ import {
   MapPin,
   Search as SearchIcon,
   Grid3X3,
-  LayoutList
+  LayoutList,
+  Layers
 } from 'lucide-react';
+import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { InfiniteFactList } from '@/components/discovery/InfiniteFactList';
@@ -182,15 +184,10 @@ export const Explore: React.FC = () => {
                     </Button>
                   </div>
                   
-                  <Button
+                  <ViewModeToggle 
                     variant="default"
-                    onClick={() => navigate('/map')}
                     className="shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground"
-                  >
-                    <MapIcon className="w-4 h-4 mr-2" />
-                    <span className="hidden sm:inline">Map View</span>
-                    <span className="sm:hidden">Map</span>
-                  </Button>
+                  />
                 </div>
               </div>
 

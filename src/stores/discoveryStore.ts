@@ -23,6 +23,11 @@ interface DiscoveryState {
   modalOpen: boolean;
   savedFacts: string[];
   
+  // Location & View State
+  userLocation: [number, number] | null;
+  viewMode: 'explore' | 'hybrid' | 'map';
+  syncSelectedFact: string | null; // For syncing between map and list
+  
   // Actions
   setFacts: (facts: EnhancedFact[]) => void;
   addFacts: (facts: EnhancedFact[]) => void;
@@ -33,10 +38,14 @@ interface DiscoveryState {
   setModalOpen: (open: boolean) => void;
   toggleSavedFact: (factId: string) => void;
   updateSearchSuggestions: (suggestions: string[]) => void;
+  setUserLocation: (location: [number, number] | null) => void;
+  setViewMode: (mode: 'explore' | 'hybrid' | 'map') => void;
+  setSyncSelectedFact: (factId: string | null) => void;
   loadMoreFacts: () => Promise<void>;
   loadCategories: () => Promise<void>;
   loadSavedFacts: () => Promise<void>;
   searchFacts: (query: string) => Promise<void>;
+  searchFactsWithLocation: (query: string, location?: [number, number]) => Promise<void>;
   initializeData: () => Promise<void>;
 }
 
@@ -69,6 +78,11 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       modalOpen: false,
       savedFacts: [],
       
+      // Location & View State
+      userLocation: null,
+      viewMode: 'explore',
+      syncSelectedFact: null,
+      
       // Actions
       setFacts: (facts) => set({ facts }),
       addFacts: (newFacts) => set((state) => ({ 
@@ -87,6 +101,9 @@ export const useDiscoveryStore = create<DiscoveryState>()(
           : [...state.savedFacts, factId]
       })),
       updateSearchSuggestions: (suggestions) => set({ searchSuggestions: suggestions }),
+      setUserLocation: (location) => set({ userLocation: location }),
+      setViewMode: (mode) => set({ viewMode: mode }),
+      setSyncSelectedFact: (factId) => set({ syncSelectedFact: factId }),
       
       loadMoreFacts: async () => {
         const state = get();
@@ -215,6 +232,76 @@ export const useDiscoveryStore = create<DiscoveryState>()(
           set({ 
             loading: false, 
             error: error instanceof Error ? error.message : 'Failed to load saved facts' 
+          });
+        }
+      },
+
+      searchFactsWithLocation: async (query: string, location?: [number, number]) => {
+        set({ loading: true, error: null });
+        try {
+          let queryBuilder = supabase
+            .from('facts')
+            .select(`
+              id,
+              title,
+              description,
+              location_name,
+              latitude,
+              longitude,
+              status,
+              vote_count_up,
+              vote_count_down,
+              category_id,
+              author_id,
+              created_at,
+              updated_at,
+              media_urls,
+              categories!facts_category_id_fkey(
+                slug,
+                icon,
+                color,
+                category_translations!inner(
+                  name,
+                  language_code
+                )
+              ),
+              profiles!facts_author_id_fkey(
+                id,
+                username,
+                avatar_url
+              )
+            `)
+            .eq('categories.category_translations.language_code', 'en');
+
+          if (query.trim()) {
+            queryBuilder = queryBuilder.or(`title.ilike.%${query}%,description.ilike.%${query}%,location_name.ilike.%${query}%`);
+          }
+
+          const { data: facts, error } = await queryBuilder
+            .limit(50)
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+          
+          const enhancedFacts: EnhancedFact[] = (facts || []).map(fact => ({
+            ...fact,
+            categories: fact.categories ? {
+              ...fact.categories,
+              category_translations: fact.categories.category_translations || []
+            } : {
+              slug: 'unknown',
+              icon: '📍',
+              color: '#3B82F6',
+              category_translations: [{ name: 'Unknown', language_code: 'en' }]
+            },
+            profiles: fact.profiles || { id: '', username: 'Anonymous', avatar_url: null }
+          }));
+          
+          set({ facts: enhancedFacts, loading: false, hasMore: false });
+        } catch (error) {
+          set({ 
+            loading: false, 
+            error: error instanceof Error ? error.message : 'Failed to search facts' 
           });
         }
       },

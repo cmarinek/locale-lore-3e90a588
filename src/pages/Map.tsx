@@ -5,6 +5,7 @@ import { SearchBar } from '@/components/discovery/SearchBar';
 import { Button } from '@/components/ui/button';
 import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import AdvancedMap from '@/components/ui/AdvancedMap';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
@@ -92,17 +93,9 @@ export const Map: React.FC = () => {
           </div>
         </div>
 
-        {/* Switch to List View Button */}
+        {/* View Mode Toggle Button */}
         <div className="absolute top-4 right-4 z-20">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => navigate('/explore')}
-            className="glass border-0 shadow-lg"
-          >
-            <List className="w-4 h-4 mr-2" />
-            List View
-          </Button>
+          <ViewModeToggle variant="glass" />
         </div>
 
         {/* Fact Preview Modal */}

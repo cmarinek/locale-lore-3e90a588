@@ -6,6 +6,7 @@ import AuthCallback from '@/pages/AuthCallback';
 import AuthConfirm from '@/pages/AuthConfirm';
 import AuthResetPassword from '@/pages/AuthResetPassword';
 import { Explore } from '@/pages/Explore';
+import { Hybrid } from '@/pages/Hybrid';
 import { LazyMap } from '@/components/performance/LazyRoutes';
 import { Search } from '@/pages/Search';
 import { Submit } from '@/pages/Submit';
@@ -89,6 +90,7 @@ function App() {
                   <Route path="/auth/confirm" element={<AuthConfirm />} />
                   <Route path="/auth/reset-password" element={<AuthResetPassword />} />
                   <Route path="/explore" element={<Explore />} />
+                  <Route path="/hybrid" element={<Hybrid />} />
                   <Route path="/map" element={<React.Suspense fallback={<div>Loading...</div>}><LazyMap /></React.Suspense>} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/submit" element={<Submit />} />
