@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { analytics } from '@/utils/analytics-engine';
 
 interface ABTest {
@@ -18,7 +18,7 @@ interface ABTestContext {
   isInTest: (testName: string) => boolean;
 }
 
-const ABTestContext = createContext<ABTestContext | null>(null);
+const ABTestContext = React.createContext<ABTestContext | null>(null);
 
 export const useABTest = () => {
   const context = useContext(ABTestContext);
