@@ -1,9 +1,16 @@
 
-import * as Sentry from '@sentry/react';
+console.log('🔧 MONITORING: Starting monitoring.ts import...');
+
 import { config } from '@/config/environments';
+console.log('🔧 MONITORING: Config imported, environment:', config.environment);
+
+console.log('🔧 MONITORING: About to import Sentry...');
+import * as Sentry from '@sentry/react';
+console.log('🔧 MONITORING: Sentry imported successfully');
 
 // Initialize Sentry for error tracking
 export const initializeErrorTracking = () => {
+  console.log('🔧 MONITORING: initializeErrorTracking called');
   try {
     if (config.enableErrorTracking && config.sentryDsn) {
       Sentry.init({
