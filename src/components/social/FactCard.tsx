@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { LocationNavigationButton } from '@/components/ui/LocationNavigationButton';
 import { TipSystem } from '@/components/contributor/TipSystem';
 import { 
   Heart, 
@@ -26,6 +27,8 @@ interface FactCardProps {
     title: string;
     description: string;
     location_name: string;
+    latitude?: number;
+    longitude?: number;
     author_id: string;
     vote_count_up: number;
     vote_count_down: number;
@@ -112,6 +115,16 @@ export const FactCard: React.FC<FactCardProps> = ({
                 <div className="flex items-center gap-1">
                   <MapPin className="w-3 h-3" />
                   <span className="truncate">{fact.location_name}</span>
+                  {fact.latitude && fact.longitude && (
+                    <LocationNavigationButton
+                      latitude={fact.latitude}
+                      longitude={fact.longitude}
+                      locationName={fact.location_name}
+                      variant="icon"
+                      size="sm"
+                      className="ml-1"
+                    />
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
@@ -183,11 +196,29 @@ export const FactCard: React.FC<FactCardProps> = ({
             </CardDescription>
           </div>
 
-          <div className="flex items-center gap-2 mt-3">
+          <div className="flex items-center justify-between mt-3">
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <MapPin className="w-4 h-4" />
               <span>{fact.location_name}</span>
+              {fact.latitude && fact.longitude && (
+                <span className="text-xs ml-2">
+                  ({fact.latitude.toFixed(4)}, {fact.longitude.toFixed(4)})
+                </span>
+              )}
             </div>
+            
+            {fact.latitude && fact.longitude && (
+              <LocationNavigationButton
+                latitude={fact.latitude}
+                longitude={fact.longitude}
+                locationName={fact.location_name}
+                variant="icon"
+                size="sm"
+              />
+            )}
+          </div>
+          
+          <div className="flex items-center gap-2 mt-2">
             
             {fact.categories?.category_translations?.[0] && (
               <Badge variant="secondary" className="text-xs">

@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/ios-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/ios-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { LocationNavigationButton } from '@/components/ui/LocationNavigationButton';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { EnhancedFact } from '@/types/fact';
 import { cn } from '@/lib/utils';
@@ -88,16 +89,24 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                   <h3 className="font-semibold text-base line-clamp-1 group-hover:text-primary transition-colors">
                     {fact.title}
                   </h3>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-3 w-3" />
-                    <span className="truncate">{fact.location_name}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <MapPin className="h-3 w-3" />
+                      <span className="truncate">{fact.location_name}</span>
+                    </div>
+                    {fact.latitude && fact.longitude && (
+                      <LocationNavigationButton
+                        latitude={fact.latitude}
+                        longitude={fact.longitude}
+                        locationName={fact.location_name}
+                        variant="icon"
+                        size="sm"
+                      />
+                    )}
                   </div>
                   <div className="text-xs text-muted-foreground/70 font-mono">
                     {Number(fact.latitude).toFixed(4)}, {Number(fact.longitude).toFixed(4)}
                   </div>
-            <div className="text-xs text-muted-foreground/70 font-mono">
-              {Number(fact.latitude).toFixed(4)}, {Number(fact.longitude).toFixed(4)}
-            </div>
                 </div>
                 
                 {/* Quick Actions */}
@@ -248,9 +257,20 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
               {fact.title}
             </h3>
             
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-3 w-3" />
-              <span className="truncate">{fact.location_name}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-3 w-3" />
+                <span className="truncate">{fact.location_name}</span>
+              </div>
+              {fact.latitude && fact.longitude && (
+                <LocationNavigationButton
+                  latitude={fact.latitude}
+                  longitude={fact.longitude}
+                  locationName={fact.location_name}
+                  variant="icon"
+                  size="sm"
+                />
+              )}
             </div>
             <div className="text-xs text-muted-foreground/70 font-mono">
               {Number(fact.latitude).toFixed(4)}, {Number(fact.longitude).toFixed(4)}

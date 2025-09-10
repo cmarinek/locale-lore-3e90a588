@@ -230,35 +230,12 @@ export const Hybrid: React.FC = () => {
                 )}
                 
                 {facts.map((fact) => (
-                  <Card 
-                    key={fact.id} 
-                    className="cursor-pointer hover:shadow-md transition-shadow bg-card/50 backdrop-blur-sm"
-                    onClick={() => handleFactClick(fact)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0">
-                          <div className="w-2 h-2 rounded-full bg-primary mt-2" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium truncate">{fact.title}</h4>
-                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                            {fact.description}
-                          </p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Badge variant="secondary" className="text-xs">
-                              {fact.categories?.category_translations?.[0]?.name || fact.categories?.slug || 'Unknown'}
-                            </Badge>
-                            {fact.status === 'verified' && (
-                              <Badge variant="outline" className="text-xs">
-                                Verified
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <FactCard
+                    key={fact.id}
+                    fact={fact}
+                    viewMode="list"
+                    className="bg-card/50 backdrop-blur-sm"
+                  />
                 ))}
               </div>
             </ScrollArea>

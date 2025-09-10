@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { LocationNavigationButton } from '@/components/ui/LocationNavigationButton';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { EnhancedFact } from '@/types/fact';
 
@@ -86,9 +87,25 @@ export const FactPreviewModal: React.FC<FactPreviewModalProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4" />
-              <span>{fact.location_name}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4" />
+                <span>{fact.location_name}</span>
+                {fact.latitude && fact.longitude && (
+                  <span className="text-xs ml-2">
+                    ({fact.latitude.toFixed(4)}, {fact.longitude.toFixed(4)})
+                  </span>
+                )}
+              </div>
+              {fact.latitude && fact.longitude && (
+                <LocationNavigationButton
+                  latitude={fact.latitude}
+                  longitude={fact.longitude}
+                  locationName={fact.location_name}
+                  variant="button"
+                  size="sm"
+                />
+              )}
             </div>
           </div>
 
