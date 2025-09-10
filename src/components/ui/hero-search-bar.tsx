@@ -88,7 +88,7 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
       }} transition={{
         duration: 0.6
       }}>
-          <span className="text-primary">Discover</span>{" "}
+          <span className="text-primary">Find</span>{" "}
           <span className="text-secondary">Local Lore</span>
         </motion.h1>
         

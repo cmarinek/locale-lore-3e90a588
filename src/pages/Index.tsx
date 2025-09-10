@@ -100,12 +100,16 @@ const Index: React.FC = () => {
           </div>
 
           {/* Quick Actions */}
-          <motion.div 
-            className="flex flex-wrap justify-center gap-4 mb-8" 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.6, delay: 0.25 }}
-          >
+          <motion.div className="flex flex-wrap justify-center gap-4 mb-8" initial={{
+              opacity: 0,
+              y: 20
+            }} animate={{
+              opacity: 1,
+              y: 0
+            }} transition={{
+              duration: 0.6,
+              delay: 0.25
+            }}>
             <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
               <div className="text-center">
                 <Sparkles className="h-8 w-8 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform" />
@@ -134,7 +138,7 @@ const Index: React.FC = () => {
               <div className="text-center">
                 <Users className="h-8 w-8 text-secondary mx-auto mb-2 group-hover:scale-110 transition-transform" />
                 <h3 className="font-semibold mb-1">Join Community</h3>
-                <p className="text-sm text-muted-foreground">Connect with storytellers</p>
+                <p className="text-sm text-muted-foreground">Connect and contribute</p>
               </div>
             </Card>
           </motion.div>
