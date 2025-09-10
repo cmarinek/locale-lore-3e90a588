@@ -1,7 +1,7 @@
 import React, { useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+// import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -82,11 +82,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       window.location.href = '/auth';
     } catch (error) {
       console.error('Error signing out:', error);
-      toast({
-        title: "Sign out failed",
-        description: "There was an error signing out. Please try again.",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Sign out failed",
+      //   description: "There was an error signing out. Please try again.",
+      //   variant: "destructive",
+      // });
     }
   };
 
