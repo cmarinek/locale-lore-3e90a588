@@ -6,8 +6,10 @@ import App from './App.tsx';
 import './index.css';
 
 // Initialize i18n before React to avoid circular dependencies
-import './utils/i18n';
-console.log('✅ MAIN: i18n initialized');
+console.log('🔧 MAIN: About to import i18n...');
+// Temporarily disable i18n to isolate the issue
+// import './utils/i18n';
+console.log('✅ MAIN: i18n skipped for debugging');
 
 // Import error boundary
 import { DiagnosticErrorBoundary } from './components/diagnostics/ErrorBoundary';
