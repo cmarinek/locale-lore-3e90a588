@@ -121,6 +121,22 @@ const Index: React.FC = () => {
                 <p className="text-sm text-muted-foreground">See stories around you</p>
               </div>
             </Card>
+            
+            <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+              <div className="text-center">
+                <TrendingUp className="h-8 w-8 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <h3 className="font-semibold mb-1">Trending Stories</h3>
+                <p className="text-sm text-muted-foreground">Popular local legends</p>
+              </div>
+            </Card>
+            
+            <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+              <div className="text-center">
+                <Users className="h-8 w-8 text-secondary mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <h3 className="font-semibold mb-1">Join Community</h3>
+                <p className="text-sm text-muted-foreground">Connect with storytellers</p>
+              </div>
+            </Card>
           </motion.div>
         </motion.div>
 
