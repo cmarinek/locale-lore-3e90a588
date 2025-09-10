@@ -263,6 +263,19 @@
     background: linear-gradient(135deg, hsl(var(--logo-blue)) 0%, hsl(var(--logo-blue-light)) 50%, hsl(var(--logo-green-light)) 100%);
   }
 
+  /* Loading screen gradients */
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--logo-blue-light)) 100%);
+  }
+
+  .bg-gradient-secondary {
+    background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--logo-green-light)) 100%);
+  }
+
+  .bg-gradient-radial {
+    background: radial-gradient(circle, currentColor 0%, transparent 70%);
+  }
+
   /* Elevation utilities */
   .elevation-1 {
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);

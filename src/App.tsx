@@ -32,10 +32,48 @@ import { Toaster } from '@/components/ui/toaster';
 import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from '@/components/monitoring/ErrorBoundary';
 import { CookieConsent } from '@/components/compliance/CookieConsent';
+import { LoadingIntroduction } from '@/components/ui/loading-introduction';
 
 
 function App() {
   console.log('App component rendering...');
+  const [showLoading, setShowLoading] = React.useState(true);
+  const [appReady, setAppReady] = React.useState(false);
+
+  React.useEffect(() => {
+    // Simulate app initialization
+    const initApp = async () => {
+      // Wait for critical resources to load
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setAppReady(true);
+    };
+    
+    initApp();
+  }, []);
+
+  const handleLoadingComplete = () => {
+    setShowLoading(false);
+  };
+
+  if (showLoading) {
+    return (
+      <ErrorBoundary>
+        <HelmetProvider>
+          <AuthProvider>
+            <ThemeProvider>
+              <LanguageProvider>
+                <LoadingIntroduction 
+                  onComplete={handleLoadingComplete}
+                  minDisplayTime={4000}
+                />
+              </LanguageProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </HelmetProvider>
+      </ErrorBoundary>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <HelmetProvider>
