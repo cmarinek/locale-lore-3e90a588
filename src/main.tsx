@@ -1,33 +1,13 @@
-console.log('🚀 MAIN: Starting full app...');
+console.log('🚀 MAIN: Starting app with proper React isolation...');
 
-// Import React FIRST and make it immediately available globally before ANY other imports
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-
-// Make React available globally IMMEDIATELY - this must happen before any i18n code runs
-(window as any).React = React;
-(window as any).createContext = React.createContext;
-(window as any).useContext = React.useContext;
-(window as any).useState = React.useState;
-(window as any).useEffect = React.useEffect;
-console.log('✅ MAIN: React made globally available with all hooks');
-
-// Now import other modules
 import App from './App.tsx';
 import './index.css';
 
 // Import error boundary
 import { DiagnosticErrorBoundary } from './components/diagnostics/ErrorBoundary';
 console.log('✅ MAIN: Components imported');
-
-// Create a safe i18n initializer - temporarily disabled to test app loading
-const initI18n = () => {
-  return new Promise((resolve) => {
-    console.log('🔧 MAIN: i18n temporarily disabled for testing');
-    // Skip i18n initialization for now
-    resolve(true);
-  });
-};
 
 const startApp = async () => {
   try {
@@ -42,11 +22,7 @@ const startApp = async () => {
     const root = createRoot(rootElement);
     console.log('🎯 MAIN: React root created');
     
-    // Initialize i18n first, then render the app
-    console.log('🎯 MAIN: Initializing i18n...');
-    await initI18n();
-    
-    console.log('🎯 MAIN: Rendering full App with providers...');
+    console.log('🎯 MAIN: Rendering App without i18n for now...');
     root.render(
       <React.StrictMode>
         <DiagnosticErrorBoundary>
@@ -55,7 +31,7 @@ const startApp = async () => {
       </React.StrictMode>
     );
     
-    console.log('✅ MAIN: Full app rendered successfully');
+    console.log('✅ MAIN: App rendered successfully');
   } catch (error) {
     console.error('❌ MAIN: Critical error during app initialization:', error);
     console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack');

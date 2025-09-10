@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from '@/hooks/useSafeTranslation';
+import React from 'react';
 import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from '@/utils/languages';
 
 interface LanguageContextType {
@@ -20,7 +19,9 @@ export const useLanguage = () => {
     console.warn('useLanguage called outside LanguageProvider, using fallback values');
     return {
       currentLanguage: 'en' as SupportedLanguage,
-      setLanguage: async () => {},
+      setLanguage: async (language: SupportedLanguage) => {
+        console.log('Fallback setLanguage called with:', language);
+      },
       isRTL: false,
       supportedLanguages: SUPPORTED_LANGUAGES,
       isLoading: false,
@@ -29,54 +30,23 @@ export const useLanguage = () => {
   return context;
 };
 
-interface LanguageProviderProps {
-  children: React.ReactNode;
-}
-
-export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const { i18n } = useTranslation();
-  const [isLoading, setIsLoading] = useState(false);
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  console.log('LanguageProvider: Rendering...');
   
-  const currentLanguage = (i18n.language?.split('-')[0] || 'en') as SupportedLanguage;
-  const isRTL = SUPPORTED_LANGUAGES[currentLanguage]?.rtl || false;
-
-  const setLanguage = async (language: SupportedLanguage): Promise<void> => {
-    if (isLoading) return; // Prevent concurrent changes
-    
-    setIsLoading(true);
-    try {
-      await i18n.changeLanguage(language);
+  // Simplified implementation without useState for now
+  const contextValue: LanguageContextType = {
+    currentLanguage: 'en',
+    setLanguage: async (language: SupportedLanguage) => {
+      console.log('Language change requested:', language);
       updateDocumentDirection(language);
-      
-      // Store preference
-      localStorage.setItem('locale-lore-language', language);
-      
-      // Dispatch event for other components
-      window.dispatchEvent(new CustomEvent('languageChanged', { 
-        detail: { language, isRTL: SUPPORTED_LANGUAGES[language].rtl } 
-      }));
-    } catch (error) {
-      console.error('Failed to change language:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Update document direction when language changes
-  useEffect(() => {
-    updateDocumentDirection(currentLanguage);
-  }, [currentLanguage]);
-
-  const value: LanguageContextType = {
-    currentLanguage,
-    setLanguage,
-    isRTL,
+    },
+    isRTL: false,
     supportedLanguages: SUPPORTED_LANGUAGES,
-    isLoading,
+    isLoading: false,
   };
 
   return (
-    <LanguageContext.Provider value={value}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );
