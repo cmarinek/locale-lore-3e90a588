@@ -201,33 +201,6 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
           </div>
         </motion.div>}
 
-      {/* Quick Actions */}
-      <motion.div className="mt-12 flex flex-wrap justify-center gap-4" initial={{
-      opacity: 0,
-      y: 20
-    }} animate={{
-      opacity: 1,
-      y: 0
-    }} transition={{
-      duration: 0.6,
-      delay: 1.0
-    }}>
-        <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
-          <div className="text-center">
-            <Sparkles className="h-8 w-8 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform" />
-            <h3 className="font-semibold mb-1">Discover Daily</h3>
-            <p className="text-sm text-muted-foreground">Get personalized local stories</p>
-          </div>
-        </Card>
-        
-        <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
-          <div className="text-center">
-            <MapPin className="h-8 w-8 text-secondary mx-auto mb-2 group-hover:scale-110 transition-transform" />
-            <h3 className="font-semibold mb-1">Explore Map</h3>
-            <p className="text-sm text-muted-foreground">See stories around you</p>
-          </div>
-        </Card>
-      </motion.div>
     </div>;
 };
 export default HeroSearchBar;

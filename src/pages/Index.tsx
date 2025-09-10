@@ -3,7 +3,7 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { WelcomeHero } from '@/components/organisms/WelcomeHero';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Compass, Search, BookOpen, Star, MapPin, TrendingUp, Users, Shield, Loader2 } from 'lucide-react';
+import { Compass, Search, BookOpen, Star, MapPin, TrendingUp, Users, Shield, Loader2, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -61,6 +61,30 @@ const Index: React.FC = () => {
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
             {t('subtitle', 'Discover fascinating local stories and legends from around the world')}
           </p>
+
+          {/* Quick Actions */}
+          <motion.div 
+            className="flex flex-wrap justify-center gap-4 mb-8" 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.6, delay: 0.25 }}
+          >
+            <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+              <div className="text-center">
+                <Sparkles className="h-8 w-8 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <h3 className="font-semibold mb-1">Discover Daily</h3>
+                <p className="text-sm text-muted-foreground">Get personalized local stories</p>
+              </div>
+            </Card>
+            
+            <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+              <div className="text-center">
+                <MapPin className="h-8 w-8 text-secondary mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <h3 className="font-semibold mb-1">Explore Map</h3>
+                <p className="text-sm text-muted-foreground">See stories around you</p>
+              </div>
+            </Card>
+          </motion.div>
           
           <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
             <motion.div initial={{
