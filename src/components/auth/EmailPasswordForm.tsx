@@ -22,11 +22,8 @@ export const EmailPasswordForm = ({ mode, onSuccess, onSwitchMode }: EmailPasswo
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { signInWithEmail, signUpWithEmail, loading } = useAuth();
   const { t } = useTranslation('auth');
-  const { signInSchema, signUpSchema } = useValidationSchemas();
-
-  const schema = mode === 'signin' ? signInSchema : signUpSchema;
+  // Temporarily disable validation
   const form = useForm({
-    resolver: zodResolver(schema),
     defaultValues: {
       email: '',
       password: '',
