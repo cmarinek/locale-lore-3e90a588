@@ -695,6 +695,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
                 size="sm"
                 onClick={() => setMapStyle('light')}
                 className="haptic-feedback"
+                title="Light mode"
               >
                 <Sun className="w-4 h-4" />
               </Button>
@@ -703,6 +704,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
                 size="sm"
                 onClick={() => setMapStyle('dark')}
                 className="haptic-feedback"
+                title="Dark mode"
               >
                 <Moon className="w-4 h-4" />
               </Button>
@@ -711,6 +713,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
                 size="sm"
                 onClick={() => setMapStyle('satellite')}
                 className="haptic-feedback"
+                title="Satellite view"
               >
                 <Satellite className="w-4 h-4" />
               </Button>
@@ -719,6 +722,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
                 size="sm"
                 onClick={() => setMapStyle('terrain')}
                 className="haptic-feedback"
+                title="Terrain & topography"
               >
                 <Layers className="w-4 h-4" />
               </Button>
