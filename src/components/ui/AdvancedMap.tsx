@@ -686,9 +686,9 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
 
       {/* Map Style Controls */}
       {showControls && (
-        <Card className="absolute top-20 right-4 z-10 bg-card/95 backdrop-blur border-border">
-          <div className="p-3 space-y-2">
-            <div className="grid grid-cols-2 gap-2">
+        <Card className="absolute top-20 left-4 right-4 z-10 bg-card/95 backdrop-blur border-border">
+          <div className="p-2">
+            <div className="flex items-center gap-2 justify-center">
               <Button
                 variant={mapStyle === 'light' ? 'ios' : 'ghost'}
                 size="sm"
