@@ -219,6 +219,17 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
             
             {/* Quick Actions Overlay */}
             <div className="absolute top-3 right-3 flex gap-2">
+              {/* Category Badge */}
+              <Badge 
+                variant="glass" 
+                className="flex items-center gap-1 bg-black/20 backdrop-blur-sm text-white border-white/20"
+                style={{ borderColor: fact.categories?.color }}
+              >
+                <span style={{ color: fact.categories?.color }}>
+                  {fact.categories?.icon}
+                </span>
+                <span className="capitalize text-xs">{categoryName}</span>
+              </Badge>
               <Button
                 variant="ghost"
                 size="sm"
@@ -241,19 +252,6 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
               </Button>
             </div>
 
-            {/* Category Badge */}
-            <div className="absolute bottom-3 left-3">
-              <Badge 
-                variant="glass" 
-                className="flex items-center gap-1"
-                style={{ borderColor: fact.categories?.color }}
-              >
-                <span style={{ color: fact.categories?.color }}>
-                  {fact.categories?.icon}
-                </span>
-                <span className="capitalize text-xs">{categoryName}</span>
-              </Badge>
-            </div>
           </div>
         )}
 
