@@ -671,7 +671,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
       )}
 
       {/* Search Bar */}
-      <div className="absolute top-4 left-4 right-4 z-10">
+      <div className="absolute top-16 left-4 right-4 z-10">
         <div className="flex items-center bg-card border border-border rounded-2xl p-2 shadow-lg hover:shadow-xl transition-all duration-300 group">
           <div className="flex items-center flex-1 px-4">
             <Search className="w-5 h-5 text-muted-foreground mr-3 group-focus-within:text-primary transition-colors" />
@@ -688,7 +688,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
 
       {/* Map Style Controls */}
       {showControls && (
-        <div className="absolute top-28 left-4 z-10 mt-2">
+        <div className="absolute top-32 left-4 z-10 mt-2">
           <div className="flex items-center gap-2 justify-start">
               <Button
                 variant={mapStyle === 'light' ? 'ios' : 'ghost'}
