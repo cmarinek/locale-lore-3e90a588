@@ -8,23 +8,8 @@ interface ThemeContextType {
   actualTheme: 'light' | 'dark';
 }
 
-// Temporarily disable context to prevent bundling issues
-let globalThemeState: ThemeContextType = {
-  theme: 'auto',
-  setTheme: () => {},
-  actualTheme: 'light'
-};
-
-export const useTheme = () => {
-  return globalThemeState;
-};
-
-interface ThemeProviderProps {
-  children: React.ReactNode;
-}
-
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  // Use localStorage for theme persistence instead of depending on user authentication
+// Simple hook without context
+export const useTheme = (): ThemeContextType => {
   const [theme, setThemeState] = useState<Theme>(() => {
     const stored = localStorage.getItem('locale-lore-theme');
     return (stored as Theme) || 'auto';
@@ -43,12 +28,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       finalTheme = themeToApply;
     }
 
-    // Remove existing theme classes
     root.classList.remove('light', 'dark');
-    
-    // Add the appropriate theme class
     root.classList.add(finalTheme);
-    
     setActualTheme(finalTheme);
   };
 
@@ -56,13 +37,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     localStorage.setItem('locale-lore-theme', newTheme);
     setThemeState(newTheme);
     applyTheme(newTheme);
-    
-    // Update global state
-    globalThemeState = {
-      theme: newTheme,
-      setTheme,
-      actualTheme
-    };
   };
 
   useEffect(() => {
@@ -77,13 +51,18 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     }
   }, [theme]);
 
-  // Update global state
-  globalThemeState = {
+  return {
     theme,
     setTheme,
     actualTheme,
   };
+};
 
+interface ThemeProviderProps {
+  children: React.ReactNode;
+}
+
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   return <div>{children}</div>;
 };
 
