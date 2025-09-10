@@ -27,45 +27,51 @@ export const WelcomeHero = () => {
     <div className="flex flex-col items-center justify-center min-h-screen px-4 py-20">
       <HeroSearchBar className="w-full mb-16" />
       
-      {user ? (
-        <>
-          {/* Explore Stories Section */}
-          <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto mb-8">
-            <div className="text-center space-y-4">
-              <h3 className="text-xl font-semibold">Welcome back, {user.email?.split('@')[0]}!</h3>
-              <p className="text-muted-foreground">Ready to explore more local stories?</p>
-              <Button size="lg" className="w-full" onClick={() => navigate('/explore')}>
-                Explore Stories
-              </Button>
-            </div>
+      {/* Explore Stories Section */}
+      <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto mb-8">
+        {user ? (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-semibold">Welcome back, {user.email?.split('@')[0]}!</h3>
+            <p className="text-muted-foreground">Ready to explore more local stories?</p>
+            <Button size="lg" className="w-full" onClick={() => navigate('/explore')}>
+              Explore Stories
+            </Button>
           </div>
-        </>
-      ) : (
-        <>
-          {/* Join LocaleLore Section */}
-          <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
-            <h3 className="text-xl font-semibold mb-4">Join LocaleLore Community</h3>
-            <div className="space-y-3">
-              <Button 
-                size="lg" 
-                className="w-full" 
-                onClick={() => navigate('/auth')}
-              >
-                <UserPlus className="mr-2 h-4 w-4" />
-                Sign Up Free
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="w-full"
-                onClick={() => navigate('/auth')}
-              >
-                <LogIn className="mr-2 h-4 w-4" />
-                Sign In
-              </Button>
-            </div>
+        ) : (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-semibold">Discover Local Stories</h3>
+            <p className="text-muted-foreground">Explore fascinating stories from around the world</p>
+            <Button size="lg" className="w-full" onClick={() => navigate('/explore')}>
+              Explore Stories
+            </Button>
           </div>
-        </>
+        )}
+      </div>
+
+      {/* Join LocaleLore Section - Always show for non-authenticated users */}
+      {!user && (
+        <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
+          <h3 className="text-xl font-semibold mb-4">Join LocaleLore Community</h3>
+          <div className="space-y-3">
+            <Button 
+              size="lg" 
+              className="w-full" 
+              onClick={() => navigate('/auth')}
+            >
+              <UserPlus className="mr-2 h-4 w-4" />
+              Sign Up Free
+            </Button>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="w-full"
+              onClick={() => navigate('/auth')}
+            >
+              <LogIn className="mr-2 h-4 w-4" />
+              Sign In
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );
