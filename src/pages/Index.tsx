@@ -158,6 +158,39 @@ const Index: React.FC = () => {
           </motion.div>
         </div>
 
+        {/* Join LocaleLore Section - Show for non-authenticated users */}
+        {!user && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.75 }}
+            className="text-center mb-12"
+          >
+            <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
+              <h3 className="text-xl font-semibold mb-4">Join LocaleLore Community</h3>
+              <div className="space-y-3">
+                <Button 
+                  size="lg" 
+                  className="w-full" 
+                  onClick={() => navigate('/auth')}
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Sign Up Free
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="w-full"
+                  onClick={() => navigate('/auth')}
+                >
+                  <Shield className="mr-2 h-4 w-4" />
+                  Sign In
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Stats Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

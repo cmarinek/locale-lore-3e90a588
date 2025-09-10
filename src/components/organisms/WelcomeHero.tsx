@@ -28,7 +28,7 @@ export const WelcomeHero = () => {
       <HeroSearchBar className="w-full mb-16" />
       
       {/* Explore Stories Section */}
-      <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto mb-8">
+      <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
         {user ? (
           <div className="text-center space-y-4">
             <h3 className="text-xl font-semibold">Welcome back, {user.email?.split('@')[0]}!</h3>
@@ -47,32 +47,6 @@ export const WelcomeHero = () => {
           </div>
         )}
       </div>
-
-      {/* Join LocaleLore Section - Show for non-authenticated users */}
-      {!user && (
-        <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
-          <h3 className="text-xl font-semibold mb-4">Join LocaleLore Community</h3>
-          <div className="space-y-3">
-            <Button 
-              size="lg" 
-              className="w-full" 
-              onClick={() => navigate('/auth')}
-            >
-              <UserPlus className="mr-2 h-4 w-4" />
-              Sign Up Free
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="w-full"
-              onClick={() => navigate('/auth')}
-            >
-              <LogIn className="mr-2 h-4 w-4" />
-              Sign In
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
