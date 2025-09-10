@@ -10,7 +10,7 @@ interface LanguageContextType {
   isLoading: boolean;
 }
 
-const LanguageContext = createContext<LanguageContextType | null>(null);
+const LanguageContext = React.createContext<LanguageContextType | null>(null);
 
 // Optional hook - app should work without this context
 export const useLanguage = () => {
