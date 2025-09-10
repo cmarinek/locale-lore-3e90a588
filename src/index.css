@@ -66,6 +66,19 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    position: relative;
+  }
+  
+  /* Ensure root visibility */
+  #root {
+    min-height: 100vh;
+    position: relative;
+  }
+  
+  /* Force visibility for debugging */
+  .min-h-screen {
+    min-height: 100vh !important;
   }
 }
 

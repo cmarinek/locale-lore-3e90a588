@@ -9,9 +9,18 @@ import { LogIn, UserPlus } from "lucide-react";
 export const WelcomeHero = () => {
   console.log('WelcomeHero: Component rendering...');
   const [email, setEmail] = useState("");
+  
+  console.log('WelcomeHero: About to initialize hooks...');
   const { t } = useTranslation('lore');
+  console.log('WelcomeHero: Translation hook initialized');
+  
   const { user } = useAuth();
+  console.log('WelcomeHero: Auth hook initialized, user:', user);
+  
   const navigate = useNavigate();
+  console.log('WelcomeHero: Navigate hook initialized');
+  
+  console.log('WelcomeHero: About to render JSX...');
   
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">

@@ -5,24 +5,74 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Compass, Search, BookOpen, Star, MapPin, TrendingUp, Users, Shield, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCommunityStats } from '@/hooks/useCommunityStats';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { useOnboarding } from '@/hooks/useOnboarding';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index: React.FC = () => {
   console.log('Index page rendering...');
+  console.log('Index: About to initialize hooks...');
+  
+  const location = useLocation();
   const navigate = useNavigate();
+  console.log('Index: navigate hook initialized');
+  
   const { t } = useTranslation('lore');
+  console.log('Index: translation hook initialized');
+  
+  const { user } = useAuth();
+  console.log('Index: auth hook initialized, user:', user);
+  
   const { storiesShared, activeContributors, locationsCovered, isLoading, error } = useCommunityStats();
+  console.log('Index: community stats hook initialized, stats:', { storiesShared, activeContributors, locationsCovered, isLoading, error });
+  
   const { showOnboarding, completeOnboarding, skipOnboarding } = useOnboarding();
+  console.log('Index: onboarding hook initialized');
 
+  console.log('Index: About to render JSX...');
+  
   return (
-    <MainLayout>
-      <div className="min-h-screen">
-        {/* Hero Section */}
-        <WelcomeHero />
+    <>
+      {/* Temporary visibility test */}
+      <div style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        width: '100%', 
+        height: '100%', 
+        backgroundColor: 'white', 
+        color: 'black', 
+        fontSize: '24px', 
+        padding: '20px', 
+        zIndex: 9999,
+        display: 'block'
+      }}>
+        <h1>VISIBILITY TEST - App is working!</h1>
+        <p>If you can see this, the app is rendering correctly.</p>
+        <p>Current route: {location.pathname}</p>
+        <p>User: {user ? user.email : 'Not logged in'}</p>
+        <p>Stats loading: {isLoading ? 'Yes' : 'No'}</p>
+        <p>Stats error: {error || 'None'}</p>
+        <button onClick={() => navigate('/explore')} style={{ 
+          padding: '10px 20px', 
+          fontSize: '18px', 
+          margin: '10px 0',
+          backgroundColor: '#007bff',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px'
+        }}>
+          Go to Explore
+        </button>
+      </div>
+      
+      <MainLayout>
+        <div className="min-h-screen">
+          {/* Hero Section */}
+          <WelcomeHero />
         
         {/* Main Actions */}
         <div className="container mx-auto px-4 py-12">
@@ -196,6 +246,7 @@ const Index: React.FC = () => {
         />
       )}
     </MainLayout>
+    </>
   );
 };
 
