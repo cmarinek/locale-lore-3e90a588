@@ -21,7 +21,7 @@ export const WelcomeHero = () => {
   const navigate = useNavigate();
   console.log('WelcomeHero: Navigate hook initialized');
   console.log('WelcomeHero: About to render JSX...');
-  return <div className="flex flex-col items-center justify-center min-h-screen px-4 py-[10px]">
+  return <div className="flex flex-col items-center justify-center px-4 py-12">
       <HeroSearchBar className="w-full" />
     </div>;
 };
