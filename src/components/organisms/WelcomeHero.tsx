@@ -25,28 +25,7 @@ export const WelcomeHero = () => {
   
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4 py-20">
-      <HeroSearchBar className="w-full mb-16" />
-      
-      {/* Explore Stories Section */}
-      <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
-        {user ? (
-          <div className="text-center space-y-4">
-            <h3 className="text-xl font-semibold">Welcome back, {user.email?.split('@')[0]}!</h3>
-            <p className="text-muted-foreground">Ready to explore more local stories?</p>
-            <Button size="lg" className="w-full" onClick={() => navigate('/explore')}>
-              Explore Stories
-            </Button>
-          </div>
-        ) : (
-          <div className="text-center space-y-4">
-            <h3 className="text-xl font-semibold">Discover Local Stories</h3>
-            <p className="text-muted-foreground">Explore fascinating stories from around the world</p>
-            <Button size="lg" className="w-full" onClick={() => navigate('/explore')}>
-              Explore Stories
-            </Button>
-          </div>
-        )}
-      </div>
+      <HeroSearchBar className="w-full" />
     </div>
   );
 };
