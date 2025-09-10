@@ -14,7 +14,7 @@ import {
   Flame
  } from 'lucide-react';
 import { UserStatistics } from '@/hooks/useProfile';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useSafeTranslation';
 
 interface StatisticsCardProps {
   statistics: UserStatistics | null;

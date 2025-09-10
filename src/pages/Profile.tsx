@@ -12,7 +12,7 @@ import { DataExportPanel } from '@/components/profile/DataExportPanel';
 import { DataDeletionPanel } from '@/components/profile/DataDeletionPanel';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useSafeTranslation';
 
 export const Profile: React.FC = () => {
   const { id } = useParams<{ id?: string }>();

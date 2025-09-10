@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useSafeTranslation';
 import { useTranslationFiles } from '@/hooks/useTranslationFiles';
 import { SUPPORTED_LANGUAGES } from '@/utils/i18n';
 import { TranslationGenerator } from '@/utils/translation-generator';

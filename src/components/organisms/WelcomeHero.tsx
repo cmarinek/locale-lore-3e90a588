@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/molecules/InputField";
 import { useState } from "react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useSafeTranslation';
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { LogIn, UserPlus } from "lucide-react";

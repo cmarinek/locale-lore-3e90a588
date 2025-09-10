@@ -13,7 +13,7 @@ import FactAcquisitionManager from './FactAcquisitionManager';
 import { MobileAppBuilder } from './MobileAppBuilder';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, AlertTriangle } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useSafeTranslation';
 
 export const AdminDashboard: React.FC = () => {
   const { isAdmin, loading } = useAdmin();
