@@ -82,8 +82,10 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
       if (error) throw error;
       return data.token;
     } catch (error) {
-      console.error('Error fetching Mapbox token:', error);
-      return null;
+      console.error('Error fetching Mapbox token from Edge Function:', error);
+      console.warn('Edge Functions not available. Please add MAPBOX_PUBLIC_TOKEN to your environment or deploy to production.');
+      // Fallback: try to get from window object (for development)
+      return (window as any).MAPBOX_TOKEN || null;
     }
   }, []);
 
@@ -681,6 +683,33 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
             <p className="text-sm text-muted-foreground">Loading map...</p>
           </div>
+        </div>
+      )}
+
+      {/* Error overlay when no token */}
+      {!mapboxToken && !isLoading && (
+        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50">
+          <Card className="max-w-md mx-4">
+            <div className="p-6 text-center space-y-4">
+              <MapIcon className="w-12 h-12 text-muted-foreground mx-auto" />
+              <h3 className="text-lg font-semibold">Map Unavailable</h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>The map cannot load because:</p>
+                <ul className="text-left space-y-1">
+                  <li>• Edge Functions are not available in this environment</li>
+                  <li>• Deploy to production (Vercel/Netlify) to access maps</li>
+                  <li>• Or set MAPBOX_PUBLIC_TOKEN in your environment</li>
+                </ul>
+              </div>
+              <Button 
+                onClick={() => window.open('https://mapbox.com/', '_blank')}
+                variant="outline"
+                size="sm"
+              >
+                Get Mapbox Token
+              </Button>
+            </div>
+          </Card>
         </div>
       )}
 
