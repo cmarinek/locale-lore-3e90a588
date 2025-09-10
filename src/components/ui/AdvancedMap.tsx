@@ -284,14 +284,28 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
     });
     map.current.addControl(geolocate, 'top-right');
 
-    // Add scale control
-    map.current.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
+    // Position controls at 50vh down the screen
+    const styleControls = () => {
+      const controlContainer = mapContainer.current?.querySelector('.mapboxgl-ctrl-top-right');
+      if (controlContainer) {
+        (controlContainer as HTMLElement).style.cssText = `
+          position: absolute;
+          top: 50vh;
+          right: 10px;
+          transform: translateY(-50%);
+          z-index: 1;
+        `;
+      }
+    };
 
-    // Map load event
+    // Apply control positioning once map loads
     map.current.on('load', () => {
       setIsLoading(false);
-      // Don't add facts here - wait for facts to be loaded
+      styleControls();
     });
+
+    // Add scale control
+    map.current.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
 
     // Geolocate event
     geolocate.on('geolocate', (e: any) => {
