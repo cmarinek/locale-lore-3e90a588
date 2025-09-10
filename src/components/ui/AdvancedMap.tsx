@@ -286,10 +286,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
     // Map load event
     map.current.on('load', () => {
       setIsLoading(false);
-      addFactsToMap();
-      if (showHeatmap) {
-        addHeatmapLayer();
-      }
+      // Don't add facts here - wait for facts to be loaded
     });
 
     // Geolocate event
@@ -356,15 +353,30 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
 
   // Add facts as markers with clustering
   const addFactsToMap = useCallback(() => {
-    if (!map.current) return;
+    if (!map.current || !map.current.isStyleLoaded() || facts.length === 0) return;
+
+    console.log(`Adding ${facts.length} facts to map`);
 
     // Clear existing markers
     Object.values(markersRef.current).forEach(marker => marker.remove());
     markersRef.current = {};
 
+    // Remove existing source and layers if they exist
+    if (map.current.getLayer('unclustered-point')) {
+      map.current.removeLayer('unclustered-point');
+    }
+    if (map.current.getLayer('cluster-count')) {
+      map.current.removeLayer('cluster-count');
+    }
+    if (map.current.getLayer('clusters')) {
+      map.current.removeLayer('clusters');
+    }
+    if (map.current.getSource('facts')) {
+      map.current.removeSource('facts');
+    }
+
     // Add cluster source
-    if (!map.current.getSource('facts')) {
-      map.current.addSource('facts', {
+    map.current.addSource('facts', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
@@ -502,8 +514,18 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
       map.current.on('mouseleave', 'unclustered-point', () => {
         if (map.current) map.current.getCanvas().style.cursor = '';
       });
-    }
+    
   }, [facts, onFactClick, isDarkMode]);
+
+  // Update facts on map when facts array changes
+  useEffect(() => {
+    if (map.current && facts.length > 0 && map.current.isStyleLoaded()) {
+      addFactsToMap();
+      if (showHeatmap) {
+        addHeatmapLayer();
+      }
+    }
+  }, [facts, addFactsToMap, showHeatmap]);
 
   // Add heatmap layer
   const addHeatmapLayer = useCallback(() => {
