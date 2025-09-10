@@ -688,9 +688,8 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
 
       {/* Map Style Controls */}
       {showControls && (
-        <Card className="absolute top-20 left-4 right-4 z-10 bg-card/95 backdrop-blur border-border">
-          <div className="p-2">
-            <div className="flex items-center gap-2 justify-center">
+        <div className="absolute top-20 left-4 z-10 mt-2">
+          <div className="flex items-center gap-2 justify-start">
               <Button
                 variant={mapStyle === 'light' ? 'ios' : 'ghost'}
                 size="sm"
@@ -723,9 +722,8 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
               >
                 <Layers className="w-4 h-4" />
               </Button>
-            </div>
           </div>
-        </Card>
+        </div>
       )}
 
       {/* User Location Button */}
