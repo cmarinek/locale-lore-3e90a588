@@ -11,14 +11,17 @@ interface AuthContextType {
   refreshProfile: () => Promise<void>;
 }
 
-const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
+// Temporarily disable context to prevent bundling issues
+let globalAuthState: AuthContextType = {
+  user: null,
+  session: null,
+  loading: true,
+  signOut: async () => {},
+  refreshProfile: async () => {}
+};
 
 export const useAuth = () => {
-  const context = React.useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return globalAuthState;
 };
 
 interface AuthProviderProps {
@@ -31,14 +34,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
 
   const cleanupAuthState = () => {
-    // Clear all auth-related keys from localStorage
     Object.keys(localStorage).forEach((key) => {
       if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
         localStorage.removeItem(key);
       }
     });
     
-    // Clear from sessionStorage if exists
     if (typeof sessionStorage !== 'undefined') {
       Object.keys(sessionStorage).forEach((key) => {
         if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
@@ -68,38 +69,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signOut = async () => {
     try {
-      // Clean up auth state first
       cleanupAuthState();
       
-      // Attempt global sign out
       try {
         await supabase.auth.signOut({ scope: 'global' });
       } catch (err) {
         console.error('Sign out error:', err);
       }
       
-      // Force page reload for clean state
       window.location.href = '/auth';
     } catch (error) {
       console.error('Error signing out:', error);
-      // toast({
-      //   title: "Sign out failed",
-      //   description: "There was an error signing out. Please try again.",
-      //   variant: "destructive",
-      // });
     }
   };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event, session?.user?.id);
+        globalAuthState = {
+          user: session?.user ?? null,
+          session,
+          loading: false,
+          signOut,
+          refreshProfile
+        };
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Defer profile refresh to prevent deadlocks
         if (event === 'SIGNED_IN' && session?.user) {
           setTimeout(() => {
             refreshProfile();
@@ -108,8 +106,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      globalAuthState = {
+        user: session?.user ?? null,
+        session,
+        loading: false,
+        signOut,
+        refreshProfile
+      };
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -124,7 +128,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const value = {
+  // Update global state
+  globalAuthState = {
     user,
     session,
     loading,
@@ -132,10 +137,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     refreshProfile,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <div>{children}</div>;
 };
 
