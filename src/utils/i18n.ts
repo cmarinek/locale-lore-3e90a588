@@ -7,60 +7,51 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 export { SUPPORTED_LANGUAGES, isRTLLanguage, updateDocumentDirection } from './languages';
 export type { SupportedLanguage } from './languages';
 
-// Simple, standalone i18n configuration
-const initI18n = async () => {
-  try {
-    await i18n
-      .use(Backend)
-      .use(LanguageDetector)
-      .use(initReactI18next)
-      .init({
-        fallbackLng: 'en',
-        debug: false, // Keep quiet to avoid console noise
-        
-        // Namespace organization
-        ns: ['common', 'navigation', 'auth', 'lore', 'profile', 'admin', 'errors'],
-        defaultNS: 'common',
-
-        // Language detection
-        detection: {
-          order: ['localStorage', 'navigator', 'htmlTag'],
-          lookupLocalStorage: 'locale-lore-language',
-          caches: ['localStorage'],
-        },
-
-        // Backend configuration
-        backend: {
-          loadPath: '/locales/{{lng}}/{{ns}}.json',
-        },
-
-        // React options
-        react: {
-          useSuspense: false, // Don't block rendering
-        },
-
-        // Simple interpolation
-        interpolation: {
-          escapeValue: false, // React already escapes
-        },
-
-        // Resource loading
-        load: 'languageOnly',
-        preload: ['en'], // Always preload English as fallback
-        
-        // Separators
-        keySeparator: '.',
-        nsSeparator: ':',
-      });
+// Initialize i18n
+i18n
+  .use(Backend)
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    fallbackLng: 'en',
+    debug: false,
     
-    console.log('i18n initialized successfully');
-  } catch (error) {
-    console.warn('i18n initialization failed, using fallback:', error);
-    // Don't break the app if i18n fails
-  }
-};
+    // Namespace organization
+    ns: ['common', 'navigation', 'auth', 'lore', 'profile', 'admin', 'errors'],
+    defaultNS: 'common',
 
-// Initialize immediately
-initI18n();
+    // Language detection
+    detection: {
+      order: ['localStorage', 'navigator', 'htmlTag'],
+      lookupLocalStorage: 'locale-lore-language',
+      caches: ['localStorage'],
+    },
+
+    // Backend configuration
+    backend: {
+      loadPath: '/locales/{{lng}}/{{ns}}.json',
+    },
+
+    // React options
+    react: {
+      useSuspense: false,
+    },
+
+    // Simple interpolation
+    interpolation: {
+      escapeValue: false,
+    },
+
+    // Resource loading
+    load: 'languageOnly',
+    preload: ['en'],
+    
+    // Separators
+    keySeparator: '.',
+    nsSeparator: ':',
+  })
+  .catch((error) => {
+    console.warn('i18n initialization failed:', error);
+  });
 
 export default i18n;
