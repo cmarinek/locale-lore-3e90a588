@@ -242,7 +242,7 @@ export const Search: React.FC = () => {
                   
                   <button
                     onClick={() => {
-                      if (navigator.geolocation) {
+                      if (typeof navigator !== 'undefined' && navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition((position) => {
                           const newFilters = {
                             ...filters,

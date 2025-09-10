@@ -45,7 +45,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ className }) => {
   };
 
   const getCurrentLocation = () => {
-    if (navigator.geolocation) {
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
