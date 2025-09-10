@@ -83,15 +83,6 @@ export const Map: React.FC = () => {
           className="h-full w-full"
         />
 
-        {/* Search Overlay */}
-        <div className="absolute top-4 left-4 right-4 z-20">
-          <div className="glass rounded-lg p-4">
-            <SearchBar
-              onQueryChange={handleSearch}
-              placeholder="Search stories on map..."
-            />
-          </div>
-        </div>
 
         {/* View Mode Toggle Button */}
         <div className="absolute top-4 right-4 z-20">
