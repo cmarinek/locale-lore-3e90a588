@@ -90,9 +90,14 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                     {fact.title}
                   </h3>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="h-3 w-3" />
-                      <span className="truncate">{fact.location_name}</span>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="h-3 w-3" />
+                        <span className="truncate">{fact.location_name}</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground/70 font-mono">
+                        {Number(fact.latitude).toFixed(4)}, {Number(fact.longitude).toFixed(4)}
+                      </div>
                     </div>
                     {fact.latitude && fact.longitude && (
                       <LocationNavigationButton
@@ -103,9 +108,6 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                         size="sm"
                       />
                     )}
-                  </div>
-                  <div className="text-xs text-muted-foreground/70 font-mono">
-                    {Number(fact.latitude).toFixed(4)}, {Number(fact.longitude).toFixed(4)}
                   </div>
                 </div>
                 
@@ -258,9 +260,14 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
             </h3>
             
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-3 w-3" />
-                <span className="truncate">{fact.location_name}</span>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <MapPin className="h-3 w-3" />
+                  <span className="truncate">{fact.location_name}</span>
+                </div>
+                <div className="text-xs text-muted-foreground/70 font-mono">
+                  {Number(fact.latitude).toFixed(4)}, {Number(fact.longitude).toFixed(4)}
+                </div>
               </div>
               {fact.latitude && fact.longitude && (
                 <LocationNavigationButton
@@ -271,9 +278,6 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                   size="sm"
                 />
               )}
-            </div>
-            <div className="text-xs text-muted-foreground/70 font-mono">
-              {Number(fact.latitude).toFixed(4)}, {Number(fact.longitude).toFixed(4)}
             </div>
           </div>
 

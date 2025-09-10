@@ -112,29 +112,36 @@ export const FactCard: React.FC<FactCardProps> = ({
               </div>
 
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  <span className="truncate">{fact.location_name}</span>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    <span className="truncate">{fact.location_name}</span>
+                  </div>
                   {fact.latitude && fact.longitude && (
-                    <LocationNavigationButton
-                      latitude={fact.latitude}
-                      longitude={fact.longitude}
-                      locationName={fact.location_name}
-                      variant="icon"
-                      size="sm"
-                      className="ml-1"
-                    />
+                    <div className="text-xs text-muted-foreground/70 font-mono ml-4">
+                      {fact.latitude.toFixed(4)}, {fact.longitude.toFixed(4)}
+                    </div>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <ThumbsUp className="w-3 h-3" />
-                    <span>{fact.vote_count_up}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" />
-                    <span>1.2k</span>
-                  </div>
+                {fact.latitude && fact.longitude && (
+                  <LocationNavigationButton
+                    latitude={fact.latitude}
+                    longitude={fact.longitude}
+                    locationName={fact.location_name}
+                    variant="icon"
+                    size="sm"
+                  />
+                )}
+              </div>
+              
+              <div className="flex items-center justify-end gap-2 mt-2">
+                <div className="flex items-center gap-1">
+                  <ThumbsUp className="w-3 h-3" />
+                  <span>{fact.vote_count_up}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Eye className="w-3 h-3" />
+                  <span>1.2k</span>
                 </div>
               </div>
             </div>
@@ -197,13 +204,15 @@ export const FactCard: React.FC<FactCardProps> = ({
           </div>
 
           <div className="flex items-center justify-between mt-3">
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <MapPin className="w-4 h-4" />
-              <span>{fact.location_name}</span>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <MapPin className="w-4 h-4" />
+                <span>{fact.location_name}</span>
+              </div>
               {fact.latitude && fact.longitude && (
-                <span className="text-xs ml-2">
-                  ({fact.latitude.toFixed(4)}, {fact.longitude.toFixed(4)})
-                </span>
+                <div className="text-xs text-muted-foreground/70 font-mono ml-5">
+                  {fact.latitude.toFixed(4)}, {fact.longitude.toFixed(4)}
+                </div>
               )}
             </div>
             
