@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LocationNavigationButton } from '@/components/ui/LocationNavigationButton';
 import { TipSystem } from '@/components/contributor/TipSystem';
+import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { cn } from '@/lib/utils';
 import { 
   Heart, 
   MessageCircle, 
@@ -56,6 +58,8 @@ export const FactCard: React.FC<FactCardProps> = ({
 }) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
+  const { highlightedFactId } = useDiscoveryStore();
+  const isHighlighted = highlightedFactId === fact.id;
 
   const handleVote = (voteType: 'up' | 'down') => {
     if (userVote === voteType) {
@@ -91,7 +95,10 @@ export const FactCard: React.FC<FactCardProps> = ({
   if (compact) {
     return (
       <motion.div whileHover={{ y: -2 }}>
-        <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+        <Card className={cn(
+          "cursor-pointer hover:shadow-lg transition-shadow",
+          isHighlighted && "ring-2 ring-primary bg-primary/5 shadow-xl"
+        )}>
           <CardContent className="p-4">
             <div className="space-y-3">
               {fact.media_urls && fact.media_urls.length > 0 && (
@@ -125,12 +132,13 @@ export const FactCard: React.FC<FactCardProps> = ({
                 </div>
                 {fact.latitude && fact.longitude && (
                   <div className="shrink-0 ml-2">
-                    <LocationNavigationButton
-                      latitude={fact.latitude}
-                      longitude={fact.longitude}
-                      locationName={fact.location_name}
-                      variant="icon"
-                    />
+            <LocationNavigationButton
+              latitude={fact.latitude}
+              longitude={fact.longitude}
+              locationName={fact.location_name}
+              variant="icon"
+              factId={fact.id}
+            />
                   </div>
                 )}
               </div>
@@ -158,7 +166,10 @@ export const FactCard: React.FC<FactCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
     >
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+      <Card className={cn(
+        "overflow-hidden hover:shadow-lg transition-shadow",
+        isHighlighted && "ring-2 ring-primary bg-primary/5 shadow-xl shadow-primary/20"
+      )}>
         {fact.media_urls && fact.media_urls.length > 0 && (
           <div className="aspect-video overflow-hidden">
             <img
@@ -224,6 +235,7 @@ export const FactCard: React.FC<FactCardProps> = ({
                   longitude={fact.longitude}
                   locationName={fact.location_name}
                   variant="icon"
+                  factId={fact.id}
                 />
               </div>
             )}
