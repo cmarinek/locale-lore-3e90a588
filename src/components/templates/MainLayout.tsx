@@ -5,7 +5,7 @@ import { BottomNavigation } from '@/components/ui/bottom-navigation';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useSafeTranslation';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 interface MainLayoutProps {

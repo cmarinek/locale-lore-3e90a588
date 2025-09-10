@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Compass, Search, BookOpen, Star, MapPin, TrendingUp, Users, Shield, Loader2, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/hooks/useSafeTranslation';
 import { useCommunityStats } from '@/hooks/useCommunityStats';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { useOnboarding } from '@/hooks/useOnboarding';

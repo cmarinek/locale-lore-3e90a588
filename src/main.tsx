@@ -20,28 +20,12 @@ import './index.css';
 import { DiagnosticErrorBoundary } from './components/diagnostics/ErrorBoundary';
 console.log('✅ MAIN: Components imported');
 
-// Create a safe i18n initializer that ensures React is available
+// Create a safe i18n initializer - temporarily disabled to test app loading
 const initI18n = () => {
-  return new Promise((resolve, reject) => {
-    // Double-check React is available
-    if (typeof (window as any).React !== 'undefined' && (window as any).createContext) {
-      console.log('🔧 MAIN: React confirmed available, importing i18n...');
-      
-      // Use setTimeout to ensure this runs after the current execution context
-      setTimeout(() => {
-        import('./utils/i18n')
-          .then(() => {
-            console.log('✅ MAIN: i18n initialized successfully');
-            resolve(true);
-          })
-          .catch((error) => {
-            console.error('❌ MAIN: i18n initialization failed:', error);
-            reject(error);
-          });
-      }, 0);
-    } else {
-      reject(new Error('React not available for i18n initialization'));
-    }
+  return new Promise((resolve) => {
+    console.log('🔧 MAIN: i18n temporarily disabled for testing');
+    // Skip i18n initialization for now
+    resolve(true);
   });
 };
 
