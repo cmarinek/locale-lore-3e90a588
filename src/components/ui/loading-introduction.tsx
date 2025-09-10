@@ -75,7 +75,7 @@ export const LoadingIntroduction: React.FC<LoadingIntroductionProps> = ({
                   {"Locale".split('').map((char, index) => (
                     <motion.span
                       key={`locale-${index}`}
-                      className="inline-block bg-gradient-primary bg-clip-text text-transparent"
+                      className="inline-block text-primary"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{
@@ -94,7 +94,7 @@ export const LoadingIntroduction: React.FC<LoadingIntroductionProps> = ({
                   {"Lore".split('').map((char, index) => (
                     <motion.span
                       key={`lore-${index}`}
-                      className="inline-block bg-gradient-secondary bg-clip-text text-transparent"
+                      className="inline-block text-secondary"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{
@@ -127,7 +127,7 @@ export const LoadingIntroduction: React.FC<LoadingIntroductionProps> = ({
               
               {/* Underline animation */}
               <motion.div 
-                className="h-0.5 bg-gradient-primary mx-auto mt-4"
+                className="h-0.5 bg-primary mx-auto mt-4"
                 initial={{ width: "0%" }}
                 animate={{ width: "50%" }}
                 transition={{
