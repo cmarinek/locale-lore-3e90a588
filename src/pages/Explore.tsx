@@ -16,7 +16,9 @@ import {
   Map as MapIcon, 
   Locate,
   MapPin,
-  Search as SearchIcon
+  Search as SearchIcon,
+  Grid3X3,
+  LayoutList
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -29,9 +31,16 @@ import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 
+type ViewMode = 'grid' | 'list';
+
 export const Explore: React.FC = () => {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const saved = localStorage.getItem('explore-view-mode');
+    return (saved as ViewMode) || 'grid';
+  });
+  
   const { triggerHapticFeedback, handleTouchInteraction } = useAppStore();
   const navigate = useNavigate();
   const { t } = useTranslation('lore');
@@ -117,6 +126,12 @@ export const Explore: React.FC = () => {
     setModalOpen(false);
   };
 
+  const handleViewModeChange = (mode: ViewMode) => {
+    setViewMode(mode);
+    localStorage.setItem('explore-view-mode', mode);
+    triggerHapticFeedback('light');
+  };
+
   return (
     <Swipeable
       onSwipeLeft={handleSwipeLeft}
@@ -144,6 +159,29 @@ export const Explore: React.FC = () => {
                   >
                     <Filter className="w-4 h-4" />
                   </Button>
+                  
+                  {/* View Mode Toggle */}
+                  <div className="flex rounded-lg border bg-background p-1">
+                    <Button
+                      variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => handleViewModeChange('grid')}
+                      className="h-8 px-3"
+                    >
+                      <Grid3X3 className="w-4 h-4" />
+                      <span className="sr-only">Grid view</span>
+                    </Button>
+                    <Button
+                      variant={viewMode === 'list' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => handleViewModeChange('list')}
+                      className="h-8 px-3"
+                    >
+                      <LayoutList className="w-4 h-4" />
+                      <span className="sr-only">List view</span>
+                    </Button>
+                  </div>
+                  
                   <Button
                     variant="default"
                     onClick={() => navigate('/map')}
@@ -178,7 +216,7 @@ export const Explore: React.FC = () => {
               {error && <p className="text-center py-8 text-destructive">Error: {error}</p>}
 
               {/* Facts List */}
-              <InfiniteFactList />
+              <InfiniteFactList viewMode={viewMode} />
 
               {/* Fact Preview Modal */}
               <FactPreviewModal 

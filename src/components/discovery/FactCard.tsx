@@ -12,9 +12,10 @@ import { cn } from '@/lib/utils';
 interface FactCardProps {
   fact: EnhancedFact;
   className?: string;
+  viewMode?: 'grid' | 'list';
 }
 
-export const FactCard: React.FC<FactCardProps> = ({ fact, className }) => {
+export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 'grid' }) => {
   const { 
     savedFacts, 
     toggleSavedFact, 
@@ -52,6 +53,123 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className }) => {
     if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
     return `${Math.floor(diffDays / 365)} years ago`;
   };
+
+  if (viewMode === 'list') {
+    return (
+      <Card 
+        variant="elevated" 
+        className={cn(
+          "overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg group",
+          className
+        )}
+        onClick={handleQuickView}
+      >
+        <CardContent className="p-0">
+          <div className="flex gap-4 p-4">
+            {/* Media Preview - Compact */}
+            {fact.media_urls && fact.media_urls.length > 0 && (
+              <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-lg">
+                <img
+                  src={fact.media_urls[0]}
+                  alt={fact.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Content */}
+            <div className="flex-1 space-y-2">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-1 flex-1">
+                  <h3 className="font-semibold text-base line-clamp-1 group-hover:text-primary transition-colors">
+                    {fact.title}
+                  </h3>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    <span className="truncate">{fact.location_name}</span>
+                  </div>
+                </div>
+                
+                {/* Quick Actions */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSaveToggle}
+                  className="h-8 w-8 p-0 shrink-0"
+                >
+                  {isSaved ? (
+                    <BookmarkCheck className="h-4 w-4 text-yellow-600" />
+                  ) : (
+                    <Bookmark className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+
+              {/* Description */}
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {fact.description}
+              </p>
+
+              {/* Stats & Meta */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {/* Category Badge */}
+                  <Badge 
+                    variant="secondary" 
+                    className="text-xs"
+                  >
+                    {categoryName}
+                  </Badge>
+
+                  {/* Votes */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 text-green-600">
+                      <ThumbsUp className="h-3 w-3" />
+                      <span className="text-xs">{fact.vote_count_up}</span>
+                    </div>
+                    {fact.vote_count_down > 0 && (
+                      <div className="flex items-center gap-1 text-red-600">
+                        <ThumbsDown className="h-3 w-3" />
+                        <span className="text-xs">{fact.vote_count_down}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Verified Badge */}
+                  {fact.status === 'verified' && (
+                    <Badge variant="ios" size="sm">
+                      Verified
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Author & Date */}
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {fact.profiles && (
+                    <>
+                      <Avatar className="h-4 w-4">
+                        <AvatarImage src={fact.profiles.avatar_url || ''} />
+                        <AvatarFallback className="text-xs">
+                          {fact.profiles.username?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span>{fact.profiles.username}</span>
+                      <span>•</span>
+                    </>
+                  )}
+                  <span>{formatDate(fact.created_at)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card 

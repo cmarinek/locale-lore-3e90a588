@@ -8,9 +8,10 @@ import { cn } from '@/lib/utils';
 
 interface InfiniteFactListProps {
   className?: string;
+  viewMode?: 'grid' | 'list';
 }
 
-export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ className }) => {
+export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ className, viewMode = 'grid' }) => {
   const observerRef = useRef<HTMLDivElement>(null);
   
   const { 
@@ -44,11 +45,23 @@ export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ className })
   }, [handleObserver]);
 
   const LoadingSkeleton = () => (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className={cn(
+      "grid gap-6",
+      viewMode === 'grid' ? "md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
+    )}>
       {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className="space-y-3">
-          <Skeleton className="h-48 w-full rounded-lg" />
-          <div className="space-y-2 p-4">
+        <div key={index} className={cn(
+          "space-y-3",
+          viewMode === 'list' && "flex gap-4 items-start"
+        )}>
+          <Skeleton className={cn(
+            "rounded-lg",
+            viewMode === 'grid' ? "h-48 w-full" : "h-24 w-32 shrink-0"
+          )} />
+          <div className={cn(
+            "space-y-2",
+            viewMode === 'grid' ? "p-4" : "flex-1 py-2"
+          )}>
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-3 w-1/2" />
             <Skeleton className="h-3 w-full" />
@@ -83,12 +96,18 @@ export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ className })
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Facts Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {/* Facts Grid/List */}
+      <div className={cn(
+        "gap-6",
+        viewMode === 'grid' 
+          ? "grid md:grid-cols-2 lg:grid-cols-3" 
+          : "flex flex-col space-y-4"
+      )}>
         {facts.map((fact, index) => (
           <FactCard
             key={fact.id}
             fact={fact as any}
+            viewMode={viewMode}
             className={cn(
               "animate-fade-in",
               // Stagger animation
