@@ -27,23 +27,19 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
     return 'explore';
   };
 
-  const getNextMode = (): ViewMode => {
+  const getOtherModes = (): ViewMode[] => {
     const current = getCurrentMode();
     switch (current) {
-      case 'explore': return 'hybrid';
-      case 'hybrid': return 'map';
-      case 'map': return 'explore';
-      default: return 'explore';
+      case 'explore': return ['hybrid', 'map'];
+      case 'hybrid': return ['explore', 'map'];
+      case 'map': return ['explore', 'hybrid'];
+      default: return ['hybrid', 'map'];
     }
   };
 
-  const handleToggle = () => {
-    const nextMode = getNextMode();
-    navigate(`/${nextMode === 'explore' ? 'explore' : nextMode}`);
+  const handleModeClick = (mode: ViewMode) => {
+    navigate(`/${mode === 'explore' ? 'explore' : mode}`);
   };
-
-  const currentMode = getCurrentMode();
-  const nextMode = getNextMode();
 
   const getModeIcon = (mode: ViewMode) => {
     switch (mode) {
@@ -61,23 +57,36 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
     }
   };
 
-  const NextIcon = getModeIcon(nextMode);
+  const getModeShortLabel = (mode: ViewMode) => {
+    switch (mode) {
+      case 'explore': return 'List';
+      case 'hybrid': return 'Hybrid';
+      case 'map': return 'Map';
+    }
+  };
+
+  const otherModes = getOtherModes();
 
   return (
-    <Button
-      variant={variant === 'glass' ? 'secondary' : variant}
-      size={size}
-      onClick={handleToggle}
-      className={cn(
-        variant === 'glass' && "glass border-0 shadow-lg bg-background/80 backdrop-blur-sm",
-        className
-      )}
-    >
-      <NextIcon className="w-4 h-4 mr-2" />
-      <span className="hidden sm:inline">{getModeLabel(nextMode)}</span>
-      <span className="sm:hidden">
-        {nextMode === 'explore' ? 'List' : nextMode === 'hybrid' ? 'Hybrid' : 'Map'}
-      </span>
-    </Button>
+    <div className={cn("flex gap-2", className)}>
+      {otherModes.map((mode) => {
+        const Icon = getModeIcon(mode);
+        return (
+          <Button
+            key={mode}
+            variant={variant === 'glass' ? 'secondary' : variant}
+            size={size}
+            onClick={() => handleModeClick(mode)}
+            className={cn(
+              variant === 'glass' && "glass border-0 shadow-lg bg-background/80 backdrop-blur-sm"
+            )}
+          >
+            <Icon className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">{getModeLabel(mode)}</span>
+            <span className="sm:hidden">{getModeShortLabel(mode)}</span>
+          </Button>
+        );
+      })}
+    </div>
   );
 };
