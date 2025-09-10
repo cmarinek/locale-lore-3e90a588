@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from '@/hooks/useSafeTranslation';
 import { useTranslationFiles } from '@/hooks/useTranslationFiles';
-import { SUPPORTED_LANGUAGES } from '@/utils/i18n';
+import { SUPPORTED_LANGUAGES } from '@/utils/languages';
 import { TranslationGenerator } from '@/utils/translation-generator';
 import { Save, Upload, Download, Globe, AlertCircle, Wand2, RefreshCw } from 'lucide-react';
 
