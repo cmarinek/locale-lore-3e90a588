@@ -1,11 +1,19 @@
 
-import * as Sentry from '@sentry/react';
 import { config } from '@/config/environments';
+
+// Optional Sentry import - gracefully handle if not available
+let Sentry: any = null;
+try {
+  // @ts-ignore - dynamic import to handle missing dependency
+  Sentry = require('@sentry/react');
+} catch (error) {
+  console.warn('Sentry not available, error tracking will use fallback methods');
+}
 
 // Initialize Sentry for error tracking
 export const initializeErrorTracking = () => {
   try {
-    if (config.enableErrorTracking && config.sentryDsn) {
+    if (config.enableErrorTracking && config.sentryDsn && Sentry) {
       Sentry.init({
         dsn: config.sentryDsn,
         environment: config.environment,
@@ -97,7 +105,7 @@ export const trackMetric = (name: string, value: number, labels?: Record<string,
 
 // Custom error tracking
 export const trackError = (error: Error, context?: Record<string, any>) => {
-  if (config.enableErrorTracking) {
+  if (config.enableErrorTracking && Sentry) {
     Sentry.captureException(error, {
       extra: context,
     });
