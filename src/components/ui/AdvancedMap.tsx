@@ -671,18 +671,20 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
       )}
 
       {/* Search Bar */}
-      <Card className="absolute top-4 left-4 right-4 z-10 bg-card/95 backdrop-blur border-border">
-        <div className="flex items-center gap-3 p-4">
-          <Search className="w-5 h-5 text-muted-foreground" />
-          <Input
-            placeholder="Search locations..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
-            className="border-0 bg-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground"
-          />
+      <div className="absolute top-4 left-4 right-4 z-10">
+        <div className="flex items-center bg-card border border-border rounded-2xl p-2 shadow-lg hover:shadow-xl transition-all duration-300 group">
+          <div className="flex items-center flex-1 px-4">
+            <Search className="w-5 h-5 text-muted-foreground mr-3 group-focus-within:text-primary transition-colors" />
+            <Input
+              placeholder="Search locations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
+              className="border-0 bg-transparent text-lg placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+          </div>
         </div>
-      </Card>
+      </div>
 
       {/* Map Style Controls */}
       {showControls && (
