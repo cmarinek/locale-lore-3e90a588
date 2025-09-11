@@ -700,7 +700,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
         </Card>
       )}
 
-      {/* Map Style Controls - better icons with tooltips */}
+      {/* Map Style Controls - using emoji icons as requested */}
       {showControls && (
         <div className="absolute top-4 left-4 z-10">
           <TooltipProvider>
@@ -713,7 +713,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
                     onClick={() => setMapStyle('light')}
                     className="haptic-feedback p-2"
                   >
-                    <Sun className="w-4 h-4" />
+                    <span className="text-lg">☀️</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Light mode</TooltipContent>
@@ -727,7 +727,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
                     onClick={() => setMapStyle('dark')}
                     className="haptic-feedback p-2"
                   >
-                    <Moon className="w-4 h-4" />
+                    <span className="text-lg">🌙</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Dark mode</TooltipContent>
@@ -741,7 +741,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
                     onClick={() => setMapStyle('satellite')}
                     className="haptic-feedback p-2"
                   >
-                    <Globe2 className="w-4 h-4" />
+                    <span className="text-lg">🛰️</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Satellite view</TooltipContent>
@@ -755,7 +755,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
                     onClick={() => setMapStyle('terrain')}
                     className="haptic-feedback p-2"
                   >
-                    <Mountain className="w-4 h-4" />
+                    <span className="text-lg">🏔️</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Terrain view</TooltipContent>
