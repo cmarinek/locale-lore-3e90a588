@@ -1,6 +1,7 @@
 import React from 'react';
+import { SUPPORTED_LANGUAGES } from '@/utils/languages';
 
-// Completely disable context API to prevent bundling issues
+// Simplified context to provide language data without complex state management
 export const useLanguage = () => {
   return {
     currentLanguage: 'en' as const,
@@ -8,7 +9,7 @@ export const useLanguage = () => {
       console.log('Language change disabled');
     },
     isRTL: false,
-    supportedLanguages: [],
+    supportedLanguages: SUPPORTED_LANGUAGES,
     isLoading: false,
   };
 };
