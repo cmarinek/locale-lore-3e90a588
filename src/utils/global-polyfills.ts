@@ -5,31 +5,9 @@
 
 console.log('🔧 POLYFILLS: Starting global polyfills initialization...');
 
-// ===== REACT API POLYFILLS =====
-// Do NOT create a fake React object. Only augment an existing global React if present.
-if (typeof window !== 'undefined' && (window as any).React) {
-  const ReactGlobal: any = (window as any).React;
-
-  // Safe forwardRef polyfill (only if missing)
-  if (typeof ReactGlobal.forwardRef !== 'function') {
-    ReactGlobal.forwardRef = function safeForwardRefPolyfill<T, P = {}>(
-      render: (props: P, ref: any) => any
-    ) {
-      console.warn('⚠️ POLYFILL: React.forwardRef not available on global React, using fallback');
-      return function ForwardRefFallback(props: any) {
-        return render(props, null);
-      };
-    };
-  }
-
-  // Safe createElement polyfill (only if missing)
-  if (typeof ReactGlobal.createElement !== 'function') {
-    ReactGlobal.createElement = function safeCreateElementPolyfill(type: any, props: any, ...children: any[]) {
-      console.warn('⚠️ POLYFILL: React.createElement not available on global React, using fallback');
-      return { type, props: { ...props, children } };
-    };
-  }
-}
+// ===== REACT API POLYFILLS REMOVED =====
+// We no longer polyfill React APIs to avoid interfering with React internals.
+// React is exposed globally in src/main.tsx for diagnostics only.
 
 // ===== NAVIGATOR API POLYFILLS =====
 if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {

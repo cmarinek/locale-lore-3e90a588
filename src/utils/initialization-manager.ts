@@ -5,6 +5,7 @@
 
 import { GlobalAPIChecker } from './global-polyfills';
 import * as React from 'react';
+import { locationService } from './location';
 
 interface InitializationPhase {
   name: string;
@@ -166,27 +167,15 @@ class InitializationManager {
   // Safe API access methods
   async safeGetLocation(): Promise<{ latitude: number; longitude: number } | null> {
     await this.waitForReady();
-    
-    if (!GlobalAPIChecker.isNavigatorReady()) {
-      console.warn('🌍 INIT_MANAGER: Geolocation not available, using fallback');
+
+    try {
+      const result = await locationService.getDeviceLocation();
+      const [lng, lat] = result.coordinates;
+      return { latitude: lat, longitude: lng };
+    } catch (error) {
+      console.warn('🌍 INIT_MANAGER: safeGetLocation failed, using fallback', error);
       return { latitude: 40.7128, longitude: -74.0060 }; // NYC fallback
     }
-
-    return new Promise((resolve) => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          });
-        },
-        (error) => {
-          console.warn('🌍 INIT_MANAGER: Geolocation error:', error);
-          resolve({ latitude: 40.7128, longitude: -74.0060 }); // NYC fallback
-        },
-        { timeout: 10000, enableHighAccuracy: false }
-      );
-    });
   }
 }
 

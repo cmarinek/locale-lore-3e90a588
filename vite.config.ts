@@ -80,6 +80,8 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    // Avoid duplicate React instances across chunks and deps
+    dedupe: ["react", "react-dom"],
   },
   build: {
     target: "esnext",
