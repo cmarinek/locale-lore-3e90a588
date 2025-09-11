@@ -62,6 +62,8 @@ class InitializationManager {
     this.isInitializing = true;
     console.log('🚀 INIT_MANAGER: Starting unified initialization...');
 
+    let criticalFailure = false;
+
     for (const phase of this.phases) {
       this.state.phase = phase.name;
       console.log(`⏳ INIT_MANAGER: Phase ${phase.name} starting...`);
@@ -76,7 +78,8 @@ class InitializationManager {
           console.warn(`⚠️ INIT_MANAGER: Phase ${phase.name} failed`);
           
           if (phase.critical) {
-            throw new Error(`Critical phase ${phase.name} failed`);
+            criticalFailure = true;
+            console.error(`💥 INIT_MANAGER: Critical phase ${phase.name} failed - marking as not ready`);
           }
         }
       } catch (error) {
@@ -84,13 +87,14 @@ class InitializationManager {
         console.error(`❌ INIT_MANAGER: Phase ${phase.name} error:`, error);
         
         if (phase.critical) {
-          throw error;
+          criticalFailure = true;
         }
       }
     }
 
-    this.state.isReady = true;
-    this.state.phase = 'ready';
+    // Only mark as ready if no critical phases failed
+    this.state.isReady = !criticalFailure;
+    this.state.phase = this.state.isReady ? 'ready' : 'failed';
     
     const duration = Date.now() - this.state.startTime;
     console.log(`✅ INIT_MANAGER: Initialization complete in ${duration}ms`, {

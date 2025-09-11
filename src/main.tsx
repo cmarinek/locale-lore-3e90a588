@@ -10,6 +10,12 @@ import { initManager } from './utils/initialization-manager';
 import App from './App.tsx';
 import './index.css';
 
+// Expose React globally BEFORE any other imports
+if (typeof window !== 'undefined') {
+  (window as any).React = React;
+  console.log('✅ MAIN: React exposed globally');
+}
+
 // Initialize i18n after polyfills
 import './utils/i18n';
 console.log('✅ MAIN: i18n initialization started');
@@ -18,10 +24,38 @@ console.log('✅ MAIN: i18n initialization started');
 import { DiagnosticErrorBoundary } from '@/components/common/ErrorBoundary';
 console.log('✅ MAIN: Components imported');
 
+// Cache purging for clean builds
+async function purgeStaleCache(): Promise<void> {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    // Unregister service workers
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map(reg => reg.unregister()));
+      console.log('🧹 MAIN: Service workers unregistered');
+    }
+    
+    // Clear caches
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
+      console.log('🧹 MAIN: Caches purged');
+    }
+  } catch (error) {
+    console.warn('⚠️ MAIN: Cache purging failed:', error);
+  }
+}
+
 // Initialize the app with proper coordination
 async function initializeApp() {
   try {
     console.log('🎯 MAIN: Starting coordinated initialization...');
+    
+    // Purge stale cache in development
+    if (import.meta.env.DEV) {
+      await purgeStaleCache();
+    }
     
     // Wait for all APIs to be ready
     await initManager.initialize();
@@ -33,6 +67,9 @@ async function initializeApp() {
     if (!rootElement) {
       throw new Error('Root element not found in DOM');
     }
+    
+    // Remove FOUC prevention
+    rootElement.classList.add('ready');
     
     const root = createRoot(rootElement);
     console.log('🎯 MAIN: React root created');
