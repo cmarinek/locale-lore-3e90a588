@@ -1,4 +1,4 @@
-import { useState, useMemo, Suspense } from 'react';
+import React, { useState, useMemo, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -7,12 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useAuthActions } from '@/hooks/useAuthActions';
 
-// Dynamic imports to prevent TDZ errors
-import { lazy } from 'react';
-const Mail = lazy(() => import('lucide-react').then(module => ({ default: module.Mail })));
-const Loader2 = lazy(() => import('lucide-react').then(module => ({ default: module.Loader2 })));
-const ShieldCheck = lazy(() => import('lucide-react').then(module => ({ default: module.ShieldCheck })));
-
 interface PasswordResetFormProps {
   mode: 'request' | 'update';
   onSuccess?: () => void;
@@ -20,7 +14,11 @@ interface PasswordResetFormProps {
 }
 
 export const PasswordResetForm = ({ mode, onSuccess, onBack }: PasswordResetFormProps) => {
-  // v16 - Fixed TDZ errors by moving schemas into component
+  // Dynamic imports inside component to prevent TDZ errors
+  const Mail = React.lazy(() => import('lucide-react').then(module => ({ default: module.Mail })));
+  const Loader2 = React.lazy(() => import('lucide-react').then(module => ({ default: module.Loader2 })));
+  const ShieldCheck = React.lazy(() => import('lucide-react').then(module => ({ default: module.ShieldCheck })));
+
   const [emailSent, setEmailSent] = useState(false);
   const { resetPassword, updatePassword, loading } = useAuthActions();
 
