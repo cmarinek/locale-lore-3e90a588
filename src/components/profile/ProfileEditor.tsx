@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,11 +13,6 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
-const profileSchema = z.object({
-  username: z.string().min(3, 'Username must be at least 3 characters'),
-  bio: z.string().max(500, 'Bio must be less than 500 characters').optional(),
-});
-
 interface ProfileEditorProps {
   profile: any;
   onUpdate: () => void;
@@ -28,6 +23,11 @@ export const ProfileEditor = ({ profile, onUpdate }: ProfileEditorProps) => {
   const [uploading, setUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const profileSchema = useMemo(() => z.object({
+    username: z.string().min(3, 'Username must be at least 3 characters'),
+    bio: z.string().max(500, 'Bio must be less than 500 characters').optional(),
+  }), []);
 
   const form = useForm({
     resolver: zodResolver(profileSchema),
