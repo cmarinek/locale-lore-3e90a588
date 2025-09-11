@@ -44,18 +44,13 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ className }) => {
     setFilters({ sortBy: sortBy as any });
   };
 
-  const getCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setFilters({ center: [longitude, latitude] });
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
-      );
+  const getCurrentLocation = async () => {
+    try {
+      const { locationService } = await import('@/utils/location');
+      const location = await locationService.getDeviceLocation();
+      setFilters({ center: location.coordinates });
+    } catch (error) {
+      console.error('Error getting location:', error);
     }
   };
 

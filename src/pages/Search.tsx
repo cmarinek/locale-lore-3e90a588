@@ -241,19 +241,22 @@ export const Search: React.FC = () => {
                   </button>
                   
                   <button
-                    onClick={() => {
-                      if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition((position) => {
-                          const newFilters = {
-                            ...filters,
-                            location: {
-                              lat: position.coords.latitude,
-                              lng: position.coords.longitude,
-                              radius: 10000
-                            }
-                          };
-                          handleSearch('', newFilters);
-                        });
+                    onClick={async () => {
+                      try {
+                        const { locationService } = await import('@/utils/location');
+                        const location = await locationService.getDeviceLocation();
+                        const [lng, lat] = location.coordinates;
+                        const newFilters = {
+                          ...filters,
+                          location: {
+                            lat,
+                            lng,
+                            radius: 10000
+                          }
+                        };
+                        handleSearch('', newFilters);
+                      } catch (error) {
+                        console.error('Could not get location:', error);
                       }
                     }}
                     className="w-full text-left p-3 rounded-lg border border-border hover:border-primary/50 transition-colors"

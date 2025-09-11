@@ -52,10 +52,12 @@ export const QuickCapture: React.FC<QuickCaptureProps> = ({
 
   // Get user location
   useEffect(() => {
-    if (isOpen && 'geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
+    if (isOpen) {
+      const getLocation = async () => {
+        try {
+          const { locationService } = await import('@/utils/location');
+          const location = await locationService.getDeviceLocation();
+          const [longitude, latitude] = location.coordinates;
           
           // Reverse geocoding to get location name
           try {
@@ -77,11 +79,12 @@ export const QuickCapture: React.FC<QuickCaptureProps> = ({
               name: 'Current Location'
             });
           }
-        },
-        (error) => {
+        } catch (error) {
           console.warn('Could not get location:', error);
         }
-      );
+      };
+      
+      getLocation();
     }
   }, [isOpen]);
 

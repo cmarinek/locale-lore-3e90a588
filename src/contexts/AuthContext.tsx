@@ -3,10 +3,6 @@ import React, { useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-// Add module load tracing (development only)
-if (import.meta.env.DEV) {
-  console.log('[TRACE] Loading AuthContext module specifier:', import.meta.url);
-}
 
 interface AuthContextType {
   user: User | null;
