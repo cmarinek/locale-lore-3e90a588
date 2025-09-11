@@ -85,5 +85,23 @@
     </style>
     
     <script type="module" src="/src/main.tsx?v=2"></script>
+
+    <!-- Failsafe: if the app doesn't mark root as ready in time, show fallback -->
+    <script>
+      (function () {
+        var started = Date.now();
+        setTimeout(function () {
+          try {
+            var root = document.getElementById('root');
+            if (root && !root.classList.contains('ready')) {
+              console.warn('[Failsafe] Root not ready after 4s, forcing visible fallback');
+              root.style.opacity = '1';
+            }
+          } catch (e) {
+            console.warn('[Failsafe] Could not reveal root:', e);
+          }
+        }, 4000);
+      })();
+    </script>
   </body>
 </html>
