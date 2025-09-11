@@ -41,7 +41,7 @@ export const Hybrid: React.FC = () => {
   useEffect(() => {
     initializeData();
     getUserLocation();
-  }, [initializeData]);
+  }, []); // Remove initializeData from deps to prevent infinite loop
 
   const getUserLocation = async () => {
     try {

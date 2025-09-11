@@ -385,11 +385,16 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       initializeData: async () => {
         const state = get();
         if (state.facts.length === 0) {
-          await Promise.all([
-            get().loadMoreFacts(),
-            get().loadCategories(),
-            get().loadSavedFacts()
-          ]);
+          set({ loading: true });
+          try {
+            await Promise.all([
+              state.loadMoreFacts(),
+              state.loadCategories(), 
+              state.loadSavedFacts()
+            ]);
+          } finally {
+            set({ loading: false });
+          }
         }
       }
     }),
