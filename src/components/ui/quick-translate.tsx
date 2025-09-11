@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from '@/hooks/useSafeTranslation';
+import { useTranslation } from 'react-i18next';
 
 interface TProps {
   k: string; // translation key

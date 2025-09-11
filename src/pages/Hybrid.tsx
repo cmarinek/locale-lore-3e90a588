@@ -15,7 +15,7 @@ import { FactMarker } from '@/types/map';
 import { useAppStore } from '@/stores/appStore';
 import { FactCard } from '@/components/discovery/FactCard';
 import { toast } from 'sonner';
-import { useTranslation } from '@/hooks/useSafeTranslation';
+import { useTranslation } from 'react-i18next';
 import { FloatingActionButton } from '@/components/ui/FloatingActionButton';
 import { QuickFilters } from '@/components/discovery/QuickFilters';
 

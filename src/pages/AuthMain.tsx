@@ -10,7 +10,7 @@ import { SocialAuth } from '@/components/auth/SocialAuth';
 import { PasswordResetForm } from '@/components/auth/PasswordResetForm';
 import { TwoFactorSetup } from '@/components/auth/TwoFactorSetup';
 import { supabase } from '@/integrations/supabase/client';
-import { useTranslation } from '@/hooks/useSafeTranslation';
+import { useTranslation } from 'react-i18next';
 
 type AuthView = 'main' | 'signin' | 'signup' | 'magic-link' | 'reset-password' | 'two-factor-setup';
 

@@ -110,7 +110,7 @@ export class LocationService {
    */
   private getWebLocation(): Promise<GeolocationPosition> {
     return new Promise((resolve, reject) => {
-      if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      if (!navigator.geolocation) {
         reject(new Error('Geolocation not supported'));
         return;
       }

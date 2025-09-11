@@ -31,7 +31,7 @@ import { SearchBar } from '@/components/discovery/SearchBar';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { Helmet } from 'react-helmet-async';
-import { useTranslation } from '@/hooks/useSafeTranslation';
+import { useTranslation } from 'react-i18next';
 
 type ViewMode = 'grid' | 'list';
 

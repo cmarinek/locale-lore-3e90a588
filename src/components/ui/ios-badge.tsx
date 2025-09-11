@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react"
+import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -42,7 +42,7 @@ export interface BadgeProps
   onDismiss?: () => void
 }
 
-const Badge = forwardRef<HTMLDivElement, BadgeProps>(
+const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
   ({ className, variant, size, dismissible, onDismiss, children, ...props }, ref) => {
     return (
       <div

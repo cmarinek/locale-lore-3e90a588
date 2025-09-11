@@ -9,7 +9,7 @@ import {
   getUntranslatedComponents,
   getComponentsByCategory 
 } from '@/utils/component-translation-status';
-import { useTranslation } from '@/hooks/useSafeTranslation';
+import { useTranslation } from 'react-i18next';
 
 export const TranslationStatusDashboard: React.FC = () => {
   const { t } = useTranslation('admin');

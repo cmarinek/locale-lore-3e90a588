@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react"
+import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -14,7 +14,7 @@ const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
 )
 Pagination.displayName = "Pagination"
 
-const PaginationContent = forwardRef<
+const PaginationContent = React.forwardRef<
   HTMLUListElement,
   React.ComponentProps<"ul">
 >(({ className, ...props }, ref) => (
@@ -26,7 +26,7 @@ const PaginationContent = forwardRef<
 ))
 PaginationContent.displayName = "PaginationContent"
 
-const PaginationItem = forwardRef<
+const PaginationItem = React.forwardRef<
   HTMLLIElement,
   React.ComponentProps<"li">
 >(({ className, ...props }, ref) => (

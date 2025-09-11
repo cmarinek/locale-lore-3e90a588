@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import { BookOpen, Star, Shield, Zap, ArrowLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTranslation } from '@/hooks/useSafeTranslation';
+import { useTranslation } from 'react-i18next';
 
 interface SubscriptionStatus {
   subscribed: boolean;

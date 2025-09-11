@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { SUPPORTED_LANGUAGES } from '@/utils/languages';
+import { SUPPORTED_LANGUAGES } from '@/utils/i18n';
 import { Loader2, Send, CheckCircle, XCircle } from 'lucide-react';
 
 interface TranslationResult {

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Mail, Lock, User, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useTranslation } from '@/hooks/useSafeTranslation';
+import { useTranslation } from 'react-i18next';
 import { useValidationSchemas } from '@/hooks/useValidationSchemas';
 
 
@@ -22,8 +22,11 @@ export const EmailPasswordForm = ({ mode, onSuccess, onSwitchMode }: EmailPasswo
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { signInWithEmail, signUpWithEmail, loading } = useAuth();
   const { t } = useTranslation('auth');
-  // Temporarily disable validation
+  const { signInSchema, signUpSchema } = useValidationSchemas();
+
+  const schema = mode === 'signin' ? signInSchema : signUpSchema;
   const form = useForm({
+    resolver: zodResolver(schema),
     defaultValues: {
       email: '',
       password: '',

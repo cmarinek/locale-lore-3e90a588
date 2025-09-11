@@ -21,13 +21,11 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
     savedFacts, 
     toggleSavedFact, 
     setSelectedFact, 
-    setModalOpen,
-    highlightedFactId
+    setModalOpen 
   } = useDiscoveryStore();
 
   const isSaved = savedFacts.includes(fact.id);
   const voteScore = fact.vote_count_up - fact.vote_count_down;
-  const isHighlighted = highlightedFactId === fact.id;
   
   const categoryName = fact.categories?.category_translations?.find(
     t => t.language_code === 'en'
@@ -63,7 +61,6 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
         variant="elevated" 
         className={cn(
           "overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg group",
-          isHighlighted && "ring-2 ring-primary bg-primary/5 shadow-xl",
           className
         )}
         onClick={handleQuickView}
@@ -104,13 +101,12 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                     </div>
                     {fact.latitude && fact.longitude && (
                       <div className="shrink-0 ml-2">
-                  <LocationNavigationButton
-                    latitude={fact.latitude}
-                    longitude={fact.longitude}
-                    locationName={fact.location_name}
-                    variant="icon"
-                    factId={fact.id}
-                  />
+                        <LocationNavigationButton
+                          latitude={fact.latitude}
+                          longitude={fact.longitude}
+                          locationName={fact.location_name}
+                          variant="icon"
+                        />
                       </div>
                     )}
                   </div>
@@ -198,7 +194,6 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
       variant="elevated" 
       className={cn(
         "overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg group",
-        isHighlighted && "ring-2 ring-primary bg-primary/5 shadow-xl shadow-primary/30",
         className
       )}
       onClick={handleQuickView}
@@ -219,17 +214,6 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
             
             {/* Quick Actions Overlay */}
             <div className="absolute top-3 right-3 flex gap-2">
-              {/* Category Badge */}
-              <Badge 
-                variant="glass" 
-                className="flex items-center gap-1 bg-black/20 backdrop-blur-sm text-white border-white/20"
-                style={{ borderColor: fact.categories?.color }}
-              >
-                <span style={{ color: fact.categories?.color }}>
-                  {fact.categories?.icon}
-                </span>
-                <span className="capitalize text-xs">{categoryName}</span>
-              </Badge>
               <Button
                 variant="ghost"
                 size="sm"
@@ -252,6 +236,19 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
               </Button>
             </div>
 
+            {/* Category Badge */}
+            <div className="absolute bottom-3 left-3">
+              <Badge 
+                variant="glass" 
+                className="flex items-center gap-1"
+                style={{ borderColor: fact.categories?.color }}
+              >
+                <span style={{ color: fact.categories?.color }}>
+                  {fact.categories?.icon}
+                </span>
+                <span className="capitalize text-xs">{categoryName}</span>
+              </Badge>
+            </div>
           </div>
         )}
 
@@ -280,7 +277,6 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                     longitude={fact.longitude}
                     locationName={fact.location_name}
                     variant="icon"
-                    factId={fact.id}
                   />
                 </div>
               )}

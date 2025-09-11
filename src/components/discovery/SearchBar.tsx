@@ -70,53 +70,41 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   }, [setFilters, onQueryChange]);
 
   return (
-    <div className={cn("relative w-full", className)}>
+    <div className={cn("relative w-full max-w-md", className)}>
       <div className="relative">
-        <div className="flex items-center bg-card border border-border rounded-2xl p-2 shadow-lg hover:shadow-xl transition-all duration-300 group">
-          <div className="flex items-center flex-1 px-4">
-            <Search className="h-5 w-5 text-muted-foreground mr-3 group-focus-within:text-primary transition-colors" />
-            <Input
-              type="text"
-              placeholder={placeholder}
-              value={localQuery}
-              onChange={handleInputChange}
-              onFocus={() => localQuery.length > 2 && setShowSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              className="border-0 bg-transparent text-lg placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {localQuery && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearSearch}
-                className="h-8 w-8 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </div>
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder={placeholder}
+          value={localQuery}
+          onChange={handleInputChange}
+          onFocus={() => localQuery.length > 2 && setShowSuggestions(true)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+          className="pl-10 pr-10"
+        />
+        {localQuery && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearSearch}
+            className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 p-0"
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
       </div>
 
       {showSuggestions && searchSuggestions.length > 0 && (
-        <div className="absolute top-full z-50 mt-2 w-full">
-          <div className="bg-card/95 backdrop-blur border border-border rounded-lg p-3 shadow-xl">
-            <div className="space-y-1">
-              {searchSuggestions.map((suggestion, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleSuggestionClick(suggestion)}
-                  className="w-full text-left px-4 py-3 hover:bg-muted rounded-lg transition-colors duration-200 flex items-center gap-3"
-                >
-                  <Search className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{suggestion}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+        <div className="absolute top-full z-50 mt-1 w-full rounded-md border bg-popover p-1 shadow-md">
+          {searchSuggestions.map((suggestion, index) => (
+            <button
+              key={index}
+              onClick={() => handleSuggestionClick(suggestion)}
+              className="w-full rounded-sm px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground"
+            >
+              {suggestion}
+            </button>
+          ))}
         </div>
       )}
     </div>

@@ -52,7 +52,7 @@ export const QuickCapture: React.FC<QuickCaptureProps> = ({
 
   // Get user location
   useEffect(() => {
-    if (isOpen && typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+    if (isOpen && 'geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;

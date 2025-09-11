@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useTranslation } from '@/hooks/useSafeTranslation';
+import { useTranslation } from 'react-i18next';
 import { useTranslationFiles } from '@/hooks/useTranslationFiles';
-import { SUPPORTED_LANGUAGES } from '@/utils/languages';
+import { SUPPORTED_LANGUAGES } from '@/utils/i18n';
 import { TranslationGenerator } from '@/utils/translation-generator';
 import { Save, Upload, Download, Globe, AlertCircle, Wand2, RefreshCw } from 'lucide-react';
 

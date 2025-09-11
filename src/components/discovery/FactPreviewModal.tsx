@@ -101,13 +101,12 @@ export const FactPreviewModal: React.FC<FactPreviewModalProps> = ({
               </div>
               {fact.latitude && fact.longitude && (
                 <div className="shrink-0 ml-3">
-            <LocationNavigationButton
-              latitude={fact.latitude}
-              longitude={fact.longitude}
-              locationName={fact.location_name}
-              variant="icon"
-              factId={fact.id}
-            />
+                  <LocationNavigationButton
+                    latitude={fact.latitude}
+                    longitude={fact.longitude}
+                    locationName={fact.location_name}
+                    variant="icon"
+                  />
                 </div>
               )}
             </div>

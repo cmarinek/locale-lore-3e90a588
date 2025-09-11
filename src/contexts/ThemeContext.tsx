@@ -8,8 +8,22 @@ interface ThemeContextType {
   actualTheme: 'light' | 'dark';
 }
 
-// Simple hook without context
-export const useTheme = (): ThemeContextType => {
+const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
+
+export const useTheme = () => {
+  const context = React.useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
+
+interface ThemeProviderProps {
+  children: React.ReactNode;
+}
+
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+  // Use localStorage for theme persistence instead of depending on user authentication
   const [theme, setThemeState] = useState<Theme>(() => {
     const stored = localStorage.getItem('locale-lore-theme');
     return (stored as Theme) || 'auto';
@@ -28,20 +42,27 @@ export const useTheme = (): ThemeContextType => {
       finalTheme = themeToApply;
     }
 
+    // Remove existing theme classes
     root.classList.remove('light', 'dark');
+    
+    // Add the appropriate theme class
     root.classList.add(finalTheme);
+    
     setActualTheme(finalTheme);
   };
 
   const setTheme = (newTheme: Theme) => {
+    // Store theme in localStorage for persistence
     localStorage.setItem('locale-lore-theme', newTheme);
     setThemeState(newTheme);
     applyTheme(newTheme);
   };
 
   useEffect(() => {
+    // Apply theme on mount and when theme changes
     applyTheme(theme);
 
+    // Listen for system theme changes when in auto mode
     if (theme === 'auto') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = () => applyTheme(theme);
@@ -51,18 +72,16 @@ export const useTheme = (): ThemeContextType => {
     }
   }, [theme]);
 
-  return {
+  const value: ThemeContextType = {
     theme,
     setTheme,
     actualTheme,
   };
-};
 
-interface ThemeProviderProps {
-  children: React.ReactNode;
-}
-
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  return <div>{children}</div>;
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  );
 };
 

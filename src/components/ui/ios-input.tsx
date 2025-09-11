@@ -1,4 +1,4 @@
-import React, { forwardRef, useState, useEffect } from "react"
+import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -30,12 +30,12 @@ export interface InputProps
   label?: string
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, variant, inputSize, label, type, ...props }, ref) => {
-    const [isFocused, setIsFocused] = useState(false)
-    const [hasValue, setHasValue] = useState(false)
+    const [isFocused, setIsFocused] = React.useState(false)
+    const [hasValue, setHasValue] = React.useState(false)
     
-    useEffect(() => {
+    React.useEffect(() => {
       setHasValue(!!props.value || !!props.defaultValue)
     }, [props.value, props.defaultValue])
 

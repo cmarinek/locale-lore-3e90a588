@@ -28,7 +28,6 @@ interface DiscoveryState {
   viewMode: 'explore' | 'hybrid' | 'map';
   syncSelectedFact: string | null; // For syncing between map and list
   mapCenter: [number, number] | null; // For centering map on location
-  highlightedFactId: string | null; // For highlighting the fact card when map is centered
   
   // Actions
   setFacts: (facts: EnhancedFact[]) => void;
@@ -44,7 +43,6 @@ interface DiscoveryState {
   setViewMode: (mode: 'explore' | 'hybrid' | 'map') => void;
   setSyncSelectedFact: (factId: string | null) => void;
   setMapCenter: (center: [number, number] | null) => void;
-  setHighlightedFactId: (factId: string | null) => void;
   loadMoreFacts: () => Promise<void>;
   loadCategories: () => Promise<void>;
   loadSavedFacts: () => Promise<void>;
@@ -87,7 +85,6 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       viewMode: 'explore',
       syncSelectedFact: null,
       mapCenter: null,
-      highlightedFactId: null,
       
       // Actions
       setFacts: (facts) => set({ facts }),
@@ -111,7 +108,6 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       setViewMode: (mode) => set({ viewMode: mode }),
       setSyncSelectedFact: (factId) => set({ syncSelectedFact: factId }),
       setMapCenter: (center) => set({ mapCenter: center }),
-      setHighlightedFactId: (factId) => set({ highlightedFactId: factId }),
       
       loadMoreFacts: async () => {
         const state = get();

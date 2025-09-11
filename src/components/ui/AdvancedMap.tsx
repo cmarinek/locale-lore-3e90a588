@@ -82,10 +82,8 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
       if (error) throw error;
       return data.token;
     } catch (error) {
-      console.error('Error fetching Mapbox token from Edge Function:', error);
-      console.warn('Edge Functions not available. Please add MAPBOX_PUBLIC_TOKEN to your environment or deploy to production.');
-      // Fallback: try to get from window object (for development)
-      return (window as any).MAPBOX_TOKEN || null;
+      console.error('Error fetching Mapbox token:', error);
+      return null;
     }
   }, []);
 
@@ -286,28 +284,14 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
     });
     map.current.addControl(geolocate, 'top-right');
 
-    // Position controls at 50vh down the screen
-    const styleControls = () => {
-      const controlContainer = mapContainer.current?.querySelector('.mapboxgl-ctrl-top-right');
-      if (controlContainer) {
-        (controlContainer as HTMLElement).style.cssText = `
-          position: absolute;
-          top: 50vh;
-          right: 10px;
-          transform: translateY(-50%);
-          z-index: 1;
-        `;
-      }
-    };
-
-    // Apply control positioning once map loads
-    map.current.on('load', () => {
-      setIsLoading(false);
-      styleControls();
-    });
-
     // Add scale control
     map.current.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
+
+    // Map load event
+    map.current.on('load', () => {
+      setIsLoading(false);
+      // Don't add facts here - wait for facts to be loaded
+    });
 
     // Geolocate event
     geolocate.on('geolocate', (e: any) => {
@@ -686,57 +670,30 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
         </div>
       )}
 
-      {/* Error overlay when no token */}
-      {!mapboxToken && !isLoading && (
-        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50">
-          <Card className="max-w-md mx-4">
-            <div className="p-6 text-center space-y-4">
-              <MapIcon className="w-12 h-12 text-muted-foreground mx-auto" />
-              <h3 className="text-lg font-semibold">Map Unavailable</h3>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <p>The map cannot load because:</p>
-                <ul className="text-left space-y-1">
-                  <li>• Edge Functions are not available in this environment</li>
-                  <li>• Deploy to production (Vercel/Netlify) to access maps</li>
-                  <li>• Or set MAPBOX_PUBLIC_TOKEN in your environment</li>
-                </ul>
-              </div>
-              <Button 
-                onClick={() => window.open('https://mapbox.com/', '_blank')}
-                variant="outline"
-                size="sm"
-              >
-                Get Mapbox Token
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
-
       {/* Search Bar */}
-      <div className="absolute top-16 left-4 right-4 z-10 flex items-center bg-card border border-border rounded-2xl p-2 shadow-lg hover:shadow-xl transition-all duration-300 group">
-        <div className="flex items-center flex-1 px-4">
-          <Search className="w-5 h-5 text-muted-foreground mr-3 group-focus-within:text-primary transition-colors" />
+      <Card className="absolute top-4 left-4 right-4 z-10 bg-card/95 backdrop-blur border-border">
+        <div className="flex items-center gap-3 p-4">
+          <Search className="w-5 h-5 text-muted-foreground" />
           <Input
             placeholder="Search locations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
-            className="border-0 bg-transparent text-lg placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="border-0 bg-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground"
           />
         </div>
-      </div>
+      </Card>
 
       {/* Map Style Controls */}
       {showControls && (
-        <div className="absolute top-32 left-4 z-10 mt-2">
-          <div className="flex items-center gap-2 justify-start">
+        <Card className="absolute top-20 right-4 z-10 bg-card/95 backdrop-blur border-border">
+          <div className="p-3 space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 variant={mapStyle === 'light' ? 'ios' : 'ghost'}
                 size="sm"
                 onClick={() => setMapStyle('light')}
                 className="haptic-feedback"
-                title="Light mode"
               >
                 <Sun className="w-4 h-4" />
               </Button>
@@ -745,7 +702,6 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
                 size="sm"
                 onClick={() => setMapStyle('dark')}
                 className="haptic-feedback"
-                title="Dark mode"
               >
                 <Moon className="w-4 h-4" />
               </Button>
@@ -754,7 +710,6 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
                 size="sm"
                 onClick={() => setMapStyle('satellite')}
                 className="haptic-feedback"
-                title="Satellite imagery"
               >
                 <Satellite className="w-4 h-4" />
               </Button>
@@ -763,12 +718,12 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
                 size="sm"
                 onClick={() => setMapStyle('terrain')}
                 className="haptic-feedback"
-                title="Terrain & elevation"
               >
                 <Layers className="w-4 h-4" />
               </Button>
+            </div>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* User Location Button */}
