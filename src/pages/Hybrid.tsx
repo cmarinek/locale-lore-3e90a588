@@ -34,9 +34,6 @@ export const Hybrid: React.FC = () => {
   const [displayedFacts, setDisplayedFacts] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'list' | 'map'>('list');
   const {
-    formatDistance
-  } = useLocationSorting();
-  const {
     facts,
     selectedFact,
     setSelectedFact,
@@ -46,20 +43,35 @@ export const Hybrid: React.FC = () => {
     initializeData,
     loading
   } = useDiscoveryStore();
+  const { sortFactsByDistance, isLoadingLocation, formatDistance } = useLocationSorting();
   const {
     triggerHapticFeedback
   } = useAppStore();
 
-  // Initialize data
+  // Initialize data and sort by distance by default
   useEffect(() => {
     initializeData();
     getUserLocation();
-  }, []); // Remove initializeData from deps to prevent infinite loop
+  }, []);
 
-  // Update displayed facts when facts change
+  // Update displayed facts when facts change, sort by distance by default
   useEffect(() => {
-    setDisplayedFacts(facts);
-  }, [facts]);
+    const sortAndSetFacts = async () => {
+      if (facts.length > 0 && !isLoadingLocation) {
+        try {
+          const sortedFacts = await sortFactsByDistance(facts);
+          setDisplayedFacts(sortedFacts);
+        } catch (error) {
+          console.error('Failed to sort by distance:', error);
+          setDisplayedFacts(facts);
+        }
+      } else {
+        setDisplayedFacts(facts);
+      }
+    };
+    
+    sortAndSetFacts();
+  }, [facts, isLoadingLocation, sortFactsByDistance]);
   const getUserLocation = async () => {
     try {
       const {
@@ -204,7 +216,18 @@ export const Hybrid: React.FC = () => {
           
           {/* Quick Filters - Collapsible on mobile */}
           <div className={`mt-3 ${isMobile ? 'max-h-16 overflow-hidden' : ''}`}>
-            <QuickFilters filters={filters} onFiltersChange={setFilters} />
+            <QuickFilters 
+              filters={filters} 
+              onFiltersChange={setFilters}
+              onNearbyClick={async () => {
+                try {
+                  const sortedFacts = await sortFactsByDistance(facts);
+                  setDisplayedFacts(sortedFacts);
+                } catch (error) {
+                  console.error('Failed to sort by distance:', error);
+                }
+              }}
+            />
           </div>
         </div>
 

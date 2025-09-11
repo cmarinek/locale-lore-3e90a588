@@ -17,12 +17,14 @@ import { SearchFilters } from '@/types/fact';
 interface QuickFiltersProps {
   filters: SearchFilters;
   onFiltersChange: (filters: Partial<SearchFilters>) => void;
+  onNearbyClick?: () => void;
   className?: string;
 }
 
 export const QuickFilters: React.FC<QuickFiltersProps> = ({
   filters,
   onFiltersChange,
+  onNearbyClick,
   className
 }) => {
   const quickFilterOptions = React.useMemo(() => [
@@ -32,11 +34,14 @@ export const QuickFilters: React.FC<QuickFiltersProps> = ({
       icon: <MapPin className="w-4 h-4" />,
       active: !!filters.location,
       onClick: () => {
+        // Trigger nearby sorting
+        if (onNearbyClick) {
+          onNearbyClick();
+        }
         // Toggle location-based filtering
         if (filters.location) {
           onFiltersChange({ location: undefined });
         } else {
-          // This would be handled by the parent component to get location
           onFiltersChange({ location: { lat: 0, lng: 0 } });
         }
       }
