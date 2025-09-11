@@ -11,7 +11,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { GestureHandler } from '@/components/ui/gesture-handler';
 import { List, Map as MapIcon, Layers, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import AdvancedMap from '@/components/ui/AdvancedMap';
+// Lazy-loaded to speed up initial render
+// import AdvancedMap from '@/components/ui/AdvancedMap';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
@@ -24,6 +25,10 @@ import { QuickFilters } from '@/components/discovery/QuickFilters';
 import { DistanceSortButton } from '@/components/ui/DistanceSortButton';
 import { useLocationSorting } from '@/hooks/useLocationSorting';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+// Lazy-load AdvancedMap to improve initial render
+const LazyAdvancedMap = React.lazy(() => import('@/components/ui/AdvancedMap'));
+
 export const Hybrid: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -315,12 +320,17 @@ export const Hybrid: React.FC = () => {
 
                 <TabsContent value="map" className="flex-1 min-h-0 mt-0">
                   <div className="h-full relative">
-                    <AdvancedMap 
-                      onFactClick={handleMapFactClick} 
-                      className="h-full w-full rounded-lg mx-4" 
-                      initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                      showBuiltInSearch={false} 
-                    />
+                    {activeTab === 'map' && (
+                      <React.Suspense fallback={<div className="h-full w-full grid place-items-center text-muted-foreground animate-fade-in">Loading map...</div>}>
+                        <LazyAdvancedMap 
+                          onFactClick={handleMapFactClick} 
+                          className="h-full w-full rounded-lg mx-4" 
+                          initialCenter={[centerLocation.lng, centerLocation.lat]} 
+                          initialZoom={5}
+                          showBuiltInSearch={false} 
+                        />
+                      </React.Suspense>
+                    )}
                   </div>
                 </TabsContent>
               </Tabs>
@@ -374,12 +384,15 @@ export const Hybrid: React.FC = () => {
 
             {/* Map - Desktop: Right main area */}
             <div className="flex-1 relative">
-              <AdvancedMap 
-                onFactClick={handleMapFactClick} 
-                className="h-full w-full" 
-                initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                showBuiltInSearch={false} 
-              />
+              <React.Suspense fallback={<div className="absolute inset-0 grid place-items-center text-muted-foreground animate-fade-in">Loading map...</div>}>
+                <LazyAdvancedMap 
+                  onFactClick={handleMapFactClick} 
+                  className="h-full w-full" 
+                  initialCenter={[centerLocation.lng, centerLocation.lat]} 
+                  initialZoom={5}
+                  showBuiltInSearch={false} 
+                />
+              </React.Suspense>
             </div>
           </div>
         )}
