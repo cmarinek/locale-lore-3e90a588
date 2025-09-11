@@ -116,7 +116,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
         set({ isLoading: true });
         
         try {
-          const limit = 10;
+          const limit = 50; // Increased from 10 to 50 to load more facts
           const offset = state.facts.length;
           
           const { data: facts, error } = await supabase
