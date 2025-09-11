@@ -4,29 +4,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { Play, Pause, Square, RefreshCw, Settings, Database } from 'lucide-react';
+import { Play, Pause, Square, RefreshCw, Settings, Database, MapPin, Image, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
-
-interface ImportedFact {
-  id: string;
-  title: string;
-  description: string;
-  location_name: string;
-  latitude: number;
-  longitude: number;
-  created_at: string;
-  category: { slug: string };
-}
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface AcquisitionJob {
   id: string;
   name: string;
-  status: 'pending' | 'running' | 'completed' | 'failed' | 'paused';
+  status: string;
   source_type: string;
   target_count: number;
   processed_count: number;
@@ -38,13 +27,25 @@ interface AcquisitionJob {
   completed_at?: string;
 }
 
+interface ImportedFact {
+  id: string;
+  title: string;
+  description: string;
+  location_name: string;
+  latitude: number;
+  longitude: number;
+  image_url?: string;
+  media_urls?: string[];
+  created_at: string;
+  status: string;
+}
+
 const FactAcquisitionManager: React.FC = () => {
   const [jobs, setJobs] = useState<AcquisitionJob[]>([]);
   const [importedFacts, setImportedFacts] = useState<ImportedFact[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [activeTab, setActiveTab] = useState<'jobs' | 'preview'>('jobs');
   const { toast } = useToast();
 
   const [newJobForm, setNewJobForm] = useState({
@@ -52,45 +53,37 @@ const FactAcquisitionManager: React.FC = () => {
     target_count: 100,
     categories: ['history', 'science', 'culture', 'geography', 'nature'],
     include_images: true,
-    auto_categorize: true,
-    content_moderation: true
+    require_coordinates: true,
+    quality_filter: true
   });
 
   useEffect(() => {
-    loadJobs();
-    loadImportedFacts();
+    loadData();
     
     // Auto-refresh every 30 seconds
-    const interval = setInterval(() => {
-      loadJobs();
-      loadImportedFacts();
-    }, 30000);
+    const interval = setInterval(loadData, 30000);
     return () => clearInterval(interval);
   }, []);
 
+  const loadData = async () => {
+    await Promise.all([loadJobs(), loadImportedFacts()]);
+  };
+
   const loadJobs = async () => {
     try {
-      console.log('Loading acquisition jobs...');
-      const { data, error } = await supabase.functions.invoke('bulk-import-processor', {
-        body: { action: 'get_jobs', limit: 50 }
-      });
+      const { data, error } = await supabase
+        .from('acquisition_jobs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20);
 
-      console.log('Jobs response:', { data, error });
-      
       if (error) throw error;
-      
-      const jobs = data?.jobs || [];
-      console.log('Loaded jobs:', jobs);
-      setJobs(jobs);
-      
-      if (jobs.length === 0) {
-        console.log('No jobs found');
-      }
+      setJobs(data || []);
     } catch (error) {
       console.error('Failed to load jobs:', error);
       toast({
         title: "Error loading jobs",
-        description: `Failed to fetch acquisition jobs: ${error.message}`,
+        description: "Failed to fetch acquisition jobs",
         variant: "destructive",
       });
     }
@@ -100,42 +93,36 @@ const FactAcquisitionManager: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('facts')
-        .select(`
-          id,
-          title,
-          description,
-          location_name,
-          latitude,
-          longitude,
-          created_at,
-          categories!inner(slug)
-        `)
+        .select('*')
         .is('author_id', null) // System-generated facts
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(50);
 
       if (error) throw error;
-      
-      const factsWithCategory = data?.map(fact => ({
-        ...fact,
-        category: fact.categories
-      })) || [];
-      
-      setImportedFacts(factsWithCategory);
+      setImportedFacts(data || []);
     } catch (error) {
       console.error('Failed to load imported facts:', error);
       toast({
-        title: "Error loading imported facts",
-        description: `Failed to fetch imported facts: ${error.message}`,
+        title: "Error loading facts",
+        description: "Failed to fetch imported facts",
         variant: "destructive",
       });
     }
   };
 
   const createJob = async () => {
+    if (!newJobForm.name || newJobForm.categories.length === 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please provide a job name and select at least one category",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setCreating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('bulk-import-processor', {
+      const { data, error } = await supabase.functions.invoke('fact-acquisition', {
         body: {
           action: 'create_job',
           name: newJobForm.name,
@@ -143,8 +130,8 @@ const FactAcquisitionManager: React.FC = () => {
           configuration: {
             categories: newJobForm.categories,
             include_images: newJobForm.include_images,
-            auto_categorize: newJobForm.auto_categorize,
-            content_moderation: newJobForm.content_moderation
+            require_coordinates: newJobForm.require_coordinates,
+            quality_filter: newJobForm.quality_filter
           }
         }
       });
@@ -162,16 +149,16 @@ const FactAcquisitionManager: React.FC = () => {
         target_count: 100,
         categories: ['history', 'science', 'culture', 'geography', 'nature'],
         include_images: true,
-        auto_categorize: true,
-        content_moderation: true
+        require_coordinates: true,
+        quality_filter: true
       });
       
-      loadJobs();
+      await loadJobs();
     } catch (error) {
       console.error('Failed to create job:', error);
       toast({
         title: "Error creating job",
-        description: "Failed to create acquisition job",
+        description: error.message || "Failed to create acquisition job",
         variant: "destructive",
       });
     } finally {
@@ -182,30 +169,23 @@ const FactAcquisitionManager: React.FC = () => {
   const startJob = async (jobId: string) => {
     setLoading(true);
     try {
-      console.log('Starting job:', jobId);
-      const { data, error } = await supabase.functions.invoke('bulk-import-processor', {
-        body: { action: 'start_processing', jobId }
+      const { data, error } = await supabase.functions.invoke('fact-acquisition', {
+        body: { action: 'start_job', jobId }
       });
-
-      console.log('Start job response:', { data, error });
 
       if (error) throw error;
 
       toast({
         title: "Job started",
-        description: "Fact acquisition job started successfully. Processing in background...",
+        description: "Fact acquisition job started successfully",
       });
 
-      // Refresh jobs immediately to show updated status
-      setTimeout(() => {
-        loadJobs();
-        loadImportedFacts();
-      }, 1000);
+      await loadJobs();
     } catch (error) {
       console.error('Failed to start job:', error);
       toast({
         title: "Error starting job",
-        description: `Failed to start acquisition job: ${error.message}`,
+        description: error.message || "Failed to start acquisition job",
         variant: "destructive",
       });
     } finally {
@@ -216,7 +196,7 @@ const FactAcquisitionManager: React.FC = () => {
   const pauseJob = async (jobId: string) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('bulk-import-processor', {
+      const { data, error } = await supabase.functions.invoke('fact-acquisition', {
         body: { action: 'pause_job', jobId }
       });
 
@@ -227,8 +207,7 @@ const FactAcquisitionManager: React.FC = () => {
         description: "Fact acquisition job paused successfully",
       });
       
-      loadJobs();
-      loadImportedFacts();
+      await loadJobs();
     } catch (error) {
       console.error('Failed to pause job:', error);
       toast({
@@ -244,7 +223,7 @@ const FactAcquisitionManager: React.FC = () => {
   const resumeJob = async (jobId: string) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('bulk-import-processor', {
+      const { data, error } = await supabase.functions.invoke('fact-acquisition', {
         body: { action: 'resume_job', jobId }
       });
 
@@ -255,7 +234,7 @@ const FactAcquisitionManager: React.FC = () => {
         description: "Fact acquisition job resumed successfully",
       });
 
-      loadJobs();
+      await loadJobs();
     } catch (error) {
       console.error('Failed to resume job:', error);
       toast({
@@ -271,7 +250,7 @@ const FactAcquisitionManager: React.FC = () => {
   const cancelJob = async (jobId: string) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('bulk-import-processor', {
+      const { data, error } = await supabase.functions.invoke('fact-acquisition', {
         body: { action: 'cancel_job', jobId }
       });
 
@@ -282,7 +261,7 @@ const FactAcquisitionManager: React.FC = () => {
         description: "Fact acquisition job cancelled successfully",
       });
 
-      loadJobs();
+      await loadJobs();
     } catch (error) {
       console.error('Failed to cancel job:', error);
       toast({
@@ -297,11 +276,11 @@ const FactAcquisitionManager: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'running': return 'bg-blue-500';
-      case 'completed': return 'bg-green-500';
-      case 'failed': return 'bg-red-500';
-      case 'paused': return 'bg-yellow-500';
-      default: return 'bg-gray-500';
+      case 'running': return 'bg-blue-500 text-white';
+      case 'completed': return 'bg-green-500 text-white';
+      case 'failed': return 'bg-red-500 text-white';
+      case 'paused': return 'bg-yellow-500 text-black';
+      default: return 'bg-gray-500 text-white';
     }
   };
 
@@ -310,38 +289,23 @@ const FactAcquisitionManager: React.FC = () => {
     return Math.round((job.processed_count / job.target_count) * 100);
   };
 
-  const categories = ['history', 'science', 'culture', 'geography', 'nature', 'technology', 'art', 'sports', 'politics'];
+  const categories = ['history', 'science', 'culture', 'geography', 'nature', 'technology', 'art', 'sports'];
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Fact Acquisition Manager</h2>
           <p className="text-muted-foreground">
-            Automate fact collection from Wikipedia and other sources
+            Automate fact collection from Wikipedia with images and coordinates
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={loadJobs} variant="outline" size="sm">
+          <Button onClick={loadData} variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <div className="flex bg-muted p-1 rounded-lg">
-            <Button
-              variant={activeTab === 'jobs' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveTab('jobs')}
-            >
-              Jobs
-            </Button>
-            <Button
-              variant={activeTab === 'preview' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveTab('preview')}
-            >
-              Imported Facts ({importedFacts.length})
-            </Button>
-          </div>
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
             <DialogTrigger asChild>
               <Button>
@@ -361,7 +325,7 @@ const FactAcquisitionManager: React.FC = () => {
                   <Label htmlFor="job-name">Job Name</Label>
                   <Input
                     id="job-name"
-                    placeholder="e.g., Historical Facts Collection"
+                    placeholder="e.g., Historical Landmarks Collection"
                     value={newJobForm.name}
                     onChange={(e) => setNewJobForm({ ...newJobForm, name: e.target.value })}
                   />
@@ -373,7 +337,7 @@ const FactAcquisitionManager: React.FC = () => {
                     id="target-count"
                     type="number"
                     min="10"
-                    max="10000"
+                    max="1000"
                     value={newJobForm.target_count}
                     onChange={(e) => setNewJobForm({ ...newJobForm, target_count: parseInt(e.target.value) || 100 })}
                   />
@@ -381,7 +345,7 @@ const FactAcquisitionManager: React.FC = () => {
 
                 <div>
                   <Label>Categories</Label>
-                  <div className="grid grid-cols-3 gap-2 mt-2">
+                  <div className="grid grid-cols-2 gap-2 mt-2">
                     {categories.map((category) => (
                       <div key={category} className="flex items-center space-x-2">
                         <Checkbox
@@ -421,20 +385,20 @@ const FactAcquisitionManager: React.FC = () => {
                   
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      id="auto-categorize"
-                      checked={newJobForm.auto_categorize}
-                      onCheckedChange={(checked) => setNewJobForm({ ...newJobForm, auto_categorize: !!checked })}
+                      id="require-coordinates"
+                      checked={newJobForm.require_coordinates}
+                      onCheckedChange={(checked) => setNewJobForm({ ...newJobForm, require_coordinates: !!checked })}
                     />
-                    <Label htmlFor="auto-categorize">Auto Categorization</Label>
+                    <Label htmlFor="require-coordinates">Require Coordinates</Label>
                   </div>
                   
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      id="content-moderation"
-                      checked={newJobForm.content_moderation}
-                      onCheckedChange={(checked) => setNewJobForm({ ...newJobForm, content_moderation: !!checked })}
+                      id="quality-filter"
+                      checked={newJobForm.quality_filter}
+                      onCheckedChange={(checked) => setNewJobForm({ ...newJobForm, quality_filter: !!checked })}
                     />
-                    <Label htmlFor="content-moderation">Content Moderation</Label>
+                    <Label htmlFor="quality-filter">Quality Filter</Label>
                   </div>
                 </div>
 
@@ -456,182 +420,200 @@ const FactAcquisitionManager: React.FC = () => {
         </div>
       </div>
 
-      {activeTab === 'jobs' && (
-        <div className="grid gap-4">
-        {jobs.map((job) => (
-          <Card key={job.id}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg">{job.name}</CardTitle>
-                  <CardDescription>
-                    Created {new Date(job.created_at).toLocaleDateString()}
-                  </CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge className={getStatusColor(job.status)}>
-                    {job.status}
-                  </Badge>
-                  <div className="flex gap-1">
-                    {job.status === 'pending' && (
-                      <Button
-                        size="sm"
-                        onClick={() => startJob(job.id)}
-                        disabled={loading}
-                      >
-                        <Play className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {job.status === 'running' && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => pauseJob(job.id)}
-                        disabled={loading}
-                      >
-                        <Pause className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {job.status === 'paused' && (
-                      <Button
-                        size="sm"
-                        onClick={() => resumeJob(job.id)}
-                        disabled={loading}
-                      >
-                        <Play className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {(job.status === 'running' || job.status === 'paused') && (
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => cancelJob(job.id)}
-                        disabled={loading}
-                      >
-                        <Square className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Target:</span>
-                    <div className="font-semibold">{job.target_count.toLocaleString()}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Processed:</span>
-                    <div className="font-semibold">{job.processed_count.toLocaleString()}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Success:</span>
-                    <div className="font-semibold text-green-600">{job.success_count.toLocaleString()}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Errors:</span>
-                    <div className="font-semibold text-red-600">{job.error_count.toLocaleString()}</div>
-                  </div>
-                </div>
-                
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Progress</span>
-                    <span>{getProgress(job)}%</span>
-                  </div>
-                  <Progress value={getProgress(job)} className="h-2" />
-                </div>
-                
-                {job.configuration?.categories && (
-                  <div>
-                    <span className="text-sm text-muted-foreground">Categories:</span>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {job.configuration.categories.map((category: string) => (
-                        <Badge key={category} variant="outline" className="text-xs">
-                          {category}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-        
-        {jobs.length === 0 && (
-          <Card>
-            <CardContent className="text-center py-8">
-              <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="font-semibold mb-2">No acquisition jobs found</h3>
-              <p className="text-muted-foreground mb-4">
-                Create your first automated fact acquisition job to get started
-              </p>
-              <Button onClick={() => setShowCreateDialog(true)}>
-                Create First Job
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-        </div>
-      )}
+      {/* Tabs */}
+      <Tabs defaultValue="jobs" className="w-full">
+        <TabsList>
+          <TabsTrigger value="jobs">
+            Jobs ({jobs.length})
+          </TabsTrigger>
+          <TabsTrigger value="facts">
+            Imported Facts ({importedFacts.length})
+          </TabsTrigger>
+        </TabsList>
 
-      {activeTab === 'preview' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Recently Imported Facts</h3>
-            <Button onClick={loadImportedFacts} variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
-          </div>
-          
-          {importedFacts.length === 0 ? (
+        {/* Jobs Tab */}
+        <TabsContent value="jobs" className="space-y-4">
+          {jobs.length === 0 ? (
             <Card>
               <CardContent className="text-center py-8">
                 <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="font-semibold mb-2">No facts imported yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Create and run an acquisition job to see imported facts here
-                </p>
+                <p className="text-lg font-medium">No acquisition jobs found</p>
+                <p className="text-muted-foreground">Create your first job to start importing facts</p>
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-4">
-              {importedFacts.map((fact) => (
-                <Card key={fact.id}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="text-lg">{fact.title}</CardTitle>
-                        <CardDescription className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            {fact.category.slug}
-                          </Badge>
-                          <span>📍 {fact.location_name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            Imported {new Date(fact.created_at).toLocaleDateString()}
-                          </span>
-                        </CardDescription>
+            jobs.map((job) => (
+              <Card key={job.id}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{job.name}</CardTitle>
+                      <CardDescription className="flex items-center gap-4">
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          Created {new Date(job.created_at).toLocaleDateString()}
+                        </span>
+                        <span>Target: {job.target_count} facts</span>
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className={getStatusColor(job.status)}>
+                        {job.status}
+                      </Badge>
+                      <div className="flex gap-1">
+                        {job.status === 'pending' && (
+                          <Button
+                            size="sm"
+                            onClick={() => startJob(job.id)}
+                            disabled={loading}
+                          >
+                            <Play className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {job.status === 'running' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => pauseJob(job.id)}
+                            disabled={loading}
+                          >
+                            <Pause className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {job.status === 'paused' && (
+                          <Button
+                            size="sm"
+                            onClick={() => resumeJob(job.id)}
+                            disabled={loading}
+                          >
+                            <Play className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => cancelJob(job.id)}
+                          disabled={loading || job.status === 'completed'}
+                        >
+                          <Square className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
-                      {fact.description}
-                    </p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>📍 {fact.latitude.toFixed(6)}, {fact.longitude.toFixed(6)}</span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between text-sm">
+                      <span>Progress: {job.processed_count} / {job.target_count}</span>
+                      <span>{getProgress(job)}%</span>
+                    </div>
+                    <Progress value={getProgress(job)} className="h-2" />
+                    
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">{job.success_count}</div>
+                        <div className="text-muted-foreground">Successful</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-red-600">{job.error_count}</div>
+                        <div className="text-muted-foreground">Errors</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">{job.processed_count}</div>
+                        <div className="text-muted-foreground">Processed</div>
+                      </div>
+                    </div>
+
+                    {job.configuration && (
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">
+                          Categories: {job.configuration.categories?.join(', ') || 'general'}
+                        </Badge>
+                        {job.configuration.include_images && (
+                          <Badge variant="outline">
+                            <Image className="h-3 w-3 mr-1" />
+                            Images
+                          </Badge>
+                        )}
+                        {job.configuration.require_coordinates && (
+                          <Badge variant="outline">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            Coordinates
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </TabsContent>
+
+        {/* Facts Tab */}
+        <TabsContent value="facts" className="space-y-4">
+          <div className="grid gap-4">
+            {importedFacts.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-8">
+                  <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-lg font-medium">No imported facts found</p>
+                  <p className="text-muted-foreground">Run acquisition jobs to import facts</p>
+                </CardContent>
+              </Card>
+            ) : (
+              importedFacts.map((fact) => (
+                <Card key={fact.id}>
+                  <CardContent className="p-4">
+                    <div className="flex gap-4">
+                      {fact.image_url && (
+                        <div className="flex-shrink-0">
+                          <img
+                            src={fact.image_url}
+                            alt={fact.title}
+                            className="w-16 h-16 object-cover rounded"
+                            onError={(e) => {
+                              const img = e.target as HTMLImageElement;
+                              img.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg">{fact.title}</h3>
+                        <p className="text-muted-foreground text-sm mb-2">
+                          {fact.description.length > 150 
+                            ? `${fact.description.substring(0, 150)}...`
+                            : fact.description
+                          }
+                        </p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-4 w-4" />
+                            {fact.location_name}
+                          </span>
+                          <span>
+                            {fact.latitude.toFixed(4)}, {fact.longitude.toFixed(4)}
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            {fact.status}
+                          </Badge>
+                          {fact.media_urls && fact.media_urls.length > 0 && (
+                            <span className="flex items-center gap-1">
+                              <Image className="h-4 w-4" />
+                              {fact.media_urls.length} images
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+              ))
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
