@@ -156,7 +156,7 @@ export const Explore: React.FC = () => {
           <div className="min-h-screen bg-background">
             <div className="container mx-auto px-4 py-6">
               {/* Header with glass effect */}
-              <div className="glass rounded-lg p-4 mb-6">
+              <div className="glass rounded-lg p-4 mb-6 mt-16">
                 <div className="flex items-center justify-between mb-4">
                   <h1 className="text-2xl font-bold">Discover Stories</h1>
                   <div className="flex gap-2">
