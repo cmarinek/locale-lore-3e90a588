@@ -57,6 +57,16 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
   const [facts, setFacts] = useState<FactMarker[]>([]);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  // UX: ensure the loading overlay is visible for a minimum time so users can enjoy it
+  const MIN_OVERLAY_MS = 1600;
+  const [overlayMinTimerDone, setOverlayMinTimerDone] = useState(false);
+  const [tokenMissing, setTokenMissing] = useState(false);
+  const [manualToken, setManualToken] = useState('');
+
+  useEffect(() => {
+    const id = setTimeout(() => setOverlayMinTimerDone(true), MIN_OVERLAY_MS);
+    return () => clearTimeout(id);
+  }, []);
 
   // Memoized loading messages
   const loadingMessage = useMemo(() => {
@@ -149,6 +159,8 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
       const token = await mapboxService.getToken();
       if (!token) {
         console.error('🗺️ No Mapbox token available');
+        setTokenMissing(true);
+        setLoadingState('token');
         return;
       }
       
@@ -348,32 +360,75 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
       />
       
       {/* Loading overlay with progress indicator */}
-      {loadingState !== 'ready' && (
+      {(!overlayMinTimerDone || loadingState !== 'ready') && (
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-lg">
-          <div className="flex flex-col items-center space-y-4 p-6 bg-card/90 rounded-lg shadow-lg">
-            <div className="flex items-center space-x-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
-              <span className="text-sm font-medium">{loadingMessage}</span>
-            </div>
-            
-            {/* Progress bar */}
-            <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
-                style={{
-                  width: loadingState === 'token' ? '25%' : 
-                         loadingState === 'map' ? '50%' : 
-                         loadingState === 'facts' ? '75%' : '100%'
-                }}
+          {tokenMissing ? (
+            <div className="flex flex-col items-center space-y-3 p-6 bg-card/90 rounded-lg shadow-lg w-[90%] max-w-md">
+              <div className="text-center space-y-2">
+                <p className="text-sm font-medium">Mapbox token required</p>
+                <p className="text-xs text-muted-foreground">We couldn't fetch a Mapbox public token. Paste your token to load the map.</p>
+              </div>
+              <input
+                type="text"
+                value={manualToken}
+                onChange={(e) => setManualToken(e.target.value)}
+                placeholder="pk.eyJ..."
+                className="w-full h-10 px-3 rounded-md border border-border bg-background text-foreground outline-none"
+                aria-label="Mapbox public token"
               />
+              <div className="flex gap-2 w-full">
+                <button
+                  onClick={() => {
+                    try {
+                      const token = manualToken.trim();
+                      if (!token) return;
+                      const payload = { token, timestamp: Date.now(), expiresAt: Date.now() + 24 * 60 * 60 * 1000 };
+                      localStorage.setItem('mapbox_token_cache', JSON.stringify(payload));
+                      setLoadingState('map');
+                      setTokenMissing(false);
+                      setTimeout(() => initializeMap(), 50);
+                    } catch (e) {
+                      console.error('Failed to apply token', e);
+                    }
+                  }}
+                  className="flex-1 h-10 rounded-md bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
+                >
+                  Use Token
+                </button>
+                <a
+                  className="h-10 px-3 rounded-md border border-border grid place-items-center text-sm text-muted-foreground hover:bg-accent"
+                  href="https://mapbox.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Find token
+                </a>
+              </div>
             </div>
-            
-            <p className="text-xs text-muted-foreground text-center">
-              {loadingState === 'token' && 'Setting up map connection...'}
-              {loadingState === 'map' && 'Preparing interactive map...'}
-              {loadingState === 'facts' && 'Loading location data...'}
-            </p>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center space-y-4 p-6 bg-card/90 rounded-lg shadow-lg">
+              <div className="flex items-center space-x-3">
+                <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
+                <span className="text-sm font-medium">{loadingMessage}</span>
+              </div>
+              {/* Progress bar */}
+              <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+                  style={{
+                    width: loadingState === 'token' ? '25%' : 
+                           loadingState === 'map' ? '50%' : 
+                           loadingState === 'facts' ? '75%' : '100%'
+                  }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                {loadingState === 'token' && 'Setting up map connection...'}
+                {loadingState === 'map' && 'Preparing interactive map...'}
+                {loadingState === 'facts' && 'Loading location data...'}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
