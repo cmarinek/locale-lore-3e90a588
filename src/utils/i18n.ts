@@ -7,72 +7,82 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 export { SUPPORTED_LANGUAGES, isRTLLanguage, updateDocumentDirection } from './languages';
 export type { SupportedLanguage } from './languages';
 
-// Initialize i18n with performance optimizations
-const initI18n = async () => {
-  return i18n
-    .use(Backend)
-    .use(LanguageDetector)
-    .use(initReactI18next)
-    .init({
-      fallbackLng: 'en',
-      debug: false,
-      
-      // Namespace organization
-      ns: ['common', 'navigation', 'auth', 'lore', 'profile', 'admin', 'errors'],
-      defaultNS: 'common',
+// Flag to track if i18n has been initialized
+let i18nInitialized = false;
 
-      // Language detection
-      detection: {
-        order: ['localStorage', 'navigator', 'htmlTag'],
-        lookupLocalStorage: 'locale-lore-language',
-        caches: ['localStorage'],
-      },
+// Lazy initialization of i18n - called only when needed
+export const initI18n = async () => {
+  if (i18nInitialized) return i18n;
+  
+  try {
+    await i18n
+      .use(Backend)
+      .use(LanguageDetector)
+      .use(initReactI18next)
+      .init({
+        fallbackLng: 'en',
+        debug: false,
+        
+        // Namespace organization
+        ns: ['common', 'navigation', 'auth', 'lore', 'profile', 'admin', 'errors'],
+        defaultNS: 'common',
 
-      // Backend configuration with performance optimizations
-      backend: {
-        loadPath: '/locales/{{lng}}/{{ns}}.json',
-        allowMultiLoading: false, // Load one namespace at a time for better performance
-        crossDomain: false,
-        withCredentials: false,
-        requestOptions: {
-          cache: 'default',
+        // Language detection
+        detection: {
+          order: ['localStorage', 'navigator', 'htmlTag'],
+          lookupLocalStorage: 'locale-lore-language',
+          caches: ['localStorage'],
         },
-      },
 
-      // React options
-      react: {
-        useSuspense: false, // Prevents blocking render
-        bindI18n: 'languageChanged loaded',
-        bindI18nStore: 'added removed',
-        transEmptyNodeValue: '',
-        transSupportBasicHtmlNodes: true,
-        transKeepBasicHtmlNodesFor: ['br', 'strong', 'i', 'p'],
-      },
+        // Backend configuration with performance optimizations
+        backend: {
+          loadPath: '/locales/{{lng}}/{{ns}}.json',
+          allowMultiLoading: false,
+          crossDomain: false,
+          withCredentials: false,
+          requestOptions: {
+            cache: 'default',
+          },
+        },
 
-      // Simple interpolation
-      interpolation: {
-        escapeValue: false,
-      },
+        // React options
+        react: {
+          useSuspense: false,
+          bindI18n: 'languageChanged loaded',
+          bindI18nStore: 'added removed',
+          transEmptyNodeValue: '',
+          transSupportBasicHtmlNodes: true,
+          transKeepBasicHtmlNodesFor: ['br', 'strong', 'i', 'p'],
+        },
 
-      // Resource loading optimizations
-      load: 'languageOnly',
-      preload: ['en'], // Only preload English to reduce initial bundle
+        // Simple interpolation
+        interpolation: {
+          escapeValue: false,
+        },
+
+        // Resource loading optimizations
+        load: 'languageOnly',
+        preload: ['en'],
+        
+        // Performance settings
+        partialBundledLanguages: true,
+        cleanCode: true,
+        
+        // Separators
+        keySeparator: '.',
+        nsSeparator: ':',
+      });
       
-      // Performance settings
-      partialBundledLanguages: true, // Load only needed namespaces
-      cleanCode: true, // Remove unused translations
-      
-      // Separators
-      keySeparator: '.',
-      nsSeparator: ':',
-    });
+    i18nInitialized = true;
+    console.log('[i18n] Initialized successfully');
+  } catch (error) {
+    console.warn('[i18n] Initialization failed:', error);
+    // Fallback to English if initialization fails
+    await i18n.changeLanguage('en');
+    i18nInitialized = true;
+  }
+  
+  return i18n;
 };
-
-// Initialize immediately but handle errors gracefully
-initI18n().catch((error) => {
-  console.warn('i18n initialization failed:', error);
-  // Fallback to English if initialization fails
-  i18n.changeLanguage('en');
-});
 
 export default i18n;

@@ -27,7 +27,7 @@ import { ProductionReadiness } from '@/pages/ProductionReadiness';
 import TranslationTest from '@/pages/TranslationTest';
 
 import { AuthProvider } from '@/contexts/AuthContext';
-import { LanguageProvider } from '@/contexts/LanguageContext';
+import { LanguageProvider } from '@/contexts/LanguageProvider';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Toaster } from '@/components/ui/toaster';
 import { HelmetProvider } from 'react-helmet-async';
