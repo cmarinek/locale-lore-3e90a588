@@ -187,48 +187,7 @@ export const Hybrid: React.FC = () => {
         <div className="flex-1 flex flex-col lg:flex-row min-h-0">
           {/* Facts List - Mobile: Scrollable bottom half, Desktop: Left sidebar */}
           <div className="lg:w-1/3 flex-shrink-0 flex flex-col border-r border-border/50">
-            {/* Categories Legend */}
-            <div className="p-2 border-b border-border/50 bg-card/50">
-              <h4 className="text-xs font-semibold flex items-center justify-center gap-1 text-foreground mb-3">
-                <MapPin className="w-3 h-3" />
-                Categories
-              </h4>
-              <div className="grid grid-cols-4 gap-2 max-w-xs mx-auto">
-                {[{
-                name: 'mystery',
-                color: '#8B5CF6'
-              }, {
-                name: 'history',
-                color: '#F59E0B'
-              }, {
-                name: 'nature',
-                color: '#10B981'
-              }, {
-                name: 'urban',
-                color: '#EF4444'
-              }, {
-                name: 'folklore',
-                color: '#3B82F6'
-              }, {
-                name: 'paranormal',
-                color: '#EC4899'
-              }, {
-                name: 'adventure',
-                color: '#F97316'
-              }, {
-                name: 'cultural',
-                color: '#84CC16'
-              }].map(({
-                name,
-                color
-              }) => <div key={name} className="flex items-center justify-center gap-2 p-1">
-                    <div className="w-3 h-3 rounded-full border border-border shadow-sm flex-shrink-0" style={{
-                  backgroundColor: color
-                }} />
-                    <span className="capitalize text-xs font-thin">{name}</span>
-                  </div>)}
-              </div>
-            </div>
+            
             
             <div className="p-4 border-b border-border/50">
               <div className="flex items-center justify-between">
