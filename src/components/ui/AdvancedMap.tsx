@@ -5,15 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/ios-card';
 import { Input } from '@/components/ui/ios-input';
 import { Badge } from '@/components/ui/ios-badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Map as MapIcon, 
-  Satellite, 
+  Globe2, 
   Sun, 
   Moon, 
   Locate, 
   Search, 
-  Layers,
+  Mountain,
   Zap,
   Settings
 } from 'lucide-react';
@@ -699,43 +700,68 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
         </Card>
       )}
 
-      {/* Map Style Controls - back to original position */}
+      {/* Map Style Controls - better icons with tooltips */}
       {showControls && (
         <div className="absolute top-4 left-4 z-10">
-          <div className="flex items-center gap-2 bg-card/95 backdrop-blur border border-border rounded-lg p-2">
-            <Button
-              variant={mapStyle === 'light' ? 'ios' : 'ghost'}
-              size="sm"
-              onClick={() => setMapStyle('light')}
-              className="haptic-feedback p-2"
-            >
-              <Sun className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={mapStyle === 'dark' ? 'ios' : 'ghost'}
-              size="sm"
-              onClick={() => setMapStyle('dark')}
-              className="haptic-feedback p-2"
-            >
-              <Moon className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={mapStyle === 'satellite' ? 'ios' : 'ghost'}
-              size="sm"
-              onClick={() => setMapStyle('satellite')}
-              className="haptic-feedback p-2"
-            >
-              <Satellite className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={mapStyle === 'terrain' ? 'ios' : 'ghost'}
-              size="sm"
-              onClick={() => setMapStyle('terrain')}
-              className="haptic-feedback p-2"
-            >
-              <Layers className="w-4 h-4" />
-            </Button>
-          </div>
+          <TooltipProvider>
+            <div className="flex items-center gap-2 bg-card/95 backdrop-blur border border-border rounded-lg p-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={mapStyle === 'light' ? 'ios' : 'ghost'}
+                    size="sm"
+                    onClick={() => setMapStyle('light')}
+                    className="haptic-feedback p-2"
+                  >
+                    <Sun className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Light mode</TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={mapStyle === 'dark' ? 'ios' : 'ghost'}
+                    size="sm"
+                    onClick={() => setMapStyle('dark')}
+                    className="haptic-feedback p-2"
+                  >
+                    <Moon className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Dark mode</TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={mapStyle === 'satellite' ? 'ios' : 'ghost'}
+                    size="sm"
+                    onClick={() => setMapStyle('satellite')}
+                    className="haptic-feedback p-2"
+                  >
+                    <Globe2 className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Satellite view</TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={mapStyle === 'terrain' ? 'ios' : 'ghost'}
+                    size="sm"
+                    onClick={() => setMapStyle('terrain')}
+                    className="haptic-feedback p-2"
+                  >
+                    <Mountain className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Terrain view</TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
         </div>
       )}
 
