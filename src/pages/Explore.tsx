@@ -147,6 +147,11 @@ export const Explore: React.FC = () => {
         </Helmet>
         
         <PullToRefresh onRefresh={handleRefresh}>
+          {/* ViewModeToggle - consistent positioning */}
+          <div className="absolute top-4 right-4 z-20">
+            <ViewModeToggle variant="glass" />
+          </div>
+
           {/* Discovery List View - Always show list */}
           <div className="min-h-screen bg-background">
             <div className="container mx-auto px-4 py-6">
@@ -186,8 +191,6 @@ export const Explore: React.FC = () => {
                         <span className="sr-only">List view</span>
                       </Button>
                     </div>
-                    
-                    <ViewModeToggle variant="glass" />
                   </div>
                 </div>
 

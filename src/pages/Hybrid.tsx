@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { List, Map as MapIcon, Layers } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AdvancedMap from '@/components/ui/AdvancedMap';
@@ -158,31 +159,16 @@ export const Hybrid: React.FC = () => {
         <link rel="canonical" href="/hybrid" />
       </Helmet>
 
+      {/* ViewModeToggle - consistent positioning */}
+      <div className="absolute top-4 right-4 z-20">
+        <ViewModeToggle variant="glass" />
+      </div>
+
       <div className="h-screen w-full flex flex-col">
         {/* Header */}
         <div className="flex-shrink-0 p-4 border-b border-border/50 bg-background/95 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold">Hybrid View</h1>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleViewToggle}
-                className="glass border-0 shadow-lg"
-              >
-                <List className="w-4 h-4 mr-2" />
-                List View
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => navigate('/map')}
-                className="glass border-0 shadow-lg"
-              >
-                <MapIcon className="w-4 h-4 mr-2" />
-                Map Only
-              </Button>
-            </div>
           </div>
 
           {/* Search - clean version matching homepage style */}
