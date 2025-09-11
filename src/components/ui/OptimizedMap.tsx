@@ -139,10 +139,7 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
 
   // Initialize map with visibility and retry logic
   const initializeMap = useCallback(async () => {
-    if (!isVisible) {
-      console.log('🗺️ Map not visible, skipping initialization');
-      return;
-    }
+    // Visibility gating is handled by the effect; proceed if container is ready
 
     if (!isContainerReady()) {
       console.warn('🗺️ Container not ready for initialization');
@@ -188,6 +185,8 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
       }), 'top-right');
 
       map.current = mapInstance;
+      // mark successful initialization only after map instance exists
+      hasInitializedRef.current = true;
 
       // Set up event listeners
       mapInstance.on('load', () => {
@@ -293,7 +292,6 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
       if (!hasInitializedRef.current && isVisible && isContainerReady()) {
         console.log('🗺️ Initializing visible map');
         initializeMap();
-        hasInitializedRef.current = true;
       } else if (isVisible && !isContainerReady()) {
         console.warn('🗺️ Container not ready, will retry');
       }
