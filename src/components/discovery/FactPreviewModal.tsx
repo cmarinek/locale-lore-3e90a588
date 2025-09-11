@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { X, MapPin, ThumbsUp, ThumbsDown, Share2, Bookmark } from 'lucide-react';
+import { X, MapPin, ThumbsUp, ThumbsDown, Share2, Bookmark, MessageSquare } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LocationNavigationButton } from '@/components/ui/LocationNavigationButton';
+import { DiscussionThread } from '@/components/verification/DiscussionThread';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { EnhancedFact } from '@/types/fact';
 
@@ -165,6 +166,15 @@ export const FactPreviewModal: React.FC<FactPreviewModalProps> = ({
                 Share
               </Button>
             </div>
+          </div>
+
+          {/* Comments Section */}
+          <div className="pt-6 border-t">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageSquare className="h-5 w-5" />
+              <h3 className="font-semibold">Discussion</h3>
+            </div>
+            <DiscussionThread factId={fact.id} />
           </div>
         </div>
       </DialogContent>
