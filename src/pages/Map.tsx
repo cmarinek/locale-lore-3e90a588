@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import AdvancedMap from '@/components/ui/AdvancedMap';
+import OptimizedAdvancedMap from '@/components/ui/OptimizedAdvancedMap';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
@@ -92,8 +92,8 @@ export const Map: React.FC = () => {
       </Helmet>
 
       <div className="h-screen w-full relative">
-        {/* Advanced Map with real Supabase data */}
-        <AdvancedMap
+        {/* Optimized Advanced Map with real Supabase data */}
+        <OptimizedAdvancedMap
           onFactClick={handleFactClick}
           className="h-full w-full"
           showBuiltInSearch={false}
