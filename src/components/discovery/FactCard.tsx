@@ -95,9 +95,16 @@ export const FactCard: React.FC<FactCardProps> = ({
               {/* Header */}
               <div className="flex items-start justify-between gap-2">
                 <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">
-                  <h3 className="font-semibold text-base sm:text-sm line-clamp-4 group-hover:text-primary transition-colors leading-tight lg:text-sm">
-                    {fact.title}
-                  </h3>
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-base sm:text-sm line-clamp-4 group-hover:text-primary transition-colors leading-tight lg:text-sm flex-1">
+                      {fact.title}
+                    </h3>
+                    {/* Category Badge - Top Right */}
+                    <Badge variant="secondary" className="text-xs shrink-0">
+                      <span className="sm:hidden">{fact.categories?.icon}</span>
+                      <span>{categoryName}</span>
+                    </Badge>
+                  </div>
                   
                   {/* Location Info */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
@@ -132,11 +139,6 @@ export const FactCard: React.FC<FactCardProps> = ({
               {/* Stats & Meta - Responsive Layout */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 pt-1">
                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                  {/* Category Badge - Show when no image or on desktop */}
-                  <Badge variant="secondary" className={cn("text-xs", fact.media_urls && fact.media_urls.length > 0 && "hidden sm:inline-flex")}>
-                    <span className="sm:hidden">{fact.categories?.icon}</span>
-                    <span>{categoryName}</span>
-                  </Badge>
 
                   {/* Votes */}
                   <div className="flex items-center gap-2">
