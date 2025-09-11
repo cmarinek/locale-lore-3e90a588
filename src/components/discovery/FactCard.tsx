@@ -73,7 +73,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-2 sm:p-3">
             {/* Media Preview - Responsive */}
             {fact.media_urls && fact.media_urls.length > 0 ? (
-              <div className="relative w-full sm:w-32 md:w-40 h-40 sm:h-20 md:h-24 shrink-0 overflow-hidden rounded-lg">
+              <div className="relative w-full sm:w-24 md:w-32 h-32 sm:h-16 md:h-20 shrink-0 overflow-hidden rounded-lg">
                 <img
                   src={fact.media_urls[0]}
                   alt={fact.title}
@@ -98,7 +98,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
               </div>
             ) : (
               // No image: Show category badge in a colored section
-              <div className="relative w-full sm:w-32 md:w-40 h-20 sm:h-20 md:h-24 shrink-0 rounded-lg flex items-center justify-center"
+              <div className="relative w-full sm:w-24 md:w-32 h-16 sm:h-16 md:h-20 shrink-0 rounded-lg flex items-center justify-center"
                    style={{ backgroundColor: `${fact.categories?.color}15` }}>
                 <Badge 
                   variant="secondary"
@@ -118,7 +118,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
               {/* Header */}
               <div className="flex items-start justify-between gap-2">
                 <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg sm:text-base lg:text-lg line-clamp-2 group-hover:text-primary transition-colors leading-tight">
+                  <h3 className="font-semibold text-base sm:text-sm lg:text-base line-clamp-3 group-hover:text-primary transition-colors leading-tight">
                     {fact.title}
                   </h3>
                   
@@ -166,7 +166,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
               </div>
 
               {/* Description */}
-              <p className="text-sm sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+              <p className="text-sm sm:text-xs lg:text-sm text-muted-foreground line-clamp-3 leading-relaxed">
                 {fact.description}
               </p>
 
