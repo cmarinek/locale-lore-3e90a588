@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -8,20 +8,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Mail, Loader2, ShieldCheck } from 'lucide-react';
 import { useAuthActions } from '@/hooks/useAuthActions';
 
-const resetSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-});
-
-const updateSchema = z.object({
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain uppercase, lowercase, and numbers'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
 interface PasswordResetFormProps {
   mode: 'request' | 'update';
   onSuccess?: () => void;
@@ -29,8 +15,23 @@ interface PasswordResetFormProps {
 }
 
 export const PasswordResetForm = ({ mode, onSuccess, onBack }: PasswordResetFormProps) => {
+  // v16 - Fixed TDZ errors by moving schemas into component
   const [emailSent, setEmailSent] = useState(false);
   const { resetPassword, updatePassword, loading } = useAuthActions();
+
+  const resetSchema = useMemo(() => z.object({
+    email: z.string().email('Please enter a valid email address'),
+  }), []);
+
+  const updateSchema = useMemo(() => z.object({
+    password: z.string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain uppercase, lowercase, and numbers'),
+    confirmPassword: z.string(),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  }), []);
 
   const schema = mode === 'request' ? resetSchema : updateSchema;
   const form = useForm({

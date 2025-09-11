@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ interface Achievement {
 }
 
 export const AchievementShowcase = () => {
+  // v16 - Fixed TDZ errors by moving icon mappings into component
   const { user } = useAuth();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [userAchievements, setUserAchievements] = useState<Set<string>>(new Set());
@@ -77,29 +78,31 @@ export const AchievementShowcase = () => {
     }
   };
 
-  const getIconComponent = (iconName: string) => {
-    const icons: { [key: string]: any } = {
-      trophy: Trophy,
-      star: Star,
-      crown: Crown,
-      target: Target,
-      'map-pin': MapPin,
-      'message-square': MessageSquare,
-      calendar: Calendar,
-    };
-    return icons[iconName] || Trophy;
-  };
+  const iconMappings = useMemo(() => ({
+    trophy: Trophy,
+    star: Star,
+    crown: Crown,
+    target: Target,
+    'map-pin': MapPin,
+    'message-square': MessageSquare,
+    calendar: Calendar,
+  }), []);
 
-  const getCategoryIcon = (category: string) => {
-    const categoryIcons: { [key: string]: any } = {
-      submission: Target,
-      social: MessageSquare,
-      exploration: MapPin,
-      streak: Calendar,
-      special: Crown,
-    };
-    return categoryIcons[category] || Trophy;
-  };
+  const categoryIconMappings = useMemo(() => ({
+    submission: Target,
+    social: MessageSquare,
+    exploration: MapPin,
+    streak: Calendar,
+    special: Crown,
+  }), []);
+
+  const getIconComponent = useCallback((iconName: string) => {
+    return iconMappings[iconName] || Trophy;
+  }, [iconMappings]);
+
+  const getCategoryIcon = useCallback((category: string) => {
+    return categoryIconMappings[category] || Trophy;
+  }, [categoryIconMappings]);
 
   const groupedAchievements = achievements.reduce((acc, achievement) => {
     if (!acc[achievement.category]) {

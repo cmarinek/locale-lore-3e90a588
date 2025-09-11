@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,25 +30,25 @@ import {
   ExternalLink
 } from 'lucide-react';
 
-const categoryIcons = {
-  security: Shield,
-  performance: Zap,
-  legal: Scale,
-  monitoring: Monitor,
-  mobile: Smartphone,
-  seo: Search
-};
-
-const categoryColors = {
-  security: 'text-red-600',
-  performance: 'text-blue-600',
-  legal: 'text-purple-600',
-  monitoring: 'text-green-600',
-  mobile: 'text-orange-600',
-  seo: 'text-indigo-600'
-};
-
 export const ProductionReadiness = () => {
+  // v16 - Fixed TDZ errors by moving icon mappings into component
+  const categoryIcons = useMemo(() => ({
+    security: Shield,
+    performance: Zap,
+    legal: Scale,
+    monitoring: Monitor,
+    mobile: Smartphone,
+    seo: Search
+  }), []);
+
+  const categoryColors = useMemo(() => ({
+    security: 'text-red-600',
+    performance: 'text-blue-600',
+    legal: 'text-purple-600',
+    monitoring: 'text-green-600',
+    mobile: 'text-orange-600',
+    seo: 'text-indigo-600'
+  }), []);
   const [checks, setChecks] = useState<ProductionReadinessCheck[]>([]);
   const [score, setScore] = useState(0);
   const [criticalIssues, setCriticalIssues] = useState<ProductionReadinessCheck[]>([]);
