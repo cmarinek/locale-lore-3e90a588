@@ -22,7 +22,7 @@ export const WelcomeHero = () => {
             
             
             {/* Subtitle */}
-            <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-muted-foreground">Learn and share what's around you</p>
+            
 
             {/* Search bar */}
             <div className="mb-8">
