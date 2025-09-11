@@ -203,9 +203,3 @@ export function useInitialization() {
     safeGetLocation: initManager.safeGetLocation.bind(initManager)
   };
 }
-
-declare global {
-  interface Window {
-    React: any;
-  }
-}

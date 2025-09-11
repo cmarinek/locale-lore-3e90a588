@@ -18,32 +18,33 @@ export const InitializationGate: React.FC<InitializationGateProps> = ({
 }) => {
   const { isReady, phase, completed, failed } = useInitialization();
 
-  if (!isReady) {
-    if (fallback) {
-      return <>{fallback}</>;
-    }
-
-    return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <div className="text-lg font-medium">Initializing Application...</div>
-          
-          {showProgress && (
-            <div className="text-sm text-muted-foreground space-y-2">
-              <div>Phase: {phase}</div>
-              <div>✅ Completed: {completed.join(', ')}</div>
-              {failed.length > 0 && (
-                <div className="text-destructive">⚠️ Failed: {failed.join(', ')}</div>
+  // Render children immediately; show a non-blocking overlay while initializing
+  return (
+    <>
+      {children}
+      {!isReady && (
+        fallback ? (
+          <>{fallback}</>
+        ) : (
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50" aria-hidden="true">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <div className="text-lg font-medium">Initializing Application...</div>
+              {showProgress && (
+                <div className="text-sm text-muted-foreground space-y-2">
+                  <div>Phase: {phase}</div>
+                  <div>✅ Completed: {completed.join(', ')}</div>
+                  {failed.length > 0 && (
+                    <div className="text-destructive">⚠️ Failed: {failed.join(', ')}</div>
+                  )}
+                </div>
               )}
             </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  return <>{children}</>;
+          </div>
+        )
+      )}
+    </>
+  );
 };
 
 export default InitializationGate;
