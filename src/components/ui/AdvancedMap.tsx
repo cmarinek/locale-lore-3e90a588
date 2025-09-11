@@ -167,13 +167,13 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
     realtimeChannelRef.current = channel;
   }, [fetchFacts]);
 
-  // Initialize token and data
+  // Initialize token and data efficiently
   useEffect(() => {
     const initialize = async () => {
       const token = await fetchMapboxToken();
       if (token) {
         setMapboxToken(token);
-        await fetchFacts();
+        fetchFacts(); // Remove await to not block loading
         setupRealtimeSubscription();
       }
     };
