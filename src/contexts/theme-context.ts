@@ -1,9 +1,8 @@
-import React from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 
 // Mark module load for debugging
-markModule('ThemeContext-v13');
-console.log('[TRACE] ThemeContext-v13 file start');
+markModule('ThemeContext-v14');
+console.log('[TRACE] ThemeContext-v14 file start');
 
 export type Theme = 'light' | 'dark' | 'auto';
 
@@ -13,10 +12,5 @@ export interface ThemeContextType {
   actualTheme: 'light' | 'dark';
 }
 
-// Create a placeholder that will be replaced by the actual context
-export let ThemeContext: React.Context<ThemeContextType | undefined> = null as any;
-
-// This will be called by the provider to set the actual context
-export const _setThemeContext = (context: React.Context<ThemeContextType | undefined>) => {
-  ThemeContext = context;
-};
+// Pure type exports - no React API calls during module initialization
+export const THEME_CONTEXT_NAME = 'theme-context-v14';

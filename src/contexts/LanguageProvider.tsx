@@ -2,27 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { markModule } from '@/debug/module-dupe-check';
 import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from '@/utils/languages';
-import { LanguageContextType, _setLanguageContext } from './language-context';
+import { LanguageContextType, LANGUAGE_CONTEXT_NAME } from './language-context';
+import { createContextSafely } from '@/lib/context-registry';
 
 // Mark module load for debugging
-markModule('LanguageProvider-v13');
-console.log('[TRACE] LanguageProvider-v13 file start');
+markModule('LanguageProvider-v14');
+console.log('[TRACE] LanguageProvider-v14 file start');
 
 interface LanguageProviderProps {
   children: React.ReactNode;
 }
 
-// Context will be created lazily inside the Provider
-let ActualLanguageContext: React.Context<LanguageContextType | null> | null = null;
-
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   console.log('[TRACE] LanguageProvider component initializing');
   
-  // Lazy initialization of context to avoid TDZ issues
-  if (!ActualLanguageContext) {
-    ActualLanguageContext = React.createContext<LanguageContextType | null>(null);
-    _setLanguageContext(ActualLanguageContext);
-  }
+  // Create context safely using registry
+  const LanguageContext = createContextSafely<LanguageContextType | null>(LANGUAGE_CONTEXT_NAME, null);
   
   const { i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
@@ -69,27 +64,16 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   console.log('[TRACE] LanguageProvider rendering with value:', { currentLanguage, isRTL, isLoading });
 
   return (
-    <ActualLanguageContext.Provider value={value}>
+    <LanguageContext.Provider value={value}>
       {children}
-    </ActualLanguageContext.Provider>
+    </LanguageContext.Provider>
   );
 };
 
 // Export hook from here
 export const useLanguage = () => {
-  if (!ActualLanguageContext) {
-    // Return fallback values instead of throwing error
-    console.warn('useLanguage called before LanguageContext was initialized, using fallback values');
-    return {
-      currentLanguage: 'en' as SupportedLanguage,
-      setLanguage: async () => {},
-      isRTL: false,
-      supportedLanguages: SUPPORTED_LANGUAGES,
-      isLoading: false,
-    };
-  }
-  
-  const context = React.useContext(ActualLanguageContext);
+  const LanguageContext = createContextSafely<LanguageContextType | null>(LANGUAGE_CONTEXT_NAME, null);
+  const context = React.useContext(LanguageContext);
   if (!context) {
     // Return fallback values instead of throwing error
     console.warn('useLanguage called outside LanguageProvider, using fallback values');

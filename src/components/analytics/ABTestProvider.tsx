@@ -1,27 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 import { analytics } from '@/utils/analytics-engine';
-import { ABTest, ABTestContextType, _setABTestContext } from './ab-test-context';
+import { ABTest, ABTestContextType, ABTEST_CONTEXT_NAME } from './ab-test-context';
+import { createContextSafely } from '@/lib/context-registry';
 
 // Mark module load for debugging
-markModule('ABTestProvider-v13');
-console.log('[TRACE] ABTestProvider-v13 file start');
+markModule('ABTestProvider-v14');
+console.log('[TRACE] ABTestProvider-v14 file start');
 
 interface ABTestProviderProps {
   children: React.ReactNode;
 }
 
-// Context will be created lazily inside the Provider
-let ActualABTestContext: React.Context<ABTestContextType | null> | null = null;
-
 export const ABTestProvider: React.FC<ABTestProviderProps> = ({ children }) => {
   console.log('[TRACE] ABTestProvider component initializing');
   
-  // Lazy initialization of context to avoid TDZ issues
-  if (!ActualABTestContext) {
-    ActualABTestContext = React.createContext<ABTestContextType | null>(null);
-    _setABTestContext(ActualABTestContext);
-  }
+  // Create context safely using registry
+  const ABTestContext = createContextSafely<ABTestContextType | null>(ABTEST_CONTEXT_NAME, null);
   
   const [activeTests, setActiveTests] = useState<ABTest[]>([]);
   const [userVariants, setUserVariants] = useState<Record<string, string>>({});
@@ -121,19 +116,16 @@ export const ABTestProvider: React.FC<ABTestProviderProps> = ({ children }) => {
   console.log('[TRACE] ABTestProvider rendering with value:', { activeTestsCount: activeTests.length });
 
   return (
-    <ActualABTestContext.Provider value={value}>
+    <ABTestContext.Provider value={value}>
       {children}
-    </ActualABTestContext.Provider>
+    </ABTestContext.Provider>
   );
 };
 
 // Export hook from here
-export const useABTest = () => {
-  if (!ActualABTestContext) {
-    throw new Error('useABTest must be used within an ABTestProvider - context not initialized');
-  }
-  
-  const context = React.useContext(ActualABTestContext);
+export const useABTest = (): ABTestContextType => {
+  const ABTestContext = createContextSafely<ABTestContextType | null>(ABTEST_CONTEXT_NAME, null);
+  const context = React.useContext(ABTestContext);
   if (!context) {
     throw new Error('useABTest must be used within an ABTestProvider');
   }

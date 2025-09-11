@@ -1,9 +1,8 @@
-import React from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 
 // Mark module load for debugging
-markModule('ABTestContext-v13');
-console.log('[TRACE] ABTestContext-v13 file start');
+markModule('ABTestContext-v14');
+console.log('[TRACE] ABTestContext-v14 file start');
 
 export interface ABTest {
   name: string;
@@ -21,10 +20,5 @@ export interface ABTestContextType {
   isInTest: (testName: string) => boolean;
 }
 
-// Create a placeholder that will be replaced by the actual context
-export let ABTestContext: React.Context<ABTestContextType | null> = null as any;
-
-// This will be called by the provider to set the actual context
-export const _setABTestContext = (context: React.Context<ABTestContextType | null>) => {
-  ABTestContext = context;
-};
+// Pure type exports - no React API calls during module initialization
+export const ABTEST_CONTEXT_NAME = 'abtest-context-v14';

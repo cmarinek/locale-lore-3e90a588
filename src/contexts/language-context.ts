@@ -1,10 +1,9 @@
-import React from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 // Mark module load for debugging
-markModule('LanguageContext-v13');
-console.log('[TRACE] LanguageContext-v13 file start');
+markModule('LanguageContext-v14');
+console.log('[TRACE] LanguageContext-v14 file start');
 
 export interface LanguageContextType {
   currentLanguage: SupportedLanguage;
@@ -14,10 +13,5 @@ export interface LanguageContextType {
   isLoading: boolean;
 }
 
-// Create a placeholder that will be replaced by the actual context  
-export let LanguageContext: React.Context<LanguageContextType | null> = null as any;
-
-// This will be called by the provider to set the actual context
-export const _setLanguageContext = (context: React.Context<LanguageContextType | null>) => {
-  LanguageContext = context;
-};
+// Pure type exports - no React API calls during module initialization
+export const LANGUAGE_CONTEXT_NAME = 'language-context-v14';

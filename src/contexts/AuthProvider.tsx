@@ -3,27 +3,22 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { markModule } from '@/debug/module-dupe-check';
-import { AuthContextType, _setAuthContext } from './auth-context';
+import { AuthContextType, AUTH_CONTEXT_NAME } from './auth-context';
+import { createContextSafely } from '@/lib/context-registry';
 
 // Mark module load for debugging
-markModule('AuthProvider-v13');
-console.log('[TRACE] AuthProvider-v13 file start');
+markModule('AuthProvider-v14');
+console.log('[TRACE] AuthProvider-v14 file start');
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-// Context will be created lazily inside the Provider
-let ActualAuthContext: React.Context<AuthContextType | undefined> | null = null;
-
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   console.log('[TRACE] AuthProvider component initializing');
   
-  // Lazy initialization of context to avoid TDZ issues
-  if (!ActualAuthContext) {
-    ActualAuthContext = React.createContext<AuthContextType | undefined>(undefined);
-    _setAuthContext(ActualAuthContext);
-  }
+  // Create context safely using registry
+  const AuthContext = createContextSafely<AuthContextType | undefined>(AUTH_CONTEXT_NAME, undefined);
   
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -136,19 +131,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   console.log('[TRACE] AuthProvider rendering with value:', { hasUser: !!user, loading });
 
   return (
-    <ActualAuthContext.Provider value={value}>
+    <AuthContext.Provider value={value}>
       {children}
-    </ActualAuthContext.Provider>
+    </AuthContext.Provider>
   );
 };
 
 // Export hooks from here
 export const useAuth = () => {
-  if (!ActualAuthContext) {
-    throw new Error('useAuth must be used within an AuthProvider - context not initialized');
-  }
-  
-  const context = React.useContext(ActualAuthContext);
+  const AuthContext = createContextSafely<AuthContextType | undefined>(AUTH_CONTEXT_NAME, undefined);
+  const context = React.useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
@@ -156,10 +148,7 @@ export const useAuth = () => {
 };
 
 export const useAuthSafe = () => {
-  if (!ActualAuthContext) {
-    return undefined;
-  }
-  
-  const context = React.useContext(ActualAuthContext);
+  const AuthContext = createContextSafely<AuthContextType | undefined>(AUTH_CONTEXT_NAME, undefined);
+  const context = React.useContext(AuthContext);
   return context;
 };

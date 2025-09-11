@@ -1,8 +1,7 @@
-// A/B Testing Framework - Updated to use split context pattern
+// A/B Testing Framework - Updated to use context registry pattern
 import React from 'react';
 
-// Export the new split context components
-export { ABTestContext } from './ab-test-context';
+// Export the new context registry components
 export { ABTestProvider, useABTest } from './ABTestProvider';
 export type { ABTest, ABTestContextType } from './ab-test-context';
 

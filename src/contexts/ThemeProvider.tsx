@@ -1,26 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { markModule } from '@/debug/module-dupe-check';
-import { Theme, ThemeContextType, _setThemeContext } from './theme-context';
+import { Theme, ThemeContextType, THEME_CONTEXT_NAME } from './theme-context';
+import { createContextSafely } from '@/lib/context-registry';
 
 // Mark module load for debugging
-markModule('ThemeProvider-v13');
-console.log('[TRACE] ThemeProvider-v13 file start');
+markModule('ThemeProvider-v14');
+console.log('[TRACE] ThemeProvider-v14 file start');
 
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
-// Context will be created lazily inside the Provider
-let ActualThemeContext: React.Context<ThemeContextType | undefined> | null = null;
-
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   console.log('[TRACE] ThemeProvider component initializing');
   
-  // Lazy initialization of context to avoid TDZ issues
-  if (!ActualThemeContext) {
-    ActualThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
-    _setThemeContext(ActualThemeContext);
-  }
+  // Create context safely using registry
+  const ThemeContext = createContextSafely<ThemeContextType | undefined>(THEME_CONTEXT_NAME, undefined);
   
   // Use localStorage for theme persistence instead of depending on user authentication
   const [theme, setThemeState] = useState<Theme>(() => {
@@ -80,19 +75,16 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   console.log('[TRACE] ThemeProvider rendering with value:', { theme, actualTheme });
 
   return (
-    <ActualThemeContext.Provider value={value}>
+    <ThemeContext.Provider value={value}>
       {children}
-    </ActualThemeContext.Provider>
+    </ThemeContext.Provider>
   );
 };
 
 // Export hook from here
 export const useTheme = () => {
-  if (!ActualThemeContext) {
-    throw new Error('useTheme must be used within a ThemeProvider - context not initialized');
-  }
-  
-  const context = React.useContext(ActualThemeContext);
+  const ThemeContext = createContextSafely<ThemeContextType | undefined>(THEME_CONTEXT_NAME, undefined);
+  const context = React.useContext(ThemeContext);
   if (!context) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }

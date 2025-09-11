@@ -1,10 +1,9 @@
-import React from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 import type { User, Session } from '@supabase/supabase-js';
 
 // Mark module load for debugging
-markModule('AuthContext-v13');
-console.log('[TRACE] AuthContext-v13 file start');
+markModule('AuthContext-v14');
+console.log('[TRACE] AuthContext-v14 file start');
 
 export interface AuthContextType {
   user: User | null;
@@ -14,10 +13,5 @@ export interface AuthContextType {
   refreshProfile: () => Promise<void>;
 }
 
-// Create a placeholder that will be replaced by the actual context
-export let AuthContext: React.Context<AuthContextType | undefined> = null as any;
-
-// This will be called by the provider to set the actual context
-export const _setAuthContext = (context: React.Context<AuthContextType | undefined>) => {
-  AuthContext = context;
-};
+// Pure type exports - no React API calls during module initialization
+export const AUTH_CONTEXT_NAME = 'auth-context-v14';
