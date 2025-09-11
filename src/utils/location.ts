@@ -111,16 +111,26 @@ export class LocationService {
    */
   private getWebLocation(): Promise<GeolocationPosition> {
     return new Promise((resolve, reject) => {
+      console.log('🌍 LocationService: Attempting web geolocation...');
+      
       // Use browser safety wrapper
       if (!isGeolocationAvailable()) {
+        console.warn('🌍 LocationService: Geolocation not available in this environment');
         reject(new Error('Geolocation not supported in this environment'));
         return;
       }
 
       try {
+        console.log('🌍 LocationService: navigator.geolocation available, requesting position...');
         navigator.geolocation.getCurrentPosition(
-          resolve,
-          reject,
+          (position) => {
+            console.log('🌍 LocationService: Position obtained successfully:', position.coords);
+            resolve(position);
+          },
+          (error) => {
+            console.warn('🌍 LocationService: Position request failed:', error.message);
+            reject(error);
+          },
           {
             enableHighAccuracy: true,
             timeout: 10000,
@@ -128,6 +138,7 @@ export class LocationService {
           }
         );
       } catch (error) {
+        console.error('🌍 LocationService: Geolocation API error:', error);
         reject(new Error(`Geolocation API error: ${error}`));
       }
     });

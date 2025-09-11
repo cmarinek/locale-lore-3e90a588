@@ -137,6 +137,16 @@ import { MainLayout } from '@/components/templates/MainLayout';
 - **Installable** on iOS and Android
 - **Fast loading** with optimized caching strategies
 
+## 🛠️ Known Browser Behaviors
+
+### Geolocation Errors
+You may see console errors like `TypeError: can't access property "getCurrentPosition", navigator.geolocation is undefined` in certain environments. This is expected behavior when:
+- Running in environments without geolocation support (some server-side rendering contexts)
+- Using browsers with geolocation disabled
+- Testing in certain CI/CD environments
+
+The app includes polyfills and fallback mechanisms to handle these cases gracefully, falling back to region-based location detection using timezone and language settings.
+
 ## 🚀 Deployment
 
 Simply open [Lovable](https://lovable.dev/projects/8ee9bb21-9cd6-4b22-81a4-e2322ff21c98) and click on Share -> Publish.

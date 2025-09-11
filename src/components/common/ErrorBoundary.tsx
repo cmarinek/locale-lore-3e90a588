@@ -1,14 +1,17 @@
 import React, { Component, ReactNode } from 'react';
 
-// Safe import for monitoring
-let trackError: any;
-try {
-  const monitoring = require('@/utils/monitoring');
-  trackError = monitoring.trackError;
-} catch (error) {
-  console.warn('Monitoring utility not available:', error);
-  trackError = () => {}; // Safe fallback
-}
+// Safe import for monitoring - using dynamic import
+let trackError: any = () => {}; // Default safe fallback
+
+// Async initialization of monitoring
+(async () => {
+  try {
+    const monitoring = await import('@/utils/monitoring').catch(() => null);
+    trackError = monitoring?.trackError || (() => {});
+  } catch (error) {
+    console.warn('Monitoring utility not available:', error);
+  }
+})();
 
 interface Props {
   children: ReactNode;
