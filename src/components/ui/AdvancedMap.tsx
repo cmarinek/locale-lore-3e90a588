@@ -268,13 +268,24 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
       antialias: true
     });
 
-    // Add navigation controls with iOS styling
+    // Add navigation controls positioned at 50vh to avoid ViewModeToggle overlap
     const nav = new mapboxgl.NavigationControl({
       visualizePitch: true,
       showZoom: true,
       showCompass: true
     });
-    map.current.addControl(nav, 'top-right');
+    
+    // Custom positioning for navigation controls
+    map.current.addControl(nav);
+    
+    // Move controls to 50vh after they're added
+    setTimeout(() => {
+      const navControl = document.querySelector('.mapboxgl-ctrl-top-right');
+      if (navControl) {
+        (navControl as HTMLElement).style.top = '50vh';
+        (navControl as HTMLElement).style.transform = 'translateY(-50%)';
+      }
+    }, 100);
 
     // Add geolocate control
     const geolocate = new mapboxgl.GeolocateControl({
