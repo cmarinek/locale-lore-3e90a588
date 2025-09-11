@@ -25,7 +25,7 @@ export const UnifiedSearchBar: React.FC<UnifiedSearchBarProps> = ({
 
   useEffect(() => {
     onQueryChange?.(debouncedQuery);
-  }, [debouncedQuery, onQueryChange]);
+  }, [debouncedQuery]); // Remove onQueryChange from dependencies to prevent infinite loop
 
   const handleClear = () => {
     setQuery('');
