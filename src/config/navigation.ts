@@ -18,8 +18,9 @@ import {
 } from 'lucide-react';
 import { NavigationItem, NavigationConfig, UserRole } from '@/types/navigation';
 
-// Core navigation items that form the backbone of the app
-export const CORE_NAVIGATION: NavigationItem[] = [
+// Core navigation items that form the backbone of the app - v15
+function getCoreNavigation(): NavigationItem[] {
+  return [
   {
     id: 'home',
     label: 'Home',
@@ -52,10 +53,12 @@ export const CORE_NAVIGATION: NavigationItem[] = [
     description: 'View and create stories',
     category: 'primary' // Remove requiresAuth - everyone can view stories
   }
-];
+  ];
+}
 
-// Secondary features available to authenticated users
-export const USER_NAVIGATION: NavigationItem[] = [
+// Secondary features available to authenticated users - v15
+function getUserNavigation(): NavigationItem[] {
+  return [
   {
     id: 'submit',
     label: 'Submit',
@@ -83,10 +86,12 @@ export const USER_NAVIGATION: NavigationItem[] = [
     requiresAuth: true,
     category: 'secondary'
   }
-];
+  ];
+}
 
-// Utility and account-related navigation
-export const UTILITY_NAVIGATION: NavigationItem[] = [
+// Utility and account-related navigation - v15
+function getUtilityNavigation(): NavigationItem[] {
+  return [
   {
     id: 'profile',
     label: 'Profile',
@@ -114,10 +119,12 @@ export const UTILITY_NAVIGATION: NavigationItem[] = [
     requiresAuth: true,
     category: 'utility'
   }
-];
+  ];
+}
 
-// Admin-only navigation
-export const ADMIN_NAVIGATION: NavigationItem[] = [
+// Admin-only navigation - v15
+function getAdminNavigation(): NavigationItem[] {
+  return [
   {
     id: 'admin',
     label: 'Admin',
@@ -138,10 +145,12 @@ export const ADMIN_NAVIGATION: NavigationItem[] = [
     adminOnly: true,
     category: 'utility'
   }
-];
+  ];
+}
 
-// Mobile-optimized navigation (bottom nav)
-export const MOBILE_PRIMARY_NAVIGATION: NavigationItem[] = [
+// Mobile-optimized navigation (bottom nav) - v15
+function getMobilePrimaryNavigation(): NavigationItem[] {
+  return [
   {
     id: 'home',
     label: 'Home',
@@ -178,10 +187,12 @@ export const MOBILE_PRIMARY_NAVIGATION: NavigationItem[] = [
     icon: User,
     category: 'primary'
   }
-];
+  ];
+}
 
-// Guest user navigation (not authenticated)
-export const GUEST_NAVIGATION: NavigationItem[] = [
+// Guest user navigation (not authenticated) - v15
+function getGuestNavigation(): NavigationItem[] {
+  return [
   {
     id: 'home',
     label: 'Home',
@@ -210,30 +221,36 @@ export const GUEST_NAVIGATION: NavigationItem[] = [
     icon: User,
     category: 'primary'
   }
-];
+  ];
+}
 
 // Function to get navigation items based on user role and context
 export function getNavigationItems(userRole: UserRole, isAdmin: boolean = false): NavigationConfig {
   const isGuest = userRole === 'guest';
+  const guestNavigation = getGuestNavigation();
   
   if (isGuest) {
     return {
-      primary: GUEST_NAVIGATION,
+      primary: guestNavigation,
       secondary: [],
       utility: [],
-      mobile: GUEST_NAVIGATION.slice(0, 4), // Limit mobile nav items
-      desktop: GUEST_NAVIGATION
+      mobile: guestNavigation.slice(0, 4), // Limit mobile nav items
+      desktop: guestNavigation
     };
   }
 
-  const adminItems = isAdmin ? ADMIN_NAVIGATION : [];
+  const coreNavigation = getCoreNavigation();
+  const userNavigation = getUserNavigation();
+  const utilityNavigation = getUtilityNavigation();
+  const adminItems = isAdmin ? getAdminNavigation() : [];
+  const mobileNavigation = getMobilePrimaryNavigation();
   
   return {
-    primary: CORE_NAVIGATION,
-    secondary: USER_NAVIGATION,
-    utility: [...UTILITY_NAVIGATION, ...adminItems],
-    mobile: MOBILE_PRIMARY_NAVIGATION,
-    desktop: [...CORE_NAVIGATION, ...USER_NAVIGATION, ...UTILITY_NAVIGATION, ...adminItems]
+    primary: coreNavigation,
+    secondary: userNavigation,
+    utility: [...utilityNavigation, ...adminItems],
+    mobile: mobileNavigation,
+    desktop: [...coreNavigation, ...userNavigation, ...utilityNavigation, ...adminItems]
   };
 }
 

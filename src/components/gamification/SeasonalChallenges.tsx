@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Calendar, 
@@ -41,34 +41,6 @@ interface SeasonalChallenge {
   isCompleted: boolean;
 }
 
-const SEASONAL_THEMES = {
-  spring: {
-    icon: Flower2,
-    color: '#10B981',
-    gradient: 'from-green-400/20 to-emerald-500/20'
-  },
-  summer: {
-    icon: Sun,
-    color: '#F59E0B',
-    gradient: 'from-yellow-400/20 to-orange-500/20'
-  },
-  autumn: {
-    icon: Leaf,
-    color: '#EF4444',
-    gradient: 'from-orange-400/20 to-red-500/20'
-  },
-  winter: {
-    icon: Snowflake,
-    color: '#3B82F6',
-    gradient: 'from-blue-400/20 to-cyan-500/20'
-  }
-};
-
-const CHALLENGE_TYPES = {
-  individual: { icon: Target, label: 'Personal' },
-  community: { icon: Users, label: 'Community' },
-  location: { icon: MapPin, label: 'Location' }
-};
 
 // Mock data - in real app, fetch from API
 const mockChallenges: SeasonalChallenge[] = [
@@ -126,6 +98,35 @@ interface SeasonalChallengesProps {
 export const SeasonalChallenges: React.FC<SeasonalChallengesProps> = ({ className }) => {
   const [challenges, setChallenges] = useState<SeasonalChallenge[]>(mockChallenges);
   const [selectedSeason, setSelectedSeason] = useState<string>('all');
+
+  const SEASONAL_THEMES = useMemo(() => ({
+    spring: {
+      icon: Flower2,
+      color: '#10B981',
+      gradient: 'from-green-400/20 to-emerald-500/20'
+    },
+    summer: {
+      icon: Sun,
+      color: '#F59E0B',
+      gradient: 'from-yellow-400/20 to-orange-500/20'
+    },
+    autumn: {
+      icon: Leaf,
+      color: '#EF4444',
+      gradient: 'from-orange-400/20 to-red-500/20'
+    },
+    winter: {
+      icon: Snowflake,
+      color: '#3B82F6',
+      gradient: 'from-blue-400/20 to-cyan-500/20'
+    }
+  }), []);
+
+  const CHALLENGE_TYPES = useMemo(() => ({
+    individual: { icon: Target, label: 'Personal' },
+    community: { icon: Users, label: 'Community' },
+    location: { icon: MapPin, label: 'Location' }
+  }), []);
 
   const getCurrentSeason = () => {
     const month = new Date().getMonth();

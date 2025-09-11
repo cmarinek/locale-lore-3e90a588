@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -8,10 +8,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Mail, Loader2, Sparkles } from 'lucide-react';
 import { useAuthActions } from '@/hooks/useAuthActions';
 
-const schema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-});
-
 interface MagicLinkFormProps {
   onSuccess?: () => void;
   onBack?: () => void;
@@ -20,6 +16,10 @@ interface MagicLinkFormProps {
 export const MagicLinkForm = ({ onSuccess, onBack }: MagicLinkFormProps) => {
   const [emailSent, setEmailSent] = useState(false);
   const { signInWithMagicLink, loading } = useAuthActions();
+
+  const schema = useMemo(() => z.object({
+    email: z.string().email('Please enter a valid email address'),
+  }), []);
 
   const form = useForm({
     resolver: zodResolver(schema),

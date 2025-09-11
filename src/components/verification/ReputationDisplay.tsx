@@ -101,14 +101,14 @@ export const ReputationDisplay: React.FC<ReputationDisplayProps> = ({
     }
   };
 
-  const getReputationLevel = (score: number) => {
+  const getReputationLevel = React.useCallback((score: number) => {
     if (score >= 10000) return { level: 'Legend', color: '#F59E0B', icon: Crown };
     if (score >= 5000) return { level: 'Master', color: '#8B5CF6', icon: Trophy };
     if (score >= 1000) return { level: 'Expert', color: '#10B981', icon: Star };
     if (score >= 500) return { level: 'Advanced', color: '#3B82F6', icon: Zap };
     if (score >= 100) return { level: 'Contributor', color: '#06B6D4', icon: Award };
     return { level: 'Newcomer', color: '#6B7280', icon: TrendingUp };
-  };
+  }, []);
 
   const getProgressToNextLevel = (score: number) => {
     const thresholds = [100, 500, 1000, 5000, 10000];

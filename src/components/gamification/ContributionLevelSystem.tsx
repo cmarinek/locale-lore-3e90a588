@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, Star, Crown, Shield, Award, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,62 +16,6 @@ interface ContributionLevel {
   benefits: string[];
 }
 
-const CONTRIBUTION_LEVELS: ContributionLevel[] = [
-  {
-    level: 1,
-    title: 'Explorer',
-    icon: Star,
-    color: '#64748B',
-    minPoints: 0,
-    maxPoints: 99,
-    benefits: ['Submit facts', 'Vote on content', 'Basic profile']
-  },
-  {
-    level: 2,
-    title: 'Contributor',
-    icon: Award,
-    color: '#06B6D4',
-    minPoints: 100,
-    maxPoints: 499,
-    benefits: ['Verified badge', 'Comment priority', 'Custom avatar']
-  },
-  {
-    level: 3,
-    title: 'Curator',
-    icon: Shield,
-    color: '#10B981',
-    minPoints: 500,
-    maxPoints: 999,
-    benefits: ['Fact verification', 'Moderation tools', 'Profile themes']
-  },
-  {
-    level: 4,
-    title: 'Expert',
-    icon: Zap,
-    color: '#8B5CF6',
-    minPoints: 1000,
-    maxPoints: 4999,
-    benefits: ['Advanced analytics', 'Priority support', 'Beta features']
-  },
-  {
-    level: 5,
-    title: 'Master',
-    icon: Trophy,
-    color: '#F59E0B',
-    minPoints: 5000,
-    maxPoints: 9999,
-    benefits: ['Content spotlights', 'Special events', 'Mentorship program']
-  },
-  {
-    level: 6,
-    title: 'Legend',
-    icon: Crown,
-    color: '#EF4444',
-    minPoints: 10000,
-    maxPoints: Infinity,
-    benefits: ['Hall of Fame', 'Platform governance', 'Exclusive perks']
-  }
-];
 
 interface ContributionLevelSystemProps {
   currentPoints: number;
@@ -84,6 +28,63 @@ export const ContributionLevelSystem: React.FC<ContributionLevelSystemProps> = (
   totalContributions,
   className
 }) => {
+  const CONTRIBUTION_LEVELS = useMemo<ContributionLevel[]>(() => [
+    {
+      level: 1,
+      title: 'Explorer',
+      icon: Star,
+      color: '#64748B',
+      minPoints: 0,
+      maxPoints: 99,
+      benefits: ['Submit facts', 'Vote on content', 'Basic profile']
+    },
+    {
+      level: 2,
+      title: 'Contributor',
+      icon: Award,
+      color: '#06B6D4',
+      minPoints: 100,
+      maxPoints: 499,
+      benefits: ['Verified badge', 'Comment priority', 'Custom avatar']
+    },
+    {
+      level: 3,
+      title: 'Curator',
+      icon: Shield,
+      color: '#10B981',
+      minPoints: 500,
+      maxPoints: 999,
+      benefits: ['Fact verification', 'Moderation tools', 'Profile themes']
+    },
+    {
+      level: 4,
+      title: 'Expert',
+      icon: Zap,
+      color: '#8B5CF6',
+      minPoints: 1000,
+      maxPoints: 4999,
+      benefits: ['Advanced analytics', 'Priority support', 'Beta features']
+    },
+    {
+      level: 5,
+      title: 'Master',
+      icon: Trophy,
+      color: '#F59E0B',
+      minPoints: 5000,
+      maxPoints: 9999,
+      benefits: ['Content spotlights', 'Special events', 'Mentorship program']
+    },
+    {
+      level: 6,
+      title: 'Legend',
+      icon: Crown,
+      color: '#EF4444',
+      minPoints: 10000,
+      maxPoints: Infinity,
+      benefits: ['Hall of Fame', 'Platform governance', 'Exclusive perks']
+    }
+  ], []);
+
   const currentLevel = CONTRIBUTION_LEVELS.find(
     level => currentPoints >= level.minPoints && currentPoints <= level.maxPoints
   ) || CONTRIBUTION_LEVELS[0];

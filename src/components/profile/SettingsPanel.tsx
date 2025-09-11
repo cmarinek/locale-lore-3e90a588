@@ -35,11 +35,6 @@ const languages = [
   { value: 'zh', label: '中文' },
 ];
 
-const themes = [
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'auto', label: 'Auto', icon: Monitor },
-];
 
 interface SettingsPanelProps {
   settings: UserSettings | null;
@@ -51,6 +46,12 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
   const [localSettings, setLocalSettings] = useState(settings);
   const { setTheme } = useTheme();
   const { setLanguage } = useLanguage();
+
+  const themes = [
+    { value: 'light', label: 'Light', icon: Sun },
+    { value: 'dark', label: 'Dark', icon: Moon },
+    { value: 'auto', label: 'Auto', icon: Monitor },
+  ];
 
   if (!settings || !localSettings) {
     return <div>Loading settings...</div>;

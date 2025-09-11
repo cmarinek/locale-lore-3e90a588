@@ -22,7 +22,7 @@ export const SubscriptionPlans: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [promoCode, setPromoCode] = useState('');
 
-  const subscriptionTiers = [
+  const subscriptionTiers = React.useMemo(() => [
     {
       id: 'basic',
       name: 'Basic Contributor',
@@ -73,7 +73,7 @@ export const SubscriptionPlans: React.FC = () => {
       ],
       trial: true,
     },
-  ];
+  ], []);
 
   const handleSubscribe = async (tier: string, trialDays?: number) => {
     if (!user) {

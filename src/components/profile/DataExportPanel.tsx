@@ -1,3 +1,4 @@
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -12,7 +13,7 @@ interface DataExportPanelProps {
 export const DataExportPanel = ({ onExportData, loading }: DataExportPanelProps) => {
   const { t } = useTranslation('profile');
 
-  const exportTypes = [
+  const exportTypes = React.useMemo(() => [
     {
       icon: FileText,
       label: 'Profile Information',
@@ -33,7 +34,7 @@ export const DataExportPanel = ({ onExportData, loading }: DataExportPanelProps)
       label: 'Media Files',
       description: 'Uploaded images and profile pictures',
     },
-  ];
+  ], []);
 
   return (
     <Card>

@@ -25,7 +25,7 @@ export const QuickFilters: React.FC<QuickFiltersProps> = ({
   onFiltersChange,
   className
 }) => {
-  const quickFilterOptions = [
+  const quickFilterOptions = React.useMemo(() => [
     {
       id: 'nearby',
       label: 'Nearby',
@@ -85,7 +85,7 @@ export const QuickFilters: React.FC<QuickFiltersProps> = ({
         });
       }
     }
-  ];
+  ], [filters]);
 
   const activeFiltersCount = quickFilterOptions.filter(option => option.active).length;
 
