@@ -116,6 +116,11 @@ export default defineConfig(({ mode }) => ({
             return "vendor-misc";
           }
 
+          // CRITICAL: Keep auth contexts in main bundle to prevent TDZ
+          if (id.includes("/contexts/auth") || id.includes("/contexts/Auth")) {
+            return undefined; // Main bundle
+          }
+
           // Application chunks
           if (id.includes("/pages/")) {
             return "pages";

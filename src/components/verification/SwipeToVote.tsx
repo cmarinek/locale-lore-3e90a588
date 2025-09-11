@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, PanInfo, useAnimation } from 'framer-motion';
 import { ThumbsUp, ThumbsDown, CheckCircle, XCircle, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/ios-card';
 import { Badge } from '@/components/ui/ios-badge';

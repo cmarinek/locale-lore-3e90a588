@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Story, QuickCaptureData } from '@/types/stories';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 
 export const useStories = () => {

@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ContributorPlans } from '@/components/billing/ContributorPlans';
 import { SubscriptionDashboard } from '@/components/billing/SubscriptionDashboard';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth-context';
 import { motion } from 'framer-motion';
 import { CreditCard, Package, History, Settings } from 'lucide-react';
 

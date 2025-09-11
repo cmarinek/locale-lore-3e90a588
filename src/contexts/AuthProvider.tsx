@@ -1,38 +1,22 @@
-
-import React, { useEffect, useState, ReactNode } from 'react';
+import React, { useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { markModule } from '@/debug/module-dupe-check';
+import { AuthContext, AuthContextType } from './auth-context';
 
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  loading: boolean;
-  signOut: () => Promise<void>;
-  refreshProfile: () => Promise<void>;
-}
-
-
-const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = React.useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
-export const useAuthSafe = () => {
-  const context = React.useContext(AuthContext);
-  return context;
-};
+// Mark module load for debugging
+markModule('AuthProvider');
+console.log('[TRACE] import.meta.url =', import.meta.url);
+console.log('[TRACE] AuthProvider file start');
 
 interface AuthProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  console.log('[TRACE] AuthProvider component initializing');
+  
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -98,6 +82,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
+    console.log('[TRACE] AuthProvider useEffect initializing');
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -131,7 +117,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const value = {
+  const value: AuthContextType = {
     user,
     session,
     loading,
@@ -139,10 +125,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     refreshProfile,
   };
 
+  console.log('[TRACE] AuthProvider rendering with value:', { hasUser: !!user, loading });
+
   return (
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
-

@@ -7,7 +7,7 @@ import { MediaUploadZone } from '@/components/media/MediaUploadZone';
 import { MediaModerationQueue } from '@/components/media/MediaModerationQueue';
 import { MediaEditor } from '@/components/media/MediaEditor';
 import { MediaAnalytics } from '@/components/media/MediaAnalytics';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth-context';
 
 const MediaManagement: React.FC = () => {
   const { user } = useAuth();

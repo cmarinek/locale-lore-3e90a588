@@ -9,7 +9,7 @@ import { TrendingSection } from '@/components/stories/TrendingSection';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth-context';
 import { useAnimations } from '@/hooks/useAnimations';
 import { useStories } from '@/hooks/useStories';
 import { 

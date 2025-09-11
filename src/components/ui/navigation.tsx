@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth-context';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useTranslation } from 'react-i18next';
 import { User } from 'lucide-react';

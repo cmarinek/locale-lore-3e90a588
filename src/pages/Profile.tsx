@@ -10,7 +10,7 @@ import { StatisticsCard } from '@/components/profile/StatisticsCard';
 import { AchievementShowcase } from '@/components/profile/AchievementShowcase';
 import { DataExportPanel } from '@/components/profile/DataExportPanel';
 import { DataDeletionPanel } from '@/components/profile/DataDeletionPanel';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth-context';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useAuthSafe } from '@/contexts/AuthContext';
+import { useAuthSafe } from '@/contexts/auth-context';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAppStore } from '@/stores/appStore';
 import { useMobileNavigationItems } from '@/hooks/useNavigationItems';

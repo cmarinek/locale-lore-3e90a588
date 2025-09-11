@@ -26,7 +26,7 @@ import { Terms } from '@/pages/Terms';
 import { ProductionReadiness } from '@/pages/ProductionReadiness';
 import TranslationTest from '@/pages/TranslationTest';
 
-import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthProvider } from '@/contexts/AuthProvider';
 import { LanguageProvider } from '@/contexts/LanguageProvider';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Toaster } from '@/components/ui/toaster';
@@ -34,7 +34,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { CookieConsent } from '@/components/compliance/CookieConsent';
 import { LoadingIntroduction } from '@/components/ui/loading-introduction';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth-context';
 
 
 // Inner component that can use auth context
