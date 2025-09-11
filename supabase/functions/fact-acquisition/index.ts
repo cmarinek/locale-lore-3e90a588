@@ -256,6 +256,7 @@ async function deleteJob(supabase: any, params: any) {
   }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
+}
 
 async function getJobs(supabase: any, params: any) {
   const { limit = 50, offset = 0, status } = params;
