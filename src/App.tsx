@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Index from '@/pages/Index';
 import AuthMain from '@/pages/AuthMain';
@@ -7,7 +7,6 @@ import AuthConfirm from '@/pages/AuthConfirm';
 import AuthResetPassword from '@/pages/AuthResetPassword';
 import { Explore } from '@/pages/Explore';
 import { Hybrid } from '@/pages/Hybrid';
-import { LazyMap } from '@/components/performance/LazyRoutes';
 import { Search } from '@/pages/Search';
 import { Submit } from '@/pages/Submit';
 import { Profile } from '@/pages/Profile';
@@ -36,6 +35,8 @@ import { CookieConsent } from '@/components/compliance/CookieConsent';
 import { LoadingIntroduction } from '@/components/ui/loading-introduction';
 import { useAuth } from '@/contexts/AuthProvider';
 
+// Lazy load the Map component
+const LazyMap = lazy(() => import('@/pages/Map').then(module => ({ default: module.Map })));
 
 // Inner component that can use auth context
 const AppContent = () => {
