@@ -83,7 +83,7 @@ async function initializeApp() {
       </React.StrictMode>
     );
     
-    console.log('✅ MAIN: App rendered successfully');
+    console.log('✅ Boot OK - Application initialized successfully');
   } catch (error) {
   console.error('❌ MAIN: Critical error during app initialization:', error);
   console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack');

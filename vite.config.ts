@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
-import { VitePWA } from "vite-plugin-pwa";
+
 
 const isCodespaces = Boolean(process.env.CODESPACES || process.env.GITHUB_CODESPACES);
 
@@ -15,8 +15,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-    // Disable PWA in development and Codespaces to avoid caching issues
-      // PWA plugin disabled to avoid caching-related boot issues
+    // PWA disabled to prevent caching conflicts during development
   ].filter(Boolean),
   resolve: {
     alias: {
