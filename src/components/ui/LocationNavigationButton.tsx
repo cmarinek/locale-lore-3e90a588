@@ -66,7 +66,7 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
         variant="ghost"
         size="sm"
         onClick={handleLocationClick}
-        className={`h-9 w-9 p-0 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 ${className || ''}`}
+        className={`h-9 w-9 p-0 rounded-full bg-gradient-to-br from-logo-blue to-logo-green hover:from-logo-blue-light hover:to-logo-green-light shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 ${className || ''}`}
         title={`Go to ${locationName || 'location'} on map`}
       >
         <Target className="h-4 w-4 text-white animate-pulse" />
@@ -79,7 +79,7 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
       variant="outline"
       size={size}
       onClick={handleLocationClick}
-      className={`bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-none shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 ${className || ''}`}
+      className={`bg-gradient-to-r from-logo-blue to-logo-green hover:from-logo-blue-light hover:to-logo-green-light text-white border-none shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 ${className || ''}`}
     >
       <Target className="h-4 w-4 mr-2 animate-pulse" />
       Go to Location

@@ -63,7 +63,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
         variant="elevated" 
         className={cn(
           "overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg group",
-          isHighlighted && "ring-2 ring-blue-500 shadow-lg shadow-blue-500/20 bg-blue-50/50 dark:bg-blue-950/20",
+          isHighlighted && "ring-2 ring-primary shadow-lg shadow-primary/20 bg-primary/5 dark:bg-primary/10",
           className
         )}
         onClick={handleQuickView}
@@ -198,7 +198,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
       variant="elevated" 
       className={cn(
         "overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg group",
-        isHighlighted && "ring-2 ring-blue-500 shadow-lg shadow-blue-500/20 bg-blue-50/50 dark:bg-blue-950/20 scale-[1.02]",
+        isHighlighted && "ring-2 ring-primary shadow-lg shadow-primary/20 bg-primary/5 dark:bg-primary/10 scale-[1.02]",
         className
       )}
       onClick={handleQuickView}
