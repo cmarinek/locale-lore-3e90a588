@@ -2,8 +2,8 @@ import React from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 
 // Mark module load for debugging
-markModule('ThemeContext-v2');
-console.log('[TRACE] ThemeContext-v2 file start - React available:', !!React);
+markModule('ThemeContext-v5');
+console.log('[TRACE] ThemeContext-v5 file start');
 
 export type Theme = 'light' | 'dark' | 'auto';
 
@@ -18,7 +18,7 @@ export const ThemeContext = React.createContext<ThemeContextType | undefined>(un
 console.log('[TRACE] After createContext in ThemeContext');
 
 export const useTheme = () => {
-  console.log('[TRACE] useTheme invoked; typeof ThemeContext =', typeof ThemeContext);
+  console.log('[TRACE] useTheme invoked; React available:', !!React, 'typeof ThemeContext =', typeof ThemeContext);
   const context = React.useContext(ThemeContext);
   if (!context) {
     throw new Error('useTheme must be used within a ThemeProvider');

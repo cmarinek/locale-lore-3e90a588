@@ -118,7 +118,7 @@ export default defineConfig(({ mode }) => ({
           }
 
           // CRITICAL: Keep all contexts and React core in main bundle to prevent TDZ
-          if (id.includes("/contexts/") || id.includes("/debug/") || id.includes("language-context") || id.includes("theme-context")) {
+          if (id.includes("/contexts/") || id.includes("/debug/") || id.includes("language-context") || id.includes("theme-context") || id.includes("ab-test-context") || id.includes("auth-context")) {
             return undefined; // Main bundle
           }
 

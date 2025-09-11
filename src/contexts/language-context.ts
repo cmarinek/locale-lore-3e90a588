@@ -3,9 +3,9 @@ import { markModule } from '@/debug/module-dupe-check';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 // Mark module load for debugging
-markModule('LanguageContext-v4');
-console.log('[TRACE] LanguageContext-v4 file start');
-console.log('[TRACE] About to create LanguageContext-v4');
+markModule('LanguageContext-v5');
+console.log('[TRACE] LanguageContext-v5 file start');
+console.log('[TRACE] About to create LanguageContext-v5');
 
 export interface LanguageContextType {
   currentLanguage: SupportedLanguage;
