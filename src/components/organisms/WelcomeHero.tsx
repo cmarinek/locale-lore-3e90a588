@@ -22,85 +22,141 @@ export const WelcomeHero = () => {
   console.log('WelcomeHero: Navigate hook initialized');
   console.log('WelcomeHero: About to render JSX...');
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <div className="container mx-auto px-4 py-16 md:py-24">
-        <div className="text-center max-w-4xl mx-auto">
-          {/* Main heading */}
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Discover
-            </span>{' '}
-            <span className="text-foreground">
-              Local Stories
-            </span>
-          </h1>
-          
-          {/* Subtitle */}
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            {t('welcome.subtitle', 'Uncover fascinating tales, legends, and hidden gems in your neighborhood and beyond')}
-          </p>
+    <>
+      {/* DEBUG BANNER - Remove after fixing */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 9999,
+        backgroundColor: '#ff0000',
+        color: '#ffffff',
+        padding: '10px',
+        textAlign: 'center',
+        fontSize: '16px',
+        fontWeight: 'bold'
+      }}>
+        🚨 DEBUG: WelcomeHero is rendering! If you see this, the app works but CSS is hiding content.
+      </div>
 
-          {/* Search bar */}
-          <div className="mb-8">
-            <HeroSearchBar className="w-full max-w-2xl mx-auto" />
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5" style={{
+        minHeight: '100vh',
+        backgroundColor: '#f0f0f0', /* Fallback gray background */
+        border: '5px solid red' /* Debug border */
+      }}>
+        <div className="container mx-auto px-4 py-16 md:py-24">
+          <div className="text-center max-w-4xl mx-auto">
+            {/* Main heading */}
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6" style={{
+              color: '#000000' /* Force black text */
+            }}>
+              <span style={{color: '#0066cc'}}>Discover</span>{' '}
+              <span style={{color: '#333333'}}>Local Stories</span>
+            </h1>
+            
+            {/* Subtitle */}
+            <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto" style={{
+              color: '#666666' /* Force gray text */
+            }}>
+              Uncover fascinating tales, legends, and hidden gems in your neighborhood and beyond
+            </p>
+
+            {/* Search bar */}
+            <div className="mb-8">
+              <HeroSearchBar className="w-full max-w-2xl mx-auto" />
+            </div>
+
+            {/* Action buttons */}
+            {!user ? (
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Button
+                  size="lg"
+                  onClick={() => navigate('/auth')}
+                  style={{
+                    backgroundColor: '#0066cc',
+                    color: '#ffffff',
+                    padding: '12px 32px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px'
+                  }}
+                >
+                  <UserPlus className="mr-2 h-5 w-5" />
+                  Join Community
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate('/auth')}
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#0066cc',
+                    padding: '12px 32px',
+                    border: '2px solid #0066cc',
+                    borderRadius: '8px',
+                    fontSize: '16px'
+                  }}
+                >
+                  <LogIn className="mr-2 h-5 w-5" />
+                  Sign In
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Button
+                  size="lg"
+                  onClick={() => navigate('/explore')}
+                  style={{
+                    backgroundColor: '#0066cc',
+                    color: '#ffffff',
+                    padding: '12px 32px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px'
+                  }}
+                >
+                  <span className="mr-2">🗺️</span>
+                  Explore Stories
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate('/submit')}
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#0066cc',
+                    padding: '12px 32px',
+                    border: '2px solid #0066cc',
+                    borderRadius: '8px',
+                    fontSize: '16px'
+                  }}
+                >
+                  <span className="mr-2">📝</span>
+                  Share Your Story
+                </Button>
+              </div>
+            )}
           </div>
 
-          {/* Action buttons */}
-          {!user ? (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button
-                size="lg"
-                onClick={() => navigate('/auth')}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3"
-              >
-                <UserPlus className="mr-2 h-5 w-5" />
-                {t('auth.signup', 'Join Community')}
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => navigate('/auth')}
-                className="px-8 py-3"
-              >
-                <LogIn className="mr-2 h-5 w-5" />
-                {t('auth.signin', 'Sign In')}
-              </Button>
-            </div>
-          ) : (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button
-                size="lg"
-                onClick={() => navigate('/explore')}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3"
-              >
-                <span className="mr-2">🗺️</span>
-                {t('actions.explore', 'Explore Stories')}
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => navigate('/submit')}
-                className="px-8 py-3"
-              >
-                <span className="mr-2">📝</span>
-                {t('actions.submit', 'Share Your Story')}
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Feature highlights */}
-        <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
-          {features.map((feature, index) => (
-            <div key={index} className="text-center">
-              <div className="text-4xl mb-4">{feature.icon}</div>
-              <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground text-sm">{feature.description}</p>
-            </div>
-          ))}
+          {/* Feature highlights */}
+          <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
+            {features.map((feature, index) => (
+              <div key={index} className="text-center" style={{
+                backgroundColor: '#ffffff',
+                padding: '20px',
+                borderRadius: '8px',
+                border: '1px solid #ddd'
+              }}>
+                <div className="text-4xl mb-4">{feature.icon}</div>
+                <h3 className="text-lg font-semibold mb-2" style={{color: '#333333'}}>{feature.title}</h3>
+                <p style={{color: '#666666'}} className="text-sm">{feature.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 const features = [{
