@@ -70,9 +70,9 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
         onClick={handleQuickView}
       >
         <CardContent className="p-0">
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-2 sm:p-3">
             {/* Media Preview - Responsive */}
-            {fact.media_urls && fact.media_urls.length > 0 && (
+            {fact.media_urls && fact.media_urls.length > 0 ? (
               <div className="relative w-full sm:w-32 md:w-40 h-40 sm:h-20 md:h-24 shrink-0 overflow-hidden rounded-lg">
                 <img
                   src={fact.media_urls[0]}
@@ -96,10 +96,25 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                   </Badge>
                 </div>
               </div>
+            ) : (
+              // No image: Show category badge in a colored section
+              <div className="relative w-full sm:w-32 md:w-40 h-20 sm:h-20 md:h-24 shrink-0 rounded-lg flex items-center justify-center"
+                   style={{ backgroundColor: `${fact.categories?.color}15` }}>
+                <Badge 
+                  variant="secondary"
+                  className="flex items-center gap-1.5"
+                  style={{ borderColor: fact.categories?.color }}
+                >
+                  <span style={{ color: fact.categories?.color }} className="text-lg">
+                    {fact.categories?.icon}
+                  </span>
+                  <span className="capitalize text-sm font-medium">{categoryName}</span>
+                </Badge>
+              </div>
             )}
 
             {/* Content */}
-            <div className="flex-1 space-y-2 sm:space-y-3 min-w-0">
+            <div className="flex-1 space-y-2 min-w-0">
               {/* Header */}
               <div className="flex items-start justify-between gap-2">
                 <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">
@@ -158,7 +173,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
               {/* Stats & Meta - Responsive Layout */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 pt-1">
                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                  {/* Category Badge - Hidden on mobile if image present */}
+                  {/* Category Badge - Show when no image or on desktop */}
                   <Badge 
                     variant="secondary" 
                     className={cn(
@@ -167,7 +182,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                     )}
                   >
                     <span className="sm:hidden">{fact.categories?.icon}</span>
-                    <span className="hidden sm:inline">{categoryName}</span>
+                    <span>{categoryName}</span>
                   </Badge>
 
                   {/* Votes */}
@@ -235,8 +250,8 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
       onClick={handleQuickView}
     >
       <CardContent className="p-0">
-        {/* Media Preview */}
-        {fact.media_urls && fact.media_urls.length > 0 && (
+        {/* Media Preview or Category Section */}
+        {fact.media_urls && fact.media_urls.length > 0 ? (
           <div className="relative h-44 sm:h-48 md:h-52 overflow-hidden">
             <img
               src={fact.media_urls[0]}
@@ -289,12 +304,49 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
               </div>
             )}
           </div>
+        ) : (
+          // No image: Expanded header section with category
+          <div className="relative h-20 flex items-center justify-center px-3 py-4"
+               style={{ backgroundColor: `${fact.categories?.color}15` }}>
+            <div className="flex items-center justify-between w-full">
+              <Badge 
+                variant="secondary" 
+                className="flex items-center gap-2 px-3 py-1.5"
+                style={{ borderColor: fact.categories?.color }}
+              >
+                <span style={{ color: fact.categories?.color }} className="text-lg">
+                  {fact.categories?.icon}
+                </span>
+                <span className="capitalize font-medium">{categoryName}</span>
+              </Badge>
+              
+              <div className="flex items-center gap-2">
+                {fact.status === 'verified' && (
+                  <Badge variant="ios" size="sm">
+                    ✓ Verified
+                  </Badge>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSaveToggle}
+                  className="h-8 w-8 p-0"
+                >
+                  {isSaved ? (
+                    <BookmarkCheck className="h-4 w-4 text-yellow-600" />
+                  ) : (
+                    <Bookmark className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
         )}
 
-        {/* Content */}
-        <div className="p-4 space-y-3">
+        {/* Content - Reduced padding */}
+        <div className="p-3 space-y-2.5">
           {/* Header */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <h3 className="font-semibold text-base sm:text-lg line-clamp-2 group-hover:text-primary transition-colors leading-tight">
               {fact.title}
             </h3>
@@ -383,30 +435,6 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
             </span>
           </div>
         </div>
-
-        {/* Mobile: No image fallback */}
-        {(!fact.media_urls || fact.media_urls.length === 0) && (
-          <div className="p-4 border-t border-border/50">
-            <div className="flex items-center justify-between">
-              <Badge 
-                variant="secondary" 
-                className="flex items-center gap-1.5"
-                style={{ borderColor: fact.categories?.color }}
-              >
-                <span style={{ color: fact.categories?.color }}>
-                  {fact.categories?.icon}
-                </span>
-                <span className="capitalize text-xs">{categoryName}</span>
-              </Badge>
-              
-              {fact.status === 'verified' && (
-                <Badge variant="ios" size="sm">
-                  ✓ Verified
-                </Badge>
-              )}
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
