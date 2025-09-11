@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 interface HeroSearchBarProps {
   className?: string;
   onSearch?: (query: string) => void;
+  onQueryChange?: (query: string) => void;
   showTrending?: boolean;
 }
 const trendingSearches = ["Hidden waterfalls", "Local ghost stories", "Secret speakeasies", "Underground tunnels", "Historic landmarks"];
@@ -29,6 +30,7 @@ const popularCategories = [{
 export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
   className,
   onSearch,
+  onQueryChange,
   showTrending = true
 }) => {
   const {
@@ -54,10 +56,11 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
   const handleSearch = useCallback(() => {
     if (query.trim()) {
       onSearch?.(query.trim());
+      onQueryChange?.(query.trim());
       navigate(`/search?q=${encodeURIComponent(query.trim())}`);
       setShowSuggestions(false);
     }
-  }, [query, onSearch, navigate]);
+  }, [query, onSearch, onQueryChange, navigate]);
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -69,11 +72,13 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
     setQuery(suggestion);
     setShowSuggestions(false);
     onSearch?.(suggestion);
+    onQueryChange?.(suggestion);
     navigate(`/search?q=${encodeURIComponent(suggestion)}`);
   };
   const handleTrendingClick = (trending: string) => {
     setQuery(trending);
     onSearch?.(trending);
+    onQueryChange?.(trending);
     navigate(`/search?q=${encodeURIComponent(trending)}`);
   };
   return <div className={cn("w-full max-w-4xl mx-auto", className)}>
