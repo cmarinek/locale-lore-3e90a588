@@ -68,15 +68,17 @@ export const Explore: React.FC = () => {
     initializeData();
   }, [initializeData]);
 
-  // Get user location on load
+  // Get user location on load with delay to prevent TDZ
   useEffect(() => {
-    getUserLocation();
+    // Delay location request to ensure all APIs are loaded
+    const timer = setTimeout(getUserLocation, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   const getUserLocation = async () => {
     try {
-      const { locationService } = await import('@/utils/location');
-      const result = await locationService.getDeviceLocation();
+      const { safeGetLocation } = await import('@/utils/app-initialization');
+      const result = await safeGetLocation();
       
       setUserLocation(result.coordinates);
       console.log(`Location found: ${result.source} (${result.accuracy})`);

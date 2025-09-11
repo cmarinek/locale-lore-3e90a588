@@ -14,6 +14,7 @@ export const isGeolocationAvailable = (): boolean => {
   return (
     isNavigatorAvailable() && 
     'geolocation' in navigator && 
+    navigator.geolocation &&
     typeof navigator.geolocation.getCurrentPosition === 'function'
   );
 };
@@ -81,5 +82,9 @@ export class BrowserSafetyWrapper {
       (nav) => nav.onLine,
       true
     );
+  }
+
+  static isGeolocationAvailable(): boolean {
+    return isGeolocationAvailable();
   }
 }

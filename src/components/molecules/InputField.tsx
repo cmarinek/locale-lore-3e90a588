@@ -1,9 +1,9 @@
 import { forwardRef } from "react";
-import { Input } from "@/components/atoms";
-import { Label } from "@/components/atoms";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-export interface InputFieldProps extends React.ComponentProps<typeof Input> {
+export interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   description?: string;
