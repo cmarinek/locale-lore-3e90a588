@@ -66,7 +66,7 @@ const AppContent = () => {
       {shouldShowLoading ? (
         <LoadingIntroduction 
           onComplete={handleLoadingComplete}
-          minDisplayTime={4000}
+          minDisplayTime={1000}
         />
       ) : (
         <Router>
