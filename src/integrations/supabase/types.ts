@@ -846,6 +846,7 @@ export type Database = {
           description: string
           geolocation: unknown | null
           id: string
+          image_url: string | null
           latitude: number
           location_name: string
           longitude: number
@@ -864,6 +865,7 @@ export type Database = {
           description: string
           geolocation?: unknown | null
           id?: string
+          image_url?: string | null
           latitude: number
           location_name: string
           longitude: number
@@ -882,6 +884,7 @@ export type Database = {
           description?: string
           geolocation?: unknown | null
           id?: string
+          image_url?: string | null
           latitude?: number
           location_name?: string
           longitude?: number
