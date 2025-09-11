@@ -190,7 +190,7 @@ export const Hybrid: React.FC = () => {
           {/* Facts List - Mobile: Scrollable bottom half, Desktop: Left sidebar */}
           <div className="lg:w-1/3 flex-shrink-0 flex flex-col border-r border-border/50">
             {/* Categories Legend */}
-            <div className="p-3 border-b border-border/50 bg-card/50">
+            <div className="p-2 border-b border-border/50 bg-card/50">
               <h4 className="text-xs font-semibold flex items-center justify-center gap-1 text-foreground mb-3">
                 <MapPin className="w-3 h-3" />
                 Categories
