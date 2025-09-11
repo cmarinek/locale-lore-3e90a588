@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -135,7 +135,8 @@ export const ProductionDashboard: React.FC = () => {
     return 'text-red-600';
   };
 
-  const getStatusBadge = (status: 'healthy' | 'warning' | 'error') => {
+  // Move icon references inside function to avoid TDZ - v15
+  const getStatusBadge = useCallback((status: 'healthy' | 'warning' | 'error') => {
     const variants = {
       healthy: { variant: 'default' as const, icon: CheckCircle, color: 'text-green-600' },
       warning: { variant: 'secondary' as const, icon: AlertTriangle, color: 'text-yellow-600' },
@@ -150,7 +151,7 @@ export const ProductionDashboard: React.FC = () => {
         {status}
       </Badge>
     );
-  };
+  }, []);
 
   return (
     <div className="space-y-6 p-6">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -8,6 +8,38 @@ import { useAdminAnalytics } from '@/hooks/useAdminAnalytics';
 export const AnalyticsDashboard: React.FC = () => {
   const [timeRange, setTimeRange] = useState('7d');
   const { data, loading, error, refetch } = useAdminAnalytics(timeRange);
+
+  // Move icon references inside component with useMemo - v15
+  const contentMetrics = useMemo(() => [
+    { 
+      name: 'Total Facts', 
+      value: data?.totalFacts || 0, 
+      change: '+12%', 
+      icon: MessageSquare, 
+      color: 'hsl(var(--primary))' 
+    },
+    { 
+      name: 'Active Users', 
+      value: data?.activeUsers || 0, 
+      change: '+8%', 
+      icon: Users, 
+      color: 'hsl(var(--secondary))' 
+    },
+    { 
+      name: 'Monthly Revenue', 
+      value: `$${data?.monthlyRevenue?.toFixed(0) || '0'}`, 
+      change: '+15%', 
+      icon: TrendingUp, 
+      color: 'hsl(var(--accent))' 
+    },
+    { 
+      name: 'Contributors', 
+      value: data?.totalContributors || 0, 
+      change: '+5%', 
+      icon: CheckCircle, 
+      color: 'hsl(142, 76%, 36%)' 
+    }
+  ], [data]);
 
   // Show loading state
   if (loading) {
@@ -55,37 +87,6 @@ export const AnalyticsDashboard: React.FC = () => {
     );
   }
 
-  // Calculate changes (mock for now since we don't have historical comparison)
-  const contentMetrics = [
-    { 
-      name: 'Total Facts', 
-      value: data.totalFacts, 
-      change: '+12%', 
-      icon: MessageSquare, 
-      color: 'hsl(var(--primary))' 
-    },
-    { 
-      name: 'Active Users', 
-      value: data.activeUsers, 
-      change: '+8%', 
-      icon: Users, 
-      color: 'hsl(var(--secondary))' 
-    },
-    { 
-      name: 'Monthly Revenue', 
-      value: `$${data.monthlyRevenue.toFixed(0)}`, 
-      change: '+15%', 
-      icon: TrendingUp, 
-      color: 'hsl(var(--accent))' 
-    },
-    { 
-      name: 'Contributors', 
-      value: data.totalContributors, 
-      change: '+5%', 
-      icon: CheckCircle, 
-      color: 'hsl(142, 76%, 36%)' 
-    }
-  ];
 
   return (
     <div className="space-y-4 sm:space-y-6">

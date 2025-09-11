@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
@@ -33,34 +33,7 @@ export const SocialSharing: React.FC<SocialSharingProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const shareToX = () => {
-    const text = encodeURIComponent(`${content.title}\n\n${content.description}`);
-    const url = encodeURIComponent(content.url);
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-  };
-
-  const shareToFacebook = () => {
-    const url = encodeURIComponent(content.url);
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
-  };
-
-  const shareToLinkedIn = () => {
-    const url = encodeURIComponent(content.url);
-    const title = encodeURIComponent(content.title);
-    const summary = encodeURIComponent(content.description);
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}&summary=${summary}`, '_blank');
-  };
-
-  const shareToInstagram = () => {
-    // Instagram doesn't support direct URL sharing, so we copy to clipboard
-    copyToClipboard();
-    toast({
-      title: "Ready for Instagram!",
-      description: "Link copied to clipboard. Paste it in your Instagram story or bio.",
-    });
-  };
-
-  const copyToClipboard = async () => {
+  const copyToClipboard = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(content.url);
       toast({
@@ -75,27 +48,37 @@ export const SocialSharing: React.FC<SocialSharingProps> = ({
         variant: "destructive",
       });
     }
-  };
+  }, [content]);
 
-  const shareNatively = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: content.title,
-          text: content.description,
-          url: content.url,
-        });
-        setIsOpen(false);
-      } catch (error) {
-        // User cancelled or error occurred
-        console.error('Error sharing:', error);
-      }
-    } else {
-      copyToClipboard();
-    }
-  };
+  const shareToX = useCallback(() => {
+    const text = encodeURIComponent(`${content.title}\n\n${content.description}`);
+    const url = encodeURIComponent(content.url);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+  }, [content]);
 
-  const platforms = [
+  const shareToFacebook = useCallback(() => {
+    const url = encodeURIComponent(content.url);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+  }, [content]);
+
+  const shareToLinkedIn = useCallback(() => {
+    const url = encodeURIComponent(content.url);
+    const title = encodeURIComponent(content.title);
+    const summary = encodeURIComponent(content.description);
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}&summary=${summary}`, '_blank');
+  }, [content]);
+
+  const shareToInstagram = useCallback(() => {
+    // Instagram doesn't support direct URL sharing, so we copy to clipboard
+    copyToClipboard();
+    toast({
+      title: "Ready for Instagram!",
+      description: "Link copied to clipboard. Paste it in your Instagram story or bio.",
+    });
+  }, [copyToClipboard]);
+
+  // Move icon references inside component with useMemo - v15
+  const platforms = useMemo(() => [
     {
       name: 'X (Twitter)',
       icon: Twitter,
@@ -120,7 +103,26 @@ export const SocialSharing: React.FC<SocialSharingProps> = ({
       action: shareToInstagram,
       color: 'bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#FCB045] hover:opacity-90 text-white',
     },
-  ];
+  ], [shareToX, shareToFacebook, shareToLinkedIn, shareToInstagram]);
+
+  const shareNatively = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: content.title,
+          text: content.description,
+          url: content.url,
+        });
+        setIsOpen(false);
+      } catch (error) {
+        // User cancelled or error occurred
+        console.error('Error sharing:', error);
+      }
+    } else {
+      copyToClipboard();
+    }
+  };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

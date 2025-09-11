@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,7 +28,8 @@ interface SubscriptionManagerProps {
 export const SubscriptionManager = ({ subscription, onRefresh, loading }: SubscriptionManagerProps) => {
   const [actionLoading, setActionLoading] = useState(false);
 
-  const subscriptionTiers = [
+  // Move icon references inside component with useMemo - v15
+  const subscriptionTiers = useMemo(() => [
     {
       id: 'basic',
       name: 'Basic Contributor',
@@ -73,7 +74,7 @@ export const SubscriptionManager = ({ subscription, onRefresh, loading }: Subscr
         'Unlimited exports',
       ],
     },
-  ];
+  ], []);
 
   const handleSubscribe = async (tier: string) => {
     setActionLoading(true);

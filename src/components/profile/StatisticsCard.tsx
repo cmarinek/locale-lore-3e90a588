@@ -15,6 +15,7 @@ import {
  } from 'lucide-react';
 import { UserStatistics } from '@/hooks/useProfile';
 import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
 
 interface StatisticsCardProps {
   statistics: UserStatistics | null;
@@ -23,11 +24,8 @@ interface StatisticsCardProps {
 export const StatisticsCard = ({ statistics }: StatisticsCardProps) => {
   const { t } = useTranslation('profile');
   
-  if (!statistics) {
-    return <div>{t('loading', { defaultValue: 'Loading statistics...' })}</div>;
-  }
-
-  const statItems = [
+  // Move icon references inside component with useMemo - v15
+  const statItems = useMemo(() => [
     {
       label: t('statistics.factsSubmitted', { defaultValue: 'Facts Submitted' }),
       value: statistics.facts_submitted,
@@ -70,7 +68,11 @@ export const StatisticsCard = ({ statistics }: StatisticsCardProps) => {
       color: 'text-red-600',
       bgColor: 'bg-red-100',
     },
-  ];
+  ], [t]);
+
+  if (!statistics) {
+    return <div>{t('loading', { defaultValue: 'Loading statistics...' })}</div>;
+  }
 
   const level = Math.floor(statistics.total_points / 1000) + 1;
   const pointsToNextLevel = 1000 - (statistics.total_points % 1000);

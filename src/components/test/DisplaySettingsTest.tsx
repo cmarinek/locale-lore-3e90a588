@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,11 +12,12 @@ export const DisplaySettingsTest: React.FC = () => {
   const { currentLanguage, setLanguage, isRTL } = useLanguage();
   const { settings } = useProfile();
 
-  const testThemes = [
+  // Move icon references inside component with useMemo - v15
+  const testThemes = useMemo(() => [
     { value: 'light', label: 'Light', icon: Sun },
     { value: 'dark', label: 'Dark', icon: Moon },
     { value: 'auto', label: 'Auto', icon: Monitor },
-  ];
+  ], []);
 
   const testLanguages = [
     { value: 'en', label: 'English' },

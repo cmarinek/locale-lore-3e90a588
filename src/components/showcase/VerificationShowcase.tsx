@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/ios-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/ios-badge';
@@ -23,18 +23,8 @@ export const VerificationShowcase: React.FC = () => {
   const [selectedDemo, setSelectedDemo] = useState<'vote' | 'discussion' | 'reputation'>('vote');
   const [demoVote, setDemoVote] = useState<boolean | null>(null);
 
-  const demoFact = {
-    id: 'demo-fact-1',
-    title: 'The Great Library of Alexandria',
-    description: 'The ancient Library of Alexandria was one of the largest and most significant libraries of the ancient world. It was part of the larger research institution called the Mouseion, which was dedicated to the Muses.',
-    author: 'HistoryExplorer',
-    location: 'Alexandria, Egypt',
-    category: 'History',
-    voteCount: { up: 1247, down: 23 },
-    verificationLevel: 'Community Verified'
-  };
-
-  const features = [
+  // Move icon references inside component with useMemo - v15
+  const features = useMemo(() => [
     {
       icon: Users,
       title: "Community Verification",
@@ -65,7 +55,19 @@ export const VerificationShowcase: React.FC = () => {
       title: "Achievement System",
       description: "Badges and milestones to encourage quality participation"
     }
-  ];
+  ], []);
+
+  const demoFact = {
+    id: 'demo-fact-1',
+    title: 'The Great Library of Alexandria',
+    description: 'The ancient Library of Alexandria was one of the largest and most significant libraries of the ancient world. It was part of the larger research institution called the Mouseion, which was dedicated to the Muses.',
+    author: 'HistoryExplorer',
+    location: 'Alexandria, Egypt',
+    category: 'History',
+    voteCount: { up: 1247, down: 23 },
+    verificationLevel: 'Community Verified'
+  };
+
 
   return (
     <div className="space-y-8">
