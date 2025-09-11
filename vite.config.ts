@@ -15,8 +15,8 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-    // Disable PWA inside Codespaces to avoid manifest CORS noise
-    !isCodespaces &&
+    // Disable PWA in development and Codespaces to avoid caching issues
+    mode === "production" && !isCodespaces &&
       VitePWA({
         registerType: "autoUpdate",
         includeAssets: ["favicon.ico", "robots.txt"],
@@ -117,8 +117,8 @@ export default defineConfig(({ mode }) => ({
             return "vendor-misc";
           }
 
-          // CRITICAL: Keep all contexts in main bundle to prevent TDZ
-          if (id.includes("/contexts/") || id.includes("/debug/")) {
+          // CRITICAL: Keep all contexts and React core in main bundle to prevent TDZ
+          if (id.includes("/contexts/") || id.includes("/debug/") || id.includes("language-context") || id.includes("theme-context")) {
             return undefined; // Main bundle
           }
 
@@ -152,7 +152,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    include: ["react", "react-dom", "react-router-dom", "framer-motion"],
+    include: ["react", "react-dom", "react-router-dom", "framer-motion", "react-i18next", "i18next"],
     force: true, // Force re-optimization to clear any cached issues
   },
   ssr: {
