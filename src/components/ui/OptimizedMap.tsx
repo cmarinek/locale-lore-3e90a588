@@ -104,15 +104,26 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
 
   // Initialize map with optimized loading
   const initializeMap = useCallback(async () => {
-    if (!mapContainer.current) return;
+    if (!mapContainer.current) {
+      console.warn('🗺️ Map container not available for initialization');
+      return;
+    }
+
+    console.log('🗺️ Container dimensions:', {
+      width: mapContainer.current.offsetWidth,
+      height: mapContainer.current.offsetHeight,
+      display: getComputedStyle(mapContainer.current).display
+    });
 
     try {
       // Get token from service
       const token = await mapboxService.getToken();
       if (!token) {
-        console.error('No Mapbox token available');
+        console.error('🗺️ No Mapbox token available');
         return;
       }
+      
+      console.log('🗺️ Token received, initializing map...');
 
       setLoadingState('map');
       mapboxgl.accessToken = token;
@@ -233,11 +244,20 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
     setLoadingState('ready');
   }, [facts, createMarkerElement, onFactClick]);
 
-  // Effect for map initialization
+  // Effect for map initialization with delay
   useEffect(() => {
-    initializeMap();
+    // Small delay to ensure container is properly mounted
+    const timer = setTimeout(() => {
+      if (mapContainer.current) {
+        console.log('🗺️ Initializing map with container:', mapContainer.current.offsetHeight);
+        initializeMap();
+      } else {
+        console.warn('🗺️ Map container not ready');
+      }
+    }, 100);
     
     return () => {
+      clearTimeout(timer);
       if (map.current) {
         map.current.remove();
         map.current = null;
@@ -268,8 +288,12 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
   }, []);
 
   return (
-    <div className={`relative w-full h-full ${className}`}>
-      <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
+    <div className={`relative w-full h-full min-h-[400px] ${className}`}>
+      <div 
+        ref={mapContainer} 
+        className="absolute inset-0 rounded-lg w-full h-full" 
+        style={{ minHeight: '400px' }}
+      />
       
       {/* Loading overlay with progress indicator */}
       {loadingState !== 'ready' && (
