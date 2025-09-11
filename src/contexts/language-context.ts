@@ -3,8 +3,8 @@ import { markModule } from '@/debug/module-dupe-check';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 // Mark module load for debugging
-markModule('LanguageContext-v9');
-console.log('[TRACE] LanguageContext-v9 file start');
+markModule('LanguageContext-v10');
+console.log('[TRACE] LanguageContext-v10 file start');
 
 export interface LanguageContextType {
   currentLanguage: SupportedLanguage;
@@ -36,7 +36,6 @@ export const useLanguage = () => {
     };
   }
   
-  const React = require('react') as typeof import('react');
   const context = React.useContext(LanguageContext);
   if (!context) {
     // Return fallback values instead of throwing error

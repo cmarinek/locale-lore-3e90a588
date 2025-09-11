@@ -3,8 +3,8 @@ import { markModule } from '@/debug/module-dupe-check';
 import type { User, Session } from '@supabase/supabase-js';
 
 // Mark module load for debugging
-markModule('AuthContext-v9');
-console.log('[TRACE] AuthContext-v9 file start');
+markModule('AuthContext-v10');
+console.log('[TRACE] AuthContext-v10 file start');
 
 export interface AuthContextType {
   user: User | null;
@@ -27,7 +27,6 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider - context not initialized');
   }
   
-  const React = require('react') as typeof import('react');
   const context = React.useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
@@ -40,7 +39,6 @@ export const useAuthSafe = () => {
     return undefined;
   }
   
-  const React = require('react') as typeof import('react');
   const context = React.useContext(AuthContext);
   return context;
 };

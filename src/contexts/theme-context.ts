@@ -2,8 +2,8 @@ import React from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 
 // Mark module load for debugging
-markModule('ThemeContext-v9');
-console.log('[TRACE] ThemeContext-v9 file start');
+markModule('ThemeContext-v10');
+console.log('[TRACE] ThemeContext-v10 file start');
 
 export type Theme = 'light' | 'dark' | 'auto';
 
@@ -26,7 +26,6 @@ export const useTheme = () => {
     throw new Error('useTheme must be used within a ThemeProvider - context not initialized');
   }
   
-  const React = require('react') as typeof import('react');
   const context = React.useContext(ThemeContext);
   if (!context) {
     throw new Error('useTheme must be used within a ThemeProvider');

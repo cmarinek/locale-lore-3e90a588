@@ -2,8 +2,8 @@ import React from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 
 // Mark module load for debugging
-markModule('ABTestContext-v9');
-console.log('[TRACE] ABTestContext-v9 file start');
+markModule('ABTestContext-v10');
+console.log('[TRACE] ABTestContext-v10 file start');
 
 export interface ABTest {
   name: string;
@@ -34,7 +34,6 @@ export const useABTest = () => {
     throw new Error('useABTest must be used within an ABTestProvider - context not initialized');
   }
   
-  const React = require('react') as typeof import('react');
   const context = React.useContext(ABTestContext);
   if (!context) {
     throw new Error('useABTest must be used within an ABTestProvider');
