@@ -63,13 +63,7 @@ if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
 
 // ===== BROWSER API SAFETY CHECKS =====
 export const GlobalAPIChecker = {
-  isReactReady(): boolean {
-    return typeof window !== 'undefined' && 
-           window.React && 
-           typeof window.React.forwardRef === 'function' &&
-           typeof window.React.createElement === 'function';
-  },
-
+  // React readiness check removed to avoid dependency on window.React
   isNavigatorReady(): boolean {
     return typeof navigator !== 'undefined' &&
            navigator.geolocation &&
@@ -82,20 +76,20 @@ export const GlobalAPIChecker = {
            document.getElementById('root') !== null;
   },
 
+  // Only check critical APIs that don't interfere with React internals
   isAllReady(): boolean {
-    return this.isDOMReady() && this.isReactReady() && this.isNavigatorReady();
+    return this.isDOMReady();
   },
 
   waitForReady(): Promise<void> {
     return new Promise((resolve) => {
       const checkReady = () => {
-        if (this.isAllReady()) {
-          console.log('✅ POLYFILLS: All APIs ready');
+        if (this.isDOMReady()) {
+          console.log('✅ POLYFILLS: DOM ready');
           resolve();
         } else {
-          console.log('⏳ POLYFILLS: Waiting for APIs...', {
+          console.log('⏳ POLYFILLS: Waiting for DOM...', {
             dom: this.isDOMReady(),
-            react: this.isReactReady(),
             navigator: this.isNavigatorReady()
           });
           setTimeout(checkReady, 50);
@@ -107,7 +101,6 @@ export const GlobalAPIChecker = {
 };
 
 console.log('✅ POLYFILLS: Global polyfills initialized', {
-  react: GlobalAPIChecker.isReactReady(),
   navigator: GlobalAPIChecker.isNavigatorReady(),
   dom: GlobalAPIChecker.isDOMReady()
 });
