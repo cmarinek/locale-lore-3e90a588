@@ -3,9 +3,8 @@ import { markModule } from '@/debug/module-dupe-check';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 // Mark module load for debugging
-markModule('LanguageContext-v6');
-console.log('[TRACE] LanguageContext-v6 file start');
-console.log('[TRACE] About to create LanguageContext-v6');
+markModule('LanguageContext-v9');
+console.log('[TRACE] LanguageContext-v9 file start');
 
 export interface LanguageContextType {
   currentLanguage: SupportedLanguage;
@@ -15,30 +14,29 @@ export interface LanguageContextType {
   isLoading: boolean;
 }
 
-console.log('[TRACE] Before createContext in LanguageContext');
+// Create a placeholder that will be replaced by the actual context  
+export let LanguageContext: React.Context<LanguageContextType | null> = null as any;
 
-// Lazy context creation to avoid TDZ issues
-let _languageContext: React.Context<LanguageContextType | null> | null = null;
-
-function getLanguageContext() {
-  if (!_languageContext) {
-    console.log('[TRACE] Creating LanguageContext lazily');
-    _languageContext = React.createContext<LanguageContextType | null>(null);
-  }
-  return _languageContext;
-}
-
-export const LanguageContext = new Proxy({} as React.Context<LanguageContextType | null>, {
-  get(target, prop) {
-    return getLanguageContext()[prop as keyof React.Context<LanguageContextType | null>];
-  }
-});
-
-console.log('[TRACE] After createContext in LanguageContext');
+// This will be called by the provider to set the actual context
+export const _setLanguageContext = (context: React.Context<LanguageContextType | null>) => {
+  LanguageContext = context;
+};
 
 // Optional hook - app should work without this context
 export const useLanguage = () => {
-  console.log('[TRACE] useLanguage invoked; typeof LanguageContext =', typeof LanguageContext);
+  if (!LanguageContext) {
+    // Return fallback values instead of throwing error
+    console.warn('useLanguage called before LanguageContext was initialized, using fallback values');
+    return {
+      currentLanguage: 'en' as SupportedLanguage,
+      setLanguage: async () => {},
+      isRTL: false,
+      supportedLanguages: SUPPORTED_LANGUAGES,
+      isLoading: false,
+    };
+  }
+  
+  const React = require('react') as typeof import('react');
   const context = React.useContext(LanguageContext);
   if (!context) {
     // Return fallback values instead of throwing error

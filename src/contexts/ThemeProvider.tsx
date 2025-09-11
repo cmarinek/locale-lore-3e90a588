@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { markModule } from '@/debug/module-dupe-check';
-import { ThemeContext, Theme, ThemeContextType } from './theme-context';
+import { Theme, ThemeContextType, _setThemeContext } from './theme-context';
 
 // Mark module load for debugging
-markModule('ThemeProvider-v6');
-console.log('[TRACE] ThemeProvider-v6 file start');
+markModule('ThemeProvider-v9');
+console.log('[TRACE] ThemeProvider-v9 file start');
 
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
+
+// Create the actual context here where React is available
+const ActualThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
+
+// Set the context reference
+_setThemeContext(ActualThemeContext);
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   console.log('[TRACE] ThemeProvider component initializing');
@@ -71,8 +77,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   console.log('[TRACE] ThemeProvider rendering with value:', { theme, actualTheme });
 
   return (
-    <ThemeContext.Provider value={value}>
+    <ActualThemeContext.Provider value={value}>
       {children}
-    </ThemeContext.Provider>
+    </ActualThemeContext.Provider>
   );
 };

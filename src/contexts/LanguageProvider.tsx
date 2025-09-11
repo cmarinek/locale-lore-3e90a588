@@ -2,15 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { markModule } from '@/debug/module-dupe-check';
 import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from '@/utils/languages';
-import { LanguageContext, LanguageContextType } from './language-context';
+import { LanguageContextType, _setLanguageContext } from './language-context';
 
 // Mark module load for debugging
-markModule('LanguageProvider-v6');
-console.log('[TRACE] LanguageProvider-v6 file start');
+markModule('LanguageProvider-v9');
+console.log('[TRACE] LanguageProvider-v9 file start');
 
 interface LanguageProviderProps {
   children: React.ReactNode;
 }
+
+// Create the actual context here where React is available
+const ActualLanguageContext = React.createContext<LanguageContextType | null>(null);
+
+// Set the context reference
+_setLanguageContext(ActualLanguageContext);
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   console.log('[TRACE] LanguageProvider component initializing');
@@ -60,8 +66,8 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   console.log('[TRACE] LanguageProvider rendering with value:', { currentLanguage, isRTL, isLoading });
 
   return (
-    <LanguageContext.Provider value={value}>
+    <ActualLanguageContext.Provider value={value}>
       {children}
-    </LanguageContext.Provider>
+    </ActualLanguageContext.Provider>
   );
 };

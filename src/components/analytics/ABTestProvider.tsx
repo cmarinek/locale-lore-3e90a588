@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 import { analytics } from '@/utils/analytics-engine';
-import { ABTestContext, ABTest, ABTestContextType } from './ab-test-context';
+import { ABTest, ABTestContextType, _setABTestContext } from './ab-test-context';
 
 // Mark module load for debugging
-markModule('ABTestProvider-v2');
-console.log('[TRACE] ABTestProvider-v2 file start');
+markModule('ABTestProvider-v9');
+console.log('[TRACE] ABTestProvider-v9 file start');
 
 interface ABTestProviderProps {
   children: React.ReactNode;
 }
+
+// Create the actual context here where React is available
+const ActualABTestContext = React.createContext<ABTestContextType | null>(null);
+
+// Set the context reference
+_setABTestContext(ActualABTestContext);
 
 export const ABTestProvider: React.FC<ABTestProviderProps> = ({ children }) => {
   console.log('[TRACE] ABTestProvider component initializing');
@@ -112,8 +118,8 @@ export const ABTestProvider: React.FC<ABTestProviderProps> = ({ children }) => {
   console.log('[TRACE] ABTestProvider rendering with value:', { activeTestsCount: activeTests.length });
 
   return (
-    <ABTestContext.Provider value={value}>
+    <ActualABTestContext.Provider value={value}>
       {children}
-    </ABTestContext.Provider>
+    </ActualABTestContext.Provider>
   );
 };

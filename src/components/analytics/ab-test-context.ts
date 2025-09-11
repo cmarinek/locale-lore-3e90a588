@@ -2,8 +2,8 @@ import React from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 
 // Mark module load for debugging
-markModule('ABTestContext-v6');
-console.log('[TRACE] ABTestContext-v6 file start');
+markModule('ABTestContext-v9');
+console.log('[TRACE] ABTestContext-v9 file start');
 
 export interface ABTest {
   name: string;
@@ -21,29 +21,20 @@ export interface ABTestContextType {
   isInTest: (testName: string) => boolean;
 }
 
-console.log('[TRACE] Before createContext in ABTestContext');
+// Create a placeholder that will be replaced by the actual context
+export let ABTestContext: React.Context<ABTestContextType | null> = null as any;
 
-// Lazy context creation to avoid TDZ issues
-let _abTestContext: React.Context<ABTestContextType | null> | null = null;
-
-function getABTestContext() {
-  if (!_abTestContext) {
-    console.log('[TRACE] Creating ABTestContext lazily');
-    _abTestContext = React.createContext<ABTestContextType | null>(null);
-  }
-  return _abTestContext;
-}
-
-export const ABTestContext = new Proxy({} as React.Context<ABTestContextType | null>, {
-  get(target, prop) {
-    return getABTestContext()[prop as keyof React.Context<ABTestContextType | null>];
-  }
-});
-
-console.log('[TRACE] After createContext in ABTestContext');
+// This will be called by the provider to set the actual context
+export const _setABTestContext = (context: React.Context<ABTestContextType | null>) => {
+  ABTestContext = context;
+};
 
 export const useABTest = () => {
-  console.log('[TRACE] useABTest invoked; typeof ABTestContext =', typeof ABTestContext);
+  if (!ABTestContext) {
+    throw new Error('useABTest must be used within an ABTestProvider - context not initialized');
+  }
+  
+  const React = require('react') as typeof import('react');
   const context = React.useContext(ABTestContext);
   if (!context) {
     throw new Error('useABTest must be used within an ABTestProvider');

@@ -2,8 +2,8 @@ import React from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 
 // Mark module load for debugging
-markModule('ThemeContext-v6');
-console.log('[TRACE] ThemeContext-v6 file start');
+markModule('ThemeContext-v9');
+console.log('[TRACE] ThemeContext-v9 file start');
 
 export type Theme = 'light' | 'dark' | 'auto';
 
@@ -13,29 +13,20 @@ export interface ThemeContextType {
   actualTheme: 'light' | 'dark';
 }
 
-console.log('[TRACE] Before createContext in ThemeContext');
+// Create a placeholder that will be replaced by the actual context
+export let ThemeContext: React.Context<ThemeContextType | undefined> = null as any;
 
-// Lazy context creation to avoid TDZ issues
-let _themeContext: React.Context<ThemeContextType | undefined> | null = null;
-
-function getThemeContext() {
-  if (!_themeContext) {
-    console.log('[TRACE] Creating ThemeContext lazily');
-    _themeContext = React.createContext<ThemeContextType | undefined>(undefined);
-  }
-  return _themeContext;
-}
-
-export const ThemeContext = new Proxy({} as React.Context<ThemeContextType | undefined>, {
-  get(target, prop) {
-    return getThemeContext()[prop as keyof React.Context<ThemeContextType | undefined>];
-  }
-});
-
-console.log('[TRACE] After createContext in ThemeContext');
+// This will be called by the provider to set the actual context
+export const _setThemeContext = (context: React.Context<ThemeContextType | undefined>) => {
+  ThemeContext = context;
+};
 
 export const useTheme = () => {
-  console.log('[TRACE] useTheme invoked; typeof ThemeContext =', typeof ThemeContext);
+  if (!ThemeContext) {
+    throw new Error('useTheme must be used within a ThemeProvider - context not initialized');
+  }
+  
+  const React = require('react') as typeof import('react');
   const context = React.useContext(ThemeContext);
   if (!context) {
     throw new Error('useTheme must be used within a ThemeProvider');

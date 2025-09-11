@@ -3,8 +3,8 @@ import { markModule } from '@/debug/module-dupe-check';
 import type { User, Session } from '@supabase/supabase-js';
 
 // Mark module load for debugging
-markModule('AuthContext-v6');
-console.log('[TRACE] AuthContext-v6 file start');
+markModule('AuthContext-v9');
+console.log('[TRACE] AuthContext-v9 file start');
 
 export interface AuthContextType {
   user: User | null;
@@ -14,29 +14,20 @@ export interface AuthContextType {
   refreshProfile: () => Promise<void>;
 }
 
-console.log('[TRACE] Before createContext in AuthContext');
+// Create a placeholder that will be replaced by the actual context
+export let AuthContext: React.Context<AuthContextType | undefined> = null as any;
 
-// Lazy context creation to avoid TDZ issues
-let _authContext: React.Context<AuthContextType | undefined> | null = null;
-
-function getAuthContext() {
-  if (!_authContext) {
-    console.log('[TRACE] Creating AuthContext lazily');
-    _authContext = React.createContext<AuthContextType | undefined>(undefined);
-  }
-  return _authContext;
-}
-
-export const AuthContext = new Proxy({} as React.Context<AuthContextType | undefined>, {
-  get(target, prop) {
-    return getAuthContext()[prop as keyof React.Context<AuthContextType | undefined>];
-  }
-});
-
-console.log('[TRACE] After createContext in AuthContext');
+// This will be called by the provider to set the actual context
+export const _setAuthContext = (context: React.Context<AuthContextType | undefined>) => {
+  AuthContext = context;
+};
 
 export const useAuth = () => {
-  console.log('[TRACE] useAuth invoked; typeof AuthContext =', typeof AuthContext);
+  if (!AuthContext) {
+    throw new Error('useAuth must be used within an AuthProvider - context not initialized');
+  }
+  
+  const React = require('react') as typeof import('react');
   const context = React.useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
@@ -45,6 +36,11 @@ export const useAuth = () => {
 };
 
 export const useAuthSafe = () => {
+  if (!AuthContext) {
+    return undefined;
+  }
+  
+  const React = require('react') as typeof import('react');
   const context = React.useContext(AuthContext);
   return context;
 };

@@ -3,15 +3,21 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { markModule } from '@/debug/module-dupe-check';
-import { AuthContext, AuthContextType } from './auth-context';
+import { AuthContextType, _setAuthContext } from './auth-context';
 
 // Mark module load for debugging
-markModule('AuthProvider-v6');
-console.log('[TRACE] AuthProvider-v6 file start');
+markModule('AuthProvider-v9');
+console.log('[TRACE] AuthProvider-v9 file start');
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
+
+// Create the actual context here where React is available
+const ActualAuthContext = React.createContext<AuthContextType | undefined>(undefined);
+
+// Set the context reference
+_setAuthContext(ActualAuthContext);
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   console.log('[TRACE] AuthProvider component initializing');
@@ -127,8 +133,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   console.log('[TRACE] AuthProvider rendering with value:', { hasUser: !!user, loading });
 
   return (
-    <AuthContext.Provider value={value}>
+    <ActualAuthContext.Provider value={value}>
       {children}
-    </AuthContext.Provider>
+    </ActualAuthContext.Provider>
   );
 };
