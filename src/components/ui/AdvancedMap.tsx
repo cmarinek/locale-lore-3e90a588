@@ -751,26 +751,6 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
         </Button>
       )}
 
-      {/* Legend - reduced padding, 2 rows, positioned lower */}
-      <Card className="absolute bottom-2 left-4 z-10 bg-card/95 backdrop-blur border-border">
-        <div className="p-1">
-          <h4 className="text-xs font-semibold flex items-center gap-1 text-foreground mb-1">
-            <MapIcon className="w-3 h-3" />
-            Categories
-          </h4>
-          <div className="grid grid-cols-4 gap-1 text-xs text-foreground">
-            {Object.entries(categoryColors).slice(0, 8).map(([category, color]) => (
-              <div key={category} className="flex items-center gap-1">
-                <div 
-                  className="w-2 h-2 rounded-full border border-border shadow-sm"
-                  style={{ backgroundColor: color }}
-                />
-                <span className="capitalize text-xs">{category}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Card>
     </div>
   );
 };

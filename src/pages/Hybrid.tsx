@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import { List, Map as MapIcon, Layers } from 'lucide-react';
+import { List, Map as MapIcon, Layers, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AdvancedMap from '@/components/ui/AdvancedMap';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
@@ -189,6 +189,34 @@ export const Hybrid: React.FC = () => {
         <div className="flex-1 flex flex-col lg:flex-row min-h-0">
           {/* Facts List - Mobile: Scrollable bottom half, Desktop: Left sidebar */}
           <div className="lg:w-1/3 flex-shrink-0 flex flex-col border-r border-border/50">
+            {/* Categories Legend */}
+            <div className="p-3 border-b border-border/50 bg-card/50">
+              <h4 className="text-xs font-semibold flex items-center gap-1 text-foreground mb-2">
+                <MapIcon className="w-3 h-3" />
+                Categories
+              </h4>
+              <div className="grid grid-cols-4 gap-1 text-xs text-foreground">
+                {[
+                  { name: 'mystery', color: '#8B5CF6' },
+                  { name: 'history', color: '#F59E0B' },
+                  { name: 'nature', color: '#10B981' },
+                  { name: 'urban', color: '#EF4444' },
+                  { name: 'folklore', color: '#3B82F6' },
+                  { name: 'paranormal', color: '#EC4899' },
+                  { name: 'adventure', color: '#F97316' },
+                  { name: 'cultural', color: '#84CC16' }
+                ].map(({ name, color }) => (
+                  <div key={name} className="flex items-center gap-1">
+                    <div 
+                      className="w-2 h-2 rounded-full border border-border shadow-sm"
+                      style={{ backgroundColor: color }}
+                    />
+                    <span className="capitalize text-xs">{name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
             <div className="p-4 border-b border-border/50">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">
