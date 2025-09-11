@@ -95,9 +95,10 @@ export default defineConfig(({ mode }) => ({
               /[\\/]node_modules[\\/]react-dom[\\/]/.test(id);
             const isFramer = /[\\/]node_modules[\\/]framer-motion[\\/]/.test(id);
             const isLucide = /[\\/]node_modules[\\/]lucide-react[\\/]/.test(id);
+            const isReactI18next = /[\\/]node_modules[\\/]react-i18next[\\/]/.test(id);
 
-            // Keep React, ReactDOM, Framer Motion, and Lucide together
-            if (isReact || isFramer || isLucide) {
+            // Keep React, ReactDOM, Framer Motion, Lucide, and react-i18next together
+            if (isReact || isFramer || isLucide || isReactI18next) {
               return "vendor-react";
             }
             if (/[\\/]node_modules[\\/]mapbox-gl[\\/]/.test(id)) {
@@ -109,10 +110,7 @@ export default defineConfig(({ mode }) => ({
             if (/[\\/]node_modules[\\/]@supabase[\\/]/.test(id)) {
               return "vendor-supabase";
             }
-            if (
-              /[\\/]node_modules[\\/]i18next[\\/]/.test(id) ||
-              /[\\/]node_modules[\\/]react-i18next[\\/]/.test(id)
-            ) {
+            if (/[\\/]node_modules[\\/]i18next[\\/]/.test(id)) {
               return "vendor-i18n";
             }
             return "vendor-misc";
