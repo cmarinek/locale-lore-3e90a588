@@ -8,7 +8,7 @@ export function useOnboarding() {
   useEffect(() => {
     const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_STORAGE_KEY);
     
-    if (!hasCompletedOnboarding) {
+    if (!hasCompletedOnboarding && !showOnboarding) {
       // Show onboarding after a short delay for better UX
       const timer = setTimeout(() => {
         setShowOnboarding(true);
@@ -16,7 +16,7 @@ export function useOnboarding() {
 
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, []); // Empty dependency array to run only once
 
   const completeOnboarding = () => {
     localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
