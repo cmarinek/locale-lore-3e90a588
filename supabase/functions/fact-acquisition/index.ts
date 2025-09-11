@@ -353,7 +353,7 @@ async function processJobInBackground(supabase: any, job: any) {
                 longitude: fact.coordinates.lon,
                 location_name: fact.location || fact.title,
                 category_id: categoryId,
-                author_id: null, // System-generated facts
+                author_id: '00000000-0000-0000-0000-000000000000', // System-generated "system" user
                 status: 'verified',
                 image_url: fact.images?.[0] || null,
                 media_urls: fact.images || []
