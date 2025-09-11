@@ -15,3 +15,6 @@ verify_jwt = false
 
 [functions.bulk-import-processor]
 verify_jwt = false
+
+[functions.fact-acquisition]
+verify_jwt = false

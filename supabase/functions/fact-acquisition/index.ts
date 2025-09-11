@@ -140,8 +140,8 @@ async function startJob(supabase: any, params: any) {
     })
     .eq('id', jobId);
 
-  // Start processing
-  processJobInBackground(supabase, job);
+  // Start processing in background
+  setTimeout(() => processJobInBackground(supabase, job), 100);
 
   return new Response(JSON.stringify({ 
     success: true,
@@ -202,7 +202,7 @@ async function resumeJob(supabase: any, params: any) {
   }
 
   // Resume processing in background
-  processJobInBackground(supabase, job);
+  setTimeout(() => processJobInBackground(supabase, job), 100);
 
   return new Response(JSON.stringify({ 
     success: true,
