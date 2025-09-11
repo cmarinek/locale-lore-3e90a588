@@ -35,7 +35,7 @@ import { CookieConsent } from '@/components/compliance/CookieConsent';
 import { LoadingIntroduction } from '@/components/ui/loading-introduction';
 import { useAuth } from '@/contexts/AuthProvider';
 import InitializationGate from '@/components/ui/initialization-gate';
-import { DevInitStatus } from '@/components/dev/DevInitStatus';
+
 
 // Lazy load the Map component
 const LazyMap = lazy(() => import('@/pages/Map').then(module => ({ default: module.Map })));
@@ -62,7 +62,7 @@ const AppContent = () => {
       ) : (
         <Router>
           <div className="App">
-            <DevInitStatus />
+            
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth/*" element={<AuthMain />} />
