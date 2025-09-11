@@ -178,7 +178,7 @@ export const Hybrid: React.FC = () => {
       <div className="h-screen w-full flex flex-col">
         {/* Header */}
         <div className="flex-shrink-0 p-4 border-b border-border/50 bg-background/95 backdrop-blur-sm">
-          <div className="glass rounded-lg p-4 mb-4">
+          <div className="glass rounded-lg p-4 mb-4 mt-12">
             
 
             {/* Search - clean version matching homepage style */}
