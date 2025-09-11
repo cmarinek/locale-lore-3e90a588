@@ -42,6 +42,8 @@ serve(async (req) => {
         return await resumeJob(supabase, params);
       case 'cancel_job':
         return await cancelJob(supabase, params);
+      case 'delete_job':
+        return await deleteJob(supabase, params);
       case 'get_jobs':
         return await getJobs(supabase, params);
       default:
@@ -235,6 +237,25 @@ async function cancelJob(supabase: any, params: any) {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 }
+
+async function deleteJob(supabase: any, params: any) {
+  const { jobId } = params;
+
+  const { error } = await supabase
+    .from('acquisition_jobs')
+    .delete()
+    .eq('id', jobId);
+
+  if (error) {
+    throw new Error(`Failed to delete job: ${error.message}`);
+  }
+
+  return new Response(JSON.stringify({ 
+    success: true,
+    message: 'Job deleted successfully'
+  }), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
 
 async function getJobs(supabase: any, params: any) {
   const { limit = 50, offset = 0, status } = params;

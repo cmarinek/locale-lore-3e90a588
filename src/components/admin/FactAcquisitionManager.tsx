@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { Play, Pause, Square, RefreshCw, Settings, Database, MapPin, Image, Clock } from 'lucide-react';
+import { Play, Pause, Square, RefreshCw, Settings, Database, MapPin, Image, Clock, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -285,6 +285,33 @@ const FactAcquisitionManager: React.FC = () => {
     }
   };
 
+  const deleteJob = async (jobId: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('fact-acquisition', {
+        body: { action: 'delete_job', jobId }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Job deleted",
+        description: "Fact acquisition job deleted successfully",
+      });
+
+      await loadJobs();
+    } catch (error) {
+      console.error('Failed to delete job:', error);
+      toast({
+        title: "Error deleting job",
+        description: "Failed to delete acquisition job",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'running': return 'bg-blue-500 text-white';
@@ -507,6 +534,14 @@ const FactAcquisitionManager: React.FC = () => {
                           disabled={loading || job.status === 'completed'}
                         >
                           <Square className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => deleteJob(job.id)}
+                          disabled={loading}
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
