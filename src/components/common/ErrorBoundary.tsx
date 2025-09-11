@@ -1,7 +1,14 @@
 import React, { Component, ReactNode } from 'react';
-import { trackError } from '@/utils/monitoring';
-import { Button } from '@/components/ui/button';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+
+// Safe import for monitoring
+let trackError: any;
+try {
+  const monitoring = require('@/utils/monitoring');
+  trackError = monitoring.trackError;
+} catch (error) {
+  console.warn('Monitoring utility not available:', error);
+  trackError = () => {}; // Safe fallback
+}
 
 interface Props {
   children: ReactNode;
@@ -39,11 +46,15 @@ export class ErrorBoundary extends Component<Props, State> {
     }
     
     // Track the error for monitoring (unless in diagnostic mode)
-    if (!this.props.isDiagnostic) {
-      trackError(error, {
-        componentStack: errorInfo.componentStack,
-        errorBoundary: true,
-      });
+    if (!this.props.isDiagnostic && trackError) {
+      try {
+        trackError(error, {
+          componentStack: errorInfo.componentStack,
+          errorBoundary: true,
+        });
+      } catch (trackingError) {
+        console.warn('Error tracking failed:', trackingError);
+      }
     }
 
     // Call custom error handler if provided
@@ -52,6 +63,19 @@ export class ErrorBoundary extends Component<Props, State> {
 
   handleRetry = () => {
     this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+  };
+
+  handleGoHome = () => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
+    } catch (error) {
+      console.error('Navigation failed:', error);
+      if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
+    }
   };
 
   render() {
@@ -80,39 +104,109 @@ export class ErrorBoundary extends Component<Props, State> {
         );
       }
 
-      // Production mode rendering
+      // Production mode rendering with inline styles to avoid dependency issues
       return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-          <div className="bg-card rounded-xl p-8 elevation-2 max-w-md mx-auto">
-            <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-            <p className="text-muted-foreground mb-6">
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          padding: '16px',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            backgroundColor: 'var(--card, #ffffff)',
+            borderRadius: '12px',
+            padding: '32px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            maxWidth: '448px',
+            margin: '0 auto'
+          }}>
+            <div style={{
+              height: '64px',
+              width: '64px',
+              margin: '0 auto 16px',
+              backgroundColor: 'var(--destructive, #ef4444)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '24px'
+            }}>⚠️</div>
+            
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              marginBottom: '8px',
+              color: 'var(--foreground, #000000)'
+            }}>
+              Something went wrong
+            </h2>
+            
+            <p style={{
+              color: 'var(--muted-foreground, #6b7280)',
+              marginBottom: '24px'
+            }}>
               We're sorry, but something unexpected happened. The error has been reported to our team.
             </p>
             
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="mb-4 text-left">
-                <summary className="cursor-pointer text-sm font-medium mb-2">
+              <details style={{ marginBottom: '16px', textAlign: 'left' }}>
+                <summary style={{
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  marginBottom: '8px'
+                }}>
                   Error Details (Development)
                 </summary>
-                <pre className="text-xs bg-muted p-2 rounded overflow-auto max-h-32">
+                <pre style={{
+                  fontSize: '12px',
+                  backgroundColor: 'var(--muted, #f3f4f6)',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  overflow: 'auto',
+                  maxHeight: '128px'
+                }}>
                   {this.state.error.toString()}
                   {this.state.errorInfo?.componentStack}
                 </pre>
               </details>
             )}
             
-            <div className="flex gap-3 justify-center">
-              <Button onClick={this.handleRetry} variant="default">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Try Again
-              </Button>
-              <Button 
-                onClick={() => window.location.href = '/'} 
-                variant="outline"
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button 
+                onClick={this.handleRetry}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: 'var(--primary, #3b82f6)',
+                  color: 'var(--primary-foreground, #ffffff)',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                🔄 Try Again
+              </button>
+              <button 
+                onClick={this.handleGoHome}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: 'transparent',
+                  color: 'var(--foreground, #000000)',
+                  border: '1px solid var(--border, #e5e7eb)',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
               >
                 Go Home
-              </Button>
+              </button>
             </div>
           </div>
         </div>

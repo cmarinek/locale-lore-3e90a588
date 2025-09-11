@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { BrowserSafetyWrapper, isNavigatorAvailable } from '@/utils/browser-safety';
 
 export interface OfflineAction {
   id?: string;
@@ -9,7 +10,7 @@ export interface OfflineAction {
 }
 
 export const useOffline = () => {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(() => BrowserSafetyWrapper.isOnline());
   const [pendingActions, setPendingActions] = useState<OfflineAction[]>([]);
 
   useEffect(() => {
@@ -24,13 +25,16 @@ export const useOffline = () => {
       toast.info('You\'re offline. Changes will sync when you reconnect.');
     };
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    // Only add event listeners if we have a safe browser environment
+    if (typeof window !== 'undefined' && isNavigatorAvailable()) {
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
 
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
+      return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      };
+    }
   }, []);
 
   const openDB = async (): Promise<IDBDatabase> => {
@@ -71,10 +75,15 @@ export const useOffline = () => {
     
     setPendingActions(prev => [...prev, fullAction]);
     
-    if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
-      const registration = await navigator.serviceWorker.ready;
-      if ('sync' in registration) {
-        await (registration as any).sync.register('background-sync');
+    // Safe service worker registration
+    if (isNavigatorAvailable() && 'serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        if ('sync' in registration) {
+          await (registration as any).sync.register('background-sync');
+        }
+      } catch (error) {
+        console.warn('Service worker sync registration failed:', error);
       }
     }
   };

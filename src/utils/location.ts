@@ -1,4 +1,5 @@
 import { Geolocation } from '@capacitor/geolocation';
+import { BrowserSafetyWrapper, isGeolocationAvailable } from './browser-safety';
 
 export interface LocationResult {
   coordinates: [number, number]; // [lng, lat]
@@ -106,24 +107,29 @@ export class LocationService {
   }
 
   /**
-   * Web Geolocation API wrapper
+   * Web Geolocation API wrapper with safe browser API access
    */
   private getWebLocation(): Promise<GeolocationPosition> {
     return new Promise((resolve, reject) => {
-      if (!navigator?.geolocation) {
+      // Use browser safety wrapper
+      if (!isGeolocationAvailable()) {
         reject(new Error('Geolocation not supported in this environment'));
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(
-        resolve,
-        reject,
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000 // 5 minutes
-        }
-      );
+      try {
+        navigator.geolocation.getCurrentPosition(
+          resolve,
+          reject,
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000 // 5 minutes
+          }
+        );
+      } catch (error) {
+        reject(new Error(`Geolocation API error: ${error}`));
+      }
     });
   }
 
@@ -157,12 +163,15 @@ export class LocationService {
   }
 
   /**
-   * Detect region from timezone and language settings
+   * Detect region from timezone and language settings with safe browser API access
    */
   private detectRegion(): string {
-    // Try timezone first
+    // Try timezone first using browser safety wrapper
     try {
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const timezone = BrowserSafetyWrapper.getTimezone();
+      if (timezone === 'UTC') {
+        throw new Error('Timezone detection failed');
+      }
       
       // Map common timezones to regions
       if (timezone.includes('America/')) {
@@ -221,8 +230,8 @@ export class LocationService {
       console.log('Timezone detection failed:', error);
     }
 
-    // Fallback to language detection
-    const language = navigator.language || navigator.languages?.[0] || 'en-US';
+    // Fallback to language detection using browser safety wrapper
+    const language = BrowserSafetyWrapper.getLanguage();
     const countryCode = language.split('-')[1]?.toUpperCase();
     
     if (countryCode && REGION_FALLBACKS[countryCode]) {

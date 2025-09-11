@@ -88,6 +88,10 @@ export default defineConfig(({ mode }) => ({
     sourcemap: mode === "development",
     rollupOptions: {
       output: {
+        // Ensure proper module loading order
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: (id) => {
           // Vendor libraries
           if (id.includes("node_modules")) {
@@ -121,8 +125,15 @@ export default defineConfig(({ mode }) => ({
             return "vendor-misc";
           }
 
-          // CRITICAL: Keep all contexts and React core in main bundle to prevent TDZ
-          if (id.includes("/contexts/") || id.includes("/debug/") || id.includes("language-context") || id.includes("theme-context") || id.includes("ab-test-context") || id.includes("auth-context")) {
+          // CRITICAL: Keep all contexts, React core, and ErrorBoundary in main bundle to prevent TDZ
+          if (id.includes("/contexts/") || 
+              id.includes("/debug/") || 
+              id.includes("language-context") || 
+              id.includes("theme-context") || 
+              id.includes("ab-test-context") || 
+              id.includes("auth-context") ||
+              id.includes("ErrorBoundary") ||
+              id.includes("/common/ErrorBoundary")) {
             return undefined; // Main bundle
           }
 
@@ -156,8 +167,22 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    include: ["react", "react-dom", "react-router-dom", "framer-motion", "react-i18next", "i18next"],
+    include: [
+      "react", 
+      "react-dom", 
+      "react-router-dom", 
+      "framer-motion", 
+      "react-i18next", 
+      "i18next",
+      "lucide-react",
+      "@/components/ui/button"
+    ],
     force: true, // Force re-optimization to clear any cached issues
+    esbuildOptions: {
+      // Ensure proper module resolution order
+      mainFields: ['module', 'main'],
+      conditions: ['import', 'module', 'default']
+    }
   },
   ssr: {
     noExternal: ["framer-motion"],
