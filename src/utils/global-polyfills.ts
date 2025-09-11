@@ -6,28 +6,26 @@
 console.log('🔧 POLYFILLS: Starting global polyfills initialization...');
 
 // ===== REACT API POLYFILLS =====
-if (typeof window !== 'undefined') {
-  // Ensure React namespace exists globally
-  if (!window.React) {
-    window.React = {} as any;
-  }
+// Do NOT create a fake React object. Only augment an existing global React if present.
+if (typeof window !== 'undefined' && (window as any).React) {
+  const ReactGlobal: any = (window as any).React;
 
-  // Safe forwardRef polyfill
-  if (!window.React.forwardRef) {
-    window.React.forwardRef = function safeForwardRefPolyfill<T, P = {}>(
+  // Safe forwardRef polyfill (only if missing)
+  if (typeof ReactGlobal.forwardRef !== 'function') {
+    ReactGlobal.forwardRef = function safeForwardRefPolyfill<T, P = {}>(
       render: (props: P, ref: any) => any
     ) {
-      console.warn('⚠️ POLYFILL: React.forwardRef not available, using fallback');
+      console.warn('⚠️ POLYFILL: React.forwardRef not available on global React, using fallback');
       return function ForwardRefFallback(props: any) {
         return render(props, null);
       };
     };
   }
 
-  // Safe createElement polyfill
-  if (!window.React.createElement) {
-    window.React.createElement = function safeCreateElementPolyfill(type: any, props: any, ...children: any[]) {
-      console.warn('⚠️ POLYFILL: React.createElement not available, using fallback');
+  // Safe createElement polyfill (only if missing)
+  if (typeof ReactGlobal.createElement !== 'function') {
+    ReactGlobal.createElement = function safeCreateElementPolyfill(type: any, props: any, ...children: any[]) {
+      console.warn('⚠️ POLYFILL: React.createElement not available on global React, using fallback');
       return { type, props: { ...props, children } };
     };
   }
