@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Index from '@/pages/Index';
 import AuthMain from '@/pages/AuthMain';
@@ -111,6 +111,31 @@ const AppContent = () => {
 
 function App() {
   console.log('App component rendering...');
+
+  // Clear ServiceWorker cache on development reload
+  useEffect(() => {
+    if (import.meta.env.DEV && import.meta.hot) {
+      console.log('[DEV] Clearing caches for fresh start');
+      
+      // Clear ServiceWorker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          registrations.forEach((registration) => {
+            registration.unregister();
+          });
+        });
+      }
+      
+      // Clear caches
+      if ('caches' in window) {
+        caches.keys().then((cacheNames) => {
+          cacheNames.forEach((cacheName) => {
+            caches.delete(cacheName);
+          });
+        });
+      }
+    }
+  }, []);
 
   return (
     <ErrorBoundary>

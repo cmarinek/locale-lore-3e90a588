@@ -5,8 +5,8 @@ import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from 
 import { LanguageContext, LanguageContextType } from './language-context';
 
 // Mark module load for debugging
-markModule('LanguageProvider-v2');
-console.log('[TRACE] LanguageProvider-v2 file start');
+markModule('LanguageProvider-v3');
+console.log('[TRACE] LanguageProvider-v3 file start');
 
 interface LanguageProviderProps {
   children: React.ReactNode;

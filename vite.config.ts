@@ -41,6 +41,7 @@ export default defineConfig(({ mode }) => ({
           navigateFallback: null, // Disable navigate fallback for large apps
           skipWaiting: true,
           clientsClaim: true,
+          cleanupOutdatedCaches: true, // Clear old caches
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\//,

@@ -3,9 +3,9 @@ import { markModule } from '@/debug/module-dupe-check';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 // Mark module load for debugging
-markModule('LanguageContext-v2');
-console.log('[TRACE] LanguageContext-v2 file start - React available:', !!React);
-console.log('[TRACE] About to create LanguageContext-v2');
+markModule('LanguageContext-v3');
+console.log('[TRACE] LanguageContext-v3 file start - React available:', !!React);
+console.log('[TRACE] About to create LanguageContext-v3');
 
 export interface LanguageContextType {
   currentLanguage: SupportedLanguage;
