@@ -21,10 +21,12 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
     savedFacts, 
     toggleSavedFact, 
     setSelectedFact, 
-    setModalOpen 
+    setModalOpen,
+    syncSelectedFact
   } = useDiscoveryStore();
 
   const isSaved = savedFacts.includes(fact.id);
+  const isHighlighted = syncSelectedFact === fact.id;
   const voteScore = fact.vote_count_up - fact.vote_count_down;
   
   const categoryName = fact.categories?.category_translations?.find(
@@ -61,6 +63,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
         variant="elevated" 
         className={cn(
           "overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg group",
+          isHighlighted && "ring-2 ring-blue-500 shadow-lg shadow-blue-500/20 bg-blue-50/50 dark:bg-blue-950/20",
           className
         )}
         onClick={handleQuickView}
@@ -106,6 +109,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                           longitude={fact.longitude}
                           locationName={fact.location_name}
                           variant="icon"
+                          factId={fact.id}
                         />
                       </div>
                     )}
@@ -194,6 +198,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
       variant="elevated" 
       className={cn(
         "overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg group",
+        isHighlighted && "ring-2 ring-blue-500 shadow-lg shadow-blue-500/20 bg-blue-50/50 dark:bg-blue-950/20 scale-[1.02]",
         className
       )}
       onClick={handleQuickView}
@@ -277,6 +282,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                     longitude={fact.longitude}
                     locationName={fact.location_name}
                     variant="icon"
+                    factId={fact.id}
                   />
                 </div>
               )}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { MapPin, Navigation } from 'lucide-react';
+import { Target, Navigation } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { toast } from 'sonner';
@@ -12,6 +12,7 @@ interface LocationNavigationButtonProps {
   variant?: 'icon' | 'button';
   size?: 'sm' | 'default';
   className?: string;
+  factId?: string;
 }
 
 export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> = ({
@@ -20,11 +21,12 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
   locationName,
   variant = 'icon',
   size = 'sm',
-  className
+  className,
+  factId
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setMapCenter } = useDiscoveryStore();
+  const { setMapCenter, setSyncSelectedFact } = useDiscoveryStore();
 
   const handleLocationClick = (e: React.MouseEvent) => {
     // Critical: Stop event propagation to prevent card click
@@ -38,6 +40,11 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
     // Set the map center coordinates
     console.log('Setting map center to:', [longitude, latitude]);
     setMapCenter([longitude, latitude]);
+    
+    // Set the selected fact for highlighting
+    if (factId) {
+      setSyncSelectedFact(factId);
+    }
     
     if (currentPath === '/hybrid') {
       // If already on hybrid page, just center the map
@@ -59,10 +66,10 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
         variant="ghost"
         size="sm"
         onClick={handleLocationClick}
-        className={`h-9 w-9 p-0 rounded-full hover:bg-primary/10 hover:text-primary transition-colors ${className || ''}`}
-        title={`View ${locationName || 'location'} on map`}
+        className={`h-9 w-9 p-0 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 ${className || ''}`}
+        title={`Go to ${locationName || 'location'} on map`}
       >
-        <MapPin className="h-4 w-4" />
+        <Target className="h-4 w-4 text-white animate-pulse" />
       </Button>
     );
   }
@@ -72,10 +79,10 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
       variant="outline"
       size={size}
       onClick={handleLocationClick}
-      className={className}
+      className={`bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-none shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 ${className || ''}`}
     >
-      <Navigation className="h-4 w-4 mr-2" />
-      View on Map
+      <Target className="h-4 w-4 mr-2 animate-pulse" />
+      Go to Location
     </Button>
   );
 };
