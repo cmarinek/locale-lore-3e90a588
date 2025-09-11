@@ -68,8 +68,8 @@ async function initializeApp() {
       throw new Error('Root element not found in DOM');
     }
     
-    // Remove FOUC prevention
-    rootElement.classList.add('ready');
+    // Clear any existing content from root element
+    rootElement.replaceChildren();
     
     const root = createRoot(rootElement);
     console.log('🎯 MAIN: React root created');
