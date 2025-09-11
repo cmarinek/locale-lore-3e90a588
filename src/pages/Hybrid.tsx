@@ -19,12 +19,12 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { FloatingActionButton } from '@/components/ui/FloatingActionButton';
 import { QuickFilters } from '@/components/discovery/QuickFilters';
-
 export const Hybrid: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation('lore');
+  const {
+    t
+  } = useTranslation('lore');
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  
   const {
     facts,
     selectedFact,
@@ -35,8 +35,9 @@ export const Hybrid: React.FC = () => {
     initializeData,
     loading
   } = useDiscoveryStore();
-
-  const { triggerHapticFeedback } = useAppStore();
+  const {
+    triggerHapticFeedback
+  } = useAppStore();
 
   // Initialize data
   useEffect(() => {
@@ -46,7 +47,9 @@ export const Hybrid: React.FC = () => {
 
   const getUserLocation = async () => {
     try {
-      const { locationService } = await import('@/utils/location');
+      const {
+        locationService
+      } = await import('@/utils/location');
       const result = await locationService.getDeviceLocation();
       setUserLocation(result.coordinates);
     } catch (error) {
@@ -54,7 +57,6 @@ export const Hybrid: React.FC = () => {
       setUserLocation([-0.1276, 51.5074]); // London fallback
     }
   };
-
   const handleFactClick = (fact: any) => {
     // Convert fact to FactMarker format for map compatibility
     if (fact.latitude && fact.longitude) {
@@ -93,13 +95,13 @@ export const Hybrid: React.FC = () => {
       setSelectedFact(enhancedFact);
     }
   };
-
   const handleMapFactClick = (fact: FactMarker) => {
     // Convert FactMarker to EnhancedFact for compatibility
     const enhancedFact = {
       id: fact.id,
       title: fact.title,
-      description: '', // Will be loaded when modal opens
+      description: '',
+      // Will be loaded when modal opens
       latitude: fact.latitude,
       longitude: fact.longitude,
       category: fact.category,
@@ -130,29 +132,28 @@ export const Hybrid: React.FC = () => {
     };
     setSelectedFact(enhancedFact);
   };
-
   const handleSearch = (query: string) => {
-    setFilters({ search: query });
+    setFilters({
+      search: query
+    });
     searchFacts(query);
   };
-
   const handleCloseModal = () => {
     setSelectedFact(null);
   };
-
   const handleViewToggle = () => {
     triggerHapticFeedback('light');
     // Cycle: Hybrid → List → Map → Hybrid
     navigate('/explore');
   };
-
-  const centerLocation = userLocation ? { 
-    lat: userLocation[0], 
-    lng: userLocation[1] 
-  } : { lat: 51.5074, lng: -0.1276 };
-
-  return (
-    <MainLayout>
+  const centerLocation = userLocation ? {
+    lat: userLocation[0],
+    lng: userLocation[1]
+  } : {
+    lat: 51.5074,
+    lng: -0.1276
+  };
+  return <MainLayout>
       <Helmet>
         <title>Hybrid View - Stories & Map</title>
         <meta name="description" content="Explore local stories and legends with both map and list views in one place." />
@@ -178,10 +179,7 @@ export const Hybrid: React.FC = () => {
           
           {/* Quick Filters */}
           <div className="mt-3">
-            <QuickFilters
-              filters={filters}
-              onFiltersChange={setFilters}
-            />
+            <QuickFilters filters={filters} onFiltersChange={setFilters} />
           </div>
         </div>
 
@@ -195,25 +193,40 @@ export const Hybrid: React.FC = () => {
                 <MapPin className="w-3 h-3" />
                 Categories
               </h4>
-              <div className="grid grid-cols-2 gap-2 max-w-xs mx-auto">
-                {[
-                  { name: 'mystery', color: '#8B5CF6' },
-                  { name: 'history', color: '#F59E0B' },
-                  { name: 'nature', color: '#10B981' },
-                  { name: 'urban', color: '#EF4444' },
-                  { name: 'folklore', color: '#3B82F6' },
-                  { name: 'paranormal', color: '#EC4899' },
-                  { name: 'adventure', color: '#F97316' },
-                  { name: 'cultural', color: '#84CC16' }
-                ].map(({ name, color }) => (
-                  <div key={name} className="flex items-center justify-center gap-2 p-1">
-                    <div 
-                      className="w-3 h-3 rounded-full border border-border shadow-sm flex-shrink-0"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span className="capitalize text-xs font-medium">{name}</span>
-                  </div>
-                ))}
+              <div className="grid grid-cols-4 gap-2 max-w-xs mx-auto">
+                {[{
+                name: 'mystery',
+                color: '#8B5CF6'
+              }, {
+                name: 'history',
+                color: '#F59E0B'
+              }, {
+                name: 'nature',
+                color: '#10B981'
+              }, {
+                name: 'urban',
+                color: '#EF4444'
+              }, {
+                name: 'folklore',
+                color: '#3B82F6'
+              }, {
+                name: 'paranormal',
+                color: '#EC4899'
+              }, {
+                name: 'adventure',
+                color: '#F97316'
+              }, {
+                name: 'cultural',
+                color: '#84CC16'
+              }].map(({
+                name,
+                color
+              }) => <div key={name} className="flex items-center justify-center gap-2 p-1">
+                    <div className="w-3 h-3 rounded-full border border-border shadow-sm flex-shrink-0" style={{
+                  backgroundColor: color
+                }} />
+                    <span className="capitalize text-xs font-thin">{name}</span>
+                  </div>)}
               </div>
             </div>
             
@@ -230,70 +243,40 @@ export const Hybrid: React.FC = () => {
             
             <ScrollArea className="flex-1">
               <div className="p-4 space-y-3">
-                {loading && (
-                  <div className="text-center py-8 text-muted-foreground">
+                {loading && <div className="text-center py-8 text-muted-foreground">
                     Loading stories...
-                  </div>
-                )}
+                  </div>}
                 
-                {!loading && facts.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
+                {!loading && facts.length === 0 && <div className="text-center py-8 text-muted-foreground">
                     No stories found
-                  </div>
-                )}
+                  </div>}
                 
-                {facts.map((fact) => (
-                  <FactCard
-                    key={fact.id}
-                    fact={fact}
-                    viewMode="list"
-                    className="bg-card/50 backdrop-blur-sm"
-                  />
-                ))}
+                {facts.map(fact => <FactCard key={fact.id} fact={fact} viewMode="list" className="bg-card/50 backdrop-blur-sm" />)}
               </div>
             </ScrollArea>
           </div>
 
           {/* Map - Mobile: Top half, Desktop: Right main area */}
           <div className="flex-1 relative">
-            <AdvancedMap
-              onFactClick={handleMapFactClick}
-              className="h-full w-full"
-              initialCenter={[centerLocation.lng, centerLocation.lat]}
-              showBuiltInSearch={false}
-            />
+            <AdvancedMap onFactClick={handleMapFactClick} className="h-full w-full" initialCenter={[centerLocation.lng, centerLocation.lat]} showBuiltInSearch={false} />
           </div>
         </div>
 
         {/* Mobile Floating Actions */}
         <div className="lg:hidden">
-          <FloatingActionButton
-            actions={[
-              {
-                icon: <List className="w-4 h-4" />,
-                label: 'List View',
-                onClick: () => navigate('/explore')
-              },
-              {
-                icon: <MapIcon className="w-4 h-4" />,
-                label: 'Map View',
-                onClick: () => navigate('/map')
-              }
-            ]}
-            mainIcon={<Layers className="w-5 h-5" />}
-            mainLabel="Switch View"
-          />
+          <FloatingActionButton actions={[{
+          icon: <List className="w-4 h-4" />,
+          label: 'List View',
+          onClick: () => navigate('/explore')
+        }, {
+          icon: <MapIcon className="w-4 h-4" />,
+          label: 'Map View',
+          onClick: () => navigate('/map')
+        }]} mainIcon={<Layers className="w-5 h-5" />} mainLabel="Switch View" />
         </div>
 
         {/* Fact Preview Modal */}
-        {selectedFact && (
-          <FactPreviewModal
-            fact={selectedFact}
-            open={true}
-            onClose={handleCloseModal}
-          />
-        )}
+        {selectedFact && <FactPreviewModal fact={selectedFact} open={true} onClose={handleCloseModal} />}
       </div>
-    </MainLayout>
-  );
+    </MainLayout>;
 };
