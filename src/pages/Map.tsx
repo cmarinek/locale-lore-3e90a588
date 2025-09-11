@@ -1,8 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { UnifiedSearchBar } from '@/components/ui/unified-search-bar';
-
+import { SearchBar } from '@/components/discovery/SearchBar';
 import { Button } from '@/components/ui/button';
 import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -86,18 +85,17 @@ export const Map: React.FC = () => {
 
         {/* Search Overlay */}
         <div className="absolute top-4 left-4 right-4 z-20">
-          <div className="glass rounded-lg p-3">
-            <UnifiedSearchBar
-              onSearch={handleSearch}
+          <div className="glass rounded-lg p-4">
+            <SearchBar
+              onQueryChange={handleSearch}
               placeholder="Search stories on map..."
-              variant="compact"
             />
-            
-            {/* View mode toggle below search */}
-            <div className="mt-3 flex justify-center">
-              <ViewModeToggle variant="glass" size="sm" />
-            </div>
           </div>
+        </div>
+
+        {/* View Mode Toggle Button */}
+        <div className="absolute top-4 right-4 z-20">
+          <ViewModeToggle variant="glass" />
         </div>
 
         {/* Fact Preview Modal */}

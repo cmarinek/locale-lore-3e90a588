@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { UnifiedSearchBar } from '@/components/ui/unified-search-bar';
-
+import { SearchBar } from '@/components/discovery/SearchBar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +18,6 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { FloatingActionButton } from '@/components/ui/FloatingActionButton';
 import { QuickFilters } from '@/components/discovery/QuickFilters';
-import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 
 export const Hybrid: React.FC = () => {
   const navigate = useNavigate();
@@ -165,19 +163,36 @@ export const Hybrid: React.FC = () => {
         <div className="flex-shrink-0 p-4 border-b border-border/50 bg-background/95 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold">Hybrid View</h1>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleViewToggle}
+                className="glass border-0 shadow-lg"
+              >
+                <List className="w-4 h-4 mr-2" />
+                List View
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => navigate('/map')}
+                className="glass border-0 shadow-lg"
+              >
+                <MapIcon className="w-4 h-4 mr-2" />
+                Map Only
+              </Button>
+            </div>
           </div>
 
           {/* Search */}
-          <UnifiedSearchBar
-            onSearch={handleSearch}
+          <SearchBar
+            onQueryChange={handleSearch}
             placeholder="Search stories..."
-            variant="compact"
           />
           
-          {/* View mode toggle below search */}
-          <div className="mt-2 flex items-center justify-between">
-            <ViewModeToggle variant="outline" size="sm" />
-            
+          {/* Quick Filters */}
+          <div className="mt-3">
             <QuickFilters
               filters={filters}
               onFiltersChange={setFilters}

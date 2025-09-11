@@ -27,8 +27,7 @@ import { toast } from 'sonner';
 import { InfiniteFactList } from '@/components/discovery/InfiniteFactList';
 import { FilterPanel } from '@/components/discovery/FilterPanel';
 import { TrendingSection } from '@/components/search/TrendingSection';
-import { UnifiedSearchBar } from '@/components/ui/unified-search-bar';
-
+import { SearchBar } from '@/components/discovery/SearchBar';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { Helmet } from 'react-helmet-async';
@@ -156,6 +155,16 @@ export const Explore: React.FC = () => {
                 <div className="flex items-center justify-between mb-4">
                   <h1 className="text-2xl font-bold">Discover Stories</h1>
                   <div className="flex gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setShowFilters(!showFilters)}
+                      className="glass border-0 shadow-lg bg-background/80 backdrop-blur-sm"
+                    >
+                      <Filter className="w-4 h-4 mr-2" />
+                      <span className="hidden sm:inline">Filters</span>
+                    </Button>
+                    
                     {/* View Mode Toggle with glass effect */}
                     <div className="flex rounded-lg border-0 glass bg-background/80 backdrop-blur-sm p-1 shadow-lg">
                       <Button
@@ -183,12 +192,7 @@ export const Explore: React.FC = () => {
                 </div>
 
                 {/* Search Bar */}
-                <UnifiedSearchBar onSearch={handleSearch} variant="compact" />
-                
-                {/* View mode toggle below search */}
-                <div className="mt-3 flex justify-center">
-                  <ViewModeToggle variant="outline" size="sm" />
-                </div>
+                <SearchBar onQueryChange={handleSearch} />
               </div>
 
               {/* Filters */}
