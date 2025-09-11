@@ -54,24 +54,6 @@ const AppContent = () => {
 
   return (
     <>
-      {import.meta.env.DEV && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 99999,
-          background: '#111827',
-          color: '#ffffff',
-          padding: '6px 10px',
-          fontSize: '12px',
-          fontFamily: 'monospace',
-          borderBottom: '2px solid #10b981'
-        }}>
-          DEBUG: AppContent rendering | authLoading: {String(authLoading)}
-        </div>
-      )}
-
       {shouldShowLoading ? (
         <LoadingIntroduction 
           onComplete={handleLoadingComplete}
