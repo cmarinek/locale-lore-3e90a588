@@ -26,7 +26,7 @@ export const Submit: React.FC = () => {
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus>({
     subscribed: false,
     subscription_tier: 'free',
-    canSubmit: true
+    canSubmit: false  // Default to false - require verification first
   });
   const [showPaywall, setShowPaywall] = useState(false);
   const [loading, setLoading] = useState(true);
