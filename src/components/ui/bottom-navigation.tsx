@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthSafe } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAppStore } from '@/stores/appStore';
 import { useMobileNavigationItems } from '@/hooks/useNavigationItems';
@@ -9,8 +9,15 @@ import type { UserRole } from '@/types/navigation';
 
 export const BottomNavigation: React.FC = () => {
   const location = useLocation();
-  const { user } = useAuth();
+  const authContext = useAuthSafe();
   const { isAdmin } = useAdmin();
+  
+  // Don't render if auth context is not available yet
+  if (!authContext) {
+    return null;
+  }
+  
+  const { user } = authContext;
   const { 
     triggerHapticFeedback,
     handleTouchInteraction,
