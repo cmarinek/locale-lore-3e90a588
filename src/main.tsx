@@ -1,11 +1,16 @@
-console.log('🚀 MAIN: Starting full app...');
+console.log('🚀 MAIN: Starting application with comprehensive initialization...');
+
+// CRITICAL: Load polyfills FIRST before any other imports
+import './utils/global-polyfills';
+console.log('✅ MAIN: Global polyfills loaded');
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { initManager } from './utils/initialization-manager';
 import App from './App.tsx';
 import './index.css';
 
-// Initialize i18n asynchronously after DOM is ready
+// Initialize i18n after polyfills
 import './utils/i18n';
 console.log('✅ MAIN: i18n initialization started');
 
@@ -13,29 +18,36 @@ console.log('✅ MAIN: i18n initialization started');
 import { DiagnosticErrorBoundary } from '@/components/common/ErrorBoundary';
 console.log('✅ MAIN: Components imported');
 
-try {
-  console.log('🎯 MAIN: Checking DOM...');
-  const rootElement = document.getElementById("root");
-  console.log('🎯 MAIN: Root element found:', !!rootElement);
-  
-  if (!rootElement) {
-    throw new Error('Root element not found in DOM');
-  }
-  
-  const root = createRoot(rootElement);
-  console.log('🎯 MAIN: React root created');
-  
-  console.log('🎯 MAIN: Rendering full App with providers...');
-  root.render(
-    <React.StrictMode>
-      <DiagnosticErrorBoundary>
-        <App />
-      </DiagnosticErrorBoundary>
-    </React.StrictMode>
-  );
-  
-  console.log('✅ MAIN: Full app rendered successfully');
-} catch (error) {
+// Initialize the app with proper coordination
+async function initializeApp() {
+  try {
+    console.log('🎯 MAIN: Starting coordinated initialization...');
+    
+    // Wait for all APIs to be ready
+    await initManager.initialize();
+    console.log('✅ MAIN: All APIs ready, proceeding with React render...');
+    
+    const rootElement = document.getElementById("root");
+    console.log('🎯 MAIN: Root element found:', !!rootElement);
+    
+    if (!rootElement) {
+      throw new Error('Root element not found in DOM');
+    }
+    
+    const root = createRoot(rootElement);
+    console.log('🎯 MAIN: React root created');
+    
+    console.log('🎯 MAIN: Rendering app with initialization gate...');
+    root.render(
+      <React.StrictMode>
+        <DiagnosticErrorBoundary>
+          <App />
+        </DiagnosticErrorBoundary>
+      </React.StrictMode>
+    );
+    
+    console.log('✅ MAIN: App rendered successfully');
+  } catch (error) {
   console.error('❌ MAIN: Critical error during app initialization:', error);
   console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack');
   
@@ -96,4 +108,11 @@ ${error instanceof Error ? error.stack : 'No stack trace available'}
   `;
 }
 
-console.log('🏁 MAIN: Initialization complete');
+}
+
+// Start the initialization process
+initializeApp().catch((error) => {
+  console.error('❌ MAIN: Failed to initialize app:', error);
+});
+
+console.log('🏁 MAIN: Initialization started');

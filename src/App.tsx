@@ -34,33 +34,22 @@ import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { CookieConsent } from '@/components/compliance/CookieConsent';
 import { LoadingIntroduction } from '@/components/ui/loading-introduction';
 import { useAuth } from '@/contexts/AuthProvider';
+import InitializationGate from '@/components/ui/initialization-gate';
 
 // Lazy load the Map component
 const LazyMap = lazy(() => import('@/pages/Map').then(module => ({ default: module.Map })));
 
-// Inner component that can use auth context
+// Inner component that can use auth context  
 const AppContent = () => {
   const { loading: authLoading } = useAuth();
   const [showLoading, setShowLoading] = React.useState(true);
-  const [appReady, setAppReady] = React.useState(false);
-
-  React.useEffect(() => {
-    // Simulate app initialization
-    const initApp = async () => {
-      // Wait for critical resources to load
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setAppReady(true);
-    };
-    
-    initApp();
-  }, []);
 
   const handleLoadingComplete = () => {
     setShowLoading(false);
   };
 
-  // Show loading until both app and auth are ready
-  const shouldShowLoading = showLoading || authLoading || !appReady;
+  // Show loading until auth is ready
+  const shouldShowLoading = showLoading || authLoading;
 
   return (
     <>
@@ -141,13 +130,15 @@ function App() {
   return (
     <ErrorBoundary>
       <HelmetProvider>
-        <AuthProvider>
-          <ThemeProvider>
-            <LanguageProvider>
-              <AppContent />
-            </LanguageProvider>
-          </ThemeProvider>
-        </AuthProvider>
+        <InitializationGate showProgress={true}>
+          <AuthProvider>
+            <ThemeProvider>
+              <LanguageProvider>
+                <AppContent />
+              </LanguageProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </InitializationGate>
       </HelmetProvider>
     </ErrorBoundary>
   );

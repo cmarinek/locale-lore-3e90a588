@@ -77,18 +77,15 @@ export const Explore: React.FC = () => {
 
   const getUserLocation = async () => {
     try {
-      const { safeGetLocation } = await import('@/utils/app-initialization');
-      const result = await safeGetLocation();
+      const { initManager } = await import('@/utils/initialization-manager');
+      const result = await initManager.safeGetLocation();
       
-      setUserLocation(result.coordinates);
-      console.log(`Location found: ${result.source} (${result.accuracy})`);
-      
-      // Show toast based on accuracy
-      if (result.accuracy === 'precise') {
+      if (result) {
+        setUserLocation([result.longitude, result.latitude]);
+        console.log(`Location found: ${result.latitude}, ${result.longitude}`);
         toast.success('Using your current location');
-      } else if (result.accuracy === 'region') {
-        toast.info('Using your region location');
       } else {
+        setUserLocation([-0.1276, 51.5074]); // London fallback
         toast.info('Using fallback location');
       }
     } catch (error) {

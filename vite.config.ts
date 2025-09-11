@@ -93,7 +93,23 @@ export default defineConfig(({ mode }) => ({
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: (id) => {
-          // Vendor libraries
+          // CRITICAL: Keep ALL React APIs, polyfills, and initialization in main bundle
+          if (id.includes("global-polyfills") || 
+              id.includes("initialization-manager") ||
+              id.includes("safe-react-wrapper") ||
+              id.includes("initialization-gate") ||
+              id.includes("/contexts/") || 
+              id.includes("/debug/") || 
+              id.includes("language-context") || 
+              id.includes("theme-context") || 
+              id.includes("ab-test-context") || 
+              id.includes("auth-context") ||
+              id.includes("ErrorBoundary") ||
+              id.includes("/common/ErrorBoundary")) {
+            return undefined; // Main bundle - ensures proper loading order
+          }
+
+          // Vendor libraries - load AFTER main bundle
           if (id.includes("node_modules")) {
             const isReact =
               /[\\/]node_modules[\\/]react[\\/]/.test(id) ||
@@ -102,13 +118,17 @@ export default defineConfig(({ mode }) => ({
             const isLucide = /[\\/]node_modules[\\/]lucide-react[\\/]/.test(id);
             const isReactI18next = /[\\/]node_modules[\\/]react-i18next[\\/]/.test(id);
 
-            // Separate lucide-react to prevent TDZ issues
+            // Keep React and ReactDOM in main bundle to prevent TDZ
+            if (isReact) {
+              return undefined; // Main bundle
+            }
+            
+            // Separate other vendor libraries
             if (isLucide) {
               return "vendor-lucide";
             }
-            // Keep React, ReactDOM, Framer Motion, and react-i18next together
-            if (isReact || isFramer || isReactI18next) {
-              return "vendor-react";
+            if (isFramer || isReactI18next) {
+              return "vendor-react-ext";
             }
             if (/[\\/]node_modules[\\/]mapbox-gl[\\/]/.test(id)) {
               return "vendor-mapbox";
@@ -123,18 +143,6 @@ export default defineConfig(({ mode }) => ({
               return "vendor-i18n";
             }
             return "vendor-misc";
-          }
-
-          // CRITICAL: Keep all contexts, React core, and ErrorBoundary in main bundle to prevent TDZ
-          if (id.includes("/contexts/") || 
-              id.includes("/debug/") || 
-              id.includes("language-context") || 
-              id.includes("theme-context") || 
-              id.includes("ab-test-context") || 
-              id.includes("auth-context") ||
-              id.includes("ErrorBoundary") ||
-              id.includes("/common/ErrorBoundary")) {
-            return undefined; // Main bundle
           }
 
           // Application chunks
@@ -174,14 +182,17 @@ export default defineConfig(({ mode }) => ({
       "framer-motion", 
       "react-i18next", 
       "i18next",
-      "lucide-react",
-      "@/components/ui/button"
+      "lucide-react"
     ],
     force: true, // Force re-optimization to clear any cached issues
     esbuildOptions: {
       // Ensure proper module resolution order
       mainFields: ['module', 'main'],
-      conditions: ['import', 'module', 'default']
+      conditions: ['import', 'module', 'default'],
+      // Ensure React is loaded first
+      banner: {
+        js: '// Ensure React is available globally before any imports'
+      }
     }
   },
   ssr: {

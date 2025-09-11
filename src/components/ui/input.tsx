@@ -1,8 +1,8 @@
 import * as React from "react"
-import { safeForwardRef } from "./safe-react-wrapper"
+import { forwardRef } from "react"
 import { cn } from "@/lib/utils"
 
-const Input = safeForwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+const Input = forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
     return (
       <input
@@ -15,8 +15,8 @@ const Input = safeForwardRef<HTMLInputElement, React.ComponentProps<"input">>(
         {...props}
       />
     )
-  },
-  "Input"
+  }
 )
+Input.displayName = "Input"
 
 export { Input }
