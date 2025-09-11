@@ -41,7 +41,9 @@ export const Hybrid: React.FC = () => {
     setFilters,
     searchFacts,
     initializeData,
-    loading
+    loading,
+    setMapCenter,
+    setSyncSelectedFact
   } = useDiscoveryStore();
   const { sortFactsByDistance, isLoadingLocation, formatDistance } = useLocationSorting();
   const {
@@ -85,42 +87,63 @@ export const Hybrid: React.FC = () => {
     }
   };
   const handleFactClick = (fact: any) => {
-    // Convert fact to FactMarker format for map compatibility
+    // Trigger haptic feedback for better UX
+    triggerHapticFeedback('light');
+    
+    // Center map on the fact location with smooth animation
     if (fact.latitude && fact.longitude) {
-      const enhancedFact = {
-        id: fact.id,
-        title: fact.title,
-        description: fact.description || '',
-        latitude: fact.latitude,
-        longitude: fact.longitude,
-        category: fact.category || fact.categories?.slug || 'unknown',
-        verified: fact.verified || fact.status === 'verified',
-        vote_count_up: fact.vote_count_up || 0,
-        vote_count_down: fact.vote_count_down || 0,
-        author_id: fact.author_id || '',
-        category_id: fact.category_id || '',
-        status: fact.status || 'pending' as const,
-        location_name: fact.location_name || '',
-        media_urls: fact.media_urls || [],
-        created_at: fact.created_at || new Date().toISOString(),
-        updated_at: fact.updated_at || new Date().toISOString(),
-        profiles: fact.profiles || {
-          id: '',
-          username: 'Anonymous',
-          avatar_url: null
-        },
-        categories: fact.categories || {
-          slug: 'unknown',
-          icon: '📍',
-          color: '#3B82F6',
-          category_translations: [{
-            name: 'Unknown',
-            language_code: 'en'
-          }]
+      setMapCenter([fact.longitude, fact.latitude]);
+      setSyncSelectedFact(fact.id);
+      
+      // Show toast notification with subtle feedback
+      toast.success(`Map centered on ${fact.title}`, {
+        duration: 2000,
+        style: {
+          background: 'hsl(var(--background))',
+          border: '1px solid hsl(var(--primary))',
+          color: 'hsl(var(--foreground))'
         }
-      };
-      setSelectedFact(enhancedFact);
+      });
+      
+      // Switch to map view on mobile for immediate visual feedback
+      if (isMobile) {
+        setTimeout(() => setActiveTab('map'), 300);
+      }
     }
+
+    // Convert fact to enhanced format for modal compatibility
+    const enhancedFact = {
+      id: fact.id,
+      title: fact.title,
+      description: fact.description || '',
+      latitude: fact.latitude,
+      longitude: fact.longitude,
+      verified: fact.verified || fact.status === 'verified',
+      vote_count_up: fact.vote_count_up || 0,
+      vote_count_down: fact.vote_count_down || 0,
+      author_id: fact.author_id || '',
+      category_id: fact.category_id || '',
+      status: fact.status || 'pending' as const,
+      location_name: fact.location_name || '',
+      media_urls: fact.media_urls || [],
+      created_at: fact.created_at || new Date().toISOString(),
+      updated_at: fact.updated_at || new Date().toISOString(),
+      profiles: fact.profiles || {
+        id: '',
+        username: 'Anonymous',
+        avatar_url: null
+      },
+      categories: fact.categories || {
+        slug: 'unknown',
+        icon: '📍',
+        color: '#3B82F6',
+        category_translations: [{
+          name: 'Unknown',
+          language_code: 'en'
+        }]
+      }
+    };
+    setSelectedFact(enhancedFact);
   };
   const handleMapFactClick = (fact: FactMarker) => {
     // Convert FactMarker to EnhancedFact for compatibility
@@ -167,6 +190,7 @@ export const Hybrid: React.FC = () => {
   };
   const handleCloseModal = () => {
     setSelectedFact(null);
+    setSyncSelectedFact(null);
   };
   const handleViewToggle = () => {
     triggerHapticFeedback('light');

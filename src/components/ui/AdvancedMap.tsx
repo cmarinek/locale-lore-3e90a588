@@ -632,21 +632,47 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
     }
   }, [facts]);
 
-  // Handle map center changes from store (for location navigation)
+  // Handle map center changes from store (for location navigation) - Enhanced with state-of-the-art animations
   useEffect(() => {
     if (map.current && mapCenter) {
       console.log('Centering map on:', mapCenter);
-      map.current.easeTo({
+      
+      // Add a subtle pulse animation to the target location before centering
+      const tempMarker = new mapboxgl.Marker({
+        element: (() => {
+          const el = document.createElement('div');
+          el.className = 'pulse-marker';
+          el.style.cssText = `
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: radial-gradient(circle, hsl(var(--primary)) 0%, hsl(var(--primary)/0.3) 70%, transparent 100%);
+            animation: pulse 2s ease-in-out;
+            pointer-events: none;
+            z-index: 1000;
+          `;
+          return el;
+        })()
+      })
+        .setLngLat(mapCenter)
+        .addTo(map.current);
+
+      // Smooth flyTo animation with easing
+      map.current.flyTo({
         center: mapCenter,
-        zoom: 16,
-        duration: 1500,
-        essential: true
+        zoom: 17,
+        duration: 2000,
+        essential: true,
+        curve: 1.2,
+        speed: 0.8,
+        easing: (t) => t * (2 - t) // Custom easeOut function for smooth deceleration
       });
       
-      // Clear the mapCenter after using it to avoid repeated centering
+      // Remove pulse marker and clear mapCenter after animation
       setTimeout(() => {
+        tempMarker.remove();
         setMapCenter(null);
-      }, 1600);
+      }, 2500);
     }
   }, [mapCenter, setMapCenter]);
 
@@ -689,12 +715,12 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
       {/* Map Container */}
       <div ref={mapContainer} className="absolute inset-0" />
       
-      {/* Loading Overlay */}
+      {/* Loading Overlay - Enhanced */}
       {isLoading && (
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10">
+        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="text-center space-y-4">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-sm text-muted-foreground">Loading map...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mx-auto"></div>
+            <p className="text-sm font-medium text-muted-foreground">Loading interactive map...</p>
           </div>
         </div>
       )}
@@ -792,6 +818,26 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
         </Button>
       )}
 
+      {/* Add custom CSS for enhanced animations */}
+      <style>{`
+        @keyframes pulse {
+          0% {
+            transform: scale(0.8);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+          }
+          100% {
+            transform: scale(1.5);
+            opacity: 0;
+          }
+        }
+        .pulse-marker {
+          animation: pulse 2s ease-in-out;
+        }
+      `}</style>
     </div>
   );
 };
