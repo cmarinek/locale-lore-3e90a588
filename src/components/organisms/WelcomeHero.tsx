@@ -88,7 +88,6 @@ export const WelcomeHero = () => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 
