@@ -432,7 +432,8 @@ export const Hybrid: React.FC = () => {
                     }>
                       <LazyOptimizedMap 
                         onFactClick={handleMapFactClick} 
-                        className="h-full w-full" 
+                        className="h-full w-full"
+                        isVisible={activeTab === 'map'}
                         initialCenter={[centerLocation.lng, centerLocation.lat]} 
                         initialZoom={isMobile ? 12 : 10}
                         showBuiltInSearch={false} 
@@ -498,6 +499,7 @@ export const Hybrid: React.FC = () => {
                   initialCenter={[centerLocation.lng, centerLocation.lat]} 
                   initialZoom={isMobile ? 12 : 10}
                   showBuiltInSearch={false}
+                  isVisible={true}
                 />
               </React.Suspense>
             </div>

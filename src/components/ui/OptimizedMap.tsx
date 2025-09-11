@@ -14,6 +14,7 @@ interface OptimizedMapProps {
   onFactClick?: (fact: FactMarker) => void;
   showHeatmap?: boolean;
   showBuiltInSearch?: boolean;
+  isVisible?: boolean;
 }
 
 const mapStyles = {
@@ -39,12 +40,15 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
   initialZoom = 2,
   onFactClick,
   showHeatmap = false,
-  showBuiltInSearch = true
+  showBuiltInSearch = true,
+  isVisible = true
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<{ [key: string]: mapboxgl.Marker }>({});
   const hasInitializedRef = useRef(false);
+  const retryCountRef = useRef(0);
+  const maxRetries = 3;
   
   const { mapCenter, setMapCenter, syncSelectedFact } = useDiscoveryStore();
 
@@ -103,18 +107,42 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
     }
   }, []);
 
-  // Initialize map with optimized loading (runs once)
+  // Check if container is ready for initialization
+  const isContainerReady = useCallback(() => {
+    if (!mapContainer.current) return false;
+    
+    const rect = mapContainer.current.getBoundingClientRect();
+    const computed = getComputedStyle(mapContainer.current);
+    
+    const isVisible = rect.width > 0 && rect.height > 0 && computed.display !== 'none';
+    const hasValidSize = mapContainer.current.offsetWidth > 0 && mapContainer.current.offsetHeight > 0;
+    
+    console.log('🗺️ Container readiness check:', {
+      visible: isVisible,
+      hasValidSize,
+      dimensions: { width: rect.width, height: rect.height },
+      display: computed.display
+    });
+    
+    return isVisible && hasValidSize;
+  }, []);
+
+  // Initialize map with visibility and retry logic
   const initializeMap = useCallback(async () => {
-    if (!mapContainer.current) {
-      console.warn('🗺️ Map container not available for initialization');
+    if (!isVisible) {
+      console.log('🗺️ Map not visible, skipping initialization');
       return;
     }
 
-    console.log('🗺️ Container dimensions:', {
-      width: mapContainer.current.offsetWidth,
-      height: mapContainer.current.offsetHeight,
-      display: getComputedStyle(mapContainer.current).display
-    });
+    if (!isContainerReady()) {
+      console.warn('🗺️ Container not ready for initialization');
+      if (retryCountRef.current < maxRetries) {
+        retryCountRef.current++;
+        console.log(`🗺️ Retrying initialization (${retryCountRef.current}/${maxRetries})`);
+        setTimeout(() => initializeMap(), 100 * retryCountRef.current);
+      }
+      return;
+    }
 
     try {
       // Get token from service
@@ -245,19 +273,19 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
     setLoadingState('ready');
   }, [facts, createMarkerElement, onFactClick]);
 
-  // Effect for map initialization with delay (only once)
+  // Effect for map initialization with visibility control
   useEffect(() => {
-    if (hasInitializedRef.current) return;
+    if (hasInitializedRef.current || !isVisible) return;
 
     const timer = setTimeout(() => {
-      if (!hasInitializedRef.current && mapContainer.current) {
-        console.log('🗺️ Initializing map with container:', mapContainer.current.offsetHeight);
+      if (!hasInitializedRef.current && isVisible && isContainerReady()) {
+        console.log('🗺️ Initializing visible map');
         initializeMap();
         hasInitializedRef.current = true;
-      } else {
-        console.warn('🗺️ Map container not ready');
+      } else if (isVisible && !isContainerReady()) {
+        console.warn('🗺️ Container not ready, will retry');
       }
-    }, 100);
+    }, 150);
     
     return () => {
       clearTimeout(timer);
@@ -265,9 +293,11 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
       if (map.current) {
         map.current.remove();
         map.current = null;
+        hasInitializedRef.current = false;
+        retryCountRef.current = 0;
       }
     };
-  }, []);
+  }, [isVisible, isContainerReady, initializeMap]);
 
   // Effect for adding facts
   useEffect(() => {
