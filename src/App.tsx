@@ -28,7 +28,7 @@ import TranslationTest from '@/pages/TranslationTest';
 
 import { AuthProvider } from '@/contexts/AuthProvider';
 import { LanguageProvider } from '@/contexts/LanguageProvider';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import { ThemeProvider } from '@/contexts/ThemeProvider';
 import { Toaster } from '@/components/ui/toaster';
 import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';

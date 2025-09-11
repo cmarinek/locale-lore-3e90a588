@@ -1,28 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { markModule } from '@/debug/module-dupe-check';
+import { ThemeContext, Theme, ThemeContextType } from './theme-context';
 
-type Theme = 'light' | 'dark' | 'auto';
-
-interface ThemeContextType {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  actualTheme: 'light' | 'dark';
-}
-
-const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
-
-export const useTheme = () => {
-  const context = React.useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-};
+// Mark module load for debugging
+markModule('ThemeProvider-v2');
+console.log('[TRACE] ThemeProvider-v2 file start');
 
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+  console.log('[TRACE] ThemeProvider component initializing');
+  
   // Use localStorage for theme persistence instead of depending on user authentication
   const [theme, setThemeState] = useState<Theme>(() => {
     const stored = localStorage.getItem('locale-lore-theme');
@@ -78,10 +68,11 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     actualTheme,
   };
 
+  console.log('[TRACE] ThemeProvider rendering with value:', { theme, actualTheme });
+
   return (
     <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
 };
-

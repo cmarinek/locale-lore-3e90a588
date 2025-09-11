@@ -20,7 +20,7 @@ import {
   Monitor
 } from 'lucide-react';
 import { useProfile, UserSettings } from '@/hooks/useProfile';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '@/contexts/theme-context';
 import { useLanguage } from '@/contexts/language-context';
 
 const languages = [
