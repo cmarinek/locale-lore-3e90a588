@@ -46,14 +46,14 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
       setSyncSelectedFact(factId);
     }
     
-    if (currentPath === '/hybrid') {
-      // If already on hybrid page, just center the map
-      console.log('Already on hybrid page, centering map');
+    if (currentPath === '/map') {
+      // If already on map page, just center the map
+      console.log('Already on map page, centering map');
       toast.success(`Centered map on ${locationName || 'location'}`);
     } else {
-      // Navigate to hybrid view for map centering
-      console.log('Navigating to hybrid page');
-      navigate('/hybrid', { 
+      // Navigate to map view for map centering
+      console.log('Navigating to map page');
+      navigate('/map', { 
         state: { centerMap: [longitude, latitude], locationName } 
       });
       toast.success(`Navigating to map view`);

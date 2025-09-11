@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { CleanSearchBar } from '@/components/ui/clean-search-bar';
@@ -19,7 +19,9 @@ export const Map: React.FC = () => {
     setSelectedFact,
     filters,
     setFilters,
-    searchFacts
+    searchFacts,
+    syncSelectedFact,
+    setSyncSelectedFact
   } = useDiscoveryStore();
 
   const handleFactClick = (fact: FactMarker) => {
@@ -66,7 +68,48 @@ export const Map: React.FC = () => {
 
   const handleCloseModal = () => {
     setSelectedFact(null);
+    setSyncSelectedFact(null);
   };
+
+  // Handle syncSelectedFact when component mounts or changes
+  useEffect(() => {
+    if (syncSelectedFact) {
+      // Convert syncSelectedFact to the format expected by FactPreviewModal
+      const enhancedFact = {
+        id: syncSelectedFact,
+        title: 'Loading...', // Will be loaded when modal opens
+        description: '',
+        latitude: 0,
+        longitude: 0,
+        category: '',
+        verified: false,
+        vote_count_up: 0,
+        vote_count_down: 0,
+        author_id: '',
+        category_id: '',
+        status: 'pending' as const,
+        location_name: '',
+        media_urls: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        profiles: {
+          id: '',
+          username: 'Loading...',
+          avatar_url: null
+        },
+        categories: {
+          slug: '',
+          icon: '📍',
+          color: '#3B82F6',
+          category_translations: [{
+            name: '',
+            language_code: 'en'
+          }]
+        }
+      };
+      setSelectedFact(enhancedFact);
+    }
+  }, [syncSelectedFact, setSelectedFact]);
 
   return (
     <MainLayout>

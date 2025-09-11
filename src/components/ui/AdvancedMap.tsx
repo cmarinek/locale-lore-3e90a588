@@ -66,8 +66,8 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
   const markersRef = useRef<{ [key: string]: mapboxgl.Marker }>({});
   const realtimeChannelRef = useRef<any>(null);
   
-  // Get mapCenter from discovery store
-  const { mapCenter, setMapCenter } = useDiscoveryStore();
+  // Get mapCenter and syncSelectedFact from discovery store
+  const { mapCenter, setMapCenter, syncSelectedFact } = useDiscoveryStore();
   
   const [mapStyle, setMapStyle] = useState<keyof typeof mapStyles>('light');
   const [isLoading, setIsLoading] = useState(true);
@@ -480,9 +480,24 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
             'mystery', categoryColors.mystery,
             '#6B7280'
           ],
-          'circle-radius': 12,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': isDarkMode ? 'hsl(var(--border))' : '#ffffff'
+          'circle-radius': [
+            'case',
+            ['==', ['get', 'id'], syncSelectedFact || ''],
+            16, // Larger radius for selected fact
+            12
+          ],
+          'circle-stroke-width': [
+            'case',
+            ['==', ['get', 'id'], syncSelectedFact || ''],
+            4, // Thicker stroke for selected fact
+            2
+          ],
+          'circle-stroke-color': [
+            'case',
+            ['==', ['get', 'id'], syncSelectedFact || ''],
+            '#FFD700', // Gold stroke for selected fact
+            isDarkMode ? 'hsl(var(--border))' : '#ffffff'
+          ]
         }
       });
 
