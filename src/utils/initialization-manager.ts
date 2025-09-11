@@ -4,7 +4,7 @@
  */
 
 import { GlobalAPIChecker } from './global-polyfills';
-import * as React from 'react';
+import React from 'react';
 import { locationService } from './location';
 
 interface InitializationPhase {

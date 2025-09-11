@@ -132,15 +132,15 @@ function App() {
   return (
     <ErrorBoundary>
       <HelmetProvider>
-        <InitializationGate showProgress={true}>
-          <AuthProvider>
-            <ThemeProvider>
-              <LanguageProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <LanguageProvider>
+              <InitializationGate showProgress={true}>
                 <AppContent />
-              </LanguageProvider>
-            </ThemeProvider>
-          </AuthProvider>
-        </InitializationGate>
+              </InitializationGate>
+            </LanguageProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </HelmetProvider>
     </ErrorBoundary>
   );
