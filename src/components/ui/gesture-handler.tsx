@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { motion, PanInfo } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useGestures } from '@/hooks/useGestures';
 
 interface GestureHandlerProps {
@@ -12,6 +12,7 @@ interface GestureHandlerProps {
   onPullToRefresh?: () => Promise<void>;
   className?: string;
   disabled?: boolean;
+  dragAxis?: 'x' | 'y' | 'both';
 }
 
 export const GestureHandler: React.FC<GestureHandlerProps> = ({
@@ -22,7 +23,8 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
   onSwipeDown,
   onPullToRefresh,
   className = "",
-  disabled = false
+  disabled = false,
+  dragAxis = 'both'
 }) => {
   const { handleDragEnd, handleDrag } = useGestures({
     onSwipeLeft,
@@ -36,10 +38,12 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
     return <div className={className}>{children}</div>;
   }
 
+  const dragProp = dragAxis === 'both' ? true : dragAxis;
+
   return (
     <motion.div
       className={className}
-      drag
+      drag={dragProp}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.2}
       onDrag={handleDrag}

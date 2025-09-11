@@ -319,128 +319,133 @@ export const Hybrid: React.FC = () => {
           /* Mobile: Touch-optimized tab interface with pull-to-refresh */
           <div className="flex-1 flex flex-col">
             {/* Mobile Tab Navigation - optimized for thumb reach */}
-            <div className="px-4 pt-2 pb-1">
-              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'list' | 'map')} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 h-12 bg-muted/50 p-1 rounded-xl">
-                  <TabsTrigger 
-                    value="list" 
-                    className="flex items-center gap-2 h-10 rounded-lg text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
-                  >
-                    <List className="w-4 h-4" />
-                    <span className="hidden xs:inline">Stories</span>
-                    <Badge variant={activeTab === 'list' ? 'default' : 'secondary'} className="text-xs px-1.5 py-0.5">
-                      {displayedFacts.length}
-                    </Badge>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="map" 
-                    className="flex items-center gap-2 h-10 rounded-lg text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
-                  >
-                    <MapIcon className="w-4 h-4" />
-                    <span>Map</span>
-                  </TabsTrigger>
-                </TabsList>
+            <div className="flex-1 min-h-0 flex flex-col">
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'list' | 'map')} className="flex-1 min-h-0 flex flex-col">
+                <div className="px-4 pt-2 pb-1">
+                  <TabsList className="grid w-full grid-cols-2 h-12 bg-muted/50 p-1 rounded-xl">
+                    <TabsTrigger 
+                      value="list" 
+                      className="flex items-center gap-2 h-10 rounded-lg text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                    >
+                      <List className="w-4 h-4" />
+                      <span className="hidden xs:inline">Stories</span>
+                      <Badge variant={activeTab === 'list' ? 'default' : 'secondary'} className="text-xs px-1.5 py-0.5">
+                        {displayedFacts.length}
+                      </Badge>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="map" 
+                      className="flex items-center gap-2 h-10 rounded-lg text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                    >
+                      <MapIcon className="w-4 h-4" />
+                      <span>Map</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
 
-                {/* Stories List with Pull-to-Refresh */}
-                <TabsContent value="list" className="flex-1 data-[state=inactive]:hidden">
-                  <EnhancedPullToRefresh 
-                    onRefresh={handleRefresh}
-                    isRefreshing={isRefreshing}
-                    className="h-full"
-                  >
-                    <GestureHandler 
-                      onSwipeLeft={handleSwipeLeft}
-                      onSwipeRight={handleSwipeRight}
+                <div className="flex-1 min-h-0">
+                  {/* Stories List with Pull-to-Refresh */}
+                  <TabsContent value="list" className="h-full data-[state=inactive]:hidden">
+                    <EnhancedPullToRefresh 
+                      onRefresh={handleRefresh}
+                      isRefreshing={isRefreshing}
                       className="h-full"
                     >
-                      <div className="h-full overflow-auto px-4 pb-safe-bottom">
-                        {/* Status Bar */}
-                        <div className="flex items-center justify-between py-3 sticky top-0 bg-background/95 backdrop-blur-sm z-10">
-                          <Badge variant="outline" className="text-xs font-medium">
-                            {userLocation ? `${displayedFacts.length} nearby` : `${displayedFacts.length} stories`}
-                          </Badge>
-                          {userLocation && (
-                            <DistanceSortButton facts={displayedFacts} onSorted={setDisplayedFacts} />
+                      <GestureHandler 
+                        onSwipeLeft={handleSwipeLeft}
+                        onSwipeRight={handleSwipeRight}
+                        className="h-full"
+                        dragAxis="x"
+                      >
+                        <div className="h-full overflow-auto px-4 pb-safe-bottom">
+                          {/* Status Bar */}
+                          <div className="flex items-center justify-between py-3 sticky top-0 bg-background/95 backdrop-blur-sm z-10">
+                            <Badge variant="outline" className="text-xs font-medium">
+                              {userLocation ? `${displayedFacts.length} nearby` : `${displayedFacts.length} stories`}
+                            </Badge>
+                            {userLocation && (
+                              <DistanceSortButton facts={displayedFacts} onSorted={setDisplayedFacts} />
+                            )}
+                          </div>
+                          
+                          {/* Loading State */}
+                          {loading && (
+                            <div className="flex flex-col items-center justify-center py-12 space-y-3">
+                              <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+                              <p className="text-sm text-muted-foreground">Finding stories...</p>
+                            </div>
                           )}
-                        </div>
-                        
-                        {/* Loading State */}
-                        {loading && (
-                          <div className="flex flex-col items-center justify-center py-12 space-y-3">
-                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
-                            <p className="text-sm text-muted-foreground">Finding stories...</p>
+                          
+                          {/* Empty State */}
+                          {!loading && displayedFacts.length === 0 && (
+                            <div className="flex flex-col items-center justify-center py-12 space-y-3">
+                              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                                <MapPin className="w-8 h-8 text-muted-foreground" />
+                              </div>
+                              <div className="text-center">
+                                <p className="font-medium text-sm">No stories found</p>
+                                <p className="text-xs text-muted-foreground mt-1">Try adjusting your filters</p>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Stories Grid - optimized for mobile touch */}
+                          <div className="space-y-3 pb-4">
+                            {displayedFacts.map((fact, index) => (
+                              <div 
+                                key={fact.id} 
+                                onClick={() => handleFactClick(fact)} 
+                                className="cursor-pointer transform active:scale-98 transition-transform duration-150"
+                                style={{ 
+                                  animationDelay: `${index * 50}ms`,
+                                  animation: 'fade-in 0.3s ease-out forwards'
+                                }}
+                              >
+                                <FactCard 
+                                  fact={{
+                                    ...fact,
+                                    distanceText: fact.distance ? formatDistance(fact.distance) : undefined
+                                  }} 
+                                  viewMode="list" 
+                                  className="bg-card/80 backdrop-blur-sm hover:bg-card/90 active:bg-card transition-all duration-200 touch-manipulation" 
+                                />
+                              </div>
+                            ))}
                           </div>
-                        )}
-                        
-                        {/* Empty State */}
-                        {!loading && displayedFacts.length === 0 && (
-                          <div className="flex flex-col items-center justify-center py-12 space-y-3">
-                            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                              <MapPin className="w-8 h-8 text-muted-foreground" />
-                            </div>
-                            <div className="text-center">
-                              <p className="font-medium text-sm">No stories found</p>
-                              <p className="text-xs text-muted-foreground mt-1">Try adjusting your filters</p>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Stories Grid - optimized for mobile touch */}
-                        <div className="space-y-3 pb-4">
-                          {displayedFacts.map((fact, index) => (
-                            <div 
-                              key={fact.id} 
-                              onClick={() => handleFactClick(fact)} 
-                              className="cursor-pointer transform active:scale-98 transition-transform duration-150"
-                              style={{ 
-                                animationDelay: `${index * 50}ms`,
-                                animation: 'fade-in 0.3s ease-out forwards'
-                              }}
-                            >
-                              <FactCard 
-                                fact={{
-                                  ...fact,
-                                  distanceText: fact.distance ? formatDistance(fact.distance) : undefined
-                                }} 
-                                viewMode="list" 
-                                className="bg-card/80 backdrop-blur-sm hover:bg-card/90 active:bg-card transition-all duration-200 touch-manipulation" 
-                              />
-                            </div>
-                          ))}
                         </div>
-                      </div>
-                    </GestureHandler>
-                  </EnhancedPullToRefresh>
-                </TabsContent>
+                      </GestureHandler>
+                    </EnhancedPullToRefresh>
+                  </TabsContent>
 
-                {/* Map View - lazy loaded and optimized */}
-                <TabsContent value="map" forceMount className="flex-1 data-[state=inactive]:hidden">
-                  <div className="relative h-full">
-                    <React.Suspense fallback={
-                      <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center">
-                        <div className="flex flex-col items-center space-y-4 p-6 bg-card/90 backdrop-blur-sm rounded-lg shadow-lg">
-                          <div className="flex items-center space-x-3">
-                            <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
-                            <span className="text-sm font-medium">Preparing map...</span>
+                  {/* Map View - lazy loaded and optimized */}
+                  <TabsContent value="map" forceMount className="h-full data-[state=inactive]:hidden">
+                    <div className="relative h-full">
+                      <React.Suspense fallback={
+                        <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center">
+                          <div className="flex flex-col items-center space-y-4 p-6 bg-card/90 backdrop-blur-sm rounded-lg shadow-lg">
+                            <div className="flex items-center space-x-3">
+                              <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
+                              <span className="text-sm font-medium">Preparing map...</span>
+                            </div>
+                            <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
+                              <div className="h-full bg-primary rounded-full animate-pulse"></div>
+                            </div>
+                            <p className="text-xs text-muted-foreground text-center">Setting up interactive experience</p>
                           </div>
-                          <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-primary rounded-full animate-pulse"></div>
-                          </div>
-                          <p className="text-xs text-muted-foreground text-center">Setting up interactive experience</p>
                         </div>
-                      </div>
-                    }>
-                      <LazyOptimizedMap 
-                        onFactClick={handleMapFactClick} 
-                        className="h-full w-full"
-                        isVisible={activeTab === 'map'}
-                        initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                        initialZoom={isMobile ? 12 : 10}
-                        showBuiltInSearch={false} 
-                      />
-                    </React.Suspense>
-                  </div>
-                </TabsContent>
+                      }>
+                        <LazyOptimizedMap 
+                          onFactClick={handleMapFactClick} 
+                          className="h-full w-full"
+                          isVisible={activeTab === 'map'}
+                          initialCenter={[centerLocation.lng, centerLocation.lat]} 
+                          initialZoom={isMobile ? 12 : 10}
+                          showBuiltInSearch={false} 
+                        />
+                      </React.Suspense>
+                    </div>
+                  </TabsContent>
+                </div>
               </Tabs>
             </div>
           </div>

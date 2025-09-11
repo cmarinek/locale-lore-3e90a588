@@ -94,7 +94,7 @@ export const EnhancedPullToRefresh: React.FC<EnhancedPullToRefreshProps> = ({
   return (
     <div 
       ref={containerRef}
-      className={cn("relative overflow-auto", className)}
+      className={cn("relative overflow-y-auto overscroll-y-contain touch-pan-y", className)}
       style={{
         transform: `translateY(${Math.min(pullDistance, threshold)}px)`,
         transition: isPulling ? 'none' : 'transform 0.3s ease-out'
