@@ -10,7 +10,7 @@ const Index: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -18,17 +18,17 @@ const Index: React.FC = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl font-bold text-foreground mb-6">
             Welcome to LocaleLore
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Discover amazing stories and facts from around the world. Connect with local knowledge and share your own discoveries.
           </p>
           <div className="flex gap-4 justify-center">
             <Button 
               size="lg" 
               onClick={() => navigate('/explore')}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Compass className="w-5 h-5 mr-2" />
               Start Exploring
@@ -50,9 +50,9 @@ const Index: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <Card className="p-6 text-center h-full">
-              <Search className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+              <Search className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Discover</h3>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Find fascinating stories and facts from locations around the world.
               </p>
             </Card>
@@ -64,9 +64,9 @@ const Index: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <Card className="p-6 text-center h-full">
-              <MapPin className="w-12 h-12 text-green-600 mx-auto mb-4" />
+              <MapPin className="w-12 h-12 text-secondary mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Explore</h3>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Navigate through interactive maps and discover local knowledge.
               </p>
             </Card>
@@ -78,9 +78,9 @@ const Index: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
           >
             <Card className="p-6 text-center h-full">
-              <BookOpen className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+              <BookOpen className="w-12 h-12 text-accent-foreground mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Share</h3>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Contribute your own stories and become part of the community.
               </p>
             </Card>
@@ -95,24 +95,24 @@ const Index: React.FC = () => {
         >
           <div className="grid md:grid-cols-4 gap-8 max-w-3xl mx-auto">
             <div className="text-center">
-              <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">1K+</div>
-              <div className="text-sm text-gray-600">Contributors</div>
+              <Users className="w-8 h-8 text-primary mx-auto mb-2" />
+              <div className="text-2xl font-bold text-foreground">1K+</div>
+              <div className="text-sm text-muted-foreground">Contributors</div>
             </div>
             <div className="text-center">
-              <BookOpen className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">5K+</div>
-              <div className="text-sm text-gray-600">Stories</div>
+              <BookOpen className="w-8 h-8 text-secondary mx-auto mb-2" />
+              <div className="text-2xl font-bold text-foreground">5K+</div>
+              <div className="text-sm text-muted-foreground">Stories</div>
             </div>
             <div className="text-center">
-              <MapPin className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">100+</div>
-              <div className="text-sm text-gray-600">Locations</div>
+              <MapPin className="w-8 h-8 text-accent-foreground mx-auto mb-2" />
+              <div className="text-2xl font-bold text-foreground">100+</div>
+              <div className="text-sm text-muted-foreground">Locations</div>
             </div>
             <div className="text-center">
-              <Star className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">4.8</div>
-              <div className="text-sm text-gray-600">Rating</div>
+              <Star className="w-8 h-8 text-primary mx-auto mb-2" />
+              <div className="text-2xl font-bold text-foreground">4.8</div>
+              <div className="text-sm text-muted-foreground">Rating</div>
             </div>
           </div>
         </motion.div>
