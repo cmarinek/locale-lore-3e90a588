@@ -1,3 +1,4 @@
+console.log('[TRACE] Entering AuthContext module');
 import React, { useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +12,7 @@ interface AuthContextType {
   refreshProfile: () => Promise<void>;
 }
 
+console.log('[TRACE] Initializing AuthContext variable', typeof React.createContext);
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
