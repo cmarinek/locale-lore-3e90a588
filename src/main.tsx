@@ -13,6 +13,9 @@ import { initI18n } from './utils/i18n';
 // Import error boundary
 import { DiagnosticErrorBoundary } from '@/components/common/ErrorBoundary';
 
+// Import map service for preloading
+import { mapboxService } from '@/services/mapboxService';
+
 // Cache purging for clean builds
 async function purgeStaleCache(): Promise<void> {
   if (typeof window === 'undefined') return;
@@ -46,6 +49,11 @@ async function initializeApp() {
     
     // Initialize i18n before waiting for other APIs
     await initI18n();
+    
+    // Preload Mapbox token for better map performance
+    mapboxService.preloadToken().catch(error => {
+      console.warn('Failed to preload Mapbox token:', error);
+    });
     
     // Wait for all APIs to be ready
     await initManager.initialize();

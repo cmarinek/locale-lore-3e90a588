@@ -23,7 +23,7 @@ import { useLocationSorting } from '@/hooks/useLocationSorting';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Lazy-load AdvancedMap to improve initial render
-const LazyAdvancedMap = React.lazy(() => import('@/components/ui/AdvancedMap'));
+const LazyOptimizedMap = React.lazy(() => import('@/components/ui/OptimizedMap').then(module => ({ default: module.OptimizedMap })));
 
 export const Hybrid: React.FC = () => {
   const navigate = useNavigate();
@@ -417,14 +417,20 @@ export const Hybrid: React.FC = () => {
                 <TabsContent value="map" className="flex-1 data-[state=inactive]:hidden">
                   <div className="relative h-full">
                     <React.Suspense fallback={
-                      <div className="absolute inset-0 bg-muted/20 flex items-center justify-center">
-                        <div className="flex flex-col items-center space-y-3">
-                          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
-                          <p className="text-sm text-muted-foreground">Loading map...</p>
+                      <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center">
+                        <div className="flex flex-col items-center space-y-4 p-6 bg-card/90 backdrop-blur-sm rounded-lg shadow-lg">
+                          <div className="flex items-center space-x-3">
+                            <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
+                            <span className="text-sm font-medium">Preparing map...</span>
+                          </div>
+                          <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-primary rounded-full animate-pulse"></div>
+                          </div>
+                          <p className="text-xs text-muted-foreground text-center">Setting up interactive experience</p>
                         </div>
                       </div>
                     }>
-                      <LazyAdvancedMap 
+                      <LazyOptimizedMap 
                         onFactClick={handleMapFactClick} 
                         className="h-full w-full" 
                         initialCenter={[centerLocation.lng, centerLocation.lat]} 
@@ -486,12 +492,12 @@ export const Hybrid: React.FC = () => {
             {/* Map - Desktop: Right main area */}
             <div className="flex-1 relative">
               <React.Suspense fallback={<div className="absolute inset-0 grid place-items-center text-muted-foreground animate-fade-in">Loading map...</div>}>
-                <LazyAdvancedMap 
+                <LazyOptimizedMap 
                   onFactClick={handleMapFactClick} 
                   className="h-full w-full" 
                   initialCenter={[centerLocation.lng, centerLocation.lat]} 
                   initialZoom={isMobile ? 12 : 10}
-                  showBuiltInSearch={false} 
+                  showBuiltInSearch={false}
                 />
               </React.Suspense>
             </div>
