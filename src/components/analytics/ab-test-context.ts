@@ -22,7 +22,24 @@ export interface ABTestContextType {
 }
 
 console.log('[TRACE] Before createContext in ABTestContext');
-export const ABTestContext = React.createContext<ABTestContextType | null>(null);
+
+// Lazy context creation to avoid TDZ issues
+let _abTestContext: React.Context<ABTestContextType | null> | null = null;
+
+function getABTestContext() {
+  if (!_abTestContext) {
+    console.log('[TRACE] Creating ABTestContext lazily');
+    _abTestContext = React.createContext<ABTestContextType | null>(null);
+  }
+  return _abTestContext;
+}
+
+export const ABTestContext = new Proxy({} as React.Context<ABTestContextType | null>, {
+  get(target, prop) {
+    return getABTestContext()[prop as keyof React.Context<ABTestContextType | null>];
+  }
+});
+
 console.log('[TRACE] After createContext in ABTestContext');
 
 export const useABTest = () => {

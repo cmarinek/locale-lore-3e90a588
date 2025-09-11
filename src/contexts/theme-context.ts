@@ -14,7 +14,24 @@ export interface ThemeContextType {
 }
 
 console.log('[TRACE] Before createContext in ThemeContext');
-export const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
+
+// Lazy context creation to avoid TDZ issues
+let _themeContext: React.Context<ThemeContextType | undefined> | null = null;
+
+function getThemeContext() {
+  if (!_themeContext) {
+    console.log('[TRACE] Creating ThemeContext lazily');
+    _themeContext = React.createContext<ThemeContextType | undefined>(undefined);
+  }
+  return _themeContext;
+}
+
+export const ThemeContext = new Proxy({} as React.Context<ThemeContextType | undefined>, {
+  get(target, prop) {
+    return getThemeContext()[prop as keyof React.Context<ThemeContextType | undefined>];
+  }
+});
+
 console.log('[TRACE] After createContext in ThemeContext');
 
 export const useTheme = () => {

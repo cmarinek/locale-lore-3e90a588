@@ -15,7 +15,24 @@ export interface AuthContextType {
 }
 
 console.log('[TRACE] Before createContext in AuthContext');
-export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
+
+// Lazy context creation to avoid TDZ issues
+let _authContext: React.Context<AuthContextType | undefined> | null = null;
+
+function getAuthContext() {
+  if (!_authContext) {
+    console.log('[TRACE] Creating AuthContext lazily');
+    _authContext = React.createContext<AuthContextType | undefined>(undefined);
+  }
+  return _authContext;
+}
+
+export const AuthContext = new Proxy({} as React.Context<AuthContextType | undefined>, {
+  get(target, prop) {
+    return getAuthContext()[prop as keyof React.Context<AuthContextType | undefined>];
+  }
+});
+
 console.log('[TRACE] After createContext in AuthContext');
 
 export const useAuth = () => {

@@ -16,7 +16,24 @@ export interface LanguageContextType {
 }
 
 console.log('[TRACE] Before createContext in LanguageContext');
-export const LanguageContext = React.createContext<LanguageContextType | null>(null);
+
+// Lazy context creation to avoid TDZ issues
+let _languageContext: React.Context<LanguageContextType | null> | null = null;
+
+function getLanguageContext() {
+  if (!_languageContext) {
+    console.log('[TRACE] Creating LanguageContext lazily');
+    _languageContext = React.createContext<LanguageContextType | null>(null);
+  }
+  return _languageContext;
+}
+
+export const LanguageContext = new Proxy({} as React.Context<LanguageContextType | null>, {
+  get(target, prop) {
+    return getLanguageContext()[prop as keyof React.Context<LanguageContextType | null>];
+  }
+});
+
 console.log('[TRACE] After createContext in LanguageContext');
 
 // Optional hook - app should work without this context
