@@ -702,7 +702,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
 
       {/* Map Style Controls - using emoji icons as requested */}
       {showControls && (
-        <div className="absolute top-28 left-4 z-10">
+        <div className="absolute top-40 left-4 z-10">
           <TooltipProvider>
             <div className="flex items-center gap-2 bg-card/95 backdrop-blur border border-border rounded-lg p-2">
               <Tooltip>
