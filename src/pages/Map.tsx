@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { SearchBar } from '@/components/discovery/SearchBar';
+import { UnifiedSearchBar } from '@/components/ui/unified-search-bar';
 import { Button } from '@/components/ui/button';
 import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -85,17 +85,15 @@ export const Map: React.FC = () => {
         />
 
         {/* Search Bar */}
-        <div className="absolute top-4 left-4 right-4 z-20">
-          <div className="glass rounded-lg p-4">
-            <SearchBar
-              onQueryChange={handleSearch}
-              placeholder="Search stories on map..."
-            />
-          </div>
+        <div className="absolute top-4 left-4 right-16 z-20">
+          <UnifiedSearchBar
+            onQueryChange={handleSearch}
+            placeholder="Search stories on map..."
+          />
         </div>
 
-        {/* View Mode Toggle - positioned below search */}
-        <div className="absolute top-20 left-4 z-20">
+        {/* View Mode Toggle - back to original position */}
+        <div className="absolute top-4 right-4 z-20">
           <ViewModeToggle variant="glass" />
         </div>
 
