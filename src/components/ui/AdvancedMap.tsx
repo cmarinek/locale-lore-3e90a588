@@ -49,6 +49,7 @@ interface AdvancedMapProps {
   initialZoom?: number;
   onFactClick?: (fact: FactMarker) => void;
   showHeatmap?: boolean;
+  showBuiltInSearch?: boolean;
 }
 
 const AdvancedMap: React.FC<AdvancedMapProps> = ({
@@ -56,7 +57,8 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
   initialCenter = [-74.0060, 40.7128],
   initialZoom = 10,
   onFactClick,
-  showHeatmap = false
+  showHeatmap = false,
+  showBuiltInSearch = true
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -670,60 +672,60 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
         </div>
       )}
 
-      {/* Search Bar */}
-      <Card className="absolute top-4 left-4 right-4 z-10 bg-card/95 backdrop-blur border-border">
-        <div className="flex items-center gap-3 p-4">
-          <Search className="w-5 h-5 text-muted-foreground" />
-          <Input
-            placeholder="Search locations..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
-            className="border-0 bg-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground"
-          />
-        </div>
-      </Card>
-
-      {/* Map Style Controls */}
-      {showControls && (
-        <Card className="absolute top-20 right-4 z-10 bg-card/95 backdrop-blur border-border">
-          <div className="p-3 space-y-2">
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant={mapStyle === 'light' ? 'ios' : 'ghost'}
-                size="sm"
-                onClick={() => setMapStyle('light')}
-                className="haptic-feedback"
-              >
-                <Sun className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={mapStyle === 'dark' ? 'ios' : 'ghost'}
-                size="sm"
-                onClick={() => setMapStyle('dark')}
-                className="haptic-feedback"
-              >
-                <Moon className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={mapStyle === 'satellite' ? 'ios' : 'ghost'}
-                size="sm"
-                onClick={() => setMapStyle('satellite')}
-                className="haptic-feedback"
-              >
-                <Satellite className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={mapStyle === 'terrain' ? 'ios' : 'ghost'}
-                size="sm"
-                onClick={() => setMapStyle('terrain')}
-                className="haptic-feedback"
-              >
-                <Layers className="w-4 h-4" />
-              </Button>
-            </div>
+      {/* Search Bar - only show if enabled */}
+      {showBuiltInSearch && (
+        <Card className="absolute top-4 left-4 right-4 z-10 bg-card/95 backdrop-blur border-border">
+          <div className="flex items-center gap-3 p-4">
+            <Search className="w-5 h-5 text-muted-foreground" />
+            <Input
+              placeholder="Search locations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
+              className="border-0 bg-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground"
+            />
           </div>
         </Card>
+      )}
+
+      {/* Map Style Controls - repositioned below search with minimal padding */}
+      {showControls && (
+        <div className="absolute top-32 left-4 z-10">
+          <div className="flex items-center gap-2 bg-card/95 backdrop-blur border border-border rounded-lg p-2">
+            <Button
+              variant={mapStyle === 'light' ? 'ios' : 'ghost'}
+              size="sm"
+              onClick={() => setMapStyle('light')}
+              className="haptic-feedback p-2"
+            >
+              <Sun className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={mapStyle === 'dark' ? 'ios' : 'ghost'}
+              size="sm"
+              onClick={() => setMapStyle('dark')}
+              className="haptic-feedback p-2"
+            >
+              <Moon className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={mapStyle === 'satellite' ? 'ios' : 'ghost'}
+              size="sm"
+              onClick={() => setMapStyle('satellite')}
+              className="haptic-feedback p-2"
+            >
+              <Satellite className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={mapStyle === 'terrain' ? 'ios' : 'ghost'}
+              size="sm"
+              onClick={() => setMapStyle('terrain')}
+              className="haptic-feedback p-2"
+            >
+              <Layers className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
       )}
 
       {/* User Location Button */}
@@ -738,16 +740,16 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
         </Button>
       )}
 
-      {/* Legend */}
+      {/* Legend - reduced padding */}
       <Card className="absolute bottom-4 left-4 z-10 bg-card/95 backdrop-blur border-border">
-        <div className="p-3 space-y-2">
-          <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+        <div className="p-2">
+          <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground mb-2">
             <MapIcon className="w-4 h-4" />
             Categories
           </h4>
-          <div className="grid grid-cols-2 gap-2 text-xs text-foreground">
+          <div className="grid grid-cols-2 gap-1 text-xs text-foreground">
             {Object.entries(categoryColors).map(([category, color]) => (
-              <div key={category} className="flex items-center gap-2">
+              <div key={category} className="flex items-center gap-1">
                 <div 
                   className="w-3 h-3 rounded-full border border-border shadow-sm"
                   style={{ backgroundColor: color }}

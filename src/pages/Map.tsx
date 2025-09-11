@@ -81,9 +81,10 @@ export const Map: React.FC = () => {
         <AdvancedMap
           onFactClick={handleFactClick}
           className="h-full w-full"
+          showBuiltInSearch={false}
         />
 
-        {/* Search Overlay */}
+        {/* Search Bar */}
         <div className="absolute top-4 left-4 right-4 z-20">
           <div className="glass rounded-lg p-4">
             <SearchBar
@@ -93,8 +94,8 @@ export const Map: React.FC = () => {
           </div>
         </div>
 
-        {/* View Mode Toggle Button */}
-        <div className="absolute top-4 right-4 z-20">
+        {/* View Mode Toggle - positioned below search */}
+        <div className="absolute top-20 left-4 z-20">
           <ViewModeToggle variant="glass" />
         </div>
 
