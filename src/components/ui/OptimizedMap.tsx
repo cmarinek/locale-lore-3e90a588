@@ -44,9 +44,10 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<{ [key: string]: mapboxgl.Marker }>({});
+  const hasInitializedRef = useRef(false);
   
   const { mapCenter, setMapCenter, syncSelectedFact } = useDiscoveryStore();
-  
+
   const [mapStyle, setMapStyle] = useState<keyof typeof mapStyles>('light');
   const [loadingState, setLoadingState] = useState<'token' | 'map' | 'facts' | 'ready'>('token');
   const [facts, setFacts] = useState<FactMarker[]>([]);
@@ -102,7 +103,7 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
     }
   }, []);
 
-  // Initialize map with optimized loading
+  // Initialize map with optimized loading (runs once)
   const initializeMap = useCallback(async () => {
     if (!mapContainer.current) {
       console.warn('🗺️ Map container not available for initialization');
@@ -131,7 +132,7 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
       const mapInstance = new mapboxgl.Map({
         container: mapContainer.current,
         style: mapStyles[mapStyle],
-        center: mapCenter || initialCenter,
+        center: (mapCenter as [number, number]) || initialCenter,
         zoom: initialZoom,
         preserveDrawingBuffer: true,
         attributionControl: false,
@@ -163,7 +164,7 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
       console.error('Error initializing map:', error);
       setLoadingState('token');
     }
-  }, [mapStyle, mapCenter, initialCenter, initialZoom, setMapCenter, fetchFacts]);
+  }, []);
 
   // Create marker element
   const createMarkerElement = useCallback((fact: FactMarker) => {
@@ -244,13 +245,15 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
     setLoadingState('ready');
   }, [facts, createMarkerElement, onFactClick]);
 
-  // Effect for map initialization with delay
+  // Effect for map initialization with delay (only once)
   useEffect(() => {
-    // Small delay to ensure container is properly mounted
+    if (hasInitializedRef.current) return;
+
     const timer = setTimeout(() => {
-      if (mapContainer.current) {
+      if (!hasInitializedRef.current && mapContainer.current) {
         console.log('🗺️ Initializing map with container:', mapContainer.current.offsetHeight);
         initializeMap();
+        hasInitializedRef.current = true;
       } else {
         console.warn('🗺️ Map container not ready');
       }
@@ -258,12 +261,13 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
     
     return () => {
       clearTimeout(timer);
+      // Cleanup on unmount
       if (map.current) {
         map.current.remove();
         map.current = null;
       }
     };
-  }, [initializeMap]);
+  }, []);
 
   // Effect for adding facts
   useEffect(() => {
@@ -286,6 +290,24 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
+
+  // Update map style without re-initializing
+  useEffect(() => {
+    if (map.current) {
+      try {
+        map.current.setStyle(mapStyles[mapStyle]);
+      } catch (e) {
+        console.warn('🗺️ Failed to update map style', e);
+      }
+    }
+  }, [mapStyle]);
+
+  // React to external center changes without re-initializing
+  useEffect(() => {
+    if (map.current && mapCenter) {
+      map.current.easeTo({ center: mapCenter as [number, number], duration: 800 });
+    }
+  }, [mapCenter]);
 
   return (
     <div className={`relative w-full h-full min-h-[400px] ${className}`}>

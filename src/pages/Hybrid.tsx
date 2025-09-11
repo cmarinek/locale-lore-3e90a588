@@ -414,7 +414,7 @@ export const Hybrid: React.FC = () => {
                 </TabsContent>
 
                 {/* Map View - lazy loaded and optimized */}
-                <TabsContent value="map" className="flex-1 data-[state=inactive]:hidden">
+                <TabsContent value="map" forceMount className="flex-1 data-[state=inactive]:hidden">
                   <div className="relative h-full">
                     <React.Suspense fallback={
                       <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center">
