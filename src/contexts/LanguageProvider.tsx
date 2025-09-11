@@ -7,14 +7,14 @@ import { createContextSafely } from '@/lib/context-registry';
 
 // Mark module load for debugging
 markModule('LanguageProvider-v14');
-console.log('[TRACE] LanguageProvider-v14 file start');
+
 
 interface LanguageProviderProps {
   children: React.ReactNode;
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  console.log('[TRACE] LanguageProvider component initializing');
+  
   
   // Create context safely using registry
   const LanguageContext = createContextSafely<LanguageContextType | null>(LANGUAGE_CONTEXT_NAME, null);
@@ -61,7 +61,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     isLoading,
   };
 
-  console.log('[TRACE] LanguageProvider rendering with value:', { currentLanguage, isRTL, isLoading });
+  
 
   return (
     <LanguageContext.Provider value={value}>

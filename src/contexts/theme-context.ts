@@ -2,7 +2,7 @@ import { markModule } from '@/debug/module-dupe-check';
 
 // Mark module load for debugging
 markModule('ThemeContext-v14');
-console.log('[TRACE] ThemeContext-v14 file start');
+
 
 export type Theme = 'light' | 'dark' | 'auto';
 

@@ -3,7 +3,7 @@ import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 // Mark module load for debugging
 markModule('LanguageContext-v14');
-console.log('[TRACE] LanguageContext-v14 file start');
+
 
 export interface LanguageContextType {
   currentLanguage: SupportedLanguage;

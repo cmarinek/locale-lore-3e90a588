@@ -1,8 +1,5 @@
-console.log('🚀 MAIN: Starting application with comprehensive initialization...');
-
 // CRITICAL: Load polyfills FIRST before any other imports
 import './utils/global-polyfills';
-console.log('✅ MAIN: Global polyfills loaded');
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -10,15 +7,11 @@ import { initManager } from './utils/initialization-manager';
 import App from './App.tsx';
 import './index.css';
 
-// Note: We no longer expose React on window to avoid interfering with internals
-
 // Prepare i18n explicit initializer
 import { initI18n } from './utils/i18n';
-console.log('✅ MAIN: i18n initializer imported');
 
 // Import error boundary
 import { DiagnosticErrorBoundary } from '@/components/common/ErrorBoundary';
-console.log('✅ MAIN: Components imported');
 
 // Cache purging for clean builds
 async function purgeStaleCache(): Promise<void> {
@@ -46,8 +39,6 @@ async function purgeStaleCache(): Promise<void> {
 // Initialize the app with proper coordination
 async function initializeApp() {
   try {
-    console.log('🎯 MAIN: Starting coordinated initialization...');
-    
     // Purge stale cache in development
     if (import.meta.env.DEV) {
       await purgeStaleCache();
@@ -55,14 +46,11 @@ async function initializeApp() {
     
     // Initialize i18n before waiting for other APIs
     await initI18n();
-    console.log('✅ MAIN: i18n initialized');
     
     // Wait for all APIs to be ready
     await initManager.initialize();
-    console.log('✅ MAIN: All APIs ready, proceeding with React render...');
     
     const rootElement = document.getElementById("root");
-    console.log('🎯 MAIN: Root element found:', !!rootElement);
     
     if (!rootElement) {
       throw new Error('Root element not found in DOM');
@@ -72,9 +60,7 @@ async function initializeApp() {
     rootElement.replaceChildren();
     
     const root = createRoot(rootElement);
-    console.log('🎯 MAIN: React root created');
     
-    console.log('🎯 MAIN: Rendering app with initialization gate...');
     root.render(
       <React.StrictMode>
         <DiagnosticErrorBoundary>
@@ -82,8 +68,6 @@ async function initializeApp() {
         </DiagnosticErrorBoundary>
       </React.StrictMode>
     );
-    
-    console.log('✅ Boot OK - Application initialized successfully');
   } catch (error) {
   console.error('❌ MAIN: Critical error during app initialization:', error);
   console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack');
@@ -151,5 +135,3 @@ ${error instanceof Error ? error.stack : 'No stack trace available'}
 initializeApp().catch((error) => {
   console.error('❌ MAIN: Failed to initialize app:', error);
 });
-
-console.log('🏁 MAIN: Initialization started');

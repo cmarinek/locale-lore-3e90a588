@@ -5,14 +5,14 @@ import { createContextSafely } from '@/lib/context-registry';
 
 // Mark module load for debugging
 markModule('ThemeProvider-v14');
-console.log('[TRACE] ThemeProvider-v14 file start');
+
 
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  console.log('[TRACE] ThemeProvider component initializing');
+  
   
   // Create context safely using registry
   const ThemeContext = createContextSafely<ThemeContextType | undefined>(THEME_CONTEXT_NAME, undefined);
@@ -72,7 +72,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     actualTheme,
   };
 
-  console.log('[TRACE] ThemeProvider rendering with value:', { theme, actualTheme });
+  
 
   return (
     <ThemeContext.Provider value={value}>

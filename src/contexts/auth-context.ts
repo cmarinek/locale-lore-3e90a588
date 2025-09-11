@@ -3,7 +3,7 @@ import type { User, Session } from '@supabase/supabase-js';
 
 // Mark module load for debugging
 markModule('AuthContext-v14');
-console.log('[TRACE] AuthContext-v14 file start');
+
 
 export interface AuthContextType {
   user: User | null;

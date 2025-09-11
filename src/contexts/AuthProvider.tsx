@@ -8,14 +8,14 @@ import { createContextSafely } from '@/lib/context-registry';
 
 // Mark module load for debugging
 markModule('AuthProvider-v14');
-console.log('[TRACE] AuthProvider-v14 file start');
+
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  console.log('[TRACE] AuthProvider component initializing');
+  
   
   // Create context safely using registry
   const AuthContext = createContextSafely<AuthContextType | undefined>(AUTH_CONTEXT_NAME, undefined);
@@ -85,12 +85,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
-    console.log('[TRACE] AuthProvider useEffect initializing');
+    
     
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
+        
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     refreshProfile,
   };
 
-  console.log('[TRACE] AuthProvider rendering with value:', { hasUser: !!user, loading });
+  
 
   return (
     <AuthContext.Provider value={value}>
