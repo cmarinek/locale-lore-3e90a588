@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -16,35 +16,6 @@ interface OnboardingStep {
   };
 }
 
-const onboardingSteps: OnboardingStep[] = [
-  {
-    id: 'welcome',
-    title: 'Welcome to Local Lore',
-    description: 'Discover amazing stories and legends from your local area. Let us show you around!',
-    icon: Compass,
-  },
-  {
-    id: 'explore',
-    title: 'Explore Stories',
-    description: 'Browse stories in list view or explore them on an interactive map to see exactly where they happened.',
-    icon: Search,
-    action: {
-      label: 'Try Exploring',
-      path: '/explore'
-    }
-  },
-  {
-    id: 'contribute',
-    title: 'Share Your Stories',
-    description: 'Know a local legend or historical fact? Share it with the community and help preserve local culture.',
-    icon: Plus,
-    action: {
-      label: 'Share a Story',
-      path: '/submit'
-    }
-  }
-];
-
 interface OnboardingTourProps {
   onComplete: () => void;
   onSkip: () => void;
@@ -53,6 +24,35 @@ interface OnboardingTourProps {
 export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSkip }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const navigate = useNavigate();
+
+  const onboardingSteps = useMemo<OnboardingStep[]>(() => [
+    {
+      id: 'welcome',
+      title: 'Welcome to Local Lore',
+      description: 'Discover amazing stories and legends from your local area. Let us show you around!',
+      icon: Compass,
+    },
+    {
+      id: 'explore',
+      title: 'Explore Stories',
+      description: 'Browse stories in list view or explore them on an interactive map to see exactly where they happened.',
+      icon: Search,
+      action: {
+        label: 'Try Exploring',
+        path: '/explore'
+      }
+    },
+    {
+      id: 'contribute',
+      title: 'Share Your Stories',
+      description: 'Know a local legend or historical fact? Share it with the community and help preserve local culture.',
+      icon: Plus,
+      action: {
+        label: 'Share a Story',
+        path: '/submit'
+      }
+    }
+  ], []);
 
   const handleNext = () => {
     if (currentStep < onboardingSteps.length - 1) {
