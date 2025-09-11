@@ -5,9 +5,9 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Initialize i18n before React to avoid circular dependencies
+// Initialize i18n asynchronously after DOM is ready
 import './utils/i18n';
-console.log('✅ MAIN: i18n initialized');
+console.log('✅ MAIN: i18n initialization started');
 
 // Import error boundary
 import { DiagnosticErrorBoundary } from './components/diagnostics/ErrorBoundary';
