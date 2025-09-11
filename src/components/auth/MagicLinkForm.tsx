@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Mail, Loader2, Sparkles } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthActions } from '@/hooks/useAuthActions';
 
 const schema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -19,7 +19,7 @@ interface MagicLinkFormProps {
 
 export const MagicLinkForm = ({ onSuccess, onBack }: MagicLinkFormProps) => {
   const [emailSent, setEmailSent] = useState(false);
-  const { signInWithMagicLink, loading } = useAuth();
+  const { signInWithMagicLink, loading } = useAuthActions();
 
   const form = useForm({
     resolver: zodResolver(schema),

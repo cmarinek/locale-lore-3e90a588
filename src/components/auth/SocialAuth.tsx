@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthActions } from '@/hooks/useAuthActions';
 import { Apple, Loader2 } from 'lucide-react';
 
 interface SocialAuthProps {
@@ -7,7 +7,7 @@ interface SocialAuthProps {
 }
 
 export const SocialAuth = ({ onSuccess }: SocialAuthProps) => {
-  const { signInWithGoogle, loading } = useAuth();
+  const { signInWithGoogle, loading } = useAuthActions();
 
   const handleGoogleSignIn = async () => {
     try {

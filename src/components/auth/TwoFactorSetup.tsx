@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Smartphone, Copy, ShieldCheck, Download, Loader2 } from 'lucide-react';
-import { useAuth, TwoFactorSetup as TwoFactorSetupData } from '@/hooks/useAuth';
+import { useAuthActions, TwoFactorSetup as TwoFactorSetupData } from '@/hooks/useAuthActions';
 import { toast } from '@/hooks/use-toast';
 
 interface TwoFactorSetupProps {
@@ -18,7 +18,7 @@ export const TwoFactorSetup = ({ onComplete, onSkip }: TwoFactorSetupProps) => {
   const [setupData, setSetupData] = useState<TwoFactorSetupData | null>(null);
   const [verificationCode, setVerificationCode] = useState('');
   const [factorId, setFactorId] = useState('');
-  const { setupTwoFactor, verifyTwoFactor, loading } = useAuth();
+  const { setupTwoFactor, verifyTwoFactor, loading } = useAuthActions();
 
   const handleSetup = async () => {
     const result = await setupTwoFactor();

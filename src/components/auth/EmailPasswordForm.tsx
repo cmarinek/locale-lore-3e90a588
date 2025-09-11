@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Mail, Lock, User, Loader2, Eye, EyeOff } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthActions } from '@/hooks/useAuthActions';
 import { useTranslation } from 'react-i18next';
 import { useValidationSchemas } from '@/hooks/useValidationSchemas';
 
@@ -20,7 +20,7 @@ interface EmailPasswordFormProps {
 export const EmailPasswordForm = ({ mode, onSuccess, onSwitchMode }: EmailPasswordFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { signInWithEmail, signUpWithEmail, loading } = useAuth();
+  const { signInWithEmail, signUpWithEmail, loading } = useAuthActions();
   const { t } = useTranslation('auth');
   const { signInSchema, signUpSchema } = useValidationSchemas();
 

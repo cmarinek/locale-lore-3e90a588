@@ -15,7 +15,7 @@ export interface TwoFactorSetup {
   recovery_codes: string[];
 }
 
-export const useAuth = () => {
+export const useAuthActions = () => {
   const [loading, setLoading] = useState(false);
 
   const cleanupAuthState = useCallback(() => {

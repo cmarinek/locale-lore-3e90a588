@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Mail, Loader2, ShieldCheck } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthActions } from '@/hooks/useAuthActions';
 
 const resetSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -30,7 +30,7 @@ interface PasswordResetFormProps {
 
 export const PasswordResetForm = ({ mode, onSuccess, onBack }: PasswordResetFormProps) => {
   const [emailSent, setEmailSent] = useState(false);
-  const { resetPassword, updatePassword, loading } = useAuth();
+  const { resetPassword, updatePassword, loading } = useAuthActions();
 
   const schema = mode === 'request' ? resetSchema : updateSchema;
   const form = useForm({

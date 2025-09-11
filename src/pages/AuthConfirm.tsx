@@ -5,13 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, CheckCircle, Mail } from 'lucide-react';
 import { AuthLayout } from '@/components/auth/AuthLayout';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthActions } from '@/hooks/useAuthActions';
 
 const AuthConfirm = () => {
   const [code, setCode] = useState('');
   const [email, setEmail] = useState('');
   const [verified, setVerified] = useState(false);
-  const { verifyOtp, loading } = useAuth();
+  const { verifyOtp, loading } = useAuthActions();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 

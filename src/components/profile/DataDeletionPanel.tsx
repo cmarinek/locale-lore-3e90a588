@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Trash2, AlertTriangle, Download, Shield } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthActions } from '@/hooks/useAuthActions';
 import { useToast } from '@/hooks/use-toast';
 
 const deletionReasons = [
@@ -30,7 +30,7 @@ export const DataDeletionPanel = ({ onRequestDeletion, loading }: DataDeletionPa
   const [reason, setReason] = useState('');
   const [feedback, setFeedback] = useState('');
   const [confirmText, setConfirmText] = useState('');
-  const auth = useAuth();
+  const auth = useAuthActions();
   const { toast } = useToast();
 
   const handleAccountDeletion = async () => {
