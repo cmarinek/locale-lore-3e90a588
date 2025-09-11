@@ -3,16 +3,13 @@ import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { CleanSearchBar } from '@/components/ui/clean-search-bar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { GestureHandler } from '@/components/ui/gesture-handler';
-import { List, Map as MapIcon, Layers, MapPin } from 'lucide-react';
+import { EnhancedPullToRefresh } from '@/components/ui/enhanced-pull-to-refresh';
+import { List, Map as MapIcon, ChevronDown, Filter, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-// Lazy-loaded to speed up initial render
-// import AdvancedMap from '@/components/ui/AdvancedMap';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
@@ -20,7 +17,6 @@ import { useAppStore } from '@/stores/appStore';
 import { FactCard } from '@/components/discovery/FactCard';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { FloatingActionButton } from '@/components/ui/FloatingActionButton';
 import { QuickFilters } from '@/components/discovery/QuickFilters';
 import { DistanceSortButton } from '@/components/ui/DistanceSortButton';
 import { useLocationSorting } from '@/hooks/useLocationSorting';
@@ -32,12 +28,14 @@ const LazyAdvancedMap = React.lazy(() => import('@/components/ui/AdvancedMap'));
 export const Hybrid: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const {
-    t
-  } = useTranslation('lore');
+  const { t } = useTranslation('lore');
+  
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [displayedFacts, setDisplayedFacts] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'list' | 'map'>('list');
+  const [showFilters, setShowFilters] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
   const {
     facts,
     selectedFact,
@@ -50,10 +48,9 @@ export const Hybrid: React.FC = () => {
     setMapCenter,
     setSyncSelectedFact
   } = useDiscoveryStore();
+  
   const { sortFactsByDistance, isLoadingLocation, formatDistance } = useLocationSorting();
-  const {
-    triggerHapticFeedback
-  } = useAppStore();
+  const { triggerHapticFeedback } = useAppStore();
 
   // Initialize data and sort by distance by default
   useEffect(() => {
@@ -79,11 +76,32 @@ export const Hybrid: React.FC = () => {
     
     sortAndSetFacts();
   }, [facts, isLoadingLocation, sortFactsByDistance]);
+
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    triggerHapticFeedback('light');
+    
+    try {
+      await initializeData();
+      await getUserLocation();
+      toast.success('Content refreshed', {
+        duration: 2000,
+        style: {
+          background: 'hsl(var(--background))',
+          border: '1px solid hsl(var(--primary))',
+        }
+      });
+    } catch (error) {
+      toast.error('Failed to refresh');
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [initializeData, triggerHapticFeedback]);
+
   const getUserLocation = async () => {
     try {
-      const {
-        locationService
-      } = await import('@/utils/location');
+      const { locationService } = await import('@/utils/location');
       const result = await locationService.getDeviceLocation();
       setUserLocation(result.coordinates);
     } catch (error) {
@@ -91,6 +109,7 @@ export const Hybrid: React.FC = () => {
       setUserLocation([-0.1276, 51.5074]); // London fallback
     }
   };
+
   const handleFactClick = (fact: any) => {
     // Trigger haptic feedback for better UX
     triggerHapticFeedback('light');
@@ -150,13 +169,13 @@ export const Hybrid: React.FC = () => {
     };
     setSelectedFact(enhancedFact);
   };
+
   const handleMapFactClick = (fact: FactMarker) => {
     // Convert FactMarker to EnhancedFact for compatibility
     const enhancedFact = {
       id: fact.id,
       title: fact.title,
-      description: '',
-      // Will be loaded when modal opens
+      description: '', // Will be loaded when modal opens
       latitude: fact.latitude,
       longitude: fact.longitude,
       category: fact.category,
@@ -187,20 +206,15 @@ export const Hybrid: React.FC = () => {
     };
     setSelectedFact(enhancedFact);
   };
+
   const handleSearch = (query: string) => {
-    setFilters({
-      search: query
-    });
+    setFilters({ search: query });
     searchFacts(query);
   };
+
   const handleCloseModal = () => {
     setSelectedFact(null);
     setSyncSelectedFact(null);
-  };
-  const handleViewToggle = () => {
-    triggerHapticFeedback('light');
-    // Cycle: Hybrid → List → Map → Hybrid
-    navigate('/explore');
   };
 
   const handleSwipeLeft = () => {
@@ -216,6 +230,7 @@ export const Hybrid: React.FC = () => {
       triggerHapticFeedback('light');
     }
   };
+
   const centerLocation = userLocation ? {
     lat: userLocation[0],
     lng: userLocation[1]
@@ -223,7 +238,9 @@ export const Hybrid: React.FC = () => {
     lat: 51.5074,
     lng: -0.1276
   };
-  return <MainLayout>
+
+  return (
+    <MainLayout>
       <Helmet>
         <title>Hybrid View - Stories & Map</title>
         <meta name="description" content="Explore local stories and legends with both map and list views in one place." />
@@ -236,97 +253,183 @@ export const Hybrid: React.FC = () => {
       </div>
 
       <div className="h-screen w-full flex flex-col">
-        {/* Header */}
-        <div className="flex-shrink-0 p-4 border-b border-border/50 bg-background/95 backdrop-blur-sm">
-          <div className={`glass rounded-lg p-4 mb-4 ${isMobile ? 'mt-8' : 'mt-12'} my-[40px] py-0`}>
-            {/* Search - clean version matching homepage style */}
-            <CleanSearchBar onQueryChange={handleSearch} />
+        {/* Mobile-optimized Header - sticky with backdrop blur */}
+        <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border/50">
+          {/* Top spacing for mobile status bar */}
+          <div className="h-safe-top" />
+
+          {/* Search Section - optimized for one-handed use */}
+          <div className="px-4 pt-4 pb-3">
+            <div className="glass rounded-xl p-3">
+              <CleanSearchBar 
+                onQueryChange={handleSearch} 
+                placeholder={isMobile ? "Search stories..." : "Search stories and locations..."}
+                className="text-base" // Larger text for mobile
+              />
+            </div>
           </div>
           
-          {/* Quick Filters - Collapsible on mobile */}
-          <div className={`mt-3 ${isMobile ? 'max-h-16 overflow-hidden' : ''}`}>
-            <QuickFilters 
-              filters={filters} 
-              onFiltersChange={setFilters}
-              onNearbyClick={async () => {
-                try {
-                  const sortedFacts = await sortFactsByDistance(facts);
-                  setDisplayedFacts(sortedFacts);
-                } catch (error) {
-                  console.error('Failed to sort by distance:', error);
-                }
-              }}
-            />
+          {/* Mobile Filters Toggle */}
+          {isMobile && (
+            <div className="px-4 pb-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className="w-full justify-between h-10 touch-friendly"
+              >
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4" />
+                  <span>Filters</span>
+                  {Object.values(filters).some(v => v && v !== '') && (
+                    <Badge variant="secondary" className="ml-1 px-1.5 py-0.5 text-xs">
+                      Active
+                    </Badge>
+                  )}
+                </div>
+                <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+              </Button>
+            </div>
+          )}
+
+          {/* Collapsible Filters */}
+          <div className={`transition-all duration-300 ease-out overflow-hidden ${
+            (showFilters || !isMobile) ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
+          }`}>
+            <div className="px-4 pb-4">
+              <QuickFilters 
+                filters={filters} 
+                onFiltersChange={setFilters}
+                onNearbyClick={async () => {
+                  try {
+                    const sortedFacts = await sortFactsByDistance(facts);
+                    setDisplayedFacts(sortedFacts);
+                  } catch (error) {
+                    console.error('Failed to sort by distance:', error);
+                  }
+                }}
+                className="gap-2"
+              />
+            </div>
           </div>
         </div>
 
         {/* Content Area */}
         {isMobile ? (
-          /* Mobile: Tab-based interface */
-          <div className="flex-1 flex flex-col min-h-0">
-            <GestureHandler 
-              onSwipeLeft={handleSwipeLeft}
-              onSwipeRight={handleSwipeRight}
-              className="flex-1 flex flex-col min-h-0"
-            >
-              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'list' | 'map')} className="flex-1 flex flex-col min-h-0">
-                <TabsList className="grid w-full grid-cols-2 mx-4 mt-2 mb-3">
-                  <TabsTrigger value="list" className="flex items-center gap-2">
+          /* Mobile: Touch-optimized tab interface with pull-to-refresh */
+          <div className="flex-1 flex flex-col">
+            {/* Mobile Tab Navigation - optimized for thumb reach */}
+            <div className="px-4 pt-2 pb-1">
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'list' | 'map')} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 h-12 bg-muted/50 p-1 rounded-xl">
+                  <TabsTrigger 
+                    value="list" 
+                    className="flex items-center gap-2 h-10 rounded-lg text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                  >
                     <List className="w-4 h-4" />
-                    <span>Stories ({displayedFacts.length})</span>
+                    <span className="hidden xs:inline">Stories</span>
+                    <Badge variant={activeTab === 'list' ? 'default' : 'secondary'} className="text-xs px-1.5 py-0.5">
+                      {displayedFacts.length}
+                    </Badge>
                   </TabsTrigger>
-                  <TabsTrigger value="map" className="flex items-center gap-2">
+                  <TabsTrigger 
+                    value="map" 
+                    className="flex items-center gap-2 h-10 rounded-lg text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                  >
                     <MapIcon className="w-4 h-4" />
                     <span>Map</span>
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="list" className="flex-1 flex flex-col min-h-0 px-4 mt-0">
-                  <div className="flex items-center justify-between mb-3 py-2">
-                    <Badge variant="outline" className="text-xs">
-                      {userLocation ? 'Near you' : 'Explore'}
-                    </Badge>
-                  </div>
-                  
-                  <ScrollArea className="flex-1">
-                    <div className="space-y-3 pb-4">
-                      {loading && (
-                        <div className="text-center py-8 text-muted-foreground">
-                          Loading stories...
+                {/* Stories List with Pull-to-Refresh */}
+                <TabsContent value="list" className="flex-1 data-[state=inactive]:hidden">
+                  <EnhancedPullToRefresh 
+                    onRefresh={handleRefresh}
+                    isRefreshing={isRefreshing}
+                    className="h-full"
+                  >
+                    <GestureHandler 
+                      onSwipeLeft={handleSwipeLeft}
+                      onSwipeRight={handleSwipeRight}
+                      className="h-full"
+                    >
+                      <div className="h-full overflow-auto px-4 pb-safe-bottom">
+                        {/* Status Bar */}
+                        <div className="flex items-center justify-between py-3 sticky top-0 bg-background/95 backdrop-blur-sm z-10">
+                          <Badge variant="outline" className="text-xs font-medium">
+                            {userLocation ? `${displayedFacts.length} nearby` : `${displayedFacts.length} stories`}
+                          </Badge>
+                          {userLocation && (
+                            <DistanceSortButton facts={displayedFacts} onSorted={setDisplayedFacts} />
+                          )}
                         </div>
-                      )}
-                      
-                      {!loading && displayedFacts.length === 0 && (
-                        <div className="text-center py-8 text-muted-foreground">
-                          No stories found
+                        
+                        {/* Loading State */}
+                        {loading && (
+                          <div className="flex flex-col items-center justify-center py-12 space-y-3">
+                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+                            <p className="text-sm text-muted-foreground">Finding stories...</p>
+                          </div>
+                        )}
+                        
+                        {/* Empty State */}
+                        {!loading && displayedFacts.length === 0 && (
+                          <div className="flex flex-col items-center justify-center py-12 space-y-3">
+                            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                              <MapPin className="w-8 h-8 text-muted-foreground" />
+                            </div>
+                            <div className="text-center">
+                              <p className="font-medium text-sm">No stories found</p>
+                              <p className="text-xs text-muted-foreground mt-1">Try adjusting your filters</p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Stories Grid - optimized for mobile touch */}
+                        <div className="space-y-3 pb-4">
+                          {displayedFacts.map((fact, index) => (
+                            <div 
+                              key={fact.id} 
+                              onClick={() => handleFactClick(fact)} 
+                              className="cursor-pointer transform active:scale-98 transition-transform duration-150"
+                              style={{ 
+                                animationDelay: `${index * 50}ms`,
+                                animation: 'fade-in 0.3s ease-out forwards'
+                              }}
+                            >
+                              <FactCard 
+                                fact={{
+                                  ...fact,
+                                  distanceText: fact.distance ? formatDistance(fact.distance) : undefined
+                                }} 
+                                viewMode="list" 
+                                className="bg-card/80 backdrop-blur-sm hover:bg-card/90 active:bg-card transition-all duration-200 touch-manipulation" 
+                              />
+                            </div>
+                          ))}
                         </div>
-                      )}
-                      
-                      {displayedFacts.map(fact => (
-                        <div key={fact.id} onClick={() => handleFactClick(fact)} className="cursor-pointer">
-                          <FactCard 
-                            fact={{
-                              ...fact,
-                              distanceText: fact.distance ? formatDistance(fact.distance) : undefined
-                            }} 
-                            viewMode="list" 
-                            className="bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors" 
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
+                      </div>
+                    </GestureHandler>
+                  </EnhancedPullToRefresh>
                 </TabsContent>
 
-                <TabsContent value="map" className="flex-1 min-h-0 mt-0">
-                  <div className="h-full relative">
+                {/* Map View - lazy loaded and optimized */}
+                <TabsContent value="map" className="flex-1 data-[state=inactive]:hidden">
+                  <div className="relative h-full">
                     {activeTab === 'map' && (
-                      <React.Suspense fallback={<div className="h-full w-full grid place-items-center text-muted-foreground animate-fade-in">Loading map...</div>}>
+                      <React.Suspense fallback={
+                        <div className="absolute inset-0 bg-muted/20 flex items-center justify-center">
+                          <div className="flex flex-col items-center space-y-3">
+                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+                            <p className="text-sm text-muted-foreground">Loading map...</p>
+                          </div>
+                        </div>
+                      }>
                         <LazyAdvancedMap 
                           onFactClick={handleMapFactClick} 
-                          className="h-full w-full rounded-lg mx-4" 
+                          className="h-full w-full" 
                           initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                          initialZoom={5}
+                          initialZoom={isMobile ? 12 : 10}
                           showBuiltInSearch={false} 
                         />
                       </React.Suspense>
@@ -334,10 +437,10 @@ export const Hybrid: React.FC = () => {
                   </div>
                 </TabsContent>
               </Tabs>
-            </GestureHandler>
+            </div>
           </div>
         ) : (
-          /* Desktop: Side-by-side layout (unchanged) */
+          /* Desktop: Side-by-side layout (unchanged for now) */
           <div className="flex-1 flex flex-col lg:flex-row min-h-0">
             {/* Facts List - Desktop: Left sidebar */}
             <div className="lg:w-1/3 flex-shrink-0 flex flex-col border-r border-border/50">
@@ -352,7 +455,7 @@ export const Hybrid: React.FC = () => {
                 </div>
               </div>
               
-              <ScrollArea className="flex-1">
+              <div className="flex-1 overflow-auto">
                 <div className="p-4 space-y-3">
                   {loading && (
                     <div className="text-center py-8 text-muted-foreground">
@@ -379,7 +482,7 @@ export const Hybrid: React.FC = () => {
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
+              </div>
             </div>
 
             {/* Map - Desktop: Right main area */}
@@ -389,7 +492,7 @@ export const Hybrid: React.FC = () => {
                   onFactClick={handleMapFactClick} 
                   className="h-full w-full" 
                   initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                  initialZoom={5}
+                  initialZoom={isMobile ? 12 : 10}
                   showBuiltInSearch={false} 
                 />
               </React.Suspense>
@@ -397,8 +500,18 @@ export const Hybrid: React.FC = () => {
           </div>
         )}
 
-        {/* Fact Preview Modal */}
-        {selectedFact && <FactPreviewModal fact={selectedFact} open={true} onClose={handleCloseModal} />}
+        {/* Mobile-Optimized Fact Preview Modal */}
+        {selectedFact && (
+          <FactPreviewModal 
+            fact={selectedFact} 
+            open={true} 
+            onClose={handleCloseModal}
+          />
+        )}
+        
+        {/* Mobile Bottom Safe Area */}
+        <div className="h-safe-bottom bg-background" />
       </div>
-    </MainLayout>;
+    </MainLayout>
+  );
 };

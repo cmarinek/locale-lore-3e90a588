@@ -1,137 +1,141 @@
-
-import React, { useState, useRef } from 'react';
-import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
-import { RefreshCw, ArrowDown } from 'lucide-react';
-import { useAppStore } from '@/stores/appStore';
-import { useAnimations } from '@/hooks/useAnimations';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { RefreshCw } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface EnhancedPullToRefreshProps {
   children: React.ReactNode;
-  onRefresh: () => Promise<void>;
+  onRefresh: () => Promise<void> | void;
+  isRefreshing?: boolean;
   threshold?: number;
-  maxPull?: number;
-  disabled?: boolean;
   className?: string;
+  disabled?: boolean;
 }
 
 export const EnhancedPullToRefresh: React.FC<EnhancedPullToRefreshProps> = ({
   children,
   onRefresh,
+  isRefreshing = false,
   threshold = 80,
-  maxPull = 120,
-  disabled = false,
-  className = ""
+  className,
+  disabled = false
 }) => {
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
-  const { triggerHapticFeedback } = useAppStore();
-  const { shouldReduceMotion } = useAnimations();
-  
-  const y = useMotionValue(0);
-  const pullProgress = useTransform(y, [0, threshold], [0, 1]);
-  const iconRotation = useTransform(y, [0, threshold], [0, 180]);
-  const iconScale = useTransform(y, [0, threshold/2, threshold], [0.8, 1.2, 1]);
-  
+  const [isTriggered, setIsTriggered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const startY = useRef(0);
+  const currentY = useRef(0);
 
-  const handleDragStart = () => {
+  const handleTouchStart = useCallback((e: TouchEvent) => {
     if (disabled || isRefreshing) return;
+    
     const container = containerRef.current;
-    if (container && container.scrollTop <= 0) {
-      setIsPulling(true);
+    if (!container || container.scrollTop > 0) return;
+
+    startY.current = e.touches[0].clientY;
+    setIsPulling(true);
+  }, [disabled, isRefreshing]);
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!isPulling || disabled || isRefreshing) return;
+
+    const container = containerRef.current;
+    if (!container || container.scrollTop > 0) {
+      setIsPulling(false);
+      setPullDistance(0);
+      return;
     }
-  };
 
-  const handleDrag = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    if (disabled || isRefreshing || !isPulling) return;
+    currentY.current = e.touches[0].clientY;
+    const distance = Math.max(0, (currentY.current - startY.current) * 0.5);
     
-    const dragY = Math.max(0, Math.min(info.point.y, maxPull));
-    y.set(dragY);
-
-    // Haptic feedback at threshold
-    if (dragY >= threshold && y.getPrevious() < threshold) {
-      triggerHapticFeedback('medium');
+    if (distance > 0) {
+      e.preventDefault(); // Prevent default scroll behavior
+      setPullDistance(Math.min(distance, threshold * 1.5));
+      setIsTriggered(distance >= threshold);
     }
-  };
+  }, [isPulling, disabled, isRefreshing, threshold]);
 
-  const handleDragEnd = async (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    if (disabled || isRefreshing || !isPulling) return;
-    
+  const handleTouchEnd = useCallback(async () => {
+    if (!isPulling || disabled) return;
+
     setIsPulling(false);
-    const dragY = y.get();
 
-    if (dragY >= threshold) {
-      setIsRefreshing(true);
-      triggerHapticFeedback('heavy');
-      
+    if (isTriggered && !isRefreshing) {
       try {
         await onRefresh();
-      } finally {
-        setIsRefreshing(false);
+      } catch (error) {
+        console.error('Pull to refresh error:', error);
       }
     }
 
-    // Animate back to original position
-    y.set(0);
-  };
+    setPullDistance(0);
+    setIsTriggered(false);
+  }, [isPulling, isTriggered, isRefreshing, disabled, onRefresh]);
 
-  const refreshIndicatorOpacity = useTransform(y, [0, threshold/2], [0, 1]);
-  const pullDistance = useTransform(y, (value) => Math.min(value * 0.5, maxPull * 0.5));
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-  if (shouldReduceMotion) {
-    return (
-      <div className={className} ref={containerRef}>
-        {children}
-      </div>
-    );
-  }
+    container.addEventListener('touchstart', handleTouchStart, { passive: false });
+    container.addEventListener('touchmove', handleTouchMove, { passive: false });
+    container.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
+
+  const pullProgress = Math.min(pullDistance / threshold, 1);
+  const iconRotation = pullProgress * 180;
 
   return (
-    <div className={`relative overflow-hidden ${className}`} ref={containerRef}>
-      {/* Pull indicator */}
-      <motion.div
-        className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full flex items-center justify-center w-16 h-16 bg-background/90 backdrop-blur-md rounded-full border border-border shadow-lg z-10"
+    <div 
+      ref={containerRef}
+      className={cn("relative overflow-auto", className)}
+      style={{
+        transform: `translateY(${Math.min(pullDistance, threshold)}px)`,
+        transition: isPulling ? 'none' : 'transform 0.3s ease-out'
+      }}
+    >
+      {/* Pull to Refresh Indicator */}
+      <div 
+        className="absolute top-0 left-0 right-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm border-b border-border/50"
         style={{
-          opacity: refreshIndicatorOpacity,
-          y: pullDistance
+          height: `${Math.max(pullDistance, isRefreshing ? 60 : 0)}px`,
+          transform: `translateY(-${Math.max(pullDistance, isRefreshing ? 60 : 0)}px)`,
+          transition: isPulling || isRefreshing ? 'none' : 'all 0.3s ease-out'
         }}
       >
-        {isRefreshing ? (
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{
-              duration: 1,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          >
-            <RefreshCw className="w-6 h-6 text-primary" />
-          </motion.div>
-        ) : (
-          <motion.div
-            style={{
-              rotate: iconRotation,
-              scale: iconScale
-            }}
-          >
-            <ArrowDown className="w-6 h-6 text-primary" />
-          </motion.div>
-        )}
-      </motion.div>
+        <div className="flex flex-col items-center space-y-2 py-3">
+          <div className={cn(
+            "transition-all duration-200",
+            isRefreshing ? "animate-spin" : ""
+          )}>
+            <RefreshCw 
+              className={cn(
+                "w-5 h-5 transition-all duration-200",
+                isTriggered ? "text-primary" : "text-muted-foreground"
+              )}
+              style={{
+                transform: isRefreshing ? 'none' : `rotate(${iconRotation}deg)`
+              }}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {isRefreshing 
+              ? 'Refreshing...'
+              : isTriggered 
+                ? 'Release to refresh' 
+                : 'Pull to refresh'
+            }
+          </p>
+        </div>
+      </div>
 
-      {/* Content container */}
-      <motion.div
-        drag="y"
-        dragConstraints={{ top: 0, bottom: 0 }}
-        dragElastic={0.3}
-        onDragStart={handleDragStart}
-        onDrag={handleDrag}
-        onDragEnd={handleDragEnd}
-        style={{ y: pullDistance }}
-        className="h-full"
-      >
-        {children}
-      </motion.div>
+      {children}
     </div>
   );
 };
