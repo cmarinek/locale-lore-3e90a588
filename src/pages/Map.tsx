@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { UnifiedSearchBar } from '@/components/ui/unified-search-bar';
-import { MapControls } from '@/components/ui/map-controls';
+
 import { Button } from '@/components/ui/button';
 import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -93,12 +93,9 @@ export const Map: React.FC = () => {
               variant="compact"
             />
             
-            {/* Controls below search - center-left aligned with minimal spacing */}
-            <div className="mt-2 flex justify-center">
-              <MapControls 
-                currentView="map"
-                variant="horizontal"
-              />
+            {/* View mode toggle below search */}
+            <div className="mt-3 flex justify-center">
+              <ViewModeToggle variant="glass" size="sm" />
             </div>
           </div>
         </div>

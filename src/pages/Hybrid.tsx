@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { UnifiedSearchBar } from '@/components/ui/unified-search-bar';
-import { MapControls } from '@/components/ui/map-controls';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { FloatingActionButton } from '@/components/ui/FloatingActionButton';
 import { QuickFilters } from '@/components/discovery/QuickFilters';
+import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 
 export const Hybrid: React.FC = () => {
   const navigate = useNavigate();
@@ -173,12 +174,9 @@ export const Hybrid: React.FC = () => {
             variant="compact"
           />
           
-          {/* Controls below search with minimal spacing */}
+          {/* View mode toggle below search */}
           <div className="mt-2 flex items-center justify-between">
-            <MapControls 
-              currentView="hybrid"
-              variant="horizontal"
-            />
+            <ViewModeToggle variant="outline" size="sm" />
             
             <QuickFilters
               filters={filters}

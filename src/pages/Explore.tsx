@@ -28,7 +28,7 @@ import { InfiniteFactList } from '@/components/discovery/InfiniteFactList';
 import { FilterPanel } from '@/components/discovery/FilterPanel';
 import { TrendingSection } from '@/components/search/TrendingSection';
 import { UnifiedSearchBar } from '@/components/ui/unified-search-bar';
-import { MapControls } from '@/components/ui/map-controls';
+
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { Helmet } from 'react-helmet-async';
@@ -185,13 +185,9 @@ export const Explore: React.FC = () => {
                 {/* Search Bar */}
                 <UnifiedSearchBar onSearch={handleSearch} variant="compact" />
                 
-                {/* Map Controls below search */}
+                {/* View mode toggle below search */}
                 <div className="mt-3 flex justify-center">
-                  <MapControls 
-                    onFilterToggle={() => setShowFilters(!showFilters)}
-                    showFilters={showFilters}
-                    currentView="list"
-                  />
+                  <ViewModeToggle variant="outline" size="sm" />
                 </div>
               </div>
 
