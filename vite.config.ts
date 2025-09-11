@@ -117,7 +117,8 @@ export default defineConfig(({ mode }) => ({
           }
 
           // CRITICAL: Keep auth contexts in main bundle to prevent TDZ
-          if (id.includes("/contexts/auth") || id.includes("/contexts/Auth")) {
+          if (id.includes("/contexts/auth") || id.includes("/contexts/Auth") || 
+              id.includes("/contexts/language") || id.includes("/contexts/Language")) {
             return undefined; // Main bundle
           }
 

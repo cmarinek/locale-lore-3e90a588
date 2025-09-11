@@ -1,70 +1,63 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { initI18n } from '@/utils/i18n';
-import i18n from '@/utils/i18n';
-import { SUPPORTED_LANGUAGES, isRTLLanguage, updateDocumentDirection } from '@/utils/languages';
-import type { SupportedLanguage } from '@/utils/languages';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { markModule } from '@/debug/module-dupe-check';
+import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from '@/utils/languages';
+import { LanguageContext, LanguageContextType } from './language-context';
 
-interface LanguageContextType {
-  currentLanguage: SupportedLanguage;
-  changeLanguage: (language: SupportedLanguage) => Promise<void>;
-  isRTL: boolean;
-  isLoading: boolean;
-}
-
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
-
-export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (!context) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
-  return context;
-};
+// Mark module load for debugging
+markModule('LanguageProvider');
+console.log('[TRACE] LanguageProvider file start');
 
 interface LanguageProviderProps {
   children: React.ReactNode;
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('en');
+  console.log('[TRACE] LanguageProvider component initializing');
+  
+  const { i18n } = useTranslation();
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const detectedLanguage = i18n.language?.split('-')[0] || 'en';
+  const currentLanguage = (SUPPORTED_LANGUAGES[detectedLanguage as SupportedLanguage] ? detectedLanguage : 'en') as SupportedLanguage;
+  const isRTL = SUPPORTED_LANGUAGES[currentLanguage]?.rtl || false;
 
-  useEffect(() => {
-    const initializeI18n = async () => {
-      try {
-        console.log('[LanguageProvider] Initializing i18n...');
-        await initI18n();
-        const lang = (i18n.language || 'en') as SupportedLanguage;
-        setCurrentLanguage(lang);
-        updateDocumentDirection(lang);
-        console.log('[LanguageProvider] i18n initialized with language:', lang);
-      } catch (error) {
-        console.error('[LanguageProvider] Failed to initialize i18n:', error);
-        setCurrentLanguage('en');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initializeI18n();
-  }, []);
-
-  const changeLanguage = async (language: SupportedLanguage) => {
-    const supportedCodes = Object.keys(SUPPORTED_LANGUAGES) as SupportedLanguage[];
-    if (supportedCodes.includes(language)) {
+  const setLanguage = async (language: SupportedLanguage): Promise<void> => {
+    if (isLoading) return; // Prevent concurrent changes
+    
+    setIsLoading(true);
+    try {
       await i18n.changeLanguage(language);
-      setCurrentLanguage(language);
       updateDocumentDirection(language);
+      
+      // Store preference
       localStorage.setItem('locale-lore-language', language);
+      
+      // Dispatch event for other components
+      window.dispatchEvent(new CustomEvent('languageChanged', { 
+        detail: { language, isRTL: SUPPORTED_LANGUAGES[language].rtl } 
+      }));
+    } catch (error) {
+      console.error('Failed to change language:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Update document direction when language changes
+  useEffect(() => {
+    updateDocumentDirection(currentLanguage);
+  }, [currentLanguage]);
+
   const value: LanguageContextType = {
     currentLanguage,
-    changeLanguage,
-    isRTL: isRTLLanguage(currentLanguage),
+    setLanguage,
+    isRTL,
+    supportedLanguages: SUPPORTED_LANGUAGES,
     isLoading,
   };
+
+  console.log('[TRACE] LanguageProvider rendering with value:', { currentLanguage, isRTL, isLoading });
 
   return (
     <LanguageContext.Provider value={value}>
