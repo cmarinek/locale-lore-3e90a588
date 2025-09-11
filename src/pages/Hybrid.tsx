@@ -416,24 +416,22 @@ export const Hybrid: React.FC = () => {
                 {/* Map View - lazy loaded and optimized */}
                 <TabsContent value="map" className="flex-1 data-[state=inactive]:hidden">
                   <div className="relative h-full">
-                    {activeTab === 'map' && (
-                      <React.Suspense fallback={
-                        <div className="absolute inset-0 bg-muted/20 flex items-center justify-center">
-                          <div className="flex flex-col items-center space-y-3">
-                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
-                            <p className="text-sm text-muted-foreground">Loading map...</p>
-                          </div>
+                    <React.Suspense fallback={
+                      <div className="absolute inset-0 bg-muted/20 flex items-center justify-center">
+                        <div className="flex flex-col items-center space-y-3">
+                          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+                          <p className="text-sm text-muted-foreground">Loading map...</p>
                         </div>
-                      }>
-                        <LazyAdvancedMap 
-                          onFactClick={handleMapFactClick} 
-                          className="h-full w-full" 
-                          initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                          initialZoom={isMobile ? 12 : 10}
-                          showBuiltInSearch={false} 
-                        />
-                      </React.Suspense>
-                    )}
+                      </div>
+                    }>
+                      <LazyAdvancedMap 
+                        onFactClick={handleMapFactClick} 
+                        className="h-full w-full" 
+                        initialCenter={[centerLocation.lng, centerLocation.lat]} 
+                        initialZoom={isMobile ? 12 : 10}
+                        showBuiltInSearch={false} 
+                      />
+                    </React.Suspense>
                   </div>
                 </TabsContent>
               </Tabs>
