@@ -27,7 +27,7 @@ import { toast } from 'sonner';
 import { InfiniteFactList } from '@/components/discovery/InfiniteFactList';
 import { FilterPanel } from '@/components/discovery/FilterPanel';
 import { TrendingSection } from '@/components/search/TrendingSection';
-import { HeroSearchBar } from '@/components/ui/hero-search-bar';
+import { CleanSearchBar } from '@/components/ui/clean-search-bar';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { Helmet } from 'react-helmet-async';
@@ -191,8 +191,8 @@ export const Explore: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Search Bar - same as homepage */}
-                <HeroSearchBar onQueryChange={handleSearch} />
+                {/* Search Bar - clean version matching homepage style */}
+                <CleanSearchBar onQueryChange={handleSearch} />
               </div>
 
               {/* Filters */}

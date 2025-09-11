@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { HeroSearchBar } from '@/components/ui/hero-search-bar';
+import { CleanSearchBar } from '@/components/ui/clean-search-bar';
 import { Button } from '@/components/ui/button';
 import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -84,9 +84,9 @@ export const Map: React.FC = () => {
           showBuiltInSearch={false}
         />
 
-        {/* Search Bar - same as homepage */}
+        {/* Search Bar - clean version matching homepage style */}
         <div className="absolute top-4 left-4 right-16 z-20">
-          <HeroSearchBar onQueryChange={handleSearch} />
+          <CleanSearchBar onQueryChange={handleSearch} placeholder="Search stories on map..." />
         </div>
 
         {/* View Mode Toggle - back to original position */}

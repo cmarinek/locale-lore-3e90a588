@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { HeroSearchBar } from '@/components/ui/hero-search-bar';
+import { CleanSearchBar } from '@/components/ui/clean-search-bar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -185,8 +185,8 @@ export const Hybrid: React.FC = () => {
             </div>
           </div>
 
-          {/* Search - same as homepage */}
-          <HeroSearchBar onQueryChange={handleSearch} />
+          {/* Search - clean version matching homepage style */}
+          <CleanSearchBar onQueryChange={handleSearch} />
           
           {/* Quick Filters */}
           <div className="mt-3">
