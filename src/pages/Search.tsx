@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { AdvancedSearchBar, SearchResults, TrendingSection } from '@/components/search';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';

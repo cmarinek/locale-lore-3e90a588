@@ -5,7 +5,7 @@ import { ContributorPaywall } from '@/components/lore/ContributorPaywall';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BookOpen, Star, Shield, Zap, ArrowLeft } from 'lucide-react';

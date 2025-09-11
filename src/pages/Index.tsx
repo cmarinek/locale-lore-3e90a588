@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useCommunityStats } from '@/hooks/useCommunityStats';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { useOnboarding } from '@/hooks/useOnboarding';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/AuthProvider';
 const Index: React.FC = () => {
   console.log('📄 INDEX: Component rendering...');
   try {

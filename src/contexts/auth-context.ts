@@ -3,8 +3,8 @@ import { markModule } from '@/debug/module-dupe-check';
 import type { User, Session } from '@supabase/supabase-js';
 
 // Mark module load for debugging
-markModule('AuthContext-v10');
-console.log('[TRACE] AuthContext-v10 file start');
+markModule('AuthContext-v11');
+console.log('[TRACE] AuthContext-v11 file start');
 
 export interface AuthContextType {
   user: User | null;
@@ -20,25 +20,4 @@ export let AuthContext: React.Context<AuthContextType | undefined> = null as any
 // This will be called by the provider to set the actual context
 export const _setAuthContext = (context: React.Context<AuthContextType | undefined>) => {
   AuthContext = context;
-};
-
-export const useAuth = () => {
-  if (!AuthContext) {
-    throw new Error('useAuth must be used within an AuthProvider - context not initialized');
-  }
-  
-  const context = React.useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
-export const useAuthSafe = () => {
-  if (!AuthContext) {
-    return undefined;
-  }
-  
-  const context = React.useContext(AuthContext);
-  return context;
 };

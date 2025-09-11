@@ -6,8 +6,8 @@ import { markModule } from '@/debug/module-dupe-check';
 import { AuthContextType, _setAuthContext } from './auth-context';
 
 // Mark module load for debugging
-markModule('AuthProvider-v9');
-console.log('[TRACE] AuthProvider-v9 file start');
+markModule('AuthProvider-v11');
+console.log('[TRACE] AuthProvider-v11 file start');
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -137,4 +137,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       {children}
     </ActualAuthContext.Provider>
   );
+};
+
+// Export hooks from here
+export const useAuth = () => {
+  if (!ActualAuthContext) {
+    throw new Error('useAuth must be used within an AuthProvider - context not initialized');
+  }
+  
+  const context = React.useContext(ActualAuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export const useAuthSafe = () => {
+  if (!ActualAuthContext) {
+    return undefined;
+  }
+  
+  const context = React.useContext(ActualAuthContext);
+  return context;
 };

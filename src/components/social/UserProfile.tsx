@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FollowButton } from '@/components/social/FollowButton';
 import { TipSystem } from '@/components/contributor/TipSystem';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/AuthProvider';
 import { toast } from '@/hooks/use-toast';
 import { UserProfile as UserProfileType } from '@/types/social';
 import { motion } from 'framer-motion';

@@ -4,8 +4,8 @@ import { analytics } from '@/utils/analytics-engine';
 import { ABTest, ABTestContextType, _setABTestContext } from './ab-test-context';
 
 // Mark module load for debugging
-markModule('ABTestProvider-v9');
-console.log('[TRACE] ABTestProvider-v9 file start');
+markModule('ABTestProvider-v11');
+console.log('[TRACE] ABTestProvider-v11 file start');
 
 interface ABTestProviderProps {
   children: React.ReactNode;
@@ -122,4 +122,17 @@ export const ABTestProvider: React.FC<ABTestProviderProps> = ({ children }) => {
       {children}
     </ActualABTestContext.Provider>
   );
+};
+
+// Export hook from here
+export const useABTest = () => {
+  if (!ActualABTestContext) {
+    throw new Error('useABTest must be used within an ABTestProvider - context not initialized');
+  }
+  
+  const context = React.useContext(ActualABTestContext);
+  if (!context) {
+    throw new Error('useABTest must be used within an ABTestProvider');
+  }
+  return context;
 };

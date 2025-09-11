@@ -5,8 +5,8 @@ import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from 
 import { LanguageContextType, _setLanguageContext } from './language-context';
 
 // Mark module load for debugging
-markModule('LanguageProvider-v9');
-console.log('[TRACE] LanguageProvider-v9 file start');
+markModule('LanguageProvider-v11');
+console.log('[TRACE] LanguageProvider-v11 file start');
 
 interface LanguageProviderProps {
   children: React.ReactNode;
@@ -70,4 +70,33 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       {children}
     </ActualLanguageContext.Provider>
   );
+};
+
+// Export hook from here
+export const useLanguage = () => {
+  if (!ActualLanguageContext) {
+    // Return fallback values instead of throwing error
+    console.warn('useLanguage called before LanguageContext was initialized, using fallback values');
+    return {
+      currentLanguage: 'en' as SupportedLanguage,
+      setLanguage: async () => {},
+      isRTL: false,
+      supportedLanguages: SUPPORTED_LANGUAGES,
+      isLoading: false,
+    };
+  }
+  
+  const context = React.useContext(ActualLanguageContext);
+  if (!context) {
+    // Return fallback values instead of throwing error
+    console.warn('useLanguage called outside LanguageProvider, using fallback values');
+    return {
+      currentLanguage: 'en' as SupportedLanguage,
+      setLanguage: async () => {},
+      isRTL: false,
+      supportedLanguages: SUPPORTED_LANGUAGES,
+      isLoading: false,
+    };
+  }
+  return context;
 };

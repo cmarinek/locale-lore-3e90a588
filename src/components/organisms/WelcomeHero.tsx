@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/molecules/InputField";
 import { useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@/contexts/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { LogIn, UserPlus } from "lucide-react";
 import { HeroSearchBar } from "@/components/ui/hero-search-bar";

@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/AuthProvider';
 import { PremiumContent } from '@/types/contributor';
 import { toast } from '@/hooks/use-toast';
 

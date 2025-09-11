@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Check, ChevronDown, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useLanguage } from '@/contexts/language-context';
+import { useLanguage } from '@/contexts/LanguageProvider';
 import { cn } from '@/lib/utils';
 
 interface LanguageSelectorProps {

@@ -20,8 +20,8 @@ import {
   Monitor
 } from 'lucide-react';
 import { useProfile, UserSettings } from '@/hooks/useProfile';
-import { useTheme } from '@/contexts/theme-context';
-import { useLanguage } from '@/contexts/language-context';
+import { useTheme } from '@/contexts/ThemeProvider';
+import { useLanguage } from '@/contexts/LanguageProvider';
 
 const languages = [
   { value: 'en', label: 'English' },

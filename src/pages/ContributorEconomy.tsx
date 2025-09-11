@@ -20,7 +20,7 @@ import {
   Gift
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/AuthProvider';
 
 export const ContributorEconomy: React.FC = () => {
   const { user } = useAuth();

@@ -3,8 +3,8 @@ import { markModule } from '@/debug/module-dupe-check';
 import { Theme, ThemeContextType, _setThemeContext } from './theme-context';
 
 // Mark module load for debugging
-markModule('ThemeProvider-v9');
-console.log('[TRACE] ThemeProvider-v9 file start');
+markModule('ThemeProvider-v11');
+console.log('[TRACE] ThemeProvider-v11 file start');
 
 interface ThemeProviderProps {
   children: React.ReactNode;
@@ -81,4 +81,17 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       {children}
     </ActualThemeContext.Provider>
   );
+};
+
+// Export hook from here
+export const useTheme = () => {
+  if (!ActualThemeContext) {
+    throw new Error('useTheme must be used within a ThemeProvider - context not initialized');
+  }
+  
+  const context = React.useContext(ActualThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
 };

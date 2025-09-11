@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/ios-badge';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X, Image, Video, FileText, Music, Archive, File } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 

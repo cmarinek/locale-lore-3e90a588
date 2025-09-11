@@ -2,12 +2,12 @@
 import React from 'react';
 
 // Export the new split context components
-export { useABTest, ABTestContext } from './ab-test-context';
-export { ABTestProvider } from './ABTestProvider';
+export { ABTestContext } from './ab-test-context';
+export { ABTestProvider, useABTest } from './ABTestProvider';
 export type { ABTest, ABTestContextType } from './ab-test-context';
 
 // Import for internal use
-import { useABTest } from './ab-test-context';
+import { useABTest } from './ABTestProvider';
 
 // Hook for feature flags and A/B testing
 export const useFeatureFlag = (flagName: string, defaultValue: boolean = false): boolean => {

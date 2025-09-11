@@ -34,7 +34,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { CookieConsent } from '@/components/compliance/CookieConsent';
 import { LoadingIntroduction } from '@/components/ui/loading-introduction';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/AuthProvider';
 
 
 // Inner component that can use auth context
