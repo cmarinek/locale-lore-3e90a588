@@ -195,7 +195,7 @@ export const Hybrid: React.FC = () => {
         <div className="flex-1 flex flex-col lg:flex-row min-h-0">
           {/* Facts List - Mobile: Scrollable bottom half, Desktop: Left sidebar */}
           <div className="lg:w-1/3 flex-shrink-0 flex flex-col border-r border-border/50">
-            <div className="p-4 border-b border-border/50">
+            <div className="p-4 border-b border-border/50 py-0">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold">
                   {displayedFacts.length} {displayedFacts.length === 1 ? 'Story' : 'Stories'}
