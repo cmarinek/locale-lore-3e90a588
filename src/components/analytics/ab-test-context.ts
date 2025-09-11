@@ -2,8 +2,8 @@ import React from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 
 // Mark module load for debugging
-markModule('ABTestContext-v5');
-console.log('[TRACE] ABTestContext-v5 file start');
+markModule('ABTestContext-v6');
+console.log('[TRACE] ABTestContext-v6 file start');
 
 export interface ABTest {
   name: string;
@@ -26,7 +26,7 @@ export const ABTestContext = React.createContext<ABTestContextType | null>(null)
 console.log('[TRACE] After createContext in ABTestContext');
 
 export const useABTest = () => {
-  console.log('[TRACE] useABTest invoked; React available:', !!React, 'typeof ABTestContext =', typeof ABTestContext);
+  console.log('[TRACE] useABTest invoked; typeof ABTestContext =', typeof ABTestContext);
   const context = React.useContext(ABTestContext);
   if (!context) {
     throw new Error('useABTest must be used within an ABTestProvider');

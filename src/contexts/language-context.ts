@@ -3,9 +3,9 @@ import { markModule } from '@/debug/module-dupe-check';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 // Mark module load for debugging
-markModule('LanguageContext-v5');
-console.log('[TRACE] LanguageContext-v5 file start');
-console.log('[TRACE] About to create LanguageContext-v5');
+markModule('LanguageContext-v6');
+console.log('[TRACE] LanguageContext-v6 file start');
+console.log('[TRACE] About to create LanguageContext-v6');
 
 export interface LanguageContextType {
   currentLanguage: SupportedLanguage;
@@ -21,7 +21,7 @@ console.log('[TRACE] After createContext in LanguageContext');
 
 // Optional hook - app should work without this context
 export const useLanguage = () => {
-  console.log('[TRACE] useLanguage invoked; React available:', !!React, 'typeof LanguageContext =', typeof LanguageContext);
+  console.log('[TRACE] useLanguage invoked; typeof LanguageContext =', typeof LanguageContext);
   const context = React.useContext(LanguageContext);
   if (!context) {
     // Return fallback values instead of throwing error
