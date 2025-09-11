@@ -116,9 +116,8 @@ export default defineConfig(({ mode }) => ({
             return "vendor-misc";
           }
 
-          // CRITICAL: Keep auth contexts in main bundle to prevent TDZ
-          if (id.includes("/contexts/auth") || id.includes("/contexts/Auth") || 
-              id.includes("/contexts/language") || id.includes("/contexts/Language")) {
+          // CRITICAL: Keep all contexts in main bundle to prevent TDZ
+          if (id.includes("/contexts/") || id.includes("/debug/")) {
             return undefined; // Main bundle
           }
 
@@ -153,6 +152,7 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     include: ["react", "react-dom", "react-router-dom", "framer-motion"],
+    force: true, // Force re-optimization to clear any cached issues
   },
   ssr: {
     noExternal: ["framer-motion"],
