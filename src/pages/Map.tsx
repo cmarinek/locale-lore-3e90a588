@@ -84,8 +84,8 @@ export const Map: React.FC = () => {
           showBuiltInSearch={false}
         />
 
-        {/* Search Bar - clean version matching homepage style */}
-        <div className="absolute top-4 left-4 right-16 z-20">
+        {/* Search Bar - positioned lower to avoid overlap */}
+        <div className="absolute top-16 left-4 right-16 z-20">
           <CleanSearchBar onQueryChange={handleSearch} placeholder="Search stories on map..." />
         </div>
 
