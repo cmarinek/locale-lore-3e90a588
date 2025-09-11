@@ -6,6 +6,8 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  isDiagnostic?: boolean;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
 interface State {
@@ -18,6 +20,10 @@ export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
+    
+    if (props.isDiagnostic) {
+      console.log('DIAGNOSTIC: ErrorBoundary initialized');
+    }
   }
 
   static getDerivedStateFromError(error: Error): State {
@@ -27,11 +33,21 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     this.setState({ errorInfo });
     
-    // Track the error for monitoring
-    trackError(error, {
-      componentStack: errorInfo.componentStack,
-      errorBoundary: true,
-    });
+    if (this.props.isDiagnostic) {
+      console.error('DIAGNOSTIC: ErrorBoundary caught error:', error);
+      console.error('DIAGNOSTIC: Component error details:', { error, errorInfo });
+    }
+    
+    // Track the error for monitoring (unless in diagnostic mode)
+    if (!this.props.isDiagnostic) {
+      trackError(error, {
+        componentStack: errorInfo.componentStack,
+        errorBoundary: true,
+      });
+    }
+
+    // Call custom error handler if provided
+    this.props.onError?.(error, errorInfo);
   }
 
   handleRetry = () => {
@@ -44,6 +60,27 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
+      // Diagnostic mode rendering (for development)
+      if (this.props.isDiagnostic) {
+        return (
+          <div style={{ padding: '20px', color: 'red', fontFamily: 'monospace' }}>
+            <h1>Application Error (Diagnostic)</h1>
+            <p>Component: {this.state.error?.name}</p>
+            <p>Message: {this.state.error?.message}</p>
+            <pre style={{ background: '#f5f5f5', padding: '10px', overflow: 'auto' }}>
+              {this.state.error?.stack}
+            </pre>
+            <button 
+              onClick={this.handleRetry}
+              style={{ padding: '10px', margin: '10px 0' }}
+            >
+              Try Again
+            </button>
+          </div>
+        );
+      }
+
+      // Production mode rendering
       return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
           <div className="bg-card rounded-xl p-8 elevation-2 max-w-md mx-auto">
@@ -85,3 +122,12 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+
+// Convenience exports for backwards compatibility
+export const DiagnosticErrorBoundary = (props: Omit<Props, 'isDiagnostic'>) => (
+  <ErrorBoundary {...props} isDiagnostic={true} />
+);
+
+export const ProductionErrorBoundary = (props: Omit<Props, 'isDiagnostic'>) => (
+  <ErrorBoundary {...props} isDiagnostic={false} />
+);

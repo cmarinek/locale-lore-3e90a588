@@ -31,7 +31,7 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Toaster } from '@/components/ui/toaster';
 import { HelmetProvider } from 'react-helmet-async';
-import { ErrorBoundary } from '@/components/monitoring/ErrorBoundary';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { CookieConsent } from '@/components/compliance/CookieConsent';
 import { LoadingIntroduction } from '@/components/ui/loading-introduction';
 
@@ -56,72 +56,62 @@ function App() {
     setShowLoading(false);
   };
 
-  if (showLoading) {
-    return (
-      <ErrorBoundary>
-        <HelmetProvider>
-          <AuthProvider>
-            <ThemeProvider>
-              <LanguageProvider>
-                <LoadingIntroduction 
-                  onComplete={handleLoadingComplete}
-                  minDisplayTime={4000}
-                />
-              </LanguageProvider>
-            </ThemeProvider>
-          </AuthProvider>
-        </HelmetProvider>
-      </ErrorBoundary>
-    );
-  }
-
-  return (
+  const providers = (
     <ErrorBoundary>
       <HelmetProvider>
         <AuthProvider>
           <ThemeProvider>
             <LanguageProvider>
-            <Router>
-              <div className="App">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/auth/*" element={<AuthMain />} />
-                  <Route path="/auth/callback" element={<AuthCallback />} />
-                  <Route path="/auth/confirm" element={<AuthConfirm />} />
-                  <Route path="/auth/reset-password" element={<AuthResetPassword />} />
-                  <Route path="/explore" element={<Explore />} />
-                  <Route path="/hybrid" element={<Hybrid />} />
-                  <Route path="/map" element={<React.Suspense fallback={<div>Loading...</div>}><LazyMap /></React.Suspense>} />
-                  <Route path="/search" element={<Search />} />
-                  <Route path="/submit" element={<Submit />} />
-                  <Route path="/profile/:id?" element={<Profile />} />
-                  <Route path="/fact/:id" element={<Fact />} />
-                  <Route path="/gamification" element={<Gamification />} />
-                  <Route path="/media" element={<MediaManagement />} />
-                  <Route path="/billing" element={<Billing />} />
-                  <Route path="/social" element={<Social />} />
-                  <Route path="/stories" element={<Stories />} />
-                  <Route path="/contributor" element={<ContributorEconomy />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/terms" element={<Terms />} />
-                  <Route path="/production-readiness" element={<ProductionReadiness />} />
-                  <Route path="/translation-test" element={<TranslationTest />} />
-                  <Route path="/showcase" element={<ComponentShowcase />} />
-                  {/* Legacy redirects */}
-                  <Route path="/lore/submit" element={<Submit />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-                <Toaster />
-                <CookieConsent />
-              </div>
-              </Router>
+              {showLoading ? (
+                <LoadingIntroduction 
+                  onComplete={handleLoadingComplete}
+                  minDisplayTime={4000}
+                />
+              ) : (
+                <Router>
+                  <div className="App">
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/auth/*" element={<AuthMain />} />
+                      <Route path="/auth/callback" element={<AuthCallback />} />
+                      <Route path="/auth/confirm" element={<AuthConfirm />} />
+                      <Route path="/auth/reset-password" element={<AuthResetPassword />} />
+                      <Route path="/explore" element={<Explore />} />
+                      <Route path="/hybrid" element={<Hybrid />} />
+                      <Route path="/map" element={<React.Suspense fallback={<div>Loading...</div>}><LazyMap /></React.Suspense>} />
+                      <Route path="/search" element={<Search />} />
+                      <Route path="/submit" element={<Submit />} />
+                      <Route path="/profile/:id?" element={<Profile />} />
+                      <Route path="/fact/:id" element={<Fact />} />
+                      <Route path="/gamification" element={<Gamification />} />
+                      <Route path="/media" element={<MediaManagement />} />
+                      <Route path="/billing" element={<Billing />} />
+                      <Route path="/social" element={<Social />} />
+                      <Route path="/stories" element={<Stories />} />
+                      <Route path="/contributor" element={<ContributorEconomy />} />
+                      <Route path="/admin" element={<Admin />} />
+                      <Route path="/privacy" element={<Privacy />} />
+                      <Route path="/terms" element={<Terms />} />
+                      <Route path="/production-readiness" element={<ProductionReadiness />} />
+                      <Route path="/translation-test" element={<TranslationTest />} />
+                      <Route path="/showcase" element={<ComponentShowcase />} />
+                      {/* Legacy redirects */}
+                      <Route path="/lore/submit" element={<Submit />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                    <Toaster />
+                    <CookieConsent />
+                  </div>
+                </Router>
+              )}
             </LanguageProvider>
           </ThemeProvider>
         </AuthProvider>
       </HelmetProvider>
     </ErrorBoundary>
   );
+
+  return providers;
 }
 
 export default App;

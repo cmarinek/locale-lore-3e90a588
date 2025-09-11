@@ -10,7 +10,7 @@ import './utils/i18n';
 console.log('✅ MAIN: i18n initialization started');
 
 // Import error boundary
-import { DiagnosticErrorBoundary } from './components/diagnostics/ErrorBoundary';
+import { DiagnosticErrorBoundary } from '@/components/common/ErrorBoundary';
 console.log('✅ MAIN: Components imported');
 
 try {
