@@ -48,6 +48,7 @@ interface DiscoveryState {
   loadSavedFacts: () => Promise<void>;
   searchFacts: (query: string) => Promise<void>;
   searchFactsWithLocation: (query: string, location?: [number, number]) => Promise<void>;
+  fetchFactById: (factId: string) => Promise<EnhancedFact | null>;
   initializeData: () => Promise<void>;
 }
 
@@ -379,6 +380,68 @@ export const useDiscoveryStore = create<DiscoveryState>()(
             loading: false, 
             error: error instanceof Error ? error.message : 'Failed to search facts' 
           });
+        }
+      },
+
+      fetchFactById: async (factId: string) => {
+        try {
+          const { data: fact, error } = await supabase
+            .from('facts')
+            .select(`
+              id,
+              title,
+              description,
+              location_name,
+              latitude,
+              longitude,
+              status,
+              vote_count_up,
+              vote_count_down,
+              category_id,
+              author_id,
+              created_at,
+              updated_at,
+              media_urls,
+              categories!facts_category_id_fkey(
+                slug,
+                icon,
+                color,
+                category_translations!inner(
+                  name,
+                  language_code
+                )
+              ),
+              profiles!facts_author_id_fkey(
+                id,
+                username,
+                avatar_url
+              )
+            `)
+            .eq('id', factId)
+            .eq('categories.category_translations.language_code', 'en')
+            .single();
+
+          if (error) throw error;
+          if (!fact) return null;
+
+          const enhancedFact: EnhancedFact = {
+            ...fact,
+            categories: fact.categories ? {
+              ...fact.categories,
+              category_translations: fact.categories.category_translations || []
+            } : {
+              slug: 'unknown',
+              icon: '📍',
+              color: '#3B82F6',
+              category_translations: [{ name: 'Unknown', language_code: 'en' }]
+            },
+            profiles: fact.profiles || { id: '', username: 'Anonymous', avatar_url: null }
+          };
+
+          return enhancedFact;
+        } catch (error) {
+          console.error('Error fetching fact by ID:', error);
+          return null;
         }
       },
 

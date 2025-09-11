@@ -21,7 +21,8 @@ export const Map: React.FC = () => {
     setFilters,
     searchFacts,
     syncSelectedFact,
-    setSyncSelectedFact
+    setSyncSelectedFact,
+    fetchFactById
   } = useDiscoveryStore();
 
   const handleFactClick = (fact: FactMarker) => {
@@ -32,8 +33,6 @@ export const Map: React.FC = () => {
       description: '', // Will be loaded when modal opens
       latitude: fact.latitude,
       longitude: fact.longitude,
-      category: fact.category,
-      verified: fact.verified,
       vote_count_up: fact.voteScore > 0 ? fact.voteScore : 0,
       vote_count_down: fact.voteScore < 0 ? Math.abs(fact.voteScore) : 0,
       author_id: '',
@@ -74,42 +73,15 @@ export const Map: React.FC = () => {
   // Handle syncSelectedFact when component mounts or changes
   useEffect(() => {
     if (syncSelectedFact) {
-      // Convert syncSelectedFact to the format expected by FactPreviewModal
-      const enhancedFact = {
-        id: syncSelectedFact,
-        title: 'Loading...', // Will be loaded when modal opens
-        description: '',
-        latitude: 0,
-        longitude: 0,
-        category: '',
-        verified: false,
-        vote_count_up: 0,
-        vote_count_down: 0,
-        author_id: '',
-        category_id: '',
-        status: 'pending' as const,
-        location_name: '',
-        media_urls: [],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        profiles: {
-          id: '',
-          username: 'Loading...',
-          avatar_url: null
-        },
-        categories: {
-          slug: '',
-          icon: '📍',
-          color: '#3B82F6',
-          category_translations: [{
-            name: '',
-            language_code: 'en'
-          }]
+      const loadFact = async () => {
+        const fact = await fetchFactById(syncSelectedFact);
+        if (fact) {
+          setSelectedFact(fact);
         }
       };
-      setSelectedFact(enhancedFact);
+      loadFact();
     }
-  }, [syncSelectedFact, setSelectedFact]);
+  }, [syncSelectedFact, setSelectedFact, fetchFactById]);
 
   return (
     <MainLayout>
