@@ -701,7 +701,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
 
       {/* Map Style Controls - back to original position */}
       {showControls && (
-        <div className="absolute top-32 left-4 z-10">
+        <div className="absolute top-4 left-4 z-10">
           <div className="flex items-center gap-2 bg-card/95 backdrop-blur border border-border rounded-lg p-2">
             <Button
               variant={mapStyle === 'light' ? 'ios' : 'ghost'}
