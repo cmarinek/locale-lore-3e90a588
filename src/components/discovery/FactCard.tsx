@@ -55,8 +55,8 @@ export const FactCard: React.FC<FactCardProps> = ({
     isHighlighted && "ring-2 ring-primary shadow-lg shadow-primary/20 bg-primary/5 dark:bg-primary/10", className)} onClick={handleQuickView}>
         <CardContent className="p-0">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-2 sm:p-3 py-0 px-0">
-            {/* Media Preview - Responsive */}
-            {fact.media_urls && fact.media_urls.length > 0 ? <div className="relative w-full sm:w-24 md:w-32 h-32 sm:h-16 md:h-20 shrink-0 overflow-hidden rounded-lg">
+            {/* Media Preview - Only show if image exists */}
+            {fact.media_urls && fact.media_urls.length > 0 && <div className="relative w-full sm:w-24 md:w-32 h-32 sm:h-16 md:h-20 shrink-0 overflow-hidden rounded-lg">
                 <img src={fact.media_urls[0]} alt={fact.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onError={e => {
               e.currentTarget.style.display = 'none';
             }} />
@@ -73,21 +73,6 @@ export const FactCard: React.FC<FactCardProps> = ({
                     <span className="capitalize">{categoryName}</span>
                   </Badge>
                 </div>
-              </div> :
-          // No image: Show category badge in a colored section
-          <div className="relative w-full sm:w-24 md:w-32 h-16 sm:h-16 md:h-20 shrink-0 rounded-lg flex items-center justify-center" style={{
-            backgroundColor: `${fact.categories?.color}15`
-          }}>
-                <Badge variant="secondary" className="flex items-center gap-1.5" style={{
-              borderColor: fact.categories?.color
-            }}>
-                  <span style={{
-                color: fact.categories?.color
-              }} className="text-lg">
-                    {fact.categories?.icon}
-                  </span>
-                  <span className="capitalize text-sm font-medium">{categoryName}</span>
-                </Badge>
               </div>}
 
             {/* Content */}
@@ -187,8 +172,8 @@ export const FactCard: React.FC<FactCardProps> = ({
   // Responsive max width with auto centering
   isHighlighted && "ring-2 ring-primary shadow-lg shadow-primary/20 bg-primary/5 dark:bg-primary/10 scale-[1.02]", className)} onClick={handleQuickView}>
       <CardContent className="p-0">
-        {/* Media Preview or Category Section */}
-        {fact.media_urls && fact.media_urls.length > 0 ? <div className="relative h-44 sm:h-48 md:h-52 overflow-hidden">
+        {/* Media Preview - Only show if image exists */}
+        {fact.media_urls && fact.media_urls.length > 0 && <div className="relative h-44 sm:h-48 md:h-52 overflow-hidden">
             <img src={fact.media_urls[0]} alt={fact.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onError={e => {
           e.currentTarget.style.display = 'none';
         }} />
@@ -223,36 +208,16 @@ export const FactCard: React.FC<FactCardProps> = ({
                   <span className="text-xs">✓ Verified</span>
                 </Badge>
               </div>}
-          </div> :
-      // No image: Expanded header section with category
-      <div className="relative h-20 flex items-center justify-center px-3 py-4" style={{
-        backgroundColor: `${fact.categories?.color}15`
-      }}>
-            <div className="flex items-center justify-between w-full">
-              <Badge variant="secondary" className="flex items-center gap-2 px-3 py-1.5" style={{
-            borderColor: fact.categories?.color
-          }}>
-                <span style={{
-              color: fact.categories?.color
-            }} className="text-lg">
-                  {fact.categories?.icon}
-                </span>
-                <span className="capitalize font-medium">{categoryName}</span>
-              </Badge>
-              
-              <div className="flex items-center gap-2">
-                {fact.status === 'verified' && <Badge variant="ios" size="sm">
-                    ✓ Verified
-                  </Badge>}
-                <Button variant="ghost" size="sm" onClick={handleSaveToggle} className="h-8 w-8 p-0">
-                  {isSaved ? <BookmarkCheck className="h-4 w-4 text-yellow-600" /> : <Bookmark className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
           </div>}
 
-        {/* Content - Reduced padding */}
+        {/* Content */}
         <div className="p-3 space-y-2.5">
+          {/* Save Button - Show when no image */}
+          {(!fact.media_urls || fact.media_urls.length === 0) && <div className="flex justify-end mb-2">
+              <Button variant="ghost" size="sm" onClick={handleSaveToggle} className="h-8 w-8 p-0">
+                {isSaved ? <BookmarkCheck className="h-4 w-4 text-yellow-600" /> : <Bookmark className="h-4 w-4" />}
+              </Button>
+            </div>}
           {/* Header */}
           <div className="space-y-1.5">
             <h3 className="font-semibold text-base sm:text-lg line-clamp-2 group-hover:text-primary transition-colors leading-tight">
