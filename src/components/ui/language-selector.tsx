@@ -30,7 +30,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
     setIsOpen(false);
   };
 
-  const currentLang = supportedLanguages[currentLanguage];
+  const currentLang = supportedLanguages[currentLanguage] || supportedLanguages.en;
 
   if (variant === 'minimal') {
     return (
@@ -42,7 +42,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           disabled={isLoading}
           className="h-8 px-2"
         >
-          <span className="text-lg">{currentLang.flag}</span>
+          <span className="text-lg">{currentLang?.flag || '🌐'}</span>
         </Button>
 
         <AnimatePresence>
@@ -102,10 +102,10 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         )}
       >
         {variant !== 'compact' && <Globe className="w-4 h-4" />}
-        <span className="text-lg">{currentLang.flag}</span>
+        <span className="text-lg">{currentLang?.flag || '🌐'}</span>
         {showLabel && (
           <span className="hidden sm:inline">
-            {variant === 'compact' ? currentLang.code.toUpperCase() : currentLang.nativeName}
+            {variant === 'compact' ? currentLang?.code?.toUpperCase() || 'EN' : currentLang?.nativeName || 'English'}
           </span>
         )}
         <ChevronDown className={cn(

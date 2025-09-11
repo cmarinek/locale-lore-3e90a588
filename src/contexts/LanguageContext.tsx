@@ -37,7 +37,8 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   const { i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   
-  const currentLanguage = (i18n.language?.split('-')[0] || 'en') as SupportedLanguage;
+  const detectedLanguage = i18n.language?.split('-')[0] || 'en';
+  const currentLanguage = (SUPPORTED_LANGUAGES[detectedLanguage as SupportedLanguage] ? detectedLanguage : 'en') as SupportedLanguage;
   const isRTL = SUPPORTED_LANGUAGES[currentLanguage]?.rtl || false;
 
   const setLanguage = async (language: SupportedLanguage): Promise<void> => {
