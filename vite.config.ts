@@ -98,8 +98,12 @@ export default defineConfig(({ mode }) => ({
             const isLucide = /[\\/]node_modules[\\/]lucide-react[\\/]/.test(id);
             const isReactI18next = /[\\/]node_modules[\\/]react-i18next[\\/]/.test(id);
 
-            // Keep React, ReactDOM, Framer Motion, Lucide, and react-i18next together
-            if (isReact || isFramer || isLucide || isReactI18next) {
+            // Separate lucide-react to prevent TDZ issues
+            if (isLucide) {
+              return "vendor-lucide";
+            }
+            // Keep React, ReactDOM, Framer Motion, and react-i18next together
+            if (isReact || isFramer || isReactI18next) {
               return "vendor-react";
             }
             if (/[\\/]node_modules[\\/]mapbox-gl[\\/]/.test(id)) {

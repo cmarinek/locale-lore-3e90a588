@@ -19,12 +19,16 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { FloatingActionButton } from '@/components/ui/FloatingActionButton';
 import { QuickFilters } from '@/components/discovery/QuickFilters';
+import { DistanceSortButton } from '@/components/ui/DistanceSortButton';
+import { useLocationSorting } from '@/hooks/useLocationSorting';
+
 export const Hybrid: React.FC = () => {
   const navigate = useNavigate();
-  const {
-    t
-  } = useTranslation('lore');
+  const { t } = useTranslation('lore');
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [displayedFacts, setDisplayedFacts] = useState<any[]>([]);
+  const { formatDistance } = useLocationSorting();
+  
   const {
     facts,
     selectedFact,
@@ -35,9 +39,7 @@ export const Hybrid: React.FC = () => {
     initializeData,
     loading
   } = useDiscoveryStore();
-  const {
-    triggerHapticFeedback
-  } = useAppStore();
+  const { triggerHapticFeedback } = useAppStore();
 
   // Initialize data
   useEffect(() => {
@@ -45,11 +47,14 @@ export const Hybrid: React.FC = () => {
     getUserLocation();
   }, []); // Remove initializeData from deps to prevent infinite loop
 
+  // Update displayed facts when facts change
+  useEffect(() => {
+    setDisplayedFacts(facts);
+  }, [facts]);
+
   const getUserLocation = async () => {
     try {
-      const {
-        locationService
-      } = await import('@/utils/location');
+      const { locationService } = await import('@/utils/location');
       const result = await locationService.getDeviceLocation();
       setUserLocation(result.coordinates);
     } catch (error) {
@@ -57,6 +62,7 @@ export const Hybrid: React.FC = () => {
       setUserLocation([-0.1276, 51.5074]); // London fallback
     }
   };
+
   const handleFactClick = (fact: any) => {
     // Convert fact to FactMarker format for map compatibility
     if (fact.latitude && fact.longitude) {
@@ -95,13 +101,13 @@ export const Hybrid: React.FC = () => {
       setSelectedFact(enhancedFact);
     }
   };
+
   const handleMapFactClick = (fact: FactMarker) => {
     // Convert FactMarker to EnhancedFact for compatibility
     const enhancedFact = {
       id: fact.id,
       title: fact.title,
-      description: '',
-      // Will be loaded when modal opens
+      description: '', // Will be loaded when modal opens
       latitude: fact.latitude,
       longitude: fact.longitude,
       category: fact.category,
@@ -132,20 +138,22 @@ export const Hybrid: React.FC = () => {
     };
     setSelectedFact(enhancedFact);
   };
+
   const handleSearch = (query: string) => {
-    setFilters({
-      search: query
-    });
+    setFilters({ search: query });
     searchFacts(query);
   };
+
   const handleCloseModal = () => {
     setSelectedFact(null);
   };
+
   const handleViewToggle = () => {
     triggerHapticFeedback('light');
     // Cycle: Hybrid → List → Map → Hybrid
     navigate('/explore');
   };
+
   const centerLocation = userLocation ? {
     lat: userLocation[0],
     lng: userLocation[1]
@@ -153,7 +161,9 @@ export const Hybrid: React.FC = () => {
     lat: 51.5074,
     lng: -0.1276
   };
-  return <MainLayout>
+
+  return (
+    <MainLayout>
       <Helmet>
         <title>Hybrid View - Stories & Map</title>
         <meta name="description" content="Explore local stories and legends with both map and list views in one place." />
@@ -187,55 +197,93 @@ export const Hybrid: React.FC = () => {
         <div className="flex-1 flex flex-col lg:flex-row min-h-0">
           {/* Facts List - Mobile: Scrollable bottom half, Desktop: Left sidebar */}
           <div className="lg:w-1/3 flex-shrink-0 flex flex-col border-r border-border/50">
-            
-            
             <div className="p-4 border-b border-border/50">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold">
-                  {facts.length} {facts.length === 1 ? 'Story' : 'Stories'}
+                  {displayedFacts.length} {displayedFacts.length === 1 ? 'Story' : 'Stories'}
                 </h3>
                 <Badge variant="outline">
                   {userLocation ? 'Near you' : 'Explore'}
                 </Badge>
               </div>
+              <div className="flex gap-2">
+                <DistanceSortButton 
+                  facts={facts}
+                  onSorted={setDisplayedFacts}
+                />
+              </div>
             </div>
             
             <ScrollArea className="flex-1">
               <div className="p-4 space-y-3">
-                {loading && <div className="text-center py-8 text-muted-foreground">
+                {loading && (
+                  <div className="text-center py-8 text-muted-foreground">
                     Loading stories...
-                  </div>}
+                  </div>
+                )}
                 
-                {!loading && facts.length === 0 && <div className="text-center py-8 text-muted-foreground">
+                {!loading && displayedFacts.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
                     No stories found
-                  </div>}
+                  </div>
+                )}
                 
-                {facts.map(fact => <FactCard key={fact.id} fact={fact} viewMode="list" className="bg-card/50 backdrop-blur-sm" />)}
+                {displayedFacts.map(fact => (
+                  <div key={fact.id} onClick={() => handleFactClick(fact)} className="cursor-pointer">
+                    <FactCard 
+                      fact={{
+                        ...fact,
+                        distanceText: fact.distance ? formatDistance(fact.distance) : undefined
+                      }} 
+                      viewMode="list" 
+                      className="bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors" 
+                    />
+                  </div>
+                ))}
               </div>
             </ScrollArea>
           </div>
 
           {/* Map - Mobile: Top half, Desktop: Right main area */}
           <div className="flex-1 relative">
-            <AdvancedMap onFactClick={handleMapFactClick} className="h-full w-full" initialCenter={[centerLocation.lng, centerLocation.lat]} showBuiltInSearch={false} />
+            <AdvancedMap 
+              onFactClick={handleMapFactClick} 
+              className="h-full w-full" 
+              initialCenter={[centerLocation.lng, centerLocation.lat]} 
+              showBuiltInSearch={false} 
+            />
           </div>
         </div>
 
         {/* Mobile Floating Actions */}
         <div className="lg:hidden">
-          <FloatingActionButton actions={[{
-          icon: <List className="w-4 h-4" />,
-          label: 'List View',
-          onClick: () => navigate('/explore')
-        }, {
-          icon: <MapIcon className="w-4 h-4" />,
-          label: 'Map View',
-          onClick: () => navigate('/map')
-        }]} mainIcon={<Layers className="w-5 h-5" />} mainLabel="Switch View" />
+          <FloatingActionButton 
+            actions={[
+              {
+                icon: <List className="w-4 h-4" />,
+                label: 'List View',
+                onClick: () => navigate('/explore')
+              }, 
+              {
+                icon: <MapIcon className="w-4 h-4" />,
+                label: 'Map View',
+                onClick: () => navigate('/map')
+              }
+            ]} 
+            mainIcon={<Layers className="w-5 h-5" />} 
+            mainLabel="Switch View" 
+          />
         </div>
 
         {/* Fact Preview Modal */}
-        {selectedFact && <FactPreviewModal fact={selectedFact} open={true} onClose={handleCloseModal} />}
+        {selectedFact && (
+          <FactPreviewModal 
+            fact={selectedFact} 
+            open={true} 
+            onClose={handleCloseModal} 
+          />
+        )}
       </div>
-    </MainLayout>;
+    </MainLayout>
+  );
 };

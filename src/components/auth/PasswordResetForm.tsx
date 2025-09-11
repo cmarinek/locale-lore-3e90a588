@@ -1,12 +1,17 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Mail, Loader2, ShieldCheck } from 'lucide-react';
 import { useAuthActions } from '@/hooks/useAuthActions';
+
+// Dynamic imports to prevent TDZ errors
+import { lazy } from 'react';
+const Mail = lazy(() => import('lucide-react').then(module => ({ default: module.Mail })));
+const Loader2 = lazy(() => import('lucide-react').then(module => ({ default: module.Loader2 })));
+const ShieldCheck = lazy(() => import('lucide-react').then(module => ({ default: module.ShieldCheck })));
 
 interface PasswordResetFormProps {
   mode: 'request' | 'update';
@@ -68,7 +73,9 @@ export const PasswordResetForm = ({ mode, onSuccess, onBack }: PasswordResetForm
     return (
       <div className="text-center space-y-6 animate-in fade-in duration-500">
         <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-          <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
+          <Suspense fallback={<div className="h-8 w-8 animate-pulse bg-primary/20 rounded" />}>
+            <ShieldCheck className="h-8 w-8 text-primary animate-pulse" />
+          </Suspense>
         </div>
         <div>
           <h3 className="text-lg font-semibold mb-2">Reset link sent!</h3>
@@ -92,7 +99,9 @@ export const PasswordResetForm = ({ mode, onSuccess, onBack }: PasswordResetForm
       {mode === 'request' && (
         <div className="text-center space-y-2">
           <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-            <ShieldCheck className="h-6 w-6 text-primary" />
+            <Suspense fallback={<div className="h-6 w-6 animate-pulse bg-primary/20 rounded" />}>
+              <ShieldCheck className="h-6 w-6 text-primary" />
+            </Suspense>
           </div>
           <p className="text-sm text-muted-foreground">
             Enter your email to receive password reset instructions
@@ -109,10 +118,12 @@ export const PasswordResetForm = ({ mode, onSuccess, onBack }: PasswordResetForm
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                      <Input
+                   <FormControl>
+                     <div className="relative">
+                       <Suspense fallback={<div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-pulse bg-muted-foreground/20 rounded" />}>
+                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                       </Suspense>
+                       <Input
                         type="email"
                         placeholder="Enter your email"
                         className="pl-10 h-12 transition-all duration-200 focus:scale-[1.02]"
@@ -173,12 +184,16 @@ export const PasswordResetForm = ({ mode, onSuccess, onBack }: PasswordResetForm
           >
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Suspense fallback={<div className="mr-2 h-4 w-4 animate-pulse bg-primary-foreground/20 rounded" />}>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                </Suspense>
                 {mode === 'request' ? 'Sending reset link...' : 'Updating password...'}
               </>
             ) : (
               <>
-                <ShieldCheck className="mr-2 h-4 w-4" />
+                <Suspense fallback={<div className="mr-2 h-4 w-4 animate-pulse bg-primary-foreground/20 rounded" />}>
+                  <ShieldCheck className="mr-2 h-4 w-4" />
+                </Suspense>
                 {mode === 'request' ? 'Send Reset Link' : 'Update Password'}
               </>
             )}
