@@ -3,8 +3,8 @@ import { markModule } from '@/debug/module-dupe-check';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 
 // Mark module load for debugging
-markModule('LanguageContext-v12');
-console.log('[TRACE] LanguageContext-v12 file start');
+markModule('LanguageContext-v13');
+console.log('[TRACE] LanguageContext-v13 file start');
 
 export interface LanguageContextType {
   currentLanguage: SupportedLanguage;

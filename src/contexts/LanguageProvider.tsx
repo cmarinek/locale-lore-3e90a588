@@ -5,21 +5,24 @@ import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from 
 import { LanguageContextType, _setLanguageContext } from './language-context';
 
 // Mark module load for debugging
-markModule('LanguageProvider-v12');
-console.log('[TRACE] LanguageProvider-v12 file start');
+markModule('LanguageProvider-v13');
+console.log('[TRACE] LanguageProvider-v13 file start');
 
 interface LanguageProviderProps {
   children: React.ReactNode;
 }
 
-// Create the actual context here where React is available
-const ActualLanguageContext = React.createContext<LanguageContextType | null>(null);
-
-// Set the context reference
-_setLanguageContext(ActualLanguageContext);
+// Context will be created lazily inside the Provider
+let ActualLanguageContext: React.Context<LanguageContextType | null> | null = null;
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   console.log('[TRACE] LanguageProvider component initializing');
+  
+  // Lazy initialization of context to avoid TDZ issues
+  if (!ActualLanguageContext) {
+    ActualLanguageContext = React.createContext<LanguageContextType | null>(null);
+    _setLanguageContext(ActualLanguageContext);
+  }
   
   const { i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);

@@ -3,8 +3,8 @@ import { markModule } from '@/debug/module-dupe-check';
 import type { User, Session } from '@supabase/supabase-js';
 
 // Mark module load for debugging
-markModule('AuthContext-v12');
-console.log('[TRACE] AuthContext-v12 file start');
+markModule('AuthContext-v13');
+console.log('[TRACE] AuthContext-v13 file start');
 
 export interface AuthContextType {
   user: User | null;

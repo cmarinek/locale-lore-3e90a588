@@ -4,21 +4,24 @@ import { analytics } from '@/utils/analytics-engine';
 import { ABTest, ABTestContextType, _setABTestContext } from './ab-test-context';
 
 // Mark module load for debugging
-markModule('ABTestProvider-v12');
-console.log('[TRACE] ABTestProvider-v12 file start');
+markModule('ABTestProvider-v13');
+console.log('[TRACE] ABTestProvider-v13 file start');
 
 interface ABTestProviderProps {
   children: React.ReactNode;
 }
 
-// Create the actual context here where React is available
-const ActualABTestContext = React.createContext<ABTestContextType | null>(null);
-
-// Set the context reference
-_setABTestContext(ActualABTestContext);
+// Context will be created lazily inside the Provider
+let ActualABTestContext: React.Context<ABTestContextType | null> | null = null;
 
 export const ABTestProvider: React.FC<ABTestProviderProps> = ({ children }) => {
   console.log('[TRACE] ABTestProvider component initializing');
+  
+  // Lazy initialization of context to avoid TDZ issues
+  if (!ActualABTestContext) {
+    ActualABTestContext = React.createContext<ABTestContextType | null>(null);
+    _setABTestContext(ActualABTestContext);
+  }
   
   const [activeTests, setActiveTests] = useState<ABTest[]>([]);
   const [userVariants, setUserVariants] = useState<Record<string, string>>({});

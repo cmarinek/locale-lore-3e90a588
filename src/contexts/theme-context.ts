@@ -2,8 +2,8 @@ import React from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 
 // Mark module load for debugging
-markModule('ThemeContext-v12');
-console.log('[TRACE] ThemeContext-v12 file start');
+markModule('ThemeContext-v13');
+console.log('[TRACE] ThemeContext-v13 file start');
 
 export type Theme = 'light' | 'dark' | 'auto';
 

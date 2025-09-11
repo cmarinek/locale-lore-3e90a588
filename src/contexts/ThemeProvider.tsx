@@ -3,21 +3,24 @@ import { markModule } from '@/debug/module-dupe-check';
 import { Theme, ThemeContextType, _setThemeContext } from './theme-context';
 
 // Mark module load for debugging
-markModule('ThemeProvider-v12');
-console.log('[TRACE] ThemeProvider-v12 file start');
+markModule('ThemeProvider-v13');
+console.log('[TRACE] ThemeProvider-v13 file start');
 
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
-// Create the actual context here where React is available
-const ActualThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
-
-// Set the context reference
-_setThemeContext(ActualThemeContext);
+// Context will be created lazily inside the Provider
+let ActualThemeContext: React.Context<ThemeContextType | undefined> | null = null;
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   console.log('[TRACE] ThemeProvider component initializing');
+  
+  // Lazy initialization of context to avoid TDZ issues
+  if (!ActualThemeContext) {
+    ActualThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
+    _setThemeContext(ActualThemeContext);
+  }
   
   // Use localStorage for theme persistence instead of depending on user authentication
   const [theme, setThemeState] = useState<Theme>(() => {

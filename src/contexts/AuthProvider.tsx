@@ -6,21 +6,24 @@ import { markModule } from '@/debug/module-dupe-check';
 import { AuthContextType, _setAuthContext } from './auth-context';
 
 // Mark module load for debugging
-markModule('AuthProvider-v12');
-console.log('[TRACE] AuthProvider-v12 file start');
+markModule('AuthProvider-v13');
+console.log('[TRACE] AuthProvider-v13 file start');
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-// Create the actual context here where React is available
-const ActualAuthContext = React.createContext<AuthContextType | undefined>(undefined);
-
-// Set the context reference
-_setAuthContext(ActualAuthContext);
+// Context will be created lazily inside the Provider
+let ActualAuthContext: React.Context<AuthContextType | undefined> | null = null;
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   console.log('[TRACE] AuthProvider component initializing');
+  
+  // Lazy initialization of context to avoid TDZ issues
+  if (!ActualAuthContext) {
+    ActualAuthContext = React.createContext<AuthContextType | undefined>(undefined);
+    _setAuthContext(ActualAuthContext);
+  }
   
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
