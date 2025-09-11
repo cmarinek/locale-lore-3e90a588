@@ -204,9 +204,7 @@ export const Hybrid: React.FC = () => {
                   {userLocation ? 'Near you' : 'Explore'}
                 </Badge>
               </div>
-              <div className="flex gap-2">
-                <DistanceSortButton facts={facts} onSorted={setDisplayedFacts} />
-              </div>
+              
             </div>
             
             <ScrollArea className="flex-1">
