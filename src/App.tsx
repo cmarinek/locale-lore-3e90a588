@@ -66,7 +66,7 @@ function App() {
               <LanguageProvider>
                 <LoadingIntroduction 
                   onComplete={handleLoadingComplete}
-                  minDisplayTime={4000}
+                  minDisplayTime={1500}
                 />
               </LanguageProvider>
             </ThemeProvider>
