@@ -10,15 +10,11 @@ import { initManager } from './utils/initialization-manager';
 import App from './App.tsx';
 import './index.css';
 
-// Expose React globally BEFORE any other imports
-if (typeof window !== 'undefined') {
-  (window as any).React = React;
-  console.log('✅ MAIN: React exposed globally');
-}
+// Note: We no longer expose React on window to avoid interfering with internals
 
-// Initialize i18n after polyfills
-import './utils/i18n';
-console.log('✅ MAIN: i18n initialization started');
+// Prepare i18n explicit initializer
+import { initI18n } from './utils/i18n';
+console.log('✅ MAIN: i18n initializer imported');
 
 // Import error boundary
 import { DiagnosticErrorBoundary } from '@/components/common/ErrorBoundary';
@@ -56,6 +52,10 @@ async function initializeApp() {
     if (import.meta.env.DEV) {
       await purgeStaleCache();
     }
+    
+    // Initialize i18n before waiting for other APIs
+    await initI18n();
+    console.log('✅ MAIN: i18n initialized');
     
     // Wait for all APIs to be ready
     await initManager.initialize();

@@ -39,12 +39,7 @@ class InitializationManager {
       timeout: 5000,
       critical: true
     },
-    {
-      name: 'react',
-      check: () => GlobalAPIChecker.isReactReady(),
-      timeout: 3000,
-      critical: true
-    },
+    // React readiness check removed to avoid dependency on window.React
     {
       name: 'navigator',
       check: () => GlobalAPIChecker.isNavigatorReady(),
