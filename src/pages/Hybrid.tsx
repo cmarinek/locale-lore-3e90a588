@@ -232,6 +232,7 @@ export const Hybrid: React.FC = () => {
               onFactClick={handleMapFactClick}
               className="h-full w-full"
               initialCenter={[centerLocation.lng, centerLocation.lat]}
+              showBuiltInSearch={false}
             />
           </div>
         </div>
