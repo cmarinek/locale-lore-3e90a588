@@ -18,6 +18,11 @@ export const useCommunityStats = (): CommunityStats => {
   });
 
   useEffect(() => {
+    console.log('useCommunityStats: useEffect triggered, current loading state:', stats.isLoading);
+    if (!stats.isLoading) {
+      console.log('useCommunityStats: Already loaded, skipping fetch');
+      return;
+    }
     console.log('useCommunityStats: Starting to fetch stats...');
     const fetchStats = async () => {
       try {
@@ -88,7 +93,7 @@ export const useCommunityStats = (): CommunityStats => {
     };
 
     fetchStats();
-  }, []);
+  }, []); // Empty dependency array - should only run once
 
   return stats;
 };
