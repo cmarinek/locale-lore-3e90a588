@@ -21,11 +21,13 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
     savedFacts, 
     toggleSavedFact, 
     setSelectedFact, 
-    setModalOpen 
+    setModalOpen,
+    centeredFactId
   } = useDiscoveryStore();
 
   const isSaved = savedFacts.includes(fact.id);
   const voteScore = fact.vote_count_up - fact.vote_count_down;
+  const isCentered = centeredFactId === fact.id;
   
   const categoryName = fact.categories?.category_translations?.find(
     t => t.language_code === 'en'
@@ -61,6 +63,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
         variant="elevated" 
         className={cn(
           "overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg group",
+          isCentered && "ring-2 ring-primary/50 bg-primary/5",
           className
         )}
         onClick={handleQuickView}
@@ -83,12 +86,21 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
 
             {/* Content */}
             <div className="flex-1 space-y-2">
-              {/* Header */}
+              {/* Header with Category Badge */}
               <div className="flex items-start justify-between gap-2">
                 <div className="space-y-1 flex-1">
-                  <h3 className="font-semibold text-base line-clamp-1 group-hover:text-primary transition-colors">
-                    {fact.title}
-                  </h3>
+                  <div className="flex items-start justify-between">
+                    <h3 className="font-semibold text-base line-clamp-1 group-hover:text-primary transition-colors flex-1">
+                      {fact.title}
+                    </h3>
+                    {/* Category Badge - Top Right */}
+                    <Badge 
+                      variant="secondary" 
+                      className="text-xs ml-2 shrink-0"
+                    >
+                      {categoryName}
+                    </Badge>
+                  </div>
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col gap-1 flex-1 min-w-0">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -106,6 +118,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                           longitude={fact.longitude}
                           locationName={fact.location_name}
                           variant="icon"
+                          factId={fact.id}
                         />
                       </div>
                     )}
@@ -135,14 +148,6 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
               {/* Stats & Meta */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {/* Category Badge */}
-                  <Badge 
-                    variant="secondary" 
-                    className="text-xs"
-                  >
-                    {categoryName}
-                  </Badge>
-
                   {/* Votes */}
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1 text-green-600">
@@ -194,6 +199,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
       variant="elevated" 
       className={cn(
         "overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg group",
+        isCentered && "ring-2 ring-primary/50 bg-primary/5 scale-[1.02]",
         className
       )}
       onClick={handleQuickView}
@@ -212,8 +218,8 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
             
-            {/* Quick Actions Overlay */}
-            <div className="absolute top-3 right-3 flex gap-2">
+            {/* Quick Actions Overlay - Left side */}
+            <div className="absolute top-3 left-3 flex gap-2">
               <Button
                 variant="ghost"
                 size="sm"
@@ -236,8 +242,8 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
               </Button>
             </div>
 
-            {/* Category Badge */}
-            <div className="absolute bottom-3 left-3">
+            {/* Category Badge - Top Right */}
+            <div className="absolute top-3 right-3">
               <Badge 
                 variant="glass" 
                 className="flex items-center gap-1"
@@ -254,11 +260,24 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
 
         {/* Content */}
         <div className="p-4 space-y-3">
-          {/* Header */}
+          {/* Header with Category Badge */}
           <div className="space-y-2">
-            <h3 className="font-semibold text-base line-clamp-2 group-hover:text-primary transition-colors">
-              {fact.title}
-            </h3>
+            <div className="flex items-start justify-between">
+              <h3 className="font-semibold text-base line-clamp-2 group-hover:text-primary transition-colors flex-1">
+                {fact.title}
+              </h3>
+              {/* Category Badge - Top Right */}
+              <Badge 
+                variant="glass" 
+                className="flex items-center gap-1 ml-2 shrink-0"
+                style={{ borderColor: fact.categories?.color }}
+              >
+                <span style={{ color: fact.categories?.color }}>
+                  {fact.categories?.icon}
+                </span>
+                <span className="capitalize text-xs">{categoryName}</span>
+              </Badge>
+            </div>
             
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-1 flex-1 min-w-0">
@@ -277,6 +296,7 @@ export const FactCard: React.FC<FactCardProps> = ({ fact, className, viewMode = 
                     longitude={fact.longitude}
                     locationName={fact.location_name}
                     variant="icon"
+                    factId={fact.id}
                   />
                 </div>
               )}

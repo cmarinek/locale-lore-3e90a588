@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { SearchBar } from '@/components/discovery/SearchBar';
+import { UnifiedSearchBar } from '@/components/ui/unified-search-bar';
+import { MapControls } from '@/components/ui/map-controls';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -163,36 +164,22 @@ export const Hybrid: React.FC = () => {
         <div className="flex-shrink-0 p-4 border-b border-border/50 bg-background/95 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold">Hybrid View</h1>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleViewToggle}
-                className="glass border-0 shadow-lg"
-              >
-                <List className="w-4 h-4 mr-2" />
-                List View
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => navigate('/map')}
-                className="glass border-0 shadow-lg"
-              >
-                <MapIcon className="w-4 h-4 mr-2" />
-                Map Only
-              </Button>
-            </div>
           </div>
 
           {/* Search */}
-          <SearchBar
-            onQueryChange={handleSearch}
+          <UnifiedSearchBar
+            onSearch={handleSearch}
             placeholder="Search stories..."
+            variant="compact"
           />
           
-          {/* Quick Filters */}
-          <div className="mt-3">
+          {/* Controls below search with minimal spacing */}
+          <div className="mt-2 flex items-center justify-between">
+            <MapControls 
+              currentView="hybrid"
+              variant="horizontal"
+            />
+            
             <QuickFilters
               filters={filters}
               onFiltersChange={setFilters}
