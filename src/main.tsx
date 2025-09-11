@@ -1,4 +1,4 @@
-console.log('🚀 MAIN: Starting app with proper React isolation...');
+console.log('🚀 MAIN: Starting app initialization...');
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -22,7 +22,7 @@ const startApp = async () => {
     const root = createRoot(rootElement);
     console.log('🎯 MAIN: React root created');
     
-    console.log('🎯 MAIN: Rendering App without i18n for now...');
+    console.log('🎯 MAIN: Rendering App...');
     root.render(
       <React.StrictMode>
         <DiagnosticErrorBoundary>
