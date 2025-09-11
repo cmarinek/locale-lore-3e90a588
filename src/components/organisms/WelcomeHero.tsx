@@ -32,48 +32,6 @@ export const WelcomeHero = () => {
               <HeroSearchBar className="w-full max-w-2xl mx-auto" />
             </div>
 
-            {/* Action buttons */}
-            {!user ? (
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button
-                  size="lg"
-                  onClick={() => navigate('/auth')}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  <UserPlus className="mr-2 h-5 w-5" />
-                  Join Community
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => navigate('/auth')}
-                  className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                >
-                  <LogIn className="mr-2 h-5 w-5" />
-                  Sign In
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button
-                  size="lg"
-                  onClick={() => navigate('/explore')}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  <span className="mr-2">🗺️</span>
-                  Explore Stories
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => navigate('/submit')}
-                  className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                >
-                  <span className="mr-2">📝</span>
-                  Share Your Story
-                </Button>
-              </div>
-            )}
           </div>
 
           {/* Feature highlights */}
