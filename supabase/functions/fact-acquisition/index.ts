@@ -288,16 +288,33 @@ async function getJobs(supabase: any, params: any) {
 async function processJobInBackground(supabase: any, job: any) {
   console.log('Starting background processing for job:', job.id);
   
-  const { categories, target_count, include_images, require_coordinates, quality_filter } = job.configuration;
-  const batchSize = 5; // Process fewer items at once to improve reliability
-  let processedCount = 0;
-  let successCount = 0;
-  let errorCount = 0;
-
   try {
+    const { configuration } = job;
+    const { categories = ['general'], target_count = 10, include_images = true, require_coordinates = false, quality_filter = true } = configuration;
+    const batchSize = 3; // Process fewer items at once to improve reliability
+    let processedCount = 0;
+    let successCount = 0;
+    let errorCount = 0;
+
+    console.log('Job configuration:', { categories, target_count, include_images, require_coordinates, quality_filter });
+
     // Generate articles to process
+    console.log('Generating articles list...');
     const articles = await generateArticlesList(categories, target_count);
     console.log(`Generated ${articles.length} articles for processing`);
+
+    if (articles.length === 0) {
+      console.log('No articles generated, marking job as completed');
+      await supabase
+        .from('acquisition_jobs')
+        .update({ 
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          error_log: ['No articles could be generated']
+        })
+        .eq('id', job.id);
+      return;
+    }
 
     for (let i = 0; i < articles.length && processedCount < target_count; i += batchSize) {
       // Check if job is still running
@@ -313,14 +330,18 @@ async function processJobInBackground(supabase: any, job: any) {
       }
 
       const batch = articles.slice(i, i + batchSize);
+      console.log(`Processing batch ${Math.floor(i/batchSize) + 1}, articles ${i+1}-${Math.min(i+batchSize, articles.length)}`);
       
       for (const article of batch) {
         try {
+          console.log(`Processing article: ${article.title}`);
           const fact = await processWikipediaArticle(article, include_images, require_coordinates, quality_filter);
           
           if (fact) {
             // Get or create category
             const categoryId = await getOrCreateCategory(supabase, fact.category || 'general');
+            
+            console.log(`Inserting fact: ${fact.title} at coordinates ${fact.coordinates.lat}, ${fact.coordinates.lon}`);
             
             // Insert fact into database
             const { error: factError } = await supabase
@@ -346,7 +367,7 @@ async function processJobInBackground(supabase: any, job: any) {
               console.log(`Successfully imported: ${fact.title}`);
             }
           } else {
-            console.log(`Skipped article: ${article.title} (quality filter)`);
+            console.log(`Skipped article: ${article.title} (quality filter or missing data)`);
           }
           
           processedCount++;
@@ -355,21 +376,24 @@ async function processJobInBackground(supabase: any, job: any) {
           errorCount++;
           processedCount++;
         }
+        
+        // Update progress after each article
+        await supabase
+          .from('acquisition_jobs')
+          .update({
+            processed_count: processedCount,
+            success_count: successCount,
+            error_count: errorCount
+          })
+          .eq('id', job.id);
       }
 
-      // Update job progress
-      await supabase
-        .from('acquisition_jobs')
-        .update({
-          processed_count: processedCount,
-          success_count: successCount,
-          error_count: errorCount
-        })
-        .eq('id', job.id);
-
       // Brief delay between batches
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log(`Completed batch ${Math.floor(i/batchSize) + 1}, waiting before next batch...`);
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
+
+    console.log(`Job ${job.id} processing complete: ${successCount} successful, ${errorCount} errors out of ${processedCount} processed`);
 
     // Mark job as completed
     await supabase
@@ -383,7 +407,7 @@ async function processJobInBackground(supabase: any, job: any) {
       })
       .eq('id', job.id);
 
-    console.log(`Job ${job.id} completed: ${successCount} successful, ${errorCount} errors`);
+    console.log(`Job ${job.id} marked as completed`);
 
   } catch (error) {
     console.error('Background processing error:', error);
@@ -394,11 +418,13 @@ async function processJobInBackground(supabase: any, job: any) {
       .update({ 
         status: 'failed',
         error_log: [error.message],
-        processed_count: processedCount,
-        success_count: successCount,
-        error_count: errorCount
+        processed_count: processedCount || 0,
+        success_count: successCount || 0,
+        error_count: errorCount || 0
       })
       .eq('id', job.id);
+      
+    console.log(`Job ${job.id} failed with error: ${error.message}`);
   }
 }
 
