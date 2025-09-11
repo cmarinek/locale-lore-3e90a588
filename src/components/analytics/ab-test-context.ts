@@ -2,8 +2,8 @@ import React from 'react';
 import { markModule } from '@/debug/module-dupe-check';
 
 // Mark module load for debugging
-markModule('ABTestContext-v11');
-console.log('[TRACE] ABTestContext-v11 file start');
+markModule('ABTestContext-v12');
+console.log('[TRACE] ABTestContext-v12 file start');
 
 export interface ABTest {
   name: string;

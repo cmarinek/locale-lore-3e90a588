@@ -6,8 +6,8 @@ import { markModule } from '@/debug/module-dupe-check';
 import { AuthContextType, _setAuthContext } from './auth-context';
 
 // Mark module load for debugging
-markModule('AuthProvider-v11');
-console.log('[TRACE] AuthProvider-v11 file start');
+markModule('AuthProvider-v12');
+console.log('[TRACE] AuthProvider-v12 file start');
 
 interface AuthProviderProps {
   children: React.ReactNode;

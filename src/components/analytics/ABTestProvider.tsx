@@ -4,8 +4,8 @@ import { analytics } from '@/utils/analytics-engine';
 import { ABTest, ABTestContextType, _setABTestContext } from './ab-test-context';
 
 // Mark module load for debugging
-markModule('ABTestProvider-v11');
-console.log('[TRACE] ABTestProvider-v11 file start');
+markModule('ABTestProvider-v12');
+console.log('[TRACE] ABTestProvider-v12 file start');
 
 interface ABTestProviderProps {
   children: React.ReactNode;

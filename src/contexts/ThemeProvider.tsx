@@ -3,8 +3,8 @@ import { markModule } from '@/debug/module-dupe-check';
 import { Theme, ThemeContextType, _setThemeContext } from './theme-context';
 
 // Mark module load for debugging
-markModule('ThemeProvider-v11');
-console.log('[TRACE] ThemeProvider-v11 file start');
+markModule('ThemeProvider-v12');
+console.log('[TRACE] ThemeProvider-v12 file start');
 
 interface ThemeProviderProps {
   children: React.ReactNode;
