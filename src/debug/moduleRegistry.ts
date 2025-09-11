@@ -2,6 +2,8 @@
 export const moduleLoadSet = new Set<string>();
 
 export function markModuleLoad(moduleId: string) {
+  if (!import.meta.env.DEV) return;
+  
   moduleLoadSet.add(moduleId);
   console.log('[TRACE] Module loaded:', moduleId, 'Total unique modules:', moduleLoadSet.size);
   
