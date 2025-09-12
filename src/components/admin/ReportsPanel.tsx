@@ -10,12 +10,13 @@ import { AlertTriangle, CheckCircle, Clock, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const ReportsPanel: React.FC = () => {
-  const { getContentReports, updateReportStatus } = useAdmin();
+  const { getContentReports, updateReportStatus, isAdmin, loading: adminLoading } = useAdmin();
   const [reports, setReports] = useState<any[]>([]);
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [resolutionNotes, setResolutionNotes] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadReports();
@@ -24,11 +25,24 @@ export const ReportsPanel: React.FC = () => {
   const loadReports = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      console.log('Loading reports with filter:', statusFilter);
+      console.log('Admin status:', isAdmin, 'Admin loading:', adminLoading);
+      
+      if (!isAdmin && !adminLoading) {
+        setError('You do not have admin privileges to view reports');
+        return;
+      }
+      
       const data = await getContentReports(statusFilter || undefined);
-      setReports(data);
+      console.log('Reports loaded:', data?.length || 0, 'reports');
+      setReports(data || []);
     } catch (error) {
       console.error('Error loading reports:', error);
-      toast.error('Failed to load reports');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load reports';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -115,11 +129,27 @@ export const ReportsPanel: React.FC = () => {
         </CardHeader>
         
         <CardContent>
-          {loading ? (
+          {adminLoading || loading ? (
             <div className="text-center py-8">Loading reports...</div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <div className="text-destructive mb-2">⚠️ Error</div>
+              <div className="text-muted-foreground">{error}</div>
+              {!isAdmin && (
+                <div className="mt-4 text-sm text-muted-foreground">
+                  You need admin privileges to access the reports panel.
+                </div>
+              )}
+            </div>
           ) : reports.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No reports found matching your criteria
+            <div className="text-center py-8">
+              <div className="text-muted-foreground mb-2">No reports found</div>
+              <div className="text-sm text-muted-foreground">
+                {statusFilter 
+                  ? `No reports match the selected status filter: ${statusFilter}`
+                  : 'No content reports have been submitted yet'
+                }
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
