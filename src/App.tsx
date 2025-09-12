@@ -33,8 +33,11 @@ import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { CookieConsent } from '@/components/compliance/CookieConsent';
 import { LoadingIntroduction } from '@/components/ui/loading-introduction';
+import { PerformanceMonitor } from '@/components/monitoring/PerformanceMonitor';
 import { useAuth } from '@/contexts/AuthProvider';
 import InitializationGate from '@/components/ui/initialization-gate';
+import { SecurityUtils } from '@/utils/security';
+import { seoManager } from '@/utils/seo';
 
 
 // Lazy load the Map component
@@ -94,6 +97,7 @@ const AppContent = () => {
             </Routes>
             <Toaster />
             <CookieConsent />
+            <PerformanceMonitor />
           </div>
         </Router>
       )}
@@ -103,6 +107,21 @@ const AppContent = () => {
 
 function App() {
   console.log('App component rendering...');
+
+  // Initialize security and SEO on app load
+  useEffect(() => {
+    // Initialize security features
+    if (!SecurityUtils.validateEnvironment()) {
+      console.warn('Missing required environment variables');
+    }
+    
+    // Initialize SEO
+    seoManager.preloadCriticalResources();
+    seoManager.updateMeta({
+      title: 'GeoCache Lore - Discover Hidden Stories Around the World',
+      description: 'Explore fascinating facts and hidden stories about locations worldwide. Discover, learn, and share geographical knowledge with our community.'
+    });
+  }, []);
 
   // Clear ServiceWorker cache on development reload
   useEffect(() => {

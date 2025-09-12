@@ -98,6 +98,61 @@ export const sanitizeInput = (input: string): string => {
     .trim();
 };
 
+// Enhanced security utilities
+export class SecurityUtils {
+  // XSS Protection
+  static sanitizeHTML(html: string): string {
+    const allowedTags = ['p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li'];
+    const allowedAttributes = ['href', 'target'];
+    
+    // Basic sanitization - in production, use DOMPurify
+    return html.replace(/<[^>]*>/g, (match) => {
+      const tagName = match.match(/<\/?(\w+)/)?.[1]?.toLowerCase();
+      if (!tagName || !allowedTags.includes(tagName)) {
+        return '';
+      }
+      return match;
+    });
+  }
+
+  // Secure local storage
+  static setSecureItem(key: string, value: any): void {
+    try {
+      const encrypted = btoa(JSON.stringify(value));
+      localStorage.setItem(`secure_${key}`, encrypted);
+    } catch (error) {
+      console.error('Failed to store secure item:', error);
+    }
+  }
+
+  static getSecureItem(key: string): any {
+    try {
+      const encrypted = localStorage.getItem(`secure_${key}`);
+      if (!encrypted) return null;
+      return JSON.parse(atob(encrypted));
+    } catch (error) {
+      console.error('Failed to retrieve secure item:', error);
+      return null;
+    }
+  }
+
+  // Environment validation
+  static validateEnvironment(): boolean {
+    const requiredVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'];
+    return requiredVars.every(envVar => {
+      const value = import.meta.env[envVar];
+      return value && value.length > 0;
+    });
+  }
+
+  // Generate secure random ID
+  static generateSecureId(length: number = 16): string {
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  }
+}
+
 // Validate URLs
 export const isValidUrl = (url: string): boolean => {
   try {

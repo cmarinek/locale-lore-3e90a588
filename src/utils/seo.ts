@@ -1,4 +1,6 @@
 
+import { useEffect } from 'react';
+
 interface MetaTag {
   name?: string;
   property?: string;
@@ -18,12 +20,31 @@ interface SEOData {
 
 export class SEOManager {
   private defaultMeta: SEOData = {
-    title: 'Locale Lore - Discover Local Stories',
-    description: 'Discover and explore local stories, culture, and hidden gems in your area.',
-    keywords: ['local stories', 'culture', 'travel', 'discovery'],
-    siteName: 'Locale Lore',
+    title: 'GeoCache Lore - Discover Hidden Stories Around the World',
+    description: 'Explore fascinating facts and hidden stories about locations worldwide. Discover, learn, and share geographical knowledge with our community.',
+    keywords: ['geography', 'facts', 'travel', 'discovery', 'stories', 'locations'],
+    siteName: 'GeoCache Lore',
     type: 'website',
   };
+
+  // Preload critical resources
+  preloadCriticalResources(): void {
+    const criticalResources = [
+      { href: '/logo.png', as: 'image', type: 'image/png' },
+      { href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap', as: 'style' }
+    ];
+
+    criticalResources.forEach(resource => {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.href = resource.href;
+      link.as = resource.as;
+      if (resource.type) {
+        link.type = resource.type;
+      }
+      document.head.appendChild(link);
+    });
+  }
 
   // Update page meta tags
   public updateMeta(seoData: Partial<SEOData>) {
@@ -157,5 +178,18 @@ export class SEOManager {
     };
   }
 }
+
+// React hook for SEO management
+export const useSEO = (config: Partial<SEOData>) => {
+  useEffect(() => {
+    seoManager.updateMeta(config);
+  }, [config.title, config.description, config.image, config.url]);
+  
+  return {
+    updateMeta: (newConfig: Partial<SEOData>) => seoManager.updateMeta(newConfig),
+    generateArticleData: seoManager.generateArticleData.bind(seoManager),
+    generateLocalBusinessData: seoManager.generateLocalBusinessData.bind(seoManager)
+  };
+};
 
 export const seoManager = new SEOManager();
