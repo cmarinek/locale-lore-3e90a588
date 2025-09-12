@@ -1,4 +1,13 @@
 import { create } from 'zustand';
+import { useFilterPersistence } from '@/hooks/useFilterPersistence';
+
+interface DiscoveryFilters {
+  search: string;
+  category: string;
+  sortBy: 'relevance' | 'date' | 'distance' | 'popularity';
+  dateRange: string;
+  verified: boolean;
+}
 import { persist } from 'zustand/middleware';
 import { EnhancedFact, EnhancedCategory, SearchFilters } from '@/types/fact';
 import { supabase } from '@/integrations/supabase/client';

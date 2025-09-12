@@ -1,10 +1,10 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { EnhancedSearchInput } from '@/components/search/search-suggestions';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useEnhancedDebounce } from '@/hooks/useEnhancedDebounce';
+import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { cn } from '@/lib/utils';
 
 interface SearchBarProps {
@@ -20,96 +20,98 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
   const { 
     filters, 
-    searchSuggestions, 
-    updateSearchSuggestions,
     setFilters 
   } = useDiscoveryStore();
   
   const [localQuery, setLocalQuery] = useState(filters.search || '');
-  const [showSuggestions, setShowSuggestions] = useState(false);
   
   const [debouncedQuery, cancelDebounce, isDebouncing] = useEnhancedDebounce(localQuery, {
     delay: 300,
     maxWait: 1000
   });
 
+  // Search history management
+  const {
+    getSuggestions,
+    addSearch,
+    removeSearch,
+    clearHistory,
+    getPopularSearches
+  } = useSearchHistory({
+    maxItems: 20,
+    storageKey: 'fact-search-history'
+  });
+
   useEffect(() => {
     if (debouncedQuery !== filters.search) {
       setFilters({ search: debouncedQuery });
       onQueryChange?.(debouncedQuery);
+      
+      // Add to search history if it's a meaningful search
+      if (debouncedQuery.trim().length > 2) {
+        addSearch(debouncedQuery.trim());
+      }
     }
-  }, [debouncedQuery, filters.search, setFilters, onQueryChange]);
+  }, [debouncedQuery, filters.search, setFilters, onQueryChange, addSearch]);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  // Generate suggestions based on current query
+  const suggestions = React.useMemo(() => {
+    const historySuggestions = getSuggestions(localQuery, 3).map(query => ({
+      query,
+      type: 'history' as const,
+      timestamp: Date.now()
+    }));
+
+    const popularSuggestions = getPopularSearches(2).map(query => ({
+      query,
+      type: 'trending' as const,
+      count: 0
+    }));
+
+    // Mock category suggestions based on query
+    const categorySuggestions = [];
+    if (localQuery.length > 1) {
+      const categories = ['history', 'nature', 'architecture', 'culture', 'legend'];
+      const matchingCategories = categories.filter(cat => 
+        cat.toLowerCase().includes(localQuery.toLowerCase())
+      );
+      categorySuggestions.push(...matchingCategories.map(cat => ({
+        query: cat,
+        type: 'category' as const
+      })));
+    }
+
+    return [...historySuggestions, ...categorySuggestions, ...popularSuggestions]
+      .slice(0, 8); // Limit total suggestions
+  }, [localQuery, getSuggestions, getPopularSearches]);
+
+  const handleQueryChange = useCallback((value: string) => {
     setLocalQuery(value);
+  }, []);
+
+  const handleSubmit = useCallback((query: string) => {
+    setLocalQuery(query);
+    setFilters({ search: query });
+    onQueryChange?.(query);
     
-    if (value.length > 2) {
-      // Mock search suggestions - in a real app, this would be an API call
-      const mockSuggestions = [
-        `${value} history`,
-        `${value} facts`,
-        `${value} stories`,
-      ];
-      updateSearchSuggestions(mockSuggestions);
-      setShowSuggestions(true);
-    } else {
-      setShowSuggestions(false);
+    if (query.trim().length > 2) {
+      addSearch(query.trim());
     }
-  }, [updateSearchSuggestions]);
-
-  const handleSuggestionClick = useCallback((suggestion: string) => {
-    setLocalQuery(suggestion);
-    setFilters({ search: suggestion });
-    onQueryChange?.(suggestion);
-    setShowSuggestions(false);
-  }, [setFilters, onQueryChange]);
-
-  const clearSearch = useCallback(() => {
-    setLocalQuery('');
-    setFilters({ search: '' });
-    onQueryChange?.('');
-    setShowSuggestions(false);
-  }, [setFilters, onQueryChange]);
+  }, [setFilters, onQueryChange, addSearch]);
 
   return (
     <div className={cn("relative w-full max-w-md", className)}>
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder={placeholder}
-          value={localQuery}
-          onChange={handleInputChange}
-          onFocus={() => localQuery.length > 2 && setShowSuggestions(true)}
-          onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-          className="pl-10 pr-10"
-        />
-        {localQuery && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearSearch}
-            className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 p-0"
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        )}
-      </div>
-
-      {showSuggestions && searchSuggestions.length > 0 && (
-        <div className="absolute top-full z-50 mt-1 w-full rounded-md border bg-popover p-1 shadow-md">
-          {searchSuggestions.map((suggestion, index) => (
-            <button
-              key={index}
-              onClick={() => handleSuggestionClick(suggestion)}
-              className="w-full rounded-sm px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground"
-            >
-              {suggestion}
-            </button>
-          ))}
-        </div>
-      )}
+      <EnhancedSearchInput
+        value={localQuery}
+        onChange={handleQueryChange}
+        onSubmit={handleSubmit}
+        placeholder={placeholder}
+        suggestions={suggestions}
+        onRemoveFromHistory={removeSearch}
+        onClearHistory={clearHistory}
+        showSuggestions={true}
+        className="w-full"
+      />
     </div>
   );
 };
