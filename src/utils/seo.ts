@@ -20,10 +20,10 @@ interface SEOData {
 
 export class SEOManager {
   private defaultMeta: SEOData = {
-    title: 'GeoCache Lore - Discover Hidden Stories Around the World',
+    title: 'LocaleLore - Discover Hidden Stories Around the World',
     description: 'Explore fascinating facts and hidden stories about locations worldwide. Discover, learn, and share geographical knowledge with our community.',
     keywords: ['geography', 'facts', 'travel', 'discovery', 'stories', 'locations'],
-    siteName: 'GeoCache Lore',
+    siteName: 'LocaleLore',
     type: 'website',
   };
 
@@ -169,7 +169,7 @@ export class SEOManager {
       image: fact.image_url,
       publisher: {
         '@type': 'Organization',
-        name: 'Locale Lore',
+        name: 'LocaleLore',
         logo: {
           '@type': 'ImageObject',
           url: '/logo.png',

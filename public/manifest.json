@@ -1,6 +1,6 @@
 {
-  "name": "Locale Lore",
-  "short_name": "Locale Lore",
+  "name": "LocaleLore",
+  "short_name": "LocaleLore",
   "description": "Discover and explore local stories, culture, and hidden gems around the world",
   "theme_color": "#007AFF",
   "background_color": "#FFFFFF",
@@ -56,14 +56,14 @@
       "sizes": "1280x720",
       "type": "image/svg+xml",
       "form_factor": "wide",
-      "label": "Locale Lore desktop experience"
+      "label": "LocaleLore desktop experience"
     },
     {
       "src": "/placeholder.svg",
       "sizes": "750x1334",
       "type": "image/svg+xml",
       "form_factor": "narrow",
-      "label": "Locale Lore mobile experience"
+      "label": "LocaleLore mobile experience"
     }
   ],
   "handle_links": "preferred",

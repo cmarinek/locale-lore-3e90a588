@@ -242,14 +242,14 @@ self.addEventListener('push', (event) => {
     try {
       const data = event.data.json();
       options.body = data.body || options.body;
-      options.title = data.title || 'Locale Lore';
+      options.title = data.title || 'LocaleLore';
     } catch (error) {
       console.error('[SW] Failed to parse push data:', error);
     }
   }
   
   event.waitUntil(
-    self.registration.showNotification('Locale Lore', options)
+    self.registration.showNotification('LocaleLore', options)
   );
 });
 

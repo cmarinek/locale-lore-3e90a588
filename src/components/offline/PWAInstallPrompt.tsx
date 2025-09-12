@@ -88,7 +88,7 @@ export const PWAInstallPrompt: React.FC = () => {
               
               <div className="flex-1 min-w-0">
                 <h3 className="text-sm font-semibold text-foreground mb-1">
-                  Install Locale Lore
+                  Install LocaleLore
                 </h3>
                 <p className="text-xs text-muted-foreground mb-3">
                   Add to your home screen for quick access and offline functionality

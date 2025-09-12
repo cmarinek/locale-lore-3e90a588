@@ -23,4 +23,4 @@ Disallow: /api/
 Disallow: /private/
 Crawl-delay: 1
 
-Sitemap: https://localelore.com/sitemap.xml
+Sitemap: https://localelore.app/sitemap.xml

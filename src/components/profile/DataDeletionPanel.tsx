@@ -208,8 +208,8 @@ export const DataDeletionPanel = ({ onRequestDeletion, loading }: DataDeletionPa
             <AlertDescription>
               For questions about your data rights or to exercise these rights, 
               contact us at{' '}
-              <a href="mailto:privacy@localelore.com" className="text-primary hover:underline">
-                privacy@localelore.com
+              <a href="mailto:privacy@localelore.app" className="text-primary hover:underline">
+                privacy@localelore.app
               </a>
             </AlertDescription>
           </Alert>

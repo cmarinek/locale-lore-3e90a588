@@ -283,7 +283,7 @@ export const SubscriptionManager = ({ subscription, onRefresh, loading }: Subscr
         <CardHeader>
           <CardTitle>Why Subscribe?</CardTitle>
           <CardDescription>
-            Unlock the full potential of Locale Lore with premium features
+            Unlock the full potential of LocaleLore with premium features
           </CardDescription>
         </CardHeader>
         <CardContent>

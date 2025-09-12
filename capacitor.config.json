@@ -1,14 +1,14 @@
 {
   "appId": "com.localelore.app",
-  "appName": "Locale Lore",
+  "appName": "LocaleLore",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {
-    "url": "https://8ee9bb21-9cd6-4b22-81a4-e2322ff21c98.lovableproject.com?forceHideBadge=true",
+    "url": "https://localelore.app",
     "cleartext": true
   },
   "ios": {
-    "scheme": "Locale Lore",
+    "scheme": "LocaleLore",
     "contentInset": "automatic"
   },
   "android": {

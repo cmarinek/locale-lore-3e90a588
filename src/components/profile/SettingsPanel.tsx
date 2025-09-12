@@ -73,7 +73,7 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
             Appearance
           </CardTitle>
           <CardDescription>
-            Customize how Locale Lore looks and feels
+            Customize how LocaleLore looks and feels
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

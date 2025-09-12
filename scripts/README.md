@@ -1,6 +1,6 @@
-# Geocacher-Friendly Facts Seeding Pipeline
+# LocaleLore Facts Seeding Pipeline
 
-This directory contains scripts for seeding the Locale Lore database with geocacher-friendly facts across multiple regions worldwide.
+This directory contains scripts for seeding the LocaleLore database with interesting facts across multiple regions worldwide.
 
 ## Files
 

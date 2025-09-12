@@ -118,7 +118,7 @@ function App() {
     // Initialize SEO
     seoManager.preloadCriticalResources();
     seoManager.updateMeta({
-      title: 'GeoCache Lore - Discover Hidden Stories Around the World',
+      title: 'LocaleLore - Discover Hidden Stories Around the World',
       description: 'Explore fascinating facts and hidden stories about locations worldwide. Discover, learn, and share geographical knowledge with our community.'
     });
   }, []);

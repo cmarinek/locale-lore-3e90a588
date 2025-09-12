@@ -2,7 +2,7 @@
 {
   "dashboard": {
     "id": null,
-    "title": "Locale Lore - Application Monitoring",
+    "title": "LocaleLore - Application Monitoring",
     "tags": ["locale-lore", "monitoring"],
     "timezone": "browser",
     "panels": [

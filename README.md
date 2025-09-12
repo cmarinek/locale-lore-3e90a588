@@ -149,10 +149,16 @@ The app includes polyfills and fallback mechanisms to handle these cases gracefu
 
 ## 🚀 Deployment
 
-Simply open [Lovable](https://lovable.dev/projects/8ee9bb21-9cd6-4b22-81a4-e2322ff21c98) and click on Share -> Publish.
+The app is production-ready and can be deployed to any static hosting service:
 
-## Can I connect a custom domain to my Lovable project?
+- **Vercel**: Connect your repository and deploy automatically
+- **Netlify**: Drag and drop the `dist` folder or connect via Git
+- **GitHub Pages**: Use the build output for static hosting
+- **Your own server**: Serve the `dist` folder with any web server
 
-Yes, you can! To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Build the app for production:
+```bash
+npm run build
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+The optimized files will be in the `dist` directory.
