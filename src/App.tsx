@@ -153,7 +153,7 @@ function App() {
         <AuthProvider>
           <ThemeProvider>
             <LanguageProvider>
-              <InitializationGate showProgress={true}>
+              <InitializationGate>
                 <AppContent />
               </InitializationGate>
             </LanguageProvider>
