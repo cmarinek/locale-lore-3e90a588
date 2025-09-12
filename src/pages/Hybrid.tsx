@@ -58,6 +58,17 @@ export const Hybrid: React.FC = () => {
     getUserLocation();
   }, []);
 
+  // Listen for custom events to switch to map tab
+  useEffect(() => {
+    const handleSwitchToMapTab = () => {
+      setActiveTab('map');
+      triggerHapticFeedback('light');
+    };
+
+    window.addEventListener('switch-to-map-tab', handleSwitchToMapTab);
+    return () => window.removeEventListener('switch-to-map-tab', handleSwitchToMapTab);
+  }, [triggerHapticFeedback]);
+
   // Update displayed facts when facts change, sort by distance by default
   useEffect(() => {
     const sortAndSetFacts = async () => {

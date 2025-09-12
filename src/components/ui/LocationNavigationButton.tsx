@@ -46,7 +46,15 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
       setSyncSelectedFact(factId);
     }
     
-    if (currentPath === '/map') {
+    if (currentPath === '/hybrid') {
+      // If on hybrid page, just center the map and switch to map tab
+      console.log('On hybrid page, centering map and switching to map tab');
+      
+      // Dispatch custom event to switch to map tab
+      window.dispatchEvent(new CustomEvent('switch-to-map-tab'));
+      
+      toast.success(`Centered map on ${locationName || 'location'}`);
+    } else if (currentPath === '/map') {
       // If already on map page, just center the map
       console.log('Already on map page, centering map');
       toast.success(`Centered map on ${locationName || 'location'}`);
