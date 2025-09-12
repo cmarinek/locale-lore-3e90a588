@@ -7,6 +7,7 @@ import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
+import { FeedbackWidget } from '@/components/support/FeedbackWidget';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -80,6 +81,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
 
       {/* Bottom Navigation - Mobile Only */}
       <BottomNavigation />
+      
+      {/* Feedback Widget - Always Visible */}
+      <FeedbackWidget />
     </div>
   );
 };

@@ -1,228 +1,431 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useAdmin } from '@/hooks/useAdmin';
-import { Check, X, Eye, Flag, Archive } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Flag, 
+  AlertTriangle, 
+  CheckCircle, 
+  Eye, 
+  MessageSquare, 
+  User, 
+  Clock,
+  Search,
+  Filter,
+  MoreHorizontal
+} from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthProvider';
 import { toast } from 'sonner';
 
-export const ContentModerationPanel: React.FC = () => {
-  const { getFactsForModeration, updateFactStatus, bulkUpdateFactStatus } = useAdmin();
-  const [facts, setFacts] = useState<any[]>([]);
-  const [selectedFacts, setSelectedFacts] = useState<Set<string>>(new Set());
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+interface ContentReport {
+  id: string;
+  reason: string;
+  description: string;
+  status: string;
+  reported_content_type: string;
+  reported_content_id: string;
+  reporter_id: string;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  resolution_notes: string | null;
+}
+
+export const ContentModerationPanel = () => {
+  const { user } = useAuth();
+  const [reports, setReports] = useState<ContentReport[]>([]);
+  const [filteredReports, setFilteredReports] = useState<ContentReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedReport, setSelectedReport] = useState<ContentReport | null>(null);
 
   useEffect(() => {
-    loadFacts();
-  }, [statusFilter]);
+    loadReports();
+  }, []);
 
-  const loadFacts = async () => {
+  useEffect(() => {
+    filterReports();
+  }, [reports, filterStatus, searchQuery]);
+
+  const loadReports = async () => {
     try {
       setLoading(true);
-      const data = await getFactsForModeration(statusFilter === 'all' ? undefined : statusFilter);
-      setFacts(data);
+      const { data, error } = await supabase
+        .from('content_reports')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      if (data) setReports(data);
     } catch (error) {
-      console.error('Error loading facts:', error);
-      toast.error('Failed to load facts for moderation');
+      console.error('Error loading reports:', error);
+      toast.error('Failed to load content reports');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStatusUpdate = async (factId: string, status: string) => {
+  const filterReports = () => {
+    let filtered = reports;
+
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(report => report.status === filterStatus);
+    }
+
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(report =>
+        report.reason.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        report.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        report.reported_content_type.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredReports(filtered);
+  };
+
+  const updateReportStatus = async (reportId: string, newStatus: string, notes?: string) => {
+    if (!user) return;
+
     try {
-      await updateFactStatus(factId, status);
-      toast.success(`Fact ${status} successfully`);
-      loadFacts();
+      const updateData: any = {
+        status: newStatus,
+        reviewed_by: user.id,
+        reviewed_at: new Date().toISOString()
+      };
+
+      if (notes) {
+        updateData.resolution_notes = notes;
+      }
+
+      const { error } = await supabase
+        .from('content_reports')
+        .update(updateData)
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      toast.success('Report status updated successfully');
+      loadReports();
     } catch (error) {
-      console.error('Error updating fact status:', error);
-      toast.error('Failed to update fact status');
+      console.error('Error updating report:', error);
+      toast.error('Failed to update report status');
     }
   };
 
-  const handleBulkAction = async (action: string) => {
-    if (selectedFacts.size === 0) {
-      toast.error('Please select facts to moderate');
-      return;
-    }
-
-    try {
-      await bulkUpdateFactStatus(Array.from(selectedFacts), action);
-      toast.success(`${selectedFacts.size} facts ${action} successfully`);
-      setSelectedFacts(new Set());
-      loadFacts();
-    } catch (error) {
-      console.error('Error performing bulk action:', error);
-      toast.error('Failed to perform bulk action');
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="outline" className="text-yellow-600 border-yellow-600">Pending</Badge>;
+      case 'reviewing':
+        return <Badge variant="outline" className="text-blue-600 border-blue-600">Reviewing</Badge>;
+      case 'resolved':
+        return <Badge variant="outline" className="text-green-600 border-green-600">Resolved</Badge>;
+      case 'dismissed':
+        return <Badge variant="outline" className="text-gray-600 border-gray-600">Dismissed</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
     }
   };
 
-  const toggleFactSelection = (factId: string) => {
-    const newSelected = new Set(selectedFacts);
-    if (newSelected.has(factId)) {
-      newSelected.delete(factId);
-    } else {
-      newSelected.add(factId);
+  const getReasonColor = (reason: string) => {
+    switch (reason.toLowerCase()) {
+      case 'spam':
+        return 'text-orange-600';
+      case 'harassment':
+        return 'text-red-600';
+      case 'inappropriate':
+        return 'text-purple-600';
+      case 'false_information':
+        return 'text-blue-600';
+      case 'copyright':
+        return 'text-indigo-600';
+      default:
+        return 'text-gray-600';
     }
-    setSelectedFacts(newSelected);
   };
 
-  const filteredFacts = facts.filter(fact =>
-    fact.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    fact.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    fact.location_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
-    <Card>
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg sm:text-xl">Content Moderation</CardTitle>
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <Input
-            placeholder="Search facts..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full sm:max-w-sm"
-          />
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="verified">Verified</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-              <SelectItem value="flagged">Flagged</SelectItem>
-            </SelectContent>
-          </Select>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <Flag className="h-6 w-6 text-primary" />
+            Content Moderation
+          </h2>
+          <p className="text-muted-foreground">
+            Review and manage reported content
+          </p>
         </div>
-        
-        {selectedFacts.size > 0 && (
-          <div className="flex flex-col sm:flex-row gap-2 p-3 bg-muted/50 rounded-lg">
-            <span className="text-sm text-muted-foreground mb-2 sm:mb-0">
-              {selectedFacts.size} facts selected
-            </span>
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkAction('verified')}
-                className="flex-1 sm:flex-none"
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">
+            {reports.filter(r => r.status === 'pending').length} pending
+          </Badge>
+          <Badge variant="outline">
+            {reports.filter(r => r.status === 'reviewing').length} reviewing
+          </Badge>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filters
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Search</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search reports..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Status</label>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="w-full p-2 border border-input bg-background rounded-md"
               >
-                <Check className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">Approve All</span>
-                <span className="sm:hidden">Approve</span>
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkAction('rejected')}
-                className="flex-1 sm:flex-none"
-              >
-                <X className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">Reject All</span>
-                <span className="sm:hidden">Reject</span>
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkAction('flagged')}
-                className="flex-1 sm:flex-none"
-              >
-                <Flag className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">Flag All</span>
-                <span className="sm:hidden">Flag</span>
-              </Button>
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="reviewing">Reviewing</option>
+                <option value="resolved">Resolved</option>
+                <option value="dismissed">Dismissed</option>
+              </select>
             </div>
           </div>
-        )}
-      </CardHeader>
-      
-      <CardContent className="p-3 sm:p-6">
-        {loading ? (
-          <div className="text-center py-8">Loading facts for moderation...</div>
-        ) : filteredFacts.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No facts found matching your criteria
-          </div>
-        ) : (
-          <div className="space-y-3 sm:space-y-4">{/* Make space between cards smaller on mobile */}
-            {filteredFacts.map((fact) => (
-              <div key={fact.id} className="border rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <Checkbox
-                    checked={selectedFacts.has(fact.id)}
-                    onCheckedChange={() => toggleFactSelection(fact.id)}
-                  />
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold truncate">{fact.title}</h3>
-                      <Badge variant={
-                        fact.status === 'verified' ? 'default' :
-                        fact.status === 'pending' ? 'secondary' :
-                        fact.status === 'rejected' ? 'destructive' :
-                        'outline'
-                      }>
-                        {fact.status}
-                      </Badge>
+        </CardContent>
+      </Card>
+
+      {/* Statistics */}
+      <div className="grid md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Reports</p>
+                <p className="text-2xl font-bold">{reports.length}</p>
+              </div>
+              <Flag className="h-8 w-8 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Pending Review</p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {reports.filter(r => r.status === 'pending').length}
+                </p>
+              </div>
+              <Clock className="h-8 w-8 text-yellow-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Resolved</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {reports.filter(r => r.status === 'resolved').length}
+                </p>
+              </div>
+              <CheckCircle className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Response Rate</p>
+                <p className="text-2xl font-bold">
+                  {reports.length > 0 
+                    ? Math.round(((reports.length - reports.filter(r => r.status === 'pending').length) / reports.length) * 100)
+                    : 0}%
+                </p>
+              </div>
+              <Eye className="h-8 w-8 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Reports List */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Content Reports</CardTitle>
+          <CardDescription>
+            Review and take action on reported content
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {filteredReports.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Flag className="h-8 w-8 mx-auto mb-4 opacity-50" />
+              <p>No reports found matching your criteria.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredReports.map((report) => (
+                <div key={report.id} className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={getReasonColor(report.reason)}>
+                          {report.reason.replace('_', ' ')}
+                        </Badge>
+                        <Badge variant="outline">
+                          {report.reported_content_type}
+                        </Badge>
+                        {getStatusBadge(report.status)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Report ID: {report.id.slice(0, 8)}
+                      </p>
                     </div>
-                    
-                    <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                      {fact.description}
-                    </p>
-                    
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>📍 {fact.location_name}</span>
-                      <span>👤 {fact.profiles?.username || 'Anonymous'}</span>
-                      <span>📊 {fact.vote_count_up} ↑ {fact.vote_count_down} ↓</span>
-                      <span>{new Date(fact.created_at).toLocaleDateString()}</span>
+                    <div className="text-right text-sm text-muted-foreground">
+                      <p>{new Date(report.created_at).toLocaleDateString()}</p>
+                      <p>{new Date(report.created_at).toLocaleTimeString()}</p>
                     </div>
                   </div>
-                  
-                  <div className="flex gap-1">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleStatusUpdate(fact.id, 'verified')}
-                      disabled={fact.status === 'verified'}
-                    >
-                      <Check className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleStatusUpdate(fact.id, 'rejected')}
-                      disabled={fact.status === 'rejected'}
-                      className="p-2"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleStatusUpdate(fact.id, 'flagged')}
-                      disabled={fact.status === 'flagged'}
-                      className="p-2"
-                    >
-                      <Flag className="w-4 h-4" />
-                    </Button>
-                    <Button size="sm" variant="ghost" className="p-2">
-                      <Eye className="w-4 h-4" />
-                    </Button>
+
+                  <div>
+                    <p className="text-sm font-medium mb-1">Description:</p>
+                    <p className="text-sm text-muted-foreground">{report.description}</p>
+                  </div>
+
+                  {report.resolution_notes && (
+                    <div className="bg-muted/50 p-3 rounded">
+                      <p className="text-sm font-medium mb-1">Resolution Notes:</p>
+                      <p className="text-sm">{report.resolution_notes}</p>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <User className="h-3 w-3" />
+                      Reporter: {report.reporter_id.slice(0, 8)}
+                      {report.reviewed_by && (
+                        <>
+                          • Reviewed by: {report.reviewed_by.slice(0, 8)}
+                        </>
+                      )}
+                    </div>
+                    
+                    {report.status === 'pending' && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateReportStatus(report.id, 'reviewing')}
+                        >
+                          Start Review
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => updateReportStatus(report.id, 'resolved', 'Content removed per community guidelines')}
+                        >
+                          Resolve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateReportStatus(report.id, 'dismissed', 'Report does not violate guidelines')}
+                        >
+                          Dismiss
+                        </Button>
+                      </div>
+                    )}
+
+                    {report.status === 'reviewing' && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => updateReportStatus(report.id, 'resolved', 'Content moderated')}
+                        >
+                          Resolve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateReportStatus(report.id, 'dismissed', 'No action needed')}
+                        >
+                          Dismiss
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Guidelines Reference */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Moderation Guidelines</CardTitle>
+          <CardDescription>
+            Quick reference for content moderation decisions
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold mb-2 text-green-600">Resolve When:</h4>
+              <ul className="text-sm space-y-1">
+                <li>• Content clearly violates community guidelines</li>
+                <li>• Spam or promotional content</li>
+                <li>• Inappropriate or offensive material</li>
+                <li>• False or misleading information</li>
+                <li>• Copyright violations</li>
+                <li>• Personal information or doxxing</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2 text-blue-600">Dismiss When:</h4>
+              <ul className="text-sm space-y-1">
+                <li>• Content follows community guidelines</li>
+                <li>• Disagreement on facts (not misinformation)</li>
+                <li>• Cultural or opinion-based differences</li>
+                <li>• Technical issues (not guideline violations)</li>
+                <li>• Duplicate or resolved reports</li>
+                <li>• Insufficient evidence of violation</li>
+              </ul>
+            </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };

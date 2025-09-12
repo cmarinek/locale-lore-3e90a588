@@ -23,6 +23,8 @@ import Admin from '@/pages/Admin';
 import { Privacy } from '@/pages/Privacy';
 import { Terms } from '@/pages/Terms';
 import { ProductionReadiness } from '@/pages/ProductionReadiness';
+import { Support } from '@/pages/Support';
+import { ContentGuidelines } from '@/pages/ContentGuidelines';
 import TranslationTest from '@/pages/TranslationTest';
 
 import { AuthProvider } from '@/contexts/AuthProvider';
@@ -89,6 +91,8 @@ const AppContent = () => {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/production-readiness" element={<ProductionReadiness />} />
+              <Route path="/support" element={<Support />} />
+              <Route path="/content-guidelines" element={<ContentGuidelines />} />
               <Route path="/translation-test" element={<TranslationTest />} />
               <Route path="/showcase" element={<ComponentShowcase />} />
               {/* Legacy redirects */}
