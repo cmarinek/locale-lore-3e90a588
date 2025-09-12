@@ -7,6 +7,7 @@ import { VerticalFeed } from '@/components/stories/VerticalFeed';
 import { QuickCapture } from '@/components/stories/QuickCapture';
 import { TrendingSection } from '@/components/stories/TrendingSection';
 import { EmptyStoriesState } from '@/components/stories/EmptyStoriesState';
+import { LoadingStory } from '@/components/ui/enhanced-loading-states';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MainLayout } from '@/components/templates/MainLayout';
@@ -75,12 +76,11 @@ const Stories: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-black">
-        <div className="text-white text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-lg">Loading Stories...</p>
+      <MainLayout>
+        <div className="flex items-center justify-center h-screen">
+          <LoadingStory />
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
@@ -145,7 +145,10 @@ const Stories: React.FC = () => {
               <p className="text-muted-foreground mb-6">
                 Explore stories from around the world and find inspiration
               </p>
-              <Button onClick={() => setActiveTab('trending')}>
+              <Button 
+                onClick={() => setActiveTab('trending')}
+                className="min-h-[44px] min-w-[44px]"
+              >
                 <TrendingUp className="w-4 h-4 mr-2" />
                 View Trending
               </Button>
@@ -162,7 +165,7 @@ const Stories: React.FC = () => {
               variant={activeTab === 'feed' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setActiveTab('feed')}
-              className="text-xs"
+              className="text-xs min-h-[44px] min-w-[44px]"
             >
               <Clock className="w-4 h-4 mr-1" />
               Feed
@@ -171,7 +174,7 @@ const Stories: React.FC = () => {
               variant={activeTab === 'trending' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setActiveTab('trending')}
-              className="text-xs"
+              className="text-xs min-h-[44px] min-w-[44px]"
             >
               <TrendingUp className="w-4 h-4 mr-1" />
               Trending
@@ -180,7 +183,7 @@ const Stories: React.FC = () => {
               variant={activeTab === 'discover' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setActiveTab('discover')}
-              className="text-xs"
+              className="text-xs min-h-[44px] min-w-[44px]"
             >
               <Compass className="w-4 h-4 mr-1" />
               Discover
@@ -194,7 +197,7 @@ const Stories: React.FC = () => {
         <Button
           size="lg"
           onClick={() => setShowCapture(true)}
-          className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-full shadow-lg"
+          className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-full shadow-lg min-h-[56px] min-w-[56px]"
         >
           <Camera className="w-6 h-6 mr-2" />
           Create Story

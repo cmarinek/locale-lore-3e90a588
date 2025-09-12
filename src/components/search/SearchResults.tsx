@@ -6,6 +6,8 @@ import { MapPin, Calendar, Users, ThumbsUp, MessageCircle, Share2, Bookmark } fr
 import { motion, AnimatePresence } from 'framer-motion';
 import { FactCard } from '@/components/discovery/FactCard';
 import { formatDistanceToNow } from 'date-fns';
+import { LoadingSearch } from '@/components/ui/enhanced-loading-states';
+import { EmptySearchResults } from '@/components/ui/enhanced-empty-states';
 
 interface SearchResult {
   id: string;
@@ -57,23 +59,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   if (loading && results.length === 0) {
-    return (
-      <div className="space-y-4">
-        {[...Array(6)].map((_, i) => (
-          <Card key={i} className="p-6 animate-pulse">
-            <div className="space-y-3">
-              <div className="h-4 bg-muted rounded w-3/4"></div>
-              <div className="h-3 bg-muted rounded w-full"></div>
-              <div className="h-3 bg-muted rounded w-2/3"></div>
-              <div className="flex gap-2">
-                <div className="h-6 bg-muted rounded w-16"></div>
-                <div className="h-6 bg-muted rounded w-20"></div>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
-    );
+    return <LoadingSearch />;
   }
 
   if (!loading && results.length === 0 && query) {
@@ -81,18 +67,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center py-12"
       >
-        <div className="text-muted-foreground mb-4">
-          <MapPin className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <h3 className="text-lg font-medium">No results found</h3>
-          <p>Try adjusting your search terms or filters</p>
-        </div>
-        <div className="space-y-2 text-sm text-muted-foreground">
-          <p>• Check your spelling</p>
-          <p>• Try more general terms</p>
-          <p>• Remove some filters</p>
-        </div>
+        <EmptySearchResults query={query} />
       </motion.div>
     );
   }

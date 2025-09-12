@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { GestureHandler } from '@/components/ui/gesture-handler';
-import { EnhancedPullToRefresh } from '@/components/ui/enhanced-pull-to-refresh';
+import { PullToRefresh } from '@/components/ui/pull-to-refresh';
 import { List, Map as MapIcon, ChevronDown, Filter, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
@@ -357,9 +357,8 @@ export const Hybrid: React.FC = () => {
                 <div className="flex-1 min-h-0">
                   {/* Stories List with Pull-to-Refresh */}
                   <TabsContent value="list" className="h-full data-[state=inactive]:hidden">
-                    <EnhancedPullToRefresh 
+                    <PullToRefresh 
                       onRefresh={handleRefresh}
-                      isRefreshing={isRefreshing}
                       className="h-full"
                     >
                       <GestureHandler 
@@ -425,7 +424,7 @@ export const Hybrid: React.FC = () => {
                           </div>
                         </div>
                       </GestureHandler>
-                    </EnhancedPullToRefresh>
+                    </PullToRefresh>
                   </TabsContent>
 
                   {/* Map View - lazy loaded and optimized */}

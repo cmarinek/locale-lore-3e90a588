@@ -2,7 +2,8 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { FactCard } from './FactCard';
-import { Skeleton } from '@/components/ui/skeleton';
+import { LoadingList } from '@/components/ui/enhanced-loading-states';
+import { EmptyFactsList } from '@/components/ui/enhanced-empty-states';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { cn } from '@/lib/utils';
 
@@ -44,52 +45,19 @@ export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ className, v
     };
   }, [handleObserver]);
 
-  const LoadingSkeleton = () => (
-    <div className={cn(
-      "grid gap-6",
-      viewMode === 'grid' ? "md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
-    )}>
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className={cn(
-          "space-y-3",
-          viewMode === 'list' && "flex gap-4 items-start"
-        )}>
-          <Skeleton className={cn(
-            "rounded-lg",
-            viewMode === 'grid' ? "h-48 w-full" : "h-24 w-32 shrink-0"
-          )} />
-          <div className={cn(
-            "space-y-2",
-            viewMode === 'grid' ? "p-4" : "flex-1 py-2"
-          )}>
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-3 w-1/2" />
-            <Skeleton className="h-3 w-full" />
-            <Skeleton className="h-3 w-2/3" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
 
   if (isLoading && facts.length === 0) {
     return (
       <div className={cn("space-y-6", className)}>
-        <LoadingSkeleton />
+        <LoadingList viewMode={viewMode} />
       </div>
     );
   }
 
   if (facts.length === 0 && !isLoading) {
     return (
-      <div className={cn("text-center py-12", className)}>
-        <div className="space-y-3">
-          <div className="text-6xl">🔍</div>
-          <h3 className="text-lg font-semibold">No facts found</h3>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            Try adjusting your search terms or filters to discover more interesting facts.
-          </p>
-        </div>
+      <div className={cn("space-y-6", className)}>
+        <EmptyFactsList onRefresh={() => loadMoreFacts()} />
       </div>
     );
   }

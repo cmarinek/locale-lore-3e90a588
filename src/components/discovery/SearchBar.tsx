@@ -4,7 +4,7 @@ import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
-import { useDebounce } from '@/hooks/useDebounce';
+import { useEnhancedDebounce } from '@/hooks/useEnhancedDebounce';
 import { cn } from '@/lib/utils';
 
 interface SearchBarProps {
@@ -28,7 +28,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const [localQuery, setLocalQuery] = useState(filters.search || '');
   const [showSuggestions, setShowSuggestions] = useState(false);
   
-  const debouncedQuery = useDebounce(localQuery, 300);
+  const [debouncedQuery, cancelDebounce, isDebouncing] = useEnhancedDebounce(localQuery, {
+    delay: 300,
+    maxWait: 1000
+  });
 
   useEffect(() => {
     if (debouncedQuery !== filters.search) {
