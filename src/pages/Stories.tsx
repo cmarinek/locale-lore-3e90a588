@@ -6,6 +6,7 @@ import { QuickCaptureData } from '@/types/stories';
 import { VerticalFeed } from '@/components/stories/VerticalFeed';
 import { QuickCapture } from '@/components/stories/QuickCapture';
 import { TrendingSection } from '@/components/stories/TrendingSection';
+import { EmptyStoriesState } from '@/components/stories/EmptyStoriesState';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MainLayout } from '@/components/templates/MainLayout';
@@ -80,6 +81,20 @@ const Stories: React.FC = () => {
           <p className="text-lg">Loading Stories...</p>
         </div>
       </div>
+    );
+  }
+
+  // Show empty state when no stories are available
+  if (!loading && stories.length === 0 && activeTab === 'feed') {
+    return (
+      <MainLayout>
+        <EmptyStoriesState onCreateStory={() => setShowCapture(true)} />
+        <QuickCapture
+          isOpen={showCapture}
+          onClose={() => setShowCapture(false)}
+          onSubmit={handleSubmitStory}
+        />
+      </MainLayout>
     );
   }
 

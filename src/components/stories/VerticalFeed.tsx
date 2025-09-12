@@ -49,7 +49,7 @@ export const VerticalFeed: React.FC<VerticalFeedProps> = ({
 
   const currentStory = stories[currentIndex];
 
-  if (!currentStory) {
+  if (!currentStory && loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-black">
         <div className="text-white text-center">
@@ -58,6 +58,10 @@ export const VerticalFeed: React.FC<VerticalFeedProps> = ({
         </div>
       </div>
     );
+  }
+
+  if (!currentStory && !loading) {
+    return null; // Will be handled by parent component's empty state
   }
 
   return (

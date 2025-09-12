@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { ContentModerationPanel } from '@/components/admin/ContentModerationPanel';
 import { UserManagementPanel } from '@/components/admin/UserManagementPanel';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
@@ -18,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 export const AdminDashboard: React.FC = () => {
   const { isAdmin, loading } = useAdmin();
   const { t } = useTranslation('admin');
+  const [activeTab, setActiveTab] = useState('analytics');
 
   if (loading) {
     return (
@@ -48,71 +50,67 @@ export const AdminDashboard: React.FC = () => {
     );
   }
 
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'analytics':
+        return <AnalyticsDashboard />;
+      case 'payments':
+        return <PaymentDashboard />;
+      case 'promos':
+        return <PromoCodeManager />;
+      case 'moderation':
+        return <ContentModerationPanel />;
+      case 'users':
+        return <UserManagementPanel />;
+      case 'reports':
+        return <ReportsPanel />;
+      case 'acquisition':
+        return <FactAcquisitionManager />;
+      case 'mobile':
+        return <MobileAppBuilder />;
+      default:
+        return <AnalyticsDashboard />;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background p-2 sm:p-4">
-      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-        <div className="flex items-start sm:items-center gap-3 flex-col sm:flex-row">
-          <div className="flex items-center gap-3">
-            <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
-            <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">{t('dashboard')}</h1>
-              <p className="text-sm text-muted-foreground hidden sm:block">Manage content, users, payments, and monitor system health</p>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        
+        <div className="flex-1 flex flex-col">
+          {/* Header with sidebar trigger */}
+          <header className="h-16 flex items-center justify-between border-b bg-background/95 backdrop-blur-sm px-4">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger />
+              <div className="flex items-center gap-3">
+                <Shield className="w-6 h-6 text-primary" />
+                <div>
+                  <h1 className="text-xl font-bold">{t('dashboard')}</h1>
+                  <p className="text-xs text-muted-foreground hidden sm:block">
+                    Admin Dashboard
+                  </p>
+                </div>
+              </div>
             </div>
+          </header>
+
+          {/* Alert */}
+          <div className="p-4">
+            <Alert className="text-sm">
+              <Shield className="h-4 w-4" />
+              <AlertDescription>
+                Admin access active. All actions are logged.
+              </AlertDescription>
+            </Alert>
           </div>
+
+          {/* Main content */}
+          <main className="flex-1 p-4">
+            {renderContent()}
+          </main>
         </div>
-
-        <Alert className="text-sm">
-          <Shield className="h-4 w-4" />
-          <AlertDescription>
-            Admin access active. All actions are logged.
-          </AlertDescription>
-        </Alert>
-
-        <Tabs defaultValue="analytics" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 h-auto overflow-x-auto">{/* fixed tab layout */}
-            <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-2">{t('analytics')}</TabsTrigger>
-            <TabsTrigger value="payments" className="text-xs sm:text-sm px-2 py-2">{t('payments', { defaultValue: 'Payments' })}</TabsTrigger>
-            <TabsTrigger value="promos" className="text-xs sm:text-sm px-2 py-2">{t('promos', { defaultValue: 'Promos' })}</TabsTrigger>
-            <TabsTrigger value="moderation" className="text-xs sm:text-sm px-2 py-2">{t('moderation')}</TabsTrigger>
-            <TabsTrigger value="users" className="text-xs sm:text-sm px-2 py-2">{t('users')}</TabsTrigger>
-            <TabsTrigger value="reports" className="text-xs sm:text-sm px-2 py-2">{t('reports')}</TabsTrigger>
-            <TabsTrigger value="acquisition" className="text-xs sm:text-sm px-2 py-2">{t('acquisition', { defaultValue: 'Acquisition' })}</TabsTrigger>
-            <TabsTrigger value="mobile" className="text-xs sm:text-sm px-2 py-2">{t('mobile', { defaultValue: 'Mobile' })}</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="analytics" className="space-y-4 sm:space-y-6">
-            <AnalyticsDashboard />
-          </TabsContent>
-
-          <TabsContent value="payments" className="space-y-4 sm:space-y-6">
-            <PaymentDashboard />
-          </TabsContent>
-
-          <TabsContent value="promos" className="space-y-4 sm:space-y-6">
-            <PromoCodeManager />
-          </TabsContent>
-
-          <TabsContent value="moderation" className="space-y-4 sm:space-y-6">
-            <ContentModerationPanel />
-          </TabsContent>
-
-          <TabsContent value="users" className="space-y-4 sm:space-y-6">
-            <UserManagementPanel />
-          </TabsContent>
-
-          <TabsContent value="reports" className="space-y-4 sm:space-y-6">
-            <ReportsPanel />
-          </TabsContent>
-
-          <TabsContent value="acquisition" className="space-y-4 sm:space-y-6">
-            <FactAcquisitionManager />
-          </TabsContent>
-
-          <TabsContent value="mobile" className="space-y-4 sm:space-y-6">
-            <MobileAppBuilder />
-          </TabsContent>
-        </Tabs>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };

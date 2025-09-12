@@ -315,7 +315,7 @@ export const Hybrid: React.FC = () => {
         </div>
 
         {/* Content Area */}
-        {isMobile ? (
+        {isMobile || (typeof window !== 'undefined' && window.innerWidth < 1024) ? (
           /* Mobile: Touch-optimized tab interface with pull-to-refresh */
           <div className="flex-1 flex flex-col">
             {/* Mobile Tab Navigation - optimized for thumb reach */}

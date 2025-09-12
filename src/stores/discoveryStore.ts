@@ -283,7 +283,6 @@ export const useDiscoveryStore = create<DiscoveryState>()(
           }
 
           const { data: facts, error } = await queryBuilder
-            .limit(50)
             .order('created_at', { ascending: false });
 
           if (error) throw error;
@@ -353,7 +352,6 @@ export const useDiscoveryStore = create<DiscoveryState>()(
           }
 
           const { data: facts, error } = await queryBuilder
-            .limit(50)
             .order('created_at', { ascending: false });
 
           if (error) throw error;
