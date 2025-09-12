@@ -4,7 +4,6 @@
  */
 
 import { GlobalAPIChecker } from './global-polyfills';
-import React from 'react';
 import { locationService } from './location';
 
 interface InitializationPhase {
@@ -177,29 +176,4 @@ class InitializationManager {
 // Global singleton instance
 export const initManager = new InitializationManager();
 
-// React hook for components
-export function useInitialization() {
-  const [state, setState] = React.useState(initManager.getState());
-
-  React.useEffect(() => {
-    const updateState = () => setState(initManager.getState());
-    
-    if (!initManager.isReady()) {
-      initManager.onReady(updateState);
-      // Start initialization if not already started
-      initManager.initialize().catch(console.error);
-    }
-
-    return () => {
-      // No cleanup needed for now
-    };
-  }, []);
-
-  return {
-    isReady: state.isReady,
-    phase: state.phase,
-    completed: state.completed,
-    failed: state.failed,
-    safeGetLocation: initManager.safeGetLocation.bind(initManager)
-  };
-}
+// Note: React hook moved to separate file to avoid React dependency issues

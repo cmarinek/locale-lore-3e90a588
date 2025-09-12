@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { useInitialization } from '@/utils/initialization-manager';
+import { useSafeInitialization } from '@/hooks/useSafeInitialization';
 
 interface InitializationGateProps {
   children: React.ReactNode;
@@ -16,7 +16,7 @@ export const InitializationGate: React.FC<InitializationGateProps> = ({
   fallback,
   showProgress = false
 }) => {
-  const { isReady, phase, completed, failed } = useInitialization();
+  const { isReady, phase, completed, failed } = useSafeInitialization();
 
   // Render children immediately; show a non-blocking overlay while initializing
   return (
