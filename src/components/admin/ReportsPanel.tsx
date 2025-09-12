@@ -87,8 +87,9 @@ export const ReportsPanel: React.FC = () => {
     }
   };
 
-  const getReasonIcon = (reason: string) => {
-    switch (reason.toLowerCase()) {
+  const getReasonIcon = (reason?: string) => {
+    const key = (reason || '').toLowerCase();
+    switch (key) {
       case 'spam':
         return '🚫';
       case 'inappropriate':
@@ -176,10 +177,10 @@ export const ReportsPanel: React.FC = () => {
                     </div>
                     
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-lg">{getReasonIcon(report.reason)}</span>
-                      <span className="font-medium">{report.reason}</span>
+                      <span className="text-lg">{getReasonIcon(report?.reason || '')}</span>
+                      <span className="font-medium">{report?.reason || 'Unspecified'}</span>
                       <span className="text-xs text-muted-foreground">
-                        {report.reported_content_type}
+                        {report?.reported_content_type || 'unknown'}
                       </span>
                     </div>
                     
