@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { mapboxService } from '@/services/mapboxService';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactMarker } from '@/types/map';
+import { MapMarkerClustering } from '@/components/map/marker-clustering';
 
 interface OptimizedMapProps {
   className?: string;

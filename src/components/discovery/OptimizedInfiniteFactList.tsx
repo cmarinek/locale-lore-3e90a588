@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { FactCard } from './FactCard';
-import { VirtualizedFactList } from './VirtualizedFactList';
+import { VirtualInfiniteScroll } from '@/components/ui/virtual-infinite-scroll';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { usePerformanceStore } from '@/stores/performanceStore';
@@ -83,9 +83,18 @@ export const OptimizedInfiniteFactList: React.FC<OptimizedInfiniteFactListProps>
   if (enableVirtualization && facts.length > 50) {
     return (
       <div className={cn("space-y-6", className)}>
-        <VirtualizedFactList 
-          containerHeight={600}
+        <VirtualInfiniteScroll
+          items={facts}
+          hasNextPage={hasMore}
+          isNextPageLoading={isLoading}
+          loadNextPage={async () => await loadMoreFacts()}
+          renderItem={({ index, style, data }) => (
+            <div style={style} className="px-2">
+              <FactCard fact={data[index]} />
+            </div>
+          )}
           itemHeight={400}
+          containerHeight={600}
         />
       </div>
     );

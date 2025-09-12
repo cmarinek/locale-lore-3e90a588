@@ -1,5 +1,7 @@
 import React from 'react';
 import { LoreSubmissionWizard } from '@/components/lore/LoreSubmissionWizard';
+import { DragDropZone } from '@/components/upload/drag-drop-zone';
+import { AutosaveForm } from '@/components/forms/autosave-form';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { ContributorPaywall } from '@/components/lore/ContributorPaywall';
 import { Card } from '@/components/ui/card';
