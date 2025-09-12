@@ -106,7 +106,6 @@ const AppContent = () => {
 };
 
 function App() {
-  console.log('App component rendering...');
 
   // Initialize security and SEO on app load
   useEffect(() => {

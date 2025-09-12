@@ -30,7 +30,7 @@ export class SEOManager {
   // Preload critical resources
   preloadCriticalResources(): void {
     const criticalResources = [
-      { href: '/logo.png', as: 'image', type: 'image/png' },
+      { href: '/icon-192.png', as: 'image', type: 'image/png' },
       { href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap', as: 'style' }
     ];
 
@@ -172,7 +172,7 @@ export class SEOManager {
         name: 'LocaleLore',
         logo: {
           '@type': 'ImageObject',
-          url: '/logo.png',
+          url: '/icon-192.png',
         },
       },
     };

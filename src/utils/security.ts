@@ -138,7 +138,7 @@ export class SecurityUtils {
 
   // Environment validation
   static validateEnvironment(): boolean {
-    const requiredVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'];
+    const requiredVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY'];
     return requiredVars.every(envVar => {
       const value = import.meta.env[envVar];
       return value && value.length > 0;

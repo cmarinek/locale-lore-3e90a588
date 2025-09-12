@@ -14,17 +14,11 @@ interface MainLayoutProps {
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) => {
-  console.log('MainLayout: Component rendering...');
-  
   const { t, i18n } = useTranslation('navigation');
-  console.log('MainLayout: Translation hook initialized');
   
   // Get language info directly from i18n - no context dependency
   const currentLanguage = (i18n.language?.split('-')[0] || 'en') as SupportedLanguage;
   const isRTL = SUPPORTED_LANGUAGES[currentLanguage]?.rtl || false;
-  console.log('MainLayout: Language settings:', { currentLanguage, isRTL });
-
-  console.log('MainLayout: About to render JSX...');
   
   return (
     <div className={cn(
