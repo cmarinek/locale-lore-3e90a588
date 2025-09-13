@@ -84,111 +84,71 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
   };
 
   return (
-    <div className={cn("w-full max-w-4xl mx-auto px-4", className)}>
-      {/* Main Search Section */}
-      <div className="text-center mb-6 md:mb-8">
+    <div className={cn("w-full max-w-2xl mx-auto px-4", className)}>
+      {/* Simplified Mobile-First Hero */}
+      <div className="text-center mb-6">
         <motion.h1
-          className="text-3xl sm:text-4xl md:text-6xl font-bold mb-3 md:mb-4 leading-tight"
+          className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
         >
-          <span className="text-primary">Find</span>{" "}
-          <span className="text-secondary">Local Lore</span>
+          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Discover Local Stories
+          </span>
         </motion.h1>
         
         <motion.p
-          className="text-base sm:text-lg md:text-2xl text-muted-foreground mb-6 md:mb-8 max-w-2xl mx-auto px-2"
+          className="text-sm sm:text-base text-muted-foreground mb-6 max-w-md mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
-          Share and uncover hidden stories, legends, and secrets in your neighborhood
+          Find hidden legends and stories in your area
         </motion.p>
       </div>
 
-  {/* Enhanced Mobile-First Search Bar */}
+  {/* Mobile-First Search Bar */}
       <motion.div
-        className="relative mb-6 md:mb-8"
+        className="relative mb-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <div className="relative">
-          {/* Mobile: Enhanced Stacked Layout */}
-          <div className="md:hidden space-y-4">
-            <EnhancedSearchBar
-              value={query}
-              onChange={setQuery}
-              onSearch={handleSearch}
-              placeholder="Search mysteries & legends..."
+        <div className="space-y-4">
+          {/* Search Input */}
+          <EnhancedSearchBar
+            value={query}
+            onChange={setQuery}
+            onSearch={handleSearch}
+            placeholder="Search stories & legends..."
+            size="md"
+            variant="hero"
+            showVoice={true}
+            showHistory={true}
+            className="w-full"
+          />
+          
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="outline"
               size="lg"
-              variant="hero"
-              showVoice={true}
-              showHistory={true}
-              className="w-full"
-            />
+              className="h-12 rounded-2xl border border-border bg-background/80 hover:bg-accent touch-manipulation text-sm font-medium"
+            >
+              <MapPin className="h-4 w-4 mr-2" />
+              Near Me
+            </Button>
             
-            {/* Mobile Action Buttons - Proper spacing and touch targets */}
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                size="lg"
-                className="h-12 rounded-2xl border border-white/40 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm touch-manipulation text-sm font-medium"
-              >
-                <MapPin className="h-4 w-4 mr-2" />
-                Near Me
-              </Button>
-              
-              <Button
-                onClick={handleSearch}
-                disabled={!query.trim()}
-                size="lg"
-                className="h-12 rounded-2xl bg-white text-primary hover:bg-white/90 shadow-lg touch-manipulation text-sm font-medium disabled:opacity-50"
-              >
-                <Search className="h-4 w-4 mr-2" />
-                Search
-              </Button>
-            </div>
-          </div>
-
-          {/* Desktop: Enhanced Inline Layout */}
-          <div className="hidden md:block">
-            <div className="flex items-center bg-card border border-border rounded-2xl p-3 shadow-lg hover:shadow-xl transition-all duration-300 group">
-              <div className="flex-1">
-                <EnhancedSearchBar
-                  value={query}
-                  onChange={setQuery}
-                  onSearch={handleSearch}
-                  placeholder="Search for mysteries, legends, or hidden gems..."
-                  size="lg"
-                  variant="inline"
-                  showVoice={true}
-                  showHistory={true}
-                  className="border-0 bg-transparent shadow-none"
-                />
-              </div>
-              
-              <div className="flex items-center gap-3 ml-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <MapPin className="h-4 w-4 mr-1" />
-                  Near me
-                </Button>
-                
-                <Button
-                  onClick={handleSearch}
-                  disabled={!query.trim()}
-                  size="lg"
-                  className="rounded-xl px-8 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
-                >
-                  Explore
-                </Button>
-              </div>
-            </div>
+            <Button
+              onClick={handleSearch}
+              disabled={!query.trim()}
+              size="lg"
+              className="h-12 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md touch-manipulation text-sm font-medium disabled:opacity-50"
+            >
+              <Search className="h-4 w-4 mr-2" />
+              Search
+            </Button>
           </div>
         </div>
 
@@ -220,81 +180,50 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
         </AnimatePresence>
       </motion.div>
 
-      {/* Mobile-Optimized Popular Categories */}
+      {/* Popular Categories */}
       <motion.div
-        className="mb-6 md:mb-8"
+        className="mb-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
       >
-        {/* Mobile: 2x2 Grid */}
-        <div className="grid grid-cols-2 gap-3 md:hidden">
+        <div className="grid grid-cols-2 gap-3">
           {popularCategories.map((category, index) => (
             <Button
               key={index}
               variant="outline"
               size="lg"
-              className="h-14 rounded-xl border-2 touch-manipulation hover:bg-accent hover:text-accent-foreground transition-all duration-300"
+              className="h-12 rounded-xl border border-border hover:bg-accent hover:text-accent-foreground transition-all duration-300 touch-manipulation"
               onClick={() => handleTrendingClick(category.name.toLowerCase())}
             >
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-lg">{category.icon}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-base">{category.icon}</span>
                 <span className="text-sm font-medium">{category.name}</span>
               </div>
             </Button>
           ))}
         </div>
-        
-        {/* Desktop: Horizontal Layout */}
-        <div className="hidden md:flex flex-wrap justify-center gap-3">
-          {popularCategories.map((category, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              size="sm"
-              className="rounded-full px-4 py-2 hover:bg-accent hover:text-accent-foreground transition-all duration-300 border-border"
-              onClick={() => handleTrendingClick(category.name.toLowerCase())}
-            >
-              <span className="mr-2">{category.icon}</span>
-              {category.name}
-            </Button>
-          ))}
-        </div>
       </motion.div>
 
-      {/* Trending Searches - Simplified for Mobile */}
+      {/* Trending Searches */}
       {showTrending && (
         <motion.div
           className="text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <div className="flex items-center justify-center mb-3 md:mb-4">
+          <div className="flex items-center justify-center mb-4">
             <TrendingUp className="h-4 w-4 text-muted-foreground mr-2" />
-            <span className="text-sm text-muted-foreground">Trending searches</span>
+            <span className="text-sm text-muted-foreground">Popular searches</span>
           </div>
           
-          {/* Mobile: Show fewer trending items in a cleaner layout */}
-          <div className="md:hidden space-y-2">
+          <div className="space-y-2">
             {trendingSearches.slice(0, 3).map((trending, index) => (
               <button
                 key={index}
                 onClick={() => handleTrendingClick(trending)}
-                className="block w-full text-center py-3 px-4 rounded-xl bg-muted/30 text-sm text-primary hover:bg-muted/50 transition-colors duration-200 touch-manipulation"
-              >
-                {trending}
-              </button>
-            ))}
-          </div>
-          
-          {/* Desktop: Show all trending items inline */}
-          <div className="hidden md:flex flex-wrap justify-center gap-2">
-            {trendingSearches.map((trending, index) => (
-              <button
-                key={index}
-                onClick={() => handleTrendingClick(trending)}
-                className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors duration-200"
+                className="block w-full text-center py-3 px-4 rounded-xl bg-muted/50 text-sm text-foreground hover:bg-muted/70 transition-colors duration-200 touch-manipulation"
               >
                 {trending}
               </button>

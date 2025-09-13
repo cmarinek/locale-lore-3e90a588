@@ -332,27 +332,27 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   };
 
   const sizeClasses = {
-    sm: 'h-10 text-sm',
+    sm: 'h-11 text-sm',
     md: 'h-12 text-base',
     lg: 'h-14 text-lg'
   };
 
   const variantClasses = {
-    default: 'bg-background border-border focus-within:border-primary',
-    hero: 'bg-card/50 border-border/50 backdrop-blur-sm focus-within:border-primary focus-within:bg-card/80',
-    inline: 'bg-muted/50 border-transparent focus-within:bg-background focus-within:border-border'
+    default: 'bg-background border-border/40 focus-within:border-primary shadow-sm hover:shadow-md',
+    hero: 'bg-background/95 border-border/30 backdrop-blur-md focus-within:border-primary focus-within:shadow-lg',
+    inline: 'bg-transparent border-transparent focus-within:bg-background/50 focus-within:border-border/50'
   };
 
   return (
     <div className={cn("relative w-full", className)}>
       {/* Main Search Input Container */}
       <div className={cn(
-        "relative flex items-center gap-2 rounded-xl border transition-all duration-300 shadow-sm",
+        "relative flex items-center gap-2 rounded-2xl border transition-all duration-300",
         sizeClasses[size],
         variantClasses[variant],
         showSuggestions && "rounded-b-none shadow-lg",
         disabled && "opacity-50 cursor-not-allowed",
-        "group"
+        "group focus-within:ring-2 focus-within:ring-primary/20"
       )}>
         {/* Search Icon */}
         <div className="flex-shrink-0 pl-4">
@@ -385,51 +385,54 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
           )}
         />
 
-        {/* Clear Button */}
-        {searchValue && !loading && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              handleInputChange('');
-              inputRef.current?.focus();
-            }}
-            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground mr-1"
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        )}
+        {/* Action Buttons */}
+        <div className="flex items-center gap-1 pr-2">
+          {/* Clear Button */}
+          {searchValue && !loading && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                handleInputChange('');
+                inputRef.current?.focus();
+              }}
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground touch-manipulation"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          )}
 
-        {/* Voice Search Button */}
-        {showVoice && onVoiceSearch && (
-          <Button
-            type="button"
-            variant={isRecording ? "destructive" : "ghost"}
-            size="sm"
-            onClick={isRecording ? stopVoiceSearch : startVoiceSearch}
-            disabled={disabled || loading}
-            className={cn(
-              "h-8 w-8 p-0 mr-2",
-              isRecording && "animate-pulse"
-            )}
-          >
-            <Mic className="w-4 h-4" />
-          </Button>
-        )}
+          {/* Voice Search Button */}
+          {showVoice && onVoiceSearch && (
+            <Button
+              type="button"
+              variant={isRecording ? "destructive" : "ghost"}
+              size="sm"
+              onClick={isRecording ? stopVoiceSearch : startVoiceSearch}
+              disabled={disabled || loading}
+              className={cn(
+                "h-8 w-8 p-0 touch-manipulation",
+                isRecording && "animate-pulse bg-destructive/20"
+              )}
+            >
+              <Mic className="w-4 h-4" />
+            </Button>
+          )}
 
-        {/* Filters Button */}
-        {showFilters && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={disabled || loading}
-            className="h-8 w-8 p-0 mr-2"
-          >
-            <Filter className="w-4 h-4" />
-          </Button>
-        )}
+          {/* Filters Button */}
+          {showFilters && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={disabled || loading}
+              className="h-8 w-8 p-0 touch-manipulation"
+            >
+              <Filter className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
 
       </div>
 

@@ -44,26 +44,28 @@ const Index: React.FC = () => {
     console.log('📄 INDEX: All hooks initialized successfully, rendering JSX...');
     return <MainLayout>
       <div className="min-h-screen pb-24 md:pb-0">
-        {/* Simplified Mobile Hero */}
-        <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 px-4 pt-8 pb-6">
-          <div className="text-center max-w-sm mx-auto">
+        {/* Mobile-First Hero Section */}
+        <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 px-4 pt-8 pb-8">
+          <div className="text-center max-w-md mx-auto">
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-2xl md:text-4xl font-bold text-foreground mb-3"
             >
-              LocaleLore
+              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                LocaleLore
+              </span>
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-sm md:text-lg text-muted-foreground mb-6"
+              className="text-sm md:text-lg text-muted-foreground mb-8"
             >
-              Discover local stories & legends
+              Discover local stories & legends near you
             </motion.p>
             
-            {/* Mobile-First Search */}
+            {/* Mobile-Optimized Search */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -75,21 +77,23 @@ const Index: React.FC = () => {
         </div>
 
         {/* Mobile-First Main Actions */}
-        <div className="px-4 py-6">
-          {/* Primary Actions - Stack on Mobile */}
+        <div className="px-4 py-8">
+          {/* Primary Actions - Enhanced Mobile Design */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="space-y-3 mb-8"
+            className="space-y-4 mb-8"
           >
             <Button 
               size="lg" 
               onClick={() => navigate('/explore')} 
-              className="w-full h-16 bg-primary hover:bg-primary/90 text-primary-foreground touch-manipulation"
+              className="w-full h-16 bg-primary hover:bg-primary/90 text-primary-foreground touch-manipulation rounded-2xl shadow-md hover:shadow-lg transition-all duration-300"
             >
-              <div className="flex items-center gap-3">
-                <Compass className="w-6 h-6" />
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-primary-foreground/20 rounded-full flex items-center justify-center">
+                  <Compass className="w-5 h-5" />
+                </div>
                 <div className="text-left">
                   <div className="text-lg font-semibold">{t('exploreStories', 'Explore Stories')}</div>
                   <div className="text-xs opacity-90">Discover local legends</div>
@@ -100,10 +104,12 @@ const Index: React.FC = () => {
             <Button 
               variant="outline" 
               onClick={() => navigate('/map')} 
-              className="w-full h-16 border-2 hover:bg-accent/50 touch-manipulation"
+              className="w-full h-16 border-2 hover:bg-accent/50 touch-manipulation rounded-2xl shadow-sm hover:shadow-md transition-all duration-300"
             >
-              <div className="flex items-center gap-3">
-                <MapPin className="w-6 h-6" />
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-accent/20 rounded-full flex items-center justify-center">
+                  <MapPin className="w-5 h-5" />
+                </div>
                 <div className="text-left">
                   <div className="text-lg font-semibold">Explore Map</div>
                   <div className="text-xs text-muted-foreground">See nearby stories</div>
@@ -112,54 +118,62 @@ const Index: React.FC = () => {
             </Button>
           </motion.div>
 
-          {/* Quick Access Cards - 2x2 Grid on Mobile */}
+          {/* Quick Access Cards - Improved Mobile Grid */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="grid grid-cols-2 gap-3 mb-8"
+            className="grid grid-cols-2 gap-4 mb-8"
           >
             <Card 
-              className="p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group touch-manipulation"
+              className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group touch-manipulation rounded-2xl border-border/50"
               onClick={() => navigate('/explore')}
             >
               <div className="text-center">
-                <Sparkles className="h-6 w-6 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                  <Sparkles className="h-6 w-6 text-primary" />
+                </div>
                 <h3 className="font-semibold text-sm mb-1">Daily Discovery</h3>
-                <p className="text-xs text-muted-foreground">Personalized content</p>
+                <p className="text-xs text-muted-foreground">AI recommendations</p>
               </div>
             </Card>
             
             <Card 
-              className="p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group touch-manipulation"
+              className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group touch-manipulation rounded-2xl border-border/50"
               onClick={() => navigate('/search')}
             >
               <div className="text-center">
-                <Search className="h-6 w-6 text-secondary mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                  <Search className="h-6 w-6 text-secondary" />
+                </div>
                 <h3 className="font-semibold text-sm mb-1">Search</h3>
-                <p className="text-xs text-muted-foreground">Find specific stories</p>
+                <p className="text-xs text-muted-foreground">Find stories</p>
               </div>
             </Card>
             
             <Card 
-              className="p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group touch-manipulation"
+              className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group touch-manipulation rounded-2xl border-border/50"
               onClick={() => navigate('/stories')}
             >
               <div className="text-center">
-                <TrendingUp className="h-6 w-6 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="h-6 w-6 text-primary" />
+                </div>
                 <h3 className="font-semibold text-sm mb-1">Trending</h3>
-                <p className="text-xs text-muted-foreground">Popular stories</p>
+                <p className="text-xs text-muted-foreground">Popular content</p>
               </div>
             </Card>
             
             <Card 
-              className="p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group touch-manipulation"
+              className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group touch-manipulation rounded-2xl border-border/50"
               onClick={() => navigate('/submit')}
             >
               <div className="text-center">
-                <BookOpen className="h-6 w-6 text-secondary mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                  <BookOpen className="h-6 w-6 text-secondary" />
+                </div>
                 <h3 className="font-semibold text-sm mb-1">Share Story</h3>
-                <p className="text-xs text-muted-foreground">Contribute content</p>
+                <p className="text-xs text-muted-foreground">Add content</p>
               </div>
             </Card>
           </motion.div>
