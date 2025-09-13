@@ -16,7 +16,12 @@ interface HeroSearchBarProps {
   showTrending?: boolean;
 }
 
-const trendingSearches = ["Hidden waterfalls", "Local ghost stories", "Secret speakeasies", "Underground tunnels", "Historic landmarks"];
+const allTrendingSearches = [
+  "Hidden waterfalls", "Local ghost stories", "Secret speakeasies", "Underground tunnels", "Historic landmarks",
+  "Abandoned places", "Mysterious legends", "Ancient ruins", "Forgotten tales", "Lost civilizations",
+  "Haunted locations", "Urban mysteries", "Cultural secrets", "Hidden gems", "Folklore stories",
+  "Time capsules", "Sacred sites", "Archaeological finds", "Local myths", "Secret tunnels"
+];
 const popularCategories = [
   { name: "Mystery", icon: "🔍" },
   { name: "History", icon: "🏛️" },
@@ -35,7 +40,14 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
   const [query, setQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [trendingSearches, setTrendingSearches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Randomize trending searches on component mount
+  useEffect(() => {
+    const shuffled = [...allTrendingSearches].sort(() => Math.random() - 0.5);
+    setTrendingSearches(shuffled.slice(0, 3));
+  }, []);
 
   // Mock suggestions based on query
   useEffect(() => {
