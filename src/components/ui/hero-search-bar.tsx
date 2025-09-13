@@ -129,14 +129,14 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
               className="w-full"
             />
             
-            {/* Mobile Action Buttons - Full Width with better touch targets */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Mobile Action Buttons - Proper spacing and touch targets */}
+            <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
                 size="lg"
-                className="h-14 rounded-2xl border-2 touch-manipulation text-base font-medium"
+                className="h-12 rounded-2xl border border-white/40 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm touch-manipulation text-sm font-medium"
               >
-                <MapPin className="h-5 w-5 mr-2" />
+                <MapPin className="h-4 w-4 mr-2" />
                 Near Me
               </Button>
               
@@ -144,10 +144,10 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
                 onClick={handleSearch}
                 disabled={!query.trim()}
                 size="lg"
-                className="h-14 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md touch-manipulation text-base font-medium"
+                className="h-12 rounded-2xl bg-white text-primary hover:bg-white/90 shadow-lg touch-manipulation text-sm font-medium disabled:opacity-50"
               >
-                <Search className="h-5 w-5 mr-2" />
-                Explore
+                <Search className="h-4 w-4 mr-2" />
+                Search
               </Button>
             </div>
           </div>

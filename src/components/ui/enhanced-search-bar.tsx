@@ -431,18 +431,6 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
           </Button>
         )}
 
-        {/* Search Button - Mobile Only */}
-        <div className="md:hidden">
-          <Button
-            type="button"
-            onClick={() => handleSearch()}
-            disabled={disabled || loading || !searchValue.trim()}
-            size="sm"
-            className="mr-2 px-4 h-8 rounded-lg"
-          >
-            {loading ? "..." : "Search"}
-          </Button>
-        </div>
       </div>
 
       {/* Suggestions Dropdown */}

@@ -47,16 +47,16 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
         className="w-full"
       />
       
-      {/* Mobile Action Buttons - Full Width with better touch targets */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* Mobile Action Buttons - Proper spacing and touch targets */}
+      <div className="grid grid-cols-2 gap-3">
         {showLocationButton && (
           <Button
             variant="outline"
             size="lg"
             onClick={onLocationSearch}
-            className="h-14 rounded-2xl border-2 touch-manipulation text-base font-medium"
+            className="h-12 rounded-2xl border border-border bg-card hover:bg-accent touch-manipulation text-sm font-medium shadow-sm"
           >
-            <MapPin className="h-5 w-5 mr-2" />
+            <MapPin className="h-4 w-4 mr-2" />
             Near Me
           </Button>
         )}
@@ -66,11 +66,11 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
           disabled={!value?.trim()}
           size="lg"
           className={cn(
-            "h-14 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md touch-manipulation text-base font-medium",
+            "h-12 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md touch-manipulation text-sm font-medium disabled:opacity-50",
             !showLocationButton && "col-span-2"
           )}
         >
-          Explore
+          Search
         </Button>
       </div>
     </motion.div>
