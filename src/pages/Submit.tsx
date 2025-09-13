@@ -62,12 +62,13 @@ export const Submit: React.FC = () => {
       }
     } catch (error) {
       console.error('Error checking subscription:', error);
-      // Default to allowing submission on error
       setSubscriptionStatus({
         subscribed: false,
         subscription_tier: 'free',
         canSubmit: false
       });
+      // Show paywall when subscription check fails to prevent bypass
+      setShowPaywall(true);
     } finally {
       setLoading(false);
     }
@@ -105,7 +106,7 @@ export const Submit: React.FC = () => {
     );
   }
 
-  if (showPaywall) {
+  if (showPaywall || !subscriptionStatus.canSubmit) {
     return (
       <MainLayout>
       <ContributorPaywall 
