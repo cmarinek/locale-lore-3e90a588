@@ -3,58 +3,49 @@ import { Search, MapPin, Sparkles, TrendingUp } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { EnhancedSearchBar } from '@/components/ui/enhanced-search-bar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
-
 interface HeroSearchBarProps {
   className?: string;
   onSearch?: (query: string) => void;
   onQueryChange?: (query: string) => void;
   showTrending?: boolean;
 }
-
-const allTrendingSearches = [
-  "Hidden waterfalls", "Local ghost stories", "Secret speakeasies", "Underground tunnels", "Historic landmarks",
-  "Abandoned places", "Mysterious legends", "Ancient ruins", "Forgotten tales", "Lost civilizations",
-  "Haunted locations", "Urban mysteries", "Cultural secrets", "Hidden gems", "Folklore stories",
-  "Time capsules", "Sacred sites", "Archaeological finds", "Local myths", "Secret tunnels"
-];
-const popularCategories = [
-  { name: "Mystery", icon: "🔍" },
-  { name: "History", icon: "🏛️" },
-  { name: "Nature", icon: "🌲" },
-  { name: "Urban", icon: "🏙️" }
-];
-
+const trendingSearches = ["Hidden waterfalls", "Local ghost stories", "Secret speakeasies", "Underground tunnels", "Historic landmarks"];
+const popularCategories = [{
+  name: "Mystery",
+  icon: "🔍"
+}, {
+  name: "History",
+  icon: "🏛️"
+}, {
+  name: "Nature",
+  icon: "🌲"
+}, {
+  name: "Urban",
+  icon: "🏙️"
+}];
 export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
   className,
   onSearch,
   onQueryChange,
   showTrending = true
 }) => {
-  const { t } = useTranslation();
+  const {
+    t
+  } = useTranslation();
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [trendingSearches, setTrendingSearches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Randomize trending searches on component mount
-  useEffect(() => {
-    const shuffled = [...allTrendingSearches].sort(() => Math.random() - 0.5);
-    setTrendingSearches(shuffled.slice(0, 3));
-  }, []);
 
   // Mock suggestions based on query
   useEffect(() => {
     if (query.length > 1) {
-      const mockSuggestions = trendingSearches
-        .filter(search => search.toLowerCase().includes(query.toLowerCase()))
-        .slice(0, 4);
+      const mockSuggestions = trendingSearches.filter(search => search.toLowerCase().includes(query.toLowerCase())).slice(0, 4);
       setSuggestions(mockSuggestions);
       setShowSuggestions(true);
     } else {
@@ -62,7 +53,6 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
       setShowSuggestions(false);
     }
   }, [query]);
-
   const handleSearch = useCallback(() => {
     if (query.trim()) {
       onSearch?.(query.trim());
@@ -71,7 +61,6 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
       setShowSuggestions(false);
     }
   }, [query, onSearch, onQueryChange, navigate]);
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -79,7 +68,6 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
       setShowSuggestions(false);
     }
   };
-
   const handleSuggestionClick = (suggestion: string) => {
     setQuery(suggestion);
     setShowSuggestions(false);
@@ -87,164 +75,137 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
     onQueryChange?.(suggestion);
     navigate(`/search?q=${encodeURIComponent(suggestion)}`);
   };
-
   const handleTrendingClick = (trending: string) => {
     setQuery(trending);
     onSearch?.(trending);
     onQueryChange?.(trending);
     navigate(`/search?q=${encodeURIComponent(trending)}`);
   };
-
-  return (
-    <div className={cn("w-full max-w-2xl mx-auto px-4", className)}>
-      {/* Simplified Mobile-First Hero */}
-      <div className="text-center mb-6">
-        <motion.h1
-          className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Discover Local Stories
-          </span>
+  return <div className={cn("w-full max-w-4xl mx-auto", className)}>
+      {/* Main Search Section */}
+      <div className="text-center mb-8">
+        <motion.h1 className="text-4xl md:text-6xl font-bold mb-4" initial={{
+        opacity: 0,
+        y: 20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        duration: 0.6
+      }}>
+          <span className="text-primary">Find</span>{" "}
+          <span className="text-secondary">Local Lore</span>
         </motion.h1>
         
-        <motion.p
-          className="text-sm sm:text-base text-muted-foreground mb-6 max-w-md mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          Find hidden legends and stories in your area
-        </motion.p>
+        <motion.p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto" initial={{
+        opacity: 0,
+        y: 20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        duration: 0.6,
+        delay: 0.2
+      }}>Share and uncover hidden stories, legends, and secrets in your neighborhood</motion.p>
       </div>
 
-  {/* Mobile-First Search Bar */}
-      <motion.div
-        className="relative mb-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <div className="space-y-4">
-          {/* Search Input */}
-          <EnhancedSearchBar
-            value={query}
-            onChange={setQuery}
-            onSearch={handleSearch}
-            placeholder="Search stories & legends..."
-            size="md"
-            variant="hero"
-            showVoice={true}
-            showHistory={true}
-            className="w-full"
-          />
-          
-          {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-12 rounded-2xl border border-border bg-background/80 hover:bg-accent touch-manipulation text-sm font-medium"
-            >
-              <MapPin className="h-4 w-4 mr-2" />
-              Near Me
-            </Button>
+      {/* Search Bar */}
+      <motion.div className="relative mb-8" initial={{
+      opacity: 0,
+      y: 20
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} transition={{
+      duration: 0.6,
+      delay: 0.4
+    }}>
+        <div className="relative">
+          <div className="flex items-center bg-card border border-border rounded-2xl p-2 shadow-lg hover:shadow-xl transition-all duration-300 group">
+            <div className="flex items-center flex-1 px-4">
+              <Search className="h-5 w-5 text-muted-foreground mr-3 group-focus-within:text-primary transition-colors" />
+              <Input ref={inputRef} type="text" placeholder="Search for mysteries, legends, or hidden gems..." value={query} onChange={e => setQuery(e.target.value)} onKeyPress={handleKeyPress} onFocus={() => query.length > 1 && setShowSuggestions(true)} onBlur={() => setTimeout(() => setShowSuggestions(false), 150)} className="border-0 bg-transparent text-lg placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0" />
+            </div>
             
-            <Button
-              onClick={handleSearch}
-              disabled={!query.trim()}
-              size="lg"
-              className="h-12 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md touch-manipulation text-sm font-medium disabled:opacity-50"
-            >
-              <Search className="h-4 w-4 mr-2" />
-              Search
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <MapPin className="h-4 w-4 mr-1" />
+                Near me
+              </Button>
+              
+              <Button onClick={handleSearch} disabled={!query.trim()} size="lg" className="rounded-xl px-8 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300">
+                Explore
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Search Suggestions */}
         <AnimatePresence>
-          {showSuggestions && suggestions.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="absolute z-50 w-full mt-2"
-            >
+          {showSuggestions && suggestions.length > 0 && <motion.div initial={{
+          opacity: 0,
+          y: -10
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} exit={{
+          opacity: 0,
+          y: -10
+        }} className="absolute z-50 w-full mt-2">
               <Card className="p-3 bg-card/95 backdrop-blur border-border shadow-xl">
                 <div className="space-y-1">
-                  {suggestions.map((suggestion, index) => (
-                    <button
-                      key={index}
-                      className="w-full text-left px-4 py-3 hover:bg-muted rounded-lg transition-colors duration-200 flex items-center gap-3 touch-manipulation"
-                      onClick={() => handleSuggestionClick(suggestion)}
-                    >
+                  {suggestions.map((suggestion, index) => <button key={index} className="w-full text-left px-4 py-3 hover:bg-muted rounded-lg transition-colors duration-200 flex items-center gap-3" onClick={() => handleSuggestionClick(suggestion)}>
                       <Search className="h-4 w-4 text-muted-foreground" />
                       <span className="text-sm">{suggestion}</span>
-                    </button>
-                  ))}
+                    </button>)}
                 </div>
               </Card>
-            </motion.div>
-          )}
+            </motion.div>}
         </AnimatePresence>
       </motion.div>
 
       {/* Popular Categories */}
-      <motion.div
-        className="mb-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        <div className="grid grid-cols-2 gap-3">
-          {popularCategories.map((category, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              size="lg"
-              className="h-12 rounded-xl border border-border hover:bg-accent hover:text-accent-foreground transition-all duration-300 touch-manipulation"
-              onClick={() => handleTrendingClick(category.name.toLowerCase())}
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-base">{category.icon}</span>
-                <span className="text-sm font-medium">{category.name}</span>
-              </div>
-            </Button>
-          ))}
+      <motion.div className="mb-8" initial={{
+      opacity: 0,
+      y: 20
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} transition={{
+      duration: 0.6,
+      delay: 0.6
+    }}>
+        <div className="flex flex-wrap justify-center gap-3">
+          {popularCategories.map((category, index) => <Button key={index} variant="outline" size="sm" className="rounded-full px-4 py-2 hover:bg-accent hover:text-accent-foreground transition-all duration-300 border-border" onClick={() => handleTrendingClick(category.name.toLowerCase())}>
+              <span className="mr-2">{category.icon}</span>
+              {category.name}
+            </Button>)}
         </div>
       </motion.div>
 
       {/* Trending Searches */}
-      {showTrending && (
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
+      {showTrending && <motion.div className="text-center" initial={{
+      opacity: 0,
+      y: 20
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} transition={{
+      duration: 0.6,
+      delay: 0.8
+    }}>
           <div className="flex items-center justify-center mb-4">
             <TrendingUp className="h-4 w-4 text-muted-foreground mr-2" />
-            <span className="text-sm text-muted-foreground">Popular searches</span>
+            <span className="text-sm text-muted-foreground">Trending searches</span>
           </div>
           
-          <div className="space-y-2">
-            {trendingSearches.slice(0, 3).map((trending, index) => (
-              <button
-                key={index}
-                onClick={() => handleTrendingClick(trending)}
-                className="block w-full text-center py-3 px-4 rounded-xl bg-muted/50 text-sm text-foreground hover:bg-muted/70 transition-colors duration-200 touch-manipulation"
-              >
+          <div className="flex flex-wrap justify-center gap-2">
+            {trendingSearches.map((trending, index) => <button key={index} onClick={() => handleTrendingClick(trending)} className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors duration-200">
                 {trending}
-              </button>
-            ))}
+              </button>)}
           </div>
-        </motion.div>
-      )}
-    </div>
-  );
-};
+        </motion.div>}
 
+    </div>;
+};
 export default HeroSearchBar;

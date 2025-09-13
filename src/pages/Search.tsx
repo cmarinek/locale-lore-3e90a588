@@ -173,29 +173,28 @@ export const Search: React.FC = () => {
     <MainLayout>
       <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
         <div className="container mx-auto px-4 py-8">
-          {/* Mobile-First Hero Section */}
+          {/* Hero Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-8 px-4"
+            className="text-center mb-12"
           >
-            <h1 className="text-2xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Search Local Stories
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+              Discover Local Lore
             </h1>
-            <p className="text-sm md:text-lg text-muted-foreground max-w-md mx-auto mb-6">
-              Find legends, mysteries, and historical facts in your area
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+              Search through thousands of local stories, legends, and historical facts. 
+              Use voice search, apply filters, and discover trending content in your area.
             </p>
 
-            {/* Mobile-Optimized Search Bar */}
-            <div className="max-w-lg mx-auto">
-              <AdvancedSearchBar
-                onSearch={handleSearch}
-                onVoiceSearch={handleVoiceSearch}
-                onQRScan={handleQRScan}
-                initialQuery={query}
-                loading={loading}
-              />
-            </div>
+            {/* Advanced Search Bar */}
+            <AdvancedSearchBar
+              onSearch={handleSearch}
+              onVoiceSearch={handleVoiceSearch}
+              onQRScan={handleQRScan}
+              initialQuery={query}
+              loading={loading}
+            />
           </motion.div>
 
           <div className="grid lg:grid-cols-4 gap-8">

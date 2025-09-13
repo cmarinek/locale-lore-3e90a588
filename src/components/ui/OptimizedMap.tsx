@@ -177,16 +177,13 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
         logoPosition: 'bottom-right'
       });
 
-      // Add controls with safe touch handling
-      const navControl = new mapboxgl.NavigationControl({ visualizePitch: true });
-      const geoControl = new mapboxgl.GeolocateControl({
+      // Add controls
+      mapInstance.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-right');
+      mapInstance.addControl(new mapboxgl.GeolocateControl({
         positionOptions: { enableHighAccuracy: true },
         trackUserLocation: true,
         showUserHeading: true
-      });
-      
-      mapInstance.addControl(navControl, 'top-right');
-      mapInstance.addControl(geoControl, 'top-right');
+      }), 'top-right');
 
       map.current = mapInstance;
       // mark successful initialization only after map instance exists
@@ -198,14 +195,9 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
         fetchFacts();
       });
 
-      // Throttled moveend to prevent excessive updates
-      let moveendTimeout: NodeJS.Timeout;
       mapInstance.on('moveend', () => {
-        clearTimeout(moveendTimeout);
-        moveendTimeout = setTimeout(() => {
-          const center = mapInstance.getCenter();
-          setMapCenter([center.lng, center.lat]);
-        }, 100);
+        const center = mapInstance.getCenter();
+        setMapCenter([center.lng, center.lat]);
       });
 
     } catch (error) {
@@ -363,10 +355,7 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
       <div 
         ref={mapContainer} 
         className="absolute inset-0 rounded-lg w-full h-full" 
-        style={{ 
-          minHeight: '400px',
-          touchAction: 'pan-x pan-y'
-        }}
+        style={{ minHeight: '400px' }}
       />
       
       {/* Loading overlay with progress indicator */}
@@ -442,33 +431,26 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
         </div>
       )}
 
-      {/* Simplified Map Style FAB - reduced clutter */}
+      {/* Map style controls */}
       {loadingState === 'ready' && (
-        <div 
-          className="absolute bottom-4 left-4 z-10 pointer-events-auto"
-          style={{ 
-            touchAction: 'manipulation',
-            paddingBottom: 'env(safe-area-inset-bottom, 0px)'
-          }}
-          onClick={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-        >
-          <button
-            onClick={() => {
-              const styles = Object.keys(mapStyles) as Array<keyof typeof mapStyles>;
-              const currentIndex = styles.indexOf(mapStyle);
-              const nextIndex = (currentIndex + 1) % styles.length;
-              setMapStyle(styles[nextIndex]);
-            }}
-            className="w-12 h-12 rounded-full bg-background/90 backdrop-blur-sm border border-border shadow-lg flex items-center justify-center text-lg hover:bg-accent transition-all touch-manipulation"
-            title="Change map style"
-            style={{ minHeight: '44px', minWidth: '44px' }}
-          >
-            {mapStyle === 'light' && '☀️'}
-            {mapStyle === 'dark' && '🌙'}
-            {mapStyle === 'satellite' && '🛰️'}
-            {mapStyle === 'terrain' && '🏔️'}
-          </button>
+        <div className="absolute top-4 left-4 flex flex-col space-y-2 z-10">
+          {Object.entries(mapStyles).map(([style, _]) => (
+            <button
+              key={style}
+              onClick={() => setMapStyle(style as keyof typeof mapStyles)}
+              className={`w-10 h-10 rounded-lg border-2 flex items-center justify-center text-sm font-medium transition-all ${
+                mapStyle === style 
+                  ? 'bg-primary text-primary-foreground border-primary shadow-lg' 
+                  : 'bg-background/90 text-foreground border-border hover:bg-accent hover:border-accent-foreground'
+              }`}
+              title={`Switch to ${style} style`}
+            >
+              {style === 'light' && '☀️'}
+              {style === 'dark' && '🌙'}
+              {style === 'satellite' && '🛰️'}
+              {style === 'terrain' && '🏔️'}
+            </button>
+          ))}
         </div>
       )}
     </div>

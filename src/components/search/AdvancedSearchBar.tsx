@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { EnhancedSearchBar } from '@/components/ui/enhanced-search-bar';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -278,21 +277,47 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({
     <div className="relative w-full max-w-2xl mx-auto">
       <div className="relative flex items-center gap-2">
         <div className="relative flex-1">
-          <EnhancedSearchBar
-            value={query}
-            onChange={setQuery}
-            onSearch={handleSearch}
-            onVoiceSearch={onVoiceSearch}
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Input
+            ref={inputRef}
+            type="text"
             placeholder="Search local lore, stories, and places..."
-            size="lg"
-            variant="default"
-            showVoice={!!onVoiceSearch}
-            showHistory={true}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyPress={handleKeyPress}
+            onFocus={() => setShowSuggestions(true)}
+            className="pl-10 pr-4 h-12 text-base bg-background/50 backdrop-blur border-border focus:border-primary"
             disabled={loading}
-            loading={loading}
-            className="w-full"
           />
+          
+          {query && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setQuery('');
+                setSuggestions([]);
+                setShowSuggestions(false);
+              }}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          )}
         </div>
+
+        {/* Voice Search Button */}
+        {onVoiceSearch && (
+          <Button
+            variant={isRecording ? "destructive" : "outline"}
+            size="icon"
+            onClick={isRecording ? stopVoiceSearch : startVoiceSearch}
+            className="h-12 w-12"
+            disabled={loading}
+          >
+            <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
+          </Button>
+        )}
 
         {/* QR Code Scanner */}
         {onQRScan && (
