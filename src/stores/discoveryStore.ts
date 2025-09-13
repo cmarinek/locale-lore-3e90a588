@@ -117,7 +117,17 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       setUserLocation: (location) => set({ userLocation: location }),
       setViewMode: (mode) => set({ viewMode: mode }),
       setSyncSelectedFact: (factId) => set({ syncSelectedFact: factId }),
-      setMapCenter: (center) => set({ mapCenter: center }),
+      setMapCenter: (center) => set((state) => {
+        // Prevent unnecessary updates if center hasn't changed significantly
+        if (state.mapCenter && center) {
+          const distance = Math.sqrt(
+            Math.pow(state.mapCenter[0] - center[0], 2) + 
+            Math.pow(state.mapCenter[1] - center[1], 2)
+          );
+          if (distance < 0.001) return state; // Less than ~100m difference
+        }
+        return { mapCenter: center };
+      }),
       
       loadMoreFacts: async () => {
         const state = get();

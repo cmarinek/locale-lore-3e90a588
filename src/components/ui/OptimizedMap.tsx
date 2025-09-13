@@ -52,6 +52,10 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
   const maxRetries = 3;
   
   const { mapCenter, setMapCenter, syncSelectedFact } = useDiscoveryStore();
+  
+  // Refs for preventing infinite loops
+  const lastMapCenterRef = useRef<[number, number] | null>(null);
+  const mapCenterUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [mapStyle, setMapStyle] = useState<keyof typeof mapStyles>('light');
   const [loadingState, setLoadingState] = useState<'token' | 'map' | 'facts' | 'ready'>('token');
@@ -195,9 +199,25 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
         fetchFacts();
       });
 
+      // Throttled moveend handler to prevent infinite loops
       mapInstance.on('moveend', () => {
-        const center = mapInstance.getCenter();
-        setMapCenter([center.lng, center.lat]);
+        if (mapCenterUpdateTimeoutRef.current) {
+          clearTimeout(mapCenterUpdateTimeoutRef.current);
+        }
+        
+        mapCenterUpdateTimeoutRef.current = setTimeout(() => {
+          const center = mapInstance.getCenter();
+          const newCenter: [number, number] = [center.lng, center.lat];
+          
+          // Only update if significantly different to prevent feedback loops
+          const lastCenter = lastMapCenterRef.current;
+          if (!lastCenter || 
+              Math.abs(newCenter[0] - lastCenter[0]) > 0.001 || 
+              Math.abs(newCenter[1] - lastCenter[1]) > 0.001) {
+            lastMapCenterRef.current = newCenter;
+            setMapCenter(newCenter);
+          }
+        }, 300); // Throttle to 300ms
       });
 
     } catch (error) {
@@ -300,6 +320,10 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
     
     return () => {
       clearTimeout(timer);
+      // Cleanup timeouts
+      if (mapCenterUpdateTimeoutRef.current) {
+        clearTimeout(mapCenterUpdateTimeoutRef.current);
+      }
       // Cleanup on unmount
       if (map.current) {
         map.current.remove();
@@ -346,7 +370,19 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
   // React to external center changes without re-initializing
   useEffect(() => {
     if (map.current && mapCenter) {
-      map.current.easeTo({ center: mapCenter as [number, number], duration: 800 });
+      const currentCenter = map.current.getCenter();
+      const targetCenter = mapCenter as [number, number];
+      
+      // Only animate if the difference is significant to prevent feedback loops
+      const distance = Math.sqrt(
+        Math.pow(currentCenter.lng - targetCenter[0], 2) + 
+        Math.pow(currentCenter.lat - targetCenter[1], 2)
+      );
+      
+      if (distance > 0.001) { // Only move if distance > ~100m
+        lastMapCenterRef.current = targetCenter;
+        map.current.easeTo({ center: targetCenter, duration: 800 });
+      }
     }
   }, [mapCenter]);
 
@@ -354,7 +390,7 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
     <div className={`relative w-full h-full min-h-[400px] ${className}`}>
       <div 
         ref={mapContainer} 
-        className="absolute inset-0 rounded-lg w-full h-full" 
+        className="absolute inset-0 rounded-lg w-full h-full pointer-events-auto" 
         style={{ minHeight: '400px' }}
       />
       
