@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Activity, Zap, Globe, Image, Clock } from 'lucide-react';
 import { trackMetric } from '@/utils/monitoring';
+import { useAdmin } from '@/hooks/useAdmin';
 
 interface PerformanceMetrics {
   lcp: number;
@@ -17,6 +18,7 @@ interface PerformanceMetrics {
 export const PerformanceMonitor: React.FC = () => {
   const [metrics, setMetrics] = useState<Partial<PerformanceMetrics>>({});
   const [isVisible, setIsVisible] = useState(false);
+  const { isAdmin, loading } = useAdmin();
 
   useEffect(() => {
     // Only show in development
@@ -68,7 +70,8 @@ export const PerformanceMonitor: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  if (!isVisible || Object.keys(metrics).length === 0) return null;
+  // Only show to admins
+  if (!isVisible || Object.keys(metrics).length === 0 || loading || !isAdmin) return null;
 
   const getScoreColor = (metric: keyof PerformanceMetrics, value: number) => {
     const thresholds = {
