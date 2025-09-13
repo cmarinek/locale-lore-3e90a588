@@ -18,3 +18,5 @@ export * from './navigation-menu';
 export * from './pull-to-refresh';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs-social';
 export { UnifiedSearchBar } from './unified-search-bar';
+export { EnhancedSearchBar } from './enhanced-search-bar';
+export { MobileSearchBar } from './mobile-search-bar';

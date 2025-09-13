@@ -3,6 +3,7 @@ import { Search, MapPin, Sparkles, TrendingUp } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { EnhancedSearchBar } from '@/components/ui/enhanced-search-bar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -106,7 +107,7 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
         </motion.p>
       </div>
 
-      {/* Mobile-Optimized Search Bar */}
+  {/* Enhanced Mobile-First Search Bar */}
       <motion.div
         className="relative mb-6 md:mb-8"
         initial={{ opacity: 0, y: 20 }}
@@ -114,31 +115,28 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
         transition={{ duration: 0.6, delay: 0.4 }}
       >
         <div className="relative">
-          {/* Mobile: Stacked Layout */}
-          <div className="md:hidden space-y-3">
-            <div className="flex items-center bg-card border border-border rounded-2xl p-4 shadow-lg">
-              <Search className="h-5 w-5 text-muted-foreground mr-3" />
-              <Input
-                ref={inputRef}
-                type="text"
-                placeholder="Search mysteries & legends..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyPress={handleKeyPress}
-                onFocus={() => query.length > 1 && setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                className="border-0 bg-transparent text-base placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-            </div>
+          {/* Mobile: Enhanced Stacked Layout */}
+          <div className="md:hidden space-y-4">
+            <EnhancedSearchBar
+              value={query}
+              onChange={setQuery}
+              onSearch={handleSearch}
+              placeholder="Search mysteries & legends..."
+              size="lg"
+              variant="hero"
+              showVoice={true}
+              showHistory={true}
+              className="w-full"
+            />
             
-            {/* Mobile Action Buttons - Full Width */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Mobile Action Buttons - Full Width with better touch targets */}
+            <div className="grid grid-cols-2 gap-4">
               <Button
                 variant="outline"
                 size="lg"
-                className="h-12 rounded-xl border-2 touch-manipulation"
+                className="h-14 rounded-2xl border-2 touch-manipulation text-base font-medium"
               >
-                <MapPin className="h-4 w-4 mr-2" />
+                <MapPin className="h-5 w-5 mr-2" />
                 Near Me
               </Button>
               
@@ -146,49 +144,50 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
                 onClick={handleSearch}
                 disabled={!query.trim()}
                 size="lg"
-                className="h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md touch-manipulation"
+                className="h-14 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md touch-manipulation text-base font-medium"
               >
-                <Search className="h-4 w-4 mr-2" />
+                <Search className="h-5 w-5 mr-2" />
                 Explore
               </Button>
             </div>
           </div>
 
-          {/* Desktop: Inline Layout */}
-          <div className="hidden md:flex items-center bg-card border border-border rounded-2xl p-2 shadow-lg hover:shadow-xl transition-all duration-300 group">
-            <div className="flex items-center flex-1 px-4">
-              <Search className="h-5 w-5 text-muted-foreground mr-3 group-focus-within:text-primary transition-colors" />
-              <Input
-                ref={inputRef}
-                type="text"
-                placeholder="Search for mysteries, legends, or hidden gems..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyPress={handleKeyPress}
-                onFocus={() => query.length > 1 && setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                className="border-0 bg-transparent text-lg placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <MapPin className="h-4 w-4 mr-1" />
-                Near me
-              </Button>
+          {/* Desktop: Enhanced Inline Layout */}
+          <div className="hidden md:block">
+            <div className="flex items-center bg-card border border-border rounded-2xl p-3 shadow-lg hover:shadow-xl transition-all duration-300 group">
+              <div className="flex-1">
+                <EnhancedSearchBar
+                  value={query}
+                  onChange={setQuery}
+                  onSearch={handleSearch}
+                  placeholder="Search for mysteries, legends, or hidden gems..."
+                  size="lg"
+                  variant="inline"
+                  showVoice={true}
+                  showHistory={true}
+                  className="border-0 bg-transparent shadow-none"
+                />
+              </div>
               
-              <Button
-                onClick={handleSearch}
-                disabled={!query.trim()}
-                size="lg"
-                className="rounded-xl px-8 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
-              >
-                Explore
-              </Button>
+              <div className="flex items-center gap-3 ml-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <MapPin className="h-4 w-4 mr-1" />
+                  Near me
+                </Button>
+                
+                <Button
+                  onClick={handleSearch}
+                  disabled={!query.trim()}
+                  size="lg"
+                  className="rounded-xl px-8 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                  Explore
+                </Button>
+              </div>
             </div>
           </div>
         </div>
