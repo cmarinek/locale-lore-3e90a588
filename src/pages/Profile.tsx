@@ -10,14 +10,19 @@ import { StatisticsCard } from '@/components/profile/StatisticsCard';
 import { AchievementShowcase } from '@/components/profile/AchievementShowcase';
 import { DataExportPanel } from '@/components/profile/DataExportPanel';
 import { DataDeletionPanel } from '@/components/profile/DataDeletionPanel';
+import { SubscriptionStatusCard } from '@/components/ui/subscription-status-card';
 import { useAuth } from '@/contexts/AuthProvider';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 
 export const Profile: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const { user } = useAuth();
   const { t } = useTranslation('profile');
+  const [isContributor, setIsContributor] = useState(false);
+  const [checkingSubscription, setCheckingSubscription] = useState(true);
   
   const {
     settings,
@@ -31,6 +36,30 @@ export const Profile: React.FC = () => {
   } = useProfile();
 
   const isOwnProfile = !id || id === user?.id;
+
+  // Check subscription status
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!user) {
+        setCheckingSubscription(false);
+        return;
+      }
+
+      try {
+        const { data } = await supabase.functions.invoke('check-subscription', {
+          body: { user_id: user.id }
+        });
+        setIsContributor(data?.subscribed || false);
+      } catch (error) {
+        console.error('Error checking subscription:', error);
+        setIsContributor(false);
+      } finally {
+        setCheckingSubscription(false);
+      }
+    };
+
+    checkSubscription();
+  }, [user]);
 
   if (loading) {
     return (
@@ -73,6 +102,12 @@ export const Profile: React.FC = () => {
                 {t('myProfile', { defaultValue: 'My Profile' })}
               </h1>
             </div>
+            
+            {/* Subscription Status */}
+            <SubscriptionStatusCard 
+              isContributor={isContributor}
+              className="mb-6"
+            />
           </motion.div>
 
           <Tabs defaultValue="profile" className="space-y-6">

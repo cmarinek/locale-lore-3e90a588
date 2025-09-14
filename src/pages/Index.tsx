@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCommunityStats } from '@/hooks/useCommunityStats';
-import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
+import { WelcomeOnboarding } from '@/components/onboarding/WelcomeOnboarding';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useAuth } from '@/contexts/AuthProvider';
 const Index: React.FC = () => {
@@ -280,8 +280,8 @@ const Index: React.FC = () => {
       </div>
     </div>
 
-    {/* Onboarding Tour */}
-    {showOnboarding && <OnboardingTour onComplete={completeOnboarding} onSkip={skipOnboarding} />}
+    {/* Welcome Onboarding */}
+    {showOnboarding && <WelcomeOnboarding onComplete={completeOnboarding} onSkip={skipOnboarding} />}
   </MainLayout>;
   } catch (error) {
     console.error('📄 INDEX: Error during render:', error);
