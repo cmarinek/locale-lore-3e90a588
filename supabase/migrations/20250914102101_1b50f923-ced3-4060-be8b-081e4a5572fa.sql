@@ -1,0 +1,3 @@
+-- Fix RLS on spatial_ref_sys (PostGIS system table - should not have RLS)
+-- This is a PostGIS system table and should remain without RLS
+-- The warning in the linter is about a PostGIS system table which is expected to not have RLS
