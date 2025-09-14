@@ -107,7 +107,17 @@ export const RealtimeProvider: React.FC<RealtimeProviderProps> = ({ children }) 
   const addComment = async (factId: string, comment: string) => {
     if (!user) return;
     
+    // Check if user has contributor subscription
     try {
+      const { data: subCheck } = await supabase.functions.invoke('check-subscription', {
+        body: { user_id: user.id }
+      });
+      
+      if (!subCheck?.subscribed) {
+        console.warn('Non-contributor attempted to comment');
+        return;
+      }
+
       await supabase.from('comments').insert({
         fact_id: factId,
         author_id: user.id,

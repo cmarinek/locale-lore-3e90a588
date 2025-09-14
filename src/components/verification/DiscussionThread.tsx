@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, ThumbsUp, ThumbsDown, Reply, MoreHorizontal, Flag, Edit2, Trash2 } from 'lucide-react';
+import { MessageSquare, ThumbsUp, ThumbsDown, Reply, MoreHorizontal, Flag, Edit2, Trash2, Crown } from 'lucide-react';
 import { Card } from '@/components/ui/ios-card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -47,6 +47,7 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
+  const [isContributor, setIsContributor] = useState<boolean>(false);
 
   useEffect(() => {
     fetchComments();
@@ -164,6 +165,30 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({
 
   const submitComment = async () => {
     if (!user || !newComment.trim() || submitting) return;
+
+    // Check if user has contributor subscription
+    try {
+      const { data: subCheck } = await supabase.functions.invoke('check-subscription', {
+        body: { user_id: user.id }
+      });
+      
+      if (!subCheck?.subscribed) {
+        toast({
+          title: "Contributor Required",
+          description: "Only contributors can create comments. Upgrade to contribute!",
+          variant: "destructive"
+        });
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+      toast({
+        title: "Error",
+        description: "Unable to verify subscription status",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setSubmitting(true);
     try {
