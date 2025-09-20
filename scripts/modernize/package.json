@@ -1,0 +1,13 @@
+{
+  "name": "modernize-scripts",
+  "version": "1.0.0",
+  "description": "Scripts to modernize UI components",
+  "scripts": {
+    "modernize:all": "bash ../modernize.sh all",
+    "modernize:header": "bash ../modernize.sh header",
+    "modernize:search": "bash ../modernize.sh search",
+    "modernize:markers": "bash ../modernize.sh markers",
+    "modernize:bottom-bar": "bash ../modernize.sh bottom-bar",
+    "modernize:views": "bash ../modernize.sh views"
+  }
+}

@@ -1,0 +1,59 @@
+name: 🎨 Modernize UI - CashApp Style
+on:
+  workflow_dispatch:
+    inputs:
+      phases:
+        description: 'Phases to run (comma-separated: header,search,markers,bottom-bar,views,all)'
+        required: true
+        default: 'all'
+        type: string
+
+jobs:
+  modernize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: 📦 Install dependencies
+        run: npm ci
+        
+      - name: 🎨 Run modernization script
+        run: |
+          chmod +x ./scripts/modernize.sh
+          ./scripts/modernize.sh "${{ github.event.inputs.phases }}"
+        env:
+          PHASES: ${{ github.event.inputs.phases }}
+          
+      - name: 🧪 Run tests
+        run: npm test --if-present
+        
+      - name: 🔍 Check for changes
+        id: changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: 📝 Commit and push changes
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "🎨 Modernize UI: CashApp-inspired design (${{ github.event.inputs.phases }})"
+          git push
+          
+      - name: 📊 Create summary
+        run: |
+          echo "## 🎨 Modernization Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "Applied phases: ${{ github.event.inputs.phases }}" >> $GITHUB_STEP_SUMMARY
+          echo "Changes will sync to Lovable automatically" >> $GITHUB_STEP_SUMMARY
