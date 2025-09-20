@@ -85,4 +85,4 @@ mapContent = mapContent.replace(
 
 fs.writeFileSync(mapPath, mapContent);
 
-console.log('✅ Header modernization complete');`
+console.log('✅ Header modernization complete');
