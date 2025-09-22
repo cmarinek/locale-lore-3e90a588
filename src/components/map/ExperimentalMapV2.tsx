@@ -128,8 +128,10 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
         scrollZoom: { around: 'center' }
       });
 
-      // Add navigation controls
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      // Add navigation controls only if they don't already exist
+      if (!mapContainer.current?.querySelector('.mapboxgl-ctrl-top-right')) {
+        map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      }
 
       // Reposition Mapbox controls to 50vh after they're rendered
       setTimeout(() => {
@@ -312,9 +314,25 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
           </button>
         </div>
       </div>
-
-
-
+      {/* Navigation Controls - Left Side (50vh) */}
+      <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-20 flex flex-col gap-2">
+        <div className="flex flex-col bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
+          <button
+            onClick={() => handleResetView()}
+            className="p-3 hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground"
+            title="Reset View"
+          >
+            🧭
+          </button>
+          <button
+            onClick={() => handleShareLocation()}
+            className="p-3 hover:bg-muted/50 transition-colors border-t border-0 rounded-none bg-transparent text-foreground"
+            title="Share Location"
+          >
+            📍
+          </button>
+        </div>
+      </div>
       {/* Debug info in development */}
       {process.env.NODE_ENV === 'development' && (
         <div className="absolute bottom-4 left-4 z-20 bg-black/80 text-white p-2 rounded text-xs">
