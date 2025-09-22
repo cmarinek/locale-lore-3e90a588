@@ -108,7 +108,7 @@ export const Map: React.FC = () => {
         />
 
         {/* Mobile-optimized Search Bar - improved positioning */}
-        <div className="absolute top-4 left-4 right-4 z-20 max-w-md mx-auto sm:max-w-none sm:left-20 sm:right-32">
+        <div className="absolute top-4 left-4 right-4 z-20 max-w-md mx-auto sm:max-w-none sm:left-20 sm:right-40">
           <ModernSearchBar onSearch={handleSearch} placeholder="Search stories on map..." showLocationButton={true} />
         </div>
 
