@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import { RetinaMobileMapComponent } from '@/components/map/RetinaMobileMapComponent';
+import { OptimizedMapComponent } from '@/components/map/OptimizedMapComponent';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
@@ -94,8 +94,8 @@ export const Map: React.FC = () => {
       </Helmet>
 
       <div className="h-screen w-full relative">
-        {/* Retina-optimized mobile-first map */}
-        <RetinaMobileMapComponent
+        {/* Optimized map with performance monitoring */}
+        <OptimizedMapComponent
           onFactClick={handleFactClick}
           className="h-full w-full"
           isVisible={true}
