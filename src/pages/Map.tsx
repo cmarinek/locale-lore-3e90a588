@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import { ExperimentalMapSystem } from '@/components/map/ExperimentalMapSystem';
+import ExperimentalMapV2 from '@/components/map/ExperimentalMapV2';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
@@ -94,8 +94,8 @@ export const Map: React.FC = () => {
       </Helmet>
 
       <div className="h-screen w-full relative">
-        {/* Experimental map system with React 18 features */}
-        <ExperimentalMapSystem
+        {/* Experimental Map V2 - Complete React 18 implementation */}
+        <ExperimentalMapV2
           onFactClick={handleFactClick}
           className="h-full w-full"
           isVisible={true}
