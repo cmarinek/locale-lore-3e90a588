@@ -34,13 +34,12 @@ export const ModernSearchBar: React.FC<ModernSearchBarProps> = ({
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
           className={cn(
-            "w-full pl-10 sm:pl-12 h-12 sm:h-14 rounded-full",
+            "w-full pl-10 sm:pl-12 h-11 rounded-full",
             "bg-background/90 backdrop-blur-lg border border-border/30",
             "text-sm sm:text-base",
             "focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/30",
             "transition-all duration-200",
             "shadow-lg hover:shadow-xl",
-            "min-h-[48px]", // Ensure minimum touch target
             showLocationButton ? "pr-14 sm:pr-16" : "pr-4"
           )}
         />
