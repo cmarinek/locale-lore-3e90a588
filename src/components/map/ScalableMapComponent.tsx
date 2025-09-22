@@ -473,6 +473,16 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
               {style === 'terrain' && '🏔️'}
             </button>
           ))}
+          
+          {/* Share Location Button */}
+          <button
+            onClick={shareLocation}
+            className="w-11 h-11 rounded-xl border-2 flex items-center justify-center text-base font-medium transition-all shadow-lg backdrop-blur-sm bg-background/80 text-foreground border-border hover:bg-accent hover:border-accent-foreground hover:shadow-lg"
+            title="Share my location"
+            aria-label="Share my current location"
+          >
+            📍
+          </button>
         </div>
       )}
 
@@ -485,4 +495,44 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       )}
     </div>
   );
+
+  // Share location function
+  function shareLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          const locationUrl = `https://maps.google.com/maps?q=${latitude},${longitude}`;
+          const shareData = {
+            title: 'My Location',
+            text: `Check out where I am: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
+            url: locationUrl,
+          };
+
+          try {
+            if (navigator.share) {
+              await navigator.share(shareData);
+            } else {
+              await navigator.clipboard.writeText(locationUrl);
+              console.log('Location copied to clipboard');
+            }
+          } catch (error) {
+            console.error('Error sharing location:', error);
+            try {
+              await navigator.clipboard.writeText(locationUrl);
+              console.log('Location copied to clipboard');
+            } catch (clipboardError) {
+              console.error('Failed to copy location');
+            }
+          }
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          alert('Please enable location access to share your location.');
+        }
+      );
+    } else {
+      alert('Your browser doesn\'t support location sharing.');
+    }
+  }
 };

@@ -3,9 +3,9 @@ import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 import { ModernBottomBar } from '@/components/ui/modern-bottom-bar';
-import { Share, Heart, BookmarkPlus, MapPin } from 'lucide-react';
+import { Share, Heart, BookmarkPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { ScalableMapComponent } from '@/components/map/ScalableMapComponent';
@@ -15,7 +15,6 @@ import { FactMarker } from '@/types/map';
 
 export const Map: React.FC = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   
   const {
     selectedFact,
@@ -73,63 +72,6 @@ export const Map: React.FC = () => {
     setSyncSelectedFact(null);
   };
 
-  const shareLocation = async () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          const locationUrl = `https://maps.google.com/maps?q=${latitude},${longitude}`;
-          const shareData = {
-            title: 'My Location',
-            text: `Check out where I am: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
-            url: locationUrl,
-          };
-
-          try {
-            if (navigator.share) {
-              await navigator.share(shareData);
-            } else {
-              await navigator.clipboard.writeText(locationUrl);
-              toast({
-                title: "Location copied!",
-                description: "Your location link has been copied to clipboard.",
-              });
-            }
-          } catch (error) {
-            console.error('Error sharing location:', error);
-            try {
-              await navigator.clipboard.writeText(locationUrl);
-              toast({
-                title: "Location copied!",
-                description: "Your location link has been copied to clipboard.",
-              });
-            } catch (clipboardError) {
-              toast({
-                title: "Sharing failed",
-                description: "Unable to share or copy location.",
-                variant: "destructive",
-              });
-            }
-          }
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-          toast({
-            title: "Location access denied",
-            description: "Please enable location access to share your location.",
-            variant: "destructive",
-          });
-        }
-      );
-    } else {
-      toast({
-        title: "Geolocation not supported",
-        description: "Your browser doesn't support location sharing.",
-        variant: "destructive",
-      });
-    }
-  };
-
   // Handle syncSelectedFact when component mounts or changes
   useEffect(() => {
     if (syncSelectedFact) {
@@ -180,11 +122,6 @@ export const Map: React.FC = () => {
 
         {/* Modern Bottom Bar */}
         <ModernBottomBar
-          primaryAction={{
-            label: "Share My Location",
-            icon: <MapPin className="h-4 w-4" />,
-            onClick: shareLocation
-          }}
           secondaryActions={[
             {
               label: "Favorite",
