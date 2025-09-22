@@ -32,7 +32,7 @@ interface ViewportBounds {
 
 const ZOOM_THRESHOLDS = {
   CLUSTER_ONLY: 10,
-  INDIVIDUAL_FACTS: 12, // Lower threshold to show facts sooner
+  INDIVIDUAL_FACTS: 14, // Match database function transition point
   DETAILED_VIEW: 16
 };
 
@@ -490,6 +490,8 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
   // Initialize map when component mounts or becomes visible
   useEffect(() => {
     if (isVisible && !hasInitializedRef.current) {
+      // Clear cache to ensure fresh clustering data with improved function
+      geoService.clearCache();
       // Preload token for faster initialization
       mapboxService.preloadToken().then(() => {
         initializeMap();
