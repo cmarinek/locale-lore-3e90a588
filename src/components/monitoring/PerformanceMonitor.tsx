@@ -32,6 +32,7 @@ export const PerformanceMonitor: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [alerts, setAlerts] = useState<PerformanceAlert[]>([]);
   const [overallScore, setOverallScore] = useState<'good' | 'poor' | 'needs-improvement'>('good');
+  const [isExpanded, setIsExpanded] = useState(false);
   const { isAdmin, loading } = useAdmin();
 
   // Enhanced performance monitoring with alerts
@@ -189,138 +190,96 @@ export const PerformanceMonitor: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <Card className="p-4 w-80 bg-background/95 backdrop-blur border-l-4" 
+    <div className="fixed bottom-4 left-4 z-50">
+      <Card className={`p-3 ${isExpanded ? 'w-72' : 'w-16'} bg-background/95 backdrop-blur border-l-4 transition-all duration-300`} 
             style={{ 
               borderLeftColor: overallScore === 'good' ? '#22c55e' : 
                               overallScore === 'needs-improvement' ? '#f59e0b' : '#ef4444' 
             }}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
             <Activity className="w-4 h-4" />
-            <span className="font-semibold text-sm">Performance</span>
-          </div>
-          <div className="flex items-center gap-1">
-            {overallScore === 'good' ? (
-              <CheckCircle className="w-4 h-4 text-green-500" />
-            ) : (
-              <AlertTriangle className="w-4 h-4 text-yellow-500" />
-            )}
-            <span className={`text-xs font-medium ${
-              overallScore === 'good' ? 'text-green-700 dark:text-green-400' :
-              overallScore === 'needs-improvement' ? 'text-yellow-700 dark:text-yellow-400' :
-              'text-red-700 dark:text-red-400'
-            }`}>
-              {overallScore === 'good' ? 'Good' : 
-               overallScore === 'needs-improvement' ? 'Fair' : 'Poor'}
-            </span>
-          </div>
+            {isExpanded && <span className="font-semibold text-sm">Performance</span>}
+          </button>
+          {isExpanded && (
+            <div className="flex items-center gap-1">
+              {overallScore === 'good' ? (
+                <CheckCircle className="w-4 h-4 text-green-500" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 text-yellow-500" />
+              )}
+              <span className={`text-xs font-medium ${
+                overallScore === 'good' ? 'text-green-700 dark:text-green-400' :
+                overallScore === 'needs-improvement' ? 'text-yellow-700 dark:text-yellow-400' :
+                'text-red-700 dark:text-red-400'
+              }`}>
+                {overallScore === 'good' ? 'Good' : 
+                 overallScore === 'needs-improvement' ? 'Fair' : 'Poor'}
+              </span>
+            </div>
+          )}
         </div>
         
-        <div className="space-y-2 text-xs">
-          {metrics.lcp && (
-            <div className="flex justify-between items-center">
-              <span className="flex items-center gap-1">
-                <Zap className="w-3 h-3" />
-                LCP
-              </span>
-              <Badge className={getScoreColor('lcp', metrics.lcp)}>
-                {Math.round(metrics.lcp)}ms
-              </Badge>
-            </div>
-          )}
-          
-          {metrics.fid && (
-            <div className="flex justify-between items-center">
-              <span className="flex items-center gap-1">
-                <Globe className="w-3 h-3" />
-                FID
-              </span>
-              <Badge className={getScoreColor('fid', metrics.fid)}>
-                {Math.round(metrics.fid)}ms
-              </Badge>
-            </div>
-          )}
-          
-          {metrics.cls !== undefined && (
-            <div className="flex justify-between items-center">
-              <span className="flex items-center gap-1">
-                <Image className="w-3 h-3" />
-                CLS
-              </span>
-              <Badge className={getScoreColor('cls', metrics.cls)}>
-                {metrics.cls.toFixed(3)}
-              </Badge>
-            </div>
-          )}
-          
-          {metrics.fcp && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm">FCP</span>
-              <Badge className={getScoreColor('fcp', metrics.fcp)}>
-                {Math.round(metrics.fcp)}ms
-              </Badge>
-            </div>
-          )}
-          
-          {metrics.ttfb && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm">TTFB</span>
-              <Badge className={getScoreColor('ttfb', metrics.ttfb)}>
-                {Math.round(metrics.ttfb)}ms
-              </Badge>
-            </div>
-          )}
-          
-          {metrics.loadTime && (
-            <div className="flex justify-between items-center">
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                Load
-              </span>
-              <Badge className={getScoreColor('loadTime', metrics.loadTime)}>
-                {Math.round(metrics.loadTime)}ms
-              </Badge>
-            </div>
-          )}
+        {isExpanded && (
+          <div className="space-y-2 text-xs mt-3">
+            {metrics.lcp && (
+              <div className="flex justify-between items-center">
+                <span className="flex items-center gap-1">
+                  <Zap className="w-3 h-3" />
+                  LCP
+                </span>
+                <Badge className={getScoreColor('lcp', metrics.lcp)}>
+                  {Math.round(metrics.lcp)}ms
+                </Badge>
+              </div>
+            )}
+            
+            {metrics.fid && (
+              <div className="flex justify-between items-center">
+                <span className="flex items-center gap-1">
+                  <Globe className="w-3 h-3" />
+                  FID
+                </span>
+                <Badge className={getScoreColor('fid', metrics.fid)}>
+                  {Math.round(metrics.fid)}ms
+                </Badge>
+              </div>
+            )}
+            
+            {metrics.cls !== undefined && (
+              <div className="flex justify-between items-center">
+                <span className="flex items-center gap-1">
+                  <Image className="w-3 h-3" />
+                  CLS
+                </span>
+                <Badge className={getScoreColor('cls', metrics.cls)}>
+                  {metrics.cls.toFixed(3)}
+                </Badge>
+              </div>
+            )}
 
-          {/* Memory and DOM metrics */}
-          {metrics.memoryUsage && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm">Memory</span>
-              <Badge className={metrics.memoryUsage > 50 ? 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400' : 'bg-green-500/20 text-green-700 dark:text-green-400'}>
-                {metrics.memoryUsage}MB
-              </Badge>
-            </div>
-          )}
-
-          {metrics.domNodes && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm">DOM Nodes</span>
-              <Badge className={metrics.domNodes > 1000 ? 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400' : 'bg-green-500/20 text-green-700 dark:text-green-400'}>
-                {metrics.domNodes}
-              </Badge>
-            </div>
-          )}
-        </div>
-
-        {/* Performance alerts */}
-        {alerts.length > 0 && (
-          <div className="mt-3 pt-3 border-t border-border">
-            <div className="text-xs font-medium mb-2 flex items-center gap-1">
-              <AlertTriangle className="w-3 h-3" />
-              Issues ({alerts.length})
-            </div>
-            <div className="space-y-1">
-              {alerts.slice(0, 2).map((alert, index) => (
-                <div key={index} className={`text-xs p-2 rounded ${
-                  alert.type === 'error' ? 'bg-red-500/10 text-red-700 dark:text-red-400' :
-                  'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400'
-                }`}>
-                  {alert.message}
+            {/* Performance alerts */}
+            {alerts.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-border">
+                <div className="text-xs font-medium mb-2 flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  Issues ({alerts.length})
                 </div>
-              ))}
-            </div>
+                <div className="space-y-1">
+                  {alerts.slice(0, 2).map((alert, index) => (
+                    <div key={index} className={`text-xs p-2 rounded ${
+                      alert.type === 'error' ? 'bg-red-500/10 text-red-700 dark:text-red-400' :
+                      'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400'
+                    }`}>
+                      {alert.message}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </Card>
