@@ -31,7 +31,7 @@ class GeoService {
   private config: GeoServiceConfig = {
     maxFactsPerRequest: 1000,
     clusterRadius: 50, // km
-    maxZoomForClustering: 14,
+    maxZoomForClustering: 12, // Changed from 14 to 12 to match the map component
     viewportPadding: 0.1 // 10% padding around viewport
   };
 
@@ -162,30 +162,33 @@ class GeoService {
   }
 
   private async getClusteredFacts(bounds: ViewportBounds, zoom: number): Promise<GeoCluster[]> {
-    // Use the new PostGIS clustering function
+    console.log(`🎯 Fetching clusters from DB for zoom ${zoom}, bounds:`, bounds);
+    
+    // Use the corrected PostGIS clustering function
     const { data, error } = await supabase.rpc('get_fact_clusters', {
       p_north: bounds.north,
       p_south: bounds.south,
       p_east: bounds.east,
       p_west: bounds.west,
-      p_zoom: zoom,
-      p_radius: this.config.clusterRadius
+      p_zoom: zoom
     });
 
     if (error) {
-      console.warn('Clustering function error, using fallback:', error);
+      console.warn('❌ Clustering function error, using fallback:', error);
       return this.fallbackClustering(bounds, zoom);
     }
 
+    console.log(`📊 DB returned ${data?.length || 0} clusters`);
+
     // Transform the database response to match our interface
-    return (data || []).map(cluster => ({
-      id: cluster.id,
-      center: [cluster.center[0], cluster.center[1]] as [number, number],
-      count: cluster.count,
-      verified_count: cluster.verified_count,
-      total_votes: cluster.total_votes,
-      bounds: typeof cluster.bounds === 'string' ? JSON.parse(cluster.bounds) : cluster.bounds,
-      zoom_level: cluster.zoom_level
+    return (data || []).map((cluster: any) => ({
+      id: cluster.cluster_id,
+      center: [cluster.cluster_longitude, cluster.cluster_latitude] as [number, number],
+      count: cluster.cluster_count,
+      verified_count: cluster.cluster_count, // For now, assume all are verified since DB filters by verified
+      total_votes: 0, // Not available in current DB function
+      bounds: cluster.cluster_bounds,
+      zoom_level: zoom
     }));
   }
 

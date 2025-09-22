@@ -115,7 +115,11 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
           mapInstance.setStyle(mapStyles[mapStyle]);
         }
         
-        updateViewportData();
+        // Initial data load with delay to ensure map is ready
+        console.log('📊 Triggering initial data update after map load');
+        setTimeout(() => {
+          updateViewportData();
+        }, 500);
       });
 
       // Throttled viewport updates for performance with better debouncing
@@ -173,18 +177,18 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       console.log(`🗺️ Loading data for zoom ${zoom.toFixed(1)}`);
       
       const { facts, clusters } = await geoService.getFactsInViewport(
-        viewportBounds,
+        viewportBounds, 
         zoom
       );
 
-      console.log(`📊 Retrieved ${facts.length} facts and ${clusters.length} clusters`);
+      console.log(`📊 Retrieved ${facts.length} facts and ${clusters.length} clusters for zoom ${zoom}`);
 
       // Update map visualization based on zoom level
       if (zoom >= ZOOM_THRESHOLDS.INDIVIDUAL_FACTS) {
         console.log('📍 Rendering individual facts');
         renderIndividualFacts(facts);
       } else {
-        console.log('🎯 Rendering clusters');
+        console.log(`🎯 Rendering ${clusters.length} clusters`);
         renderClusters(clusters);
       }
 
@@ -295,6 +299,8 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
   const renderClusters = useCallback((clusters: any[]) => {
     if (!map.current) return;
 
+    console.log(`🎯 renderClusters called with ${clusters.length} clusters:`, clusters);
+
     // Clear individual fact layers first
     if (map.current.getLayer('individual-facts')) {
       map.current.removeLayer('individual-facts');
@@ -320,27 +326,34 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       }
     });
 
-    if (clusters.length === 0) return;
+    if (clusters.length === 0) {
+      console.log('⚠️ No clusters to render, exiting early');
+      return;
+    }
 
     // Add clusters as source
+    const geoJsonData = {
+      type: 'FeatureCollection' as const,
+      features: clusters.map(cluster => ({
+        type: 'Feature' as const,
+        properties: {
+          id: cluster.id,
+          count: cluster.count,
+          verified_count: cluster.verified_count,
+          total_votes: cluster.total_votes
+        },
+        geometry: {
+          type: 'Point' as const,
+          coordinates: cluster.center
+        }
+      }))
+    };
+
+    console.log('📍 Creating cluster GeoJSON:', geoJsonData);
+
     map.current.addSource('clusters', {
       type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: clusters.map(cluster => ({
-          type: 'Feature',
-          properties: {
-            id: cluster.id,
-            count: cluster.count,
-            verified_count: cluster.verified_count,
-            total_votes: cluster.total_votes
-          },
-          geometry: {
-            type: 'Point',
-            coordinates: cluster.center
-          }
-        }))
-      }
+      data: geoJsonData
     });
 
     // Style clusters

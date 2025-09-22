@@ -3294,30 +3294,19 @@ export type Database = {
         Returns: unknown
       }
       get_fact_clusters: {
-        Args:
-          | {
-              p_east: number
-              p_north: number
-              p_radius?: number
-              p_south: number
-              p_west: number
-              p_zoom: number
-            }
-          | {
-              p_east: number
-              p_north: number
-              p_south: number
-              p_west: number
-              p_zoom?: number
-            }
+        Args: {
+          p_east: number
+          p_north: number
+          p_south: number
+          p_west: number
+          p_zoom?: number
+        }
         Returns: {
-          bounds: Json
-          center: number[]
-          count: number
-          id: string
-          total_votes: number
-          verified_count: number
-          zoom_level: number
+          cluster_bounds: Json
+          cluster_count: number
+          cluster_id: string
+          cluster_latitude: number
+          cluster_longitude: number
         }[]
       }
       get_nearby_triggers: {
