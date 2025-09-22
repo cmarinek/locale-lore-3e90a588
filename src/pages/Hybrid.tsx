@@ -7,9 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ModernViewToggle } from '@/components/ui/modern-view-toggle';
+import { ModernBottomBar } from '@/components/ui/modern-bottom-bar';
 import { GestureHandler } from '@/components/ui/gesture-handler';
 import { PullToRefresh } from '@/components/ui/pull-to-refresh';
-import { List, Map as MapIcon, ChevronDown, Filter, MapPin } from 'lucide-react';
+import { List, Map as MapIcon, ChevronDown, Filter, MapPin, Share, Heart, BookmarkPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
@@ -425,30 +426,98 @@ export const Hybrid: React.FC = () => {
                   {/* Map View - lazy loaded and optimized */}
                   <TabsContent value="map" forceMount className="h-full data-[state=inactive]:hidden">
                     <div className="relative h-full">
-                      <ProductionErrorBoundary>
-                        <React.Suspense fallback={
-                          <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center">
-                            <div className="flex flex-col items-center space-y-4 p-6 bg-card/90 backdrop-blur-sm rounded-lg shadow-lg">
-                              <div className="flex items-center space-x-3">
-                                <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
-                                <span className="text-sm font-medium">Preparing map...</span>
-                              </div>
-                              <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
-                                <div className="h-full bg-primary rounded-full animate-pulse"></div>
-                              </div>
-                              <p className="text-xs text-muted-foreground text-center">Setting up interactive experience</p>
-                            </div>
-                          </div>
-                        }>
-                           <LazyScalableMap
-                           onFactClick={handleMapFactClick} 
-                           className="h-full w-full"
-                           isVisible={activeTab === 'map'}
-                           initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                           initialZoom={isMobile ? 12 : 10}
-                         />
-                       </React.Suspense>
-                      </ProductionErrorBoundary>
+                       <ProductionErrorBoundary>
+                         <React.Suspense fallback={
+                           <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center">
+                             <div className="flex flex-col items-center space-y-4 p-6 bg-card/90 backdrop-blur-sm rounded-lg shadow-lg">
+                               <div className="flex items-center space-x-3">
+                                 <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
+                                 <span className="text-sm font-medium">Preparing map...</span>
+                               </div>
+                               <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
+                                 <div className="h-full bg-primary rounded-full animate-pulse"></div>
+                               </div>
+                               <p className="text-xs text-muted-foreground text-center">Setting up interactive experience</p>
+                             </div>
+                           </div>
+                         }>
+                            <LazyScalableMap
+                            onFactClick={handleMapFactClick} 
+                            className="h-full w-full"
+                            isVisible={activeTab === 'map'}
+                            initialCenter={[centerLocation.lng, centerLocation.lat]} 
+                            initialZoom={isMobile ? 12 : 10}
+                          />
+                        </React.Suspense>
+                       </ProductionErrorBoundary>
+
+                       {/* Map Overlay Controls - only show when map tab is active */}
+                       {activeTab === 'map' && (
+                         <>
+                           {/* Search Bar Overlay */}
+                           <div className="absolute top-4 left-4 right-16 z-20">
+                             <ModernSearchBar 
+                               onSearch={handleSearch} 
+                               placeholder="Search stories on map..." 
+                               showLocationButton={true} 
+                             />
+                           </div>
+
+                           {/* View Mode Toggle */}
+                           <div className="absolute top-4 right-4 z-20">
+                             <ViewModeToggle variant="glass" />
+                           </div>
+
+                           {/* Modern Bottom Bar for Map Actions */}
+                           <ModernBottomBar
+                             primaryAction={{
+                               label: "Share Location",
+                               icon: <Share className="h-4 w-4" />,
+                               onClick: async () => {
+                                 try {
+                                   if (navigator.share && userLocation) {
+                                     await navigator.share({
+                                       title: 'Check out this location',
+                                       text: 'Found an interesting location to explore!',
+                                       url: `${window.location.origin}/hybrid?lat=${userLocation[0]}&lng=${userLocation[1]}`
+                                     });
+                                     triggerHapticFeedback('light');
+                                   } else {
+                                     // Fallback to copying URL
+                                     const url = userLocation 
+                                       ? `${window.location.origin}/hybrid?lat=${userLocation[0]}&lng=${userLocation[1]}`
+                                       : window.location.href;
+                                     await navigator.clipboard.writeText(url);
+                                     toast.success('Location link copied!');
+                                     triggerHapticFeedback('light');
+                                   }
+                                 } catch (error) {
+                                   console.error('Share failed:', error);
+                                   toast.error('Failed to share location');
+                                 }
+                               }
+                             }}
+                             secondaryActions={[
+                               {
+                                 label: "Favorite",
+                                 icon: <Heart className="h-4 w-4" />,
+                                 onClick: () => {
+                                   triggerHapticFeedback('light');
+                                   toast.success('Added to favorites');
+                                 }
+                               },
+                               {
+                                 label: "Save",
+                                 icon: <BookmarkPlus className="h-4 w-4" />,
+                                 onClick: () => {
+                                   triggerHapticFeedback('light');
+                                   toast.success('Location saved');
+                                 }
+                               }
+                             ]}
+                           />
+                         </>
+                       )}
                      </div>
                   </TabsContent>
                 </div>
