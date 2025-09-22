@@ -16,7 +16,8 @@ import {
   Search, 
   Mountain,
   Zap,
-  Settings
+  Settings,
+  Share
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Fact, FactMarker } from '@/types/map';
@@ -770,6 +771,27 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Terrain view</TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: "Check out this location on LocaleLore",
+                          url: window.location.href
+                        });
+                      }
+                    }}
+                    className="haptic-feedback p-2"
+                  >
+                    <Share className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Share location</TooltipContent>
               </Tooltip>
             </div>
           </TooltipProvider>
