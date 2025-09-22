@@ -165,16 +165,19 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
   const renderIndividualFacts = useCallback((facts: FactMarker[]) => {
     if (!map.current) return;
 
-    // Clear existing cluster layers
+    // Clear existing cluster layers first
     ['clusters', 'cluster-count'].forEach(layerId => {
       if (map.current!.getLayer(layerId)) {
         map.current!.removeLayer(layerId);
       }
     });
 
-    // Remove existing source if it exists
+    // Remove existing sources to prevent conflicts
     if (map.current.getSource('facts')) {
       map.current.removeSource('facts');
+    }
+    if (map.current.getSource('clusters')) {
+      map.current.removeSource('clusters');
     }
 
     if (facts.length === 0) return;
@@ -246,14 +249,17 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
   const renderClusters = useCallback((clusters: any[]) => {
     if (!map.current) return;
 
-    // Clear individual fact layers
+    // Clear individual fact layers first
     if (map.current.getLayer('individual-facts')) {
       map.current.removeLayer('individual-facts');
     }
 
-    // Remove existing source if it exists
+    // Remove existing sources to prevent conflicts
     if (map.current.getSource('clusters')) {
       map.current.removeSource('clusters');
+    }
+    if (map.current.getSource('facts')) {
+      map.current.removeSource('facts');
     }
 
     if (clusters.length === 0) return;
