@@ -50,7 +50,12 @@ class MapboxService {
   }
 
   // Check if token is missing
-  isTokenMissing(): boolean {
+  isTokenMissing(token?: string | null): boolean {
+    // If token parameter is provided, check that token
+    if (token !== undefined) {
+      return !token;
+    }
+    // Otherwise check the cached token
     return this.token === null;
   }
 
