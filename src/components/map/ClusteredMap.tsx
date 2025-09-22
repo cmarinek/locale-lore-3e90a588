@@ -110,51 +110,13 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
         cooperativeGestures: false
       });
 
-      // Add controls - positioned for mobile-first design
+      // Add controls - keep native controls in default position for reliability
       const nav = new mapboxgl.NavigationControl({ 
         visualizePitch: true,
         showCompass: true,
         showZoom: true
       });
-      
-      // Position native controls at center-right on mobile, top-right on desktop
       map.current.addControl(nav, 'top-right');
-      
-      // Style the native controls for mobile accessibility
-      setTimeout(() => {
-        const navControl = mapContainer.current?.querySelector('.mapboxgl-ctrl-top-right');
-        if (navControl instanceof HTMLElement) {
-          navControl.style.cssText = `
-            top: 50% !important;
-            right: 16px !important;
-            transform: translateY(-50%) !important;
-            transition: all 0.3s ease !important;
-          `;
-          
-          // Apply desktop positioning on larger screens
-          const mediaQuery = window.matchMedia('(min-width: 640px)');
-          const handleResize = (e: MediaQueryListEvent | MediaQueryList) => {
-            if (e.matches) {
-              navControl.style.cssText = `
-                top: 16px !important;
-                right: 16px !important;
-                transform: none !important;
-                transition: all 0.3s ease !important;
-              `;
-            } else {
-              navControl.style.cssText = `
-                top: 50% !important;
-                right: 16px !important;
-                transform: translateY(-50%) !important;
-                transition: all 0.3s ease !important;
-              `;
-            }
-          };
-          
-          handleResize(mediaQuery);
-          mediaQuery.addEventListener('change', handleResize);
-        }
-      }, 100);
 
       // Event listeners
       map.current.on('load', () => {
@@ -428,21 +390,21 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
         style={{ minHeight: '100%' }}
       />
       
-      {/* Mobile-first Controls - Positioned at 50vh for optimal thumb reach */}
-      <div className="absolute top-1/2 left-4 -translate-y-1/2 sm:top-4 sm:translate-y-0 z-20 flex flex-col gap-3">
+      {/* Mobile-optimized Controls - 50vh positioning */}
+      <div className="absolute top-1/2 left-4 -translate-y-1/2 sm:top-4 sm:translate-y-0 z-10 flex flex-col gap-3">
         {/* Style Controls */}
-        <div className="flex flex-col bg-background/95 backdrop-blur-md rounded-lg border shadow-lg overflow-hidden">
+        <div className="flex flex-col bg-background/95 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
           {Object.keys(mapStyles).map((style) => (
             <button
               key={style}
               onClick={() => handleStyleChange(style as keyof typeof mapStyles)}
-              className="px-4 py-3 sm:px-3 sm:py-2 text-sm sm:text-xs hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground first:border-t-0 border-t min-h-[44px] sm:min-h-0 flex items-center justify-start gap-2"
+              className="px-4 py-3 sm:px-3 sm:py-2 text-sm sm:text-xs hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground first:border-t-0 border-t min-h-[44px] sm:min-h-0 flex items-center justify-start gap-2 w-full"
               title={`${style.charAt(0).toUpperCase() + style.slice(1)} Style`}
             >
               <span className="text-base sm:text-sm">
                 {style === 'light' ? '🌞' : style === 'dark' ? '🌙' : style === 'satellite' ? '🛰️' : '🏔️'}
               </span>
-              <span className="hidden sm:inline">
+              <span className="sm:inline text-left">
                 {style.charAt(0).toUpperCase() + style.slice(1)}
               </span>
             </button>
@@ -450,7 +412,7 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
         </div>
 
         {/* Navigation Controls */}
-        <div className="flex flex-col bg-background/95 backdrop-blur-md rounded-lg border shadow-lg overflow-hidden">
+        <div className="flex flex-col bg-background/95 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
           <button
             onClick={handleResetView}
             className="p-4 sm:p-3 hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground min-h-[44px] sm:min-h-0 flex items-center justify-center"
@@ -472,7 +434,7 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
 
       {/* Loading indicator */}
       {isLoading && (
-        <div className="absolute top-4 right-4 z-20 bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg p-3">
+        <div className="absolute top-4 right-20 z-10 bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg p-3">
           <div className="flex items-center gap-2 text-sm">
             <Loader2 className="h-4 w-4 animate-spin" />
             Loading facts...
@@ -482,7 +444,7 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
 
       {/* Debug info in development */}
       {process.env.NODE_ENV === 'development' && (
-        <div className="absolute bottom-4 right-4 z-20 bg-black/80 text-white p-2 rounded text-xs">
+        <div className="absolute bottom-4 right-4 z-10 bg-black/80 text-white p-2 rounded text-xs">
           Clustered Map • {facts.length} facts • {markersRef.current.length} markers
         </div>
       )}
