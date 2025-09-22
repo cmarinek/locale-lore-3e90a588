@@ -106,9 +106,24 @@ export const Map: React.FC = () => {
           <ModernSearchBar onSearch={handleSearch} placeholder="Search stories on map..." showLocationButton={true} />
         </div>
 
-        {/* View Mode Toggle - back to original position */}
-        <div className="absolute top-4 right-4 z-20">
+        {/* Map Controls */}
+        <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
           <ViewModeToggle variant="glass" />
+          <Button
+            variant="glass"
+            size="icon"
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: "Check out this location on LocaleLore",
+                  url: window.location.href
+                });
+              }
+            }}
+            className="h-10 w-10"
+          >
+            <Share className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* Fact Preview Modal */}
@@ -122,18 +137,6 @@ export const Map: React.FC = () => {
 
         {/* Modern Bottom Bar */}
         <ModernBottomBar
-          primaryAction={{
-            label: "Share Location",
-            icon: <Share className="h-5 w-5" />,
-            onClick: () => {
-              if (navigator.share) {
-                navigator.share({
-                  title: "Check out this location on LocaleLore",
-                  url: window.location.href
-                });
-              }
-            }
-          }}
           secondaryActions={[
             {
               label: "Favorite",
