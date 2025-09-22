@@ -61,13 +61,24 @@ class MapboxService {
     try {
       console.log('🗺️ Fetching Mapbox token from edge function...');
       const { data, error } = await supabase.functions.invoke('get-mapbox-token');
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(`Token fetch failed: ${error.message}`);
+      }
       
       if (data?.token) {
-        this.saveCachedToken(data.token);
-        return data.token;
+        // Validate token format (basic check)
+        if (typeof data.token === 'string' && data.token.startsWith('pk.')) {
+          this.saveCachedToken(data.token);
+          console.log('🗺️ Valid Mapbox token received and cached');
+          return data.token;
+        } else {
+          throw new Error('Invalid token format received from edge function');
+        }
       }
-      return null;
+      
+      throw new Error('No token returned from edge function');
     } catch (error) {
       console.error('Error fetching Mapbox token:', error);
       return null;

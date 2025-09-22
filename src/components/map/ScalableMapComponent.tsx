@@ -48,11 +48,12 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
   const hasInitializedRef = useRef(false);
   const updateTimeoutRef = useRef<NodeJS.Timeout>();
   
-  const [loadingState, setLoadingState] = useState<'token' | 'map' | 'ready'>('token');
+  const [loadingState, setLoadingState] = useState<'token' | 'map' | 'ready' | 'error'>('token');
   const [errorState, setErrorState] = useState<string | null>(null);
   const [currentBounds, setCurrentBounds] = useState<ViewportBounds | null>(null);
   const [currentZoom, setCurrentZoom] = useState(initialZoom);
   const [mapStyle, setMapStyle] = useState<keyof typeof mapStyles>('light');
+  const [tokenMissing, setTokenMissing] = useState(false);
 
   // Enhanced initialization with preloaded token
   const initializeMap = useCallback(async () => {
@@ -63,23 +64,24 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       setErrorState(null);
       
       const token = await mapboxService.getToken();
-      if (!token) {
-        throw new Error('Failed to obtain Mapbox token');
+      if (!token || token.length < 10) {
+        throw new Error('Invalid or missing Mapbox token. Please check your Supabase Edge Function configuration.');
       }
       
+      console.log('🗺️ Mapbox token obtained, initializing map...');
       setLoadingState('map');
       mapboxgl.accessToken = token;
 
+      // Initialize with default style to avoid circular dependency
       const mapInstance = new mapboxgl.Map({
         container: mapContainer.current,
-        style: mapStyles[mapStyle],
+        style: 'mapbox://styles/mapbox/light-v11', // Fixed default style
         center: initialCenter,
         zoom: initialZoom,
         preserveDrawingBuffer: true,
         attributionControl: false,
         logoPosition: 'bottom-right',
         antialias: true,
-        // Performance optimizations
         maxZoom: 18,
         renderWorldCopies: false,
         trackResize: true
@@ -105,7 +107,13 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       mapInstance.on('load', () => {
         console.log('🗺️ Scalable map loaded successfully');
         setLoadingState('ready');
-        setErrorState(null); // Clear any previous errors
+        setErrorState(null);
+        
+        // Apply the correct style after successful load
+        if (mapStyle !== 'light') {
+          mapInstance.setStyle(mapStyles[mapStyle]);
+        }
+        
         updateViewportData();
       });
 
@@ -129,10 +137,14 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       });
 
     } catch (error) {
-      console.error('Map initialization error:', error);
-      setErrorState('Failed to initialize map');
+      console.error('❌ Error initializing Scalable map:', error);
+      setLoadingState('error');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initialize map';
+      setErrorState(errorMessage);
+      setTokenMissing(errorMessage.toLowerCase().includes('token'));
+      hasInitializedRef.current = false;
     }
-  }, [initialCenter, initialZoom, isVisible]);
+  }, [initialCenter, initialZoom, isVisible]); // Removed mapStyle and updateViewportData dependencies
 
   // Efficient viewport data updates
   const updateViewportData = useCallback(async () => {
@@ -389,14 +401,19 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         }
       }, 100);
     }
-  }, [isVisible, updateViewportData]);
+  }, [isVisible, initializeMap]);
 
-  // Handle map style changes
+  // Handle map style changes (separate from initialization)
   useEffect(() => {
     if (map.current && loadingState === 'ready') {
-      map.current.setStyle(mapStyles[mapStyle]);
+      console.log(`🎨 Changing map style to: ${mapStyle}`);
+      try {
+        map.current.setStyle(mapStyles[mapStyle]);
+      } catch (error) {
+        console.warn('Failed to change map style:', error);
+      }
     }
-  }, [mapStyle, loadingState]);
+  }, [mapStyle]);
 
   // Cleanup
   useEffect(() => {
