@@ -1,10 +1,10 @@
 import React from 'react';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { WelcomeHero } from '@/components/organisms/WelcomeHero';
+import { WelcomeHeroOptimized } from '@/components/organisms/WelcomeHeroOptimized';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Compass, Search, BookOpen, Star, MapPin, TrendingUp, Users, Shield, Loader2, Sparkles } from 'lucide-react';
-import { motion } from 'framer-motion';
+// Removed heavy framer-motion for performance - using CSS animations instead
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCommunityStats } from '@/hooks/useCommunityStats';
@@ -44,36 +44,17 @@ const Index: React.FC = () => {
     return <MainLayout>
       <div className="min-h-screen">
         {/* Hero Section */}
-        <WelcomeHero />
+        <WelcomeHeroOptimized />
       
       {/* Main Actions */}
       <div className="container mx-auto px-4 py-12">
-        <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            delay: 0.2
-          }} className="text-center mb-12">
-          
+        <div className="text-center mb-12 animate-fade-in-fast">
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
             {t('subtitle', 'Discover fascinating local stories and legends from around the world')}
           </p>
 
-
           {/* Quick Actions */}
-          <motion.div className="flex flex-wrap justify-center gap-4 mb-8" initial={{
-              opacity: 0,
-              y: 20
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              duration: 0.6,
-              delay: 0.25
-            }}>
+          <div className="flex flex-wrap justify-center gap-4 mb-8 animate-hero-search">
             <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
               <div className="text-center">
                 <Sparkles className="h-8 w-8 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform" />
@@ -105,20 +86,12 @@ const Index: React.FC = () => {
                 <p className="text-sm text-muted-foreground">Connect and contribute</p>
               </div>
             </Card>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
         {/* Feature Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-12">
-          <motion.div initial={{
-              opacity: 0,
-              y: 20
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              delay: 0.5
-            }}>
+          <div className="animate-feature-card">
             <Card className="p-6 h-full">
               <Search className="w-12 h-12 text-secondary mb-4" />
               <h3 className="text-xl font-semibold mb-2">Advanced Search</h3>
@@ -129,17 +102,9 @@ const Index: React.FC = () => {
                 Search Stories
               </Button>
             </Card>
-          </motion.div>
+          </div>
 
-          <motion.div initial={{
-              opacity: 0,
-              y: 20
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              delay: 0.6
-            }}>
+          <div className="animate-feature-card">
             <Card className="p-6 h-full">
               <BookOpen className="w-12 h-12 text-secondary mb-4" />
               <h3 className="text-xl font-semibold mb-2">Share Your Story</h3>
@@ -150,17 +115,9 @@ const Index: React.FC = () => {
                 Submit Story
               </Button>
             </Card>
-          </motion.div>
+          </div>
 
-          <motion.div initial={{
-              opacity: 0,
-              y: 20
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              delay: 0.7
-            }}>
+          <div className="animate-feature-card">
             <Card className="p-6 h-full">
               <Shield className="w-12 h-12 text-primary mb-4" />
               <h3 className="text-xl font-semibold mb-2">Verified Content</h3>
@@ -171,19 +128,12 @@ const Index: React.FC = () => {
                 Learn More
               </Button>
             </Card>
-          </motion.div>
+          </div>
         </div>
 
         {/* Join LocaleLore Section - Show for non-authenticated users */}
-        {!user && <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            delay: 0.75
-          }} className="text-center mb-12">
+        {!user && (
+          <div className="text-center mb-12 animate-hero-trending">
             <div className="bg-card rounded-2xl p-8 elevation-2 max-w-md mx-auto">
               <h3 className="text-xl font-semibold mb-4">Join LocaleLore Community</h3>
               <div className="space-y-3">
@@ -197,18 +147,11 @@ const Index: React.FC = () => {
                 </Button>
               </div>
             </div>
-          </motion.div>}
+          </div>
+        )}
 
         {/* Stats Section */}
-        <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            delay: 0.8
-          }} className="text-center">
+        <div className="text-center animate-hero-buttons">
           <Card className="p-8 bg-primary/5">
             <h3 className="text-2xl font-semibold mb-6 flex items-center justify-center gap-2">
               <TrendingUp className="w-6 h-6 text-secondary" />
@@ -240,7 +183,7 @@ const Index: React.FC = () => {
                 </div>
               </div>}
           </Card>
-        </motion.div>
+        </div>
       </div>
     </div>
 
