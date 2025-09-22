@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useState } from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"
@@ -63,8 +64,8 @@ const Carousel = React.forwardRef<
       },
       plugins
     )
-    const [canScrollPrev, setCanScrollPrev] = React.useState(false)
-    const [canScrollNext, setCanScrollNext] = React.useState(false)
+    const [canScrollPrev, setCanScrollPrev] = useState(false)
+    const [canScrollNext, setCanScrollNext] = useState(false)
 
     const onSelect = React.useCallback((api: CarouselApi) => {
       if (!api) {

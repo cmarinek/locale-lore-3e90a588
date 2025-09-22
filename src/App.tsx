@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, lazy } from 'react';
+import React, { Suspense, useEffect, useState, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Index from '@/pages/Index';
 import AuthMain from '@/pages/AuthMain';
@@ -48,7 +48,7 @@ const LazyMap = lazy(() => import('@/pages/Map').then(module => ({ default: modu
 // Inner component that can use auth context  
 const AppContent = () => {
   const { loading: authLoading } = useAuth();
-  const [showLoading, setShowLoading] = React.useState(true);
+  const [showLoading, setShowLoading] = useState(true);
 
   const handleLoadingComplete = () => {
     setShowLoading(false);

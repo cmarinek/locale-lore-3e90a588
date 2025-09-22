@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
@@ -21,7 +21,7 @@ export const RealtimeActivityFeed: React.FC<RealtimeActivityFeedProps> = ({
 }) => {
   const { activities, isLoading, loadMore, hasMore, refresh } = useRealtimeActivityFeed();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [autoRefresh, setAutoRefresh] = React.useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
