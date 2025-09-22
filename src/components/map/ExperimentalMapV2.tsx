@@ -65,19 +65,6 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
     console.log('🎨 Map style changed to:', style);
   }, []);
 
-  // Zoom controls
-  const handleZoomIn = useCallback(() => {
-    if (map.current) {
-      map.current.zoomIn();
-    }
-  }, []);
-
-  const handleZoomOut = useCallback(() => {
-    if (map.current) {
-      map.current.zoomOut();
-    }
-  }, []);
-
   // Reset view handler
   const handleResetView = useCallback(() => {
     if (map.current) {
@@ -315,25 +302,6 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
         </div>
       </div>
 
-      {/* Zoom Controls - Left Side (50vh) - Offset */}
-      <div className="absolute top-1/2 left-20 transform -translate-y-1/2 z-20 flex flex-col gap-2">
-        <div className="flex flex-col bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
-          <button
-            onClick={() => handleZoomIn()}
-            className="p-3 hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground"
-            title="Zoom In"
-          >
-            ➕
-          </button>
-          <button
-            onClick={() => handleZoomOut()}
-            className="p-3 hover:bg-muted/50 transition-colors border-t border-0 rounded-none bg-transparent text-foreground"
-            title="Zoom Out"
-          >
-            ➖
-          </button>
-        </div>
-      </div>
 
       {/* Navigation Controls - Right Side (50vh) */}
       <div className="absolute top-1/2 right-4 transform -translate-y-1/2 z-20 flex flex-col gap-2">
