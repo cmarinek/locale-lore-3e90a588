@@ -314,25 +314,6 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
       </div>
 
 
-      {/* Navigation Controls - Left Side (50vh) */}
-      <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-20 flex flex-col gap-2">
-        <div className="flex flex-col bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
-          <button
-            onClick={() => handleResetView()}
-            className="p-3 hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground"
-            title="Reset View"
-          >
-            🧭
-          </button>
-          <button
-            onClick={() => handleShareLocation()}
-            className="p-3 hover:bg-muted/50 transition-colors border-t border-0 rounded-none bg-transparent text-foreground"
-            title="Share Location"
-          >
-            📍
-          </button>
-        </div>
-      </div>
 
       {/* Debug info in development */}
       {process.env.NODE_ENV === 'development' && (
