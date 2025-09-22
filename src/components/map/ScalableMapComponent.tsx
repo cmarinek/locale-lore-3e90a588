@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { mapboxService } from '@/services/mapboxService';
+import { MapTokenMissing } from './MapTokenMissing';
 import { geoService } from '@/services/geoService';
 import { FactMarker } from '@/types/map';
 import { cn } from '@/lib/utils';
@@ -68,6 +69,15 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       setErrorState(null);
       
       const token = await mapboxService.getToken();
+      
+      // Check if token is missing/not configured
+      if (mapboxService.isTokenMissing(token)) {
+        console.warn('🚨 Mapbox token not configured - showing token missing component');
+        setErrorState('MAPBOX_TOKEN_MISSING');
+        setLoadingState('ready');
+        return;
+      }
+      
       if (!token || token.length < 10) {
         throw new Error('Invalid or missing Mapbox token. Please check your Supabase Edge Function configuration.');
       }
@@ -633,7 +643,10 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         </div>
       )}
 
-      {errorState && (
+      {/* Show token missing component for configuration error */}
+      {errorState === 'MAPBOX_TOKEN_MISSING' && <MapTokenMissing />}
+
+      {errorState && errorState !== 'MAPBOX_TOKEN_MISSING' && (
         <div className="absolute top-4 left-4 right-4 bg-destructive/90 backdrop-blur-sm text-destructive-foreground p-3 rounded-lg z-20">
           <div className="text-sm font-medium">{errorState}</div>
         </div>

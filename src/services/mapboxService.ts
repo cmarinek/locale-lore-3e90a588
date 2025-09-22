@@ -64,6 +64,11 @@ class MapboxService {
       
       if (error) {
         console.error('Edge function error:', error);
+        // Check if it's a token configuration issue
+        if (error.message?.includes('token not configured')) {
+          console.warn('🚨 Mapbox token not configured in environment variables');
+          return 'MISSING_TOKEN_ERROR';
+        }
         throw new Error(`Token fetch failed: ${error.message}`);
       }
       
@@ -78,9 +83,18 @@ class MapboxService {
         }
       }
       
+      if (data?.error) {
+        console.warn('🚨 Mapbox token configuration error:', data.error);
+        return 'MISSING_TOKEN_ERROR';
+      }
+      
       throw new Error('No token returned from edge function');
     } catch (error) {
       console.error('Error fetching Mapbox token:', error);
+      // Return special error code for missing token
+      if (error.message?.includes('token not configured')) {
+        return 'MISSING_TOKEN_ERROR';
+      }
       return null;
     }
   }
@@ -120,6 +134,11 @@ class MapboxService {
   // Check if token is available immediately
   hasToken(): boolean {
     return this.tokenCache !== null;
+  }
+
+  // Check if there's a token configuration error
+  isTokenMissing(token: string | null): boolean {
+    return token === 'MISSING_TOKEN_ERROR';
   }
 }
 

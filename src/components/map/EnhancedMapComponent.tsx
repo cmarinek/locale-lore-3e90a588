@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
 import { mapboxService } from '@/services/mapboxService';
+import { MapTokenMissing } from './MapTokenMissing';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactMarker } from '@/types/map';
 import { useRealtime } from '@/hooks/useRealtime';
@@ -304,6 +305,15 @@ export const EnhancedMapComponent: React.FC<EnhancedMapProps> = ({
       setErrorState(null);
       
       const token = await mapboxService.getToken();
+      
+      // Check if token is missing/not configured
+      if (mapboxService.isTokenMissing(token)) {
+        console.warn('🚨 Mapbox token not configured - showing token missing component');
+        setErrorState('MAPBOX_TOKEN_MISSING');
+        setLoadingState('ready');
+        return;
+      }
+      
       if (!token) {
         throw new Error('Failed to obtain Mapbox token');
       }
@@ -646,8 +656,11 @@ export const EnhancedMapComponent: React.FC<EnhancedMapProps> = ({
         </div>
       )}
 
+      {/* Show token missing component for configuration error */}
+      {errorState === 'MAPBOX_TOKEN_MISSING' && <MapTokenMissing />}
+
       {/* Error state overlay */}
-      {errorState && (
+      {errorState && errorState !== 'MAPBOX_TOKEN_MISSING' && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20">
           <div className="bg-destructive/90 text-destructive-foreground px-4 py-2 rounded-lg shadow-lg border">
             <p className="text-sm font-medium">{errorState}</p>
