@@ -1,25 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { markModule } from '@/debug/module-dupe-check';
-import { AuthContextType, AUTH_CONTEXT_NAME } from './auth-context';
-import { createContextSafely } from '@/lib/context-registry';
 
-// Mark module load for debugging
-markModule('AuthProvider-v14');
+export interface AuthContextType {
+  user: User | null;
+  session: Session | null;
+  loading: boolean;
+  signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
+}
 
+// Create context directly
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  
-  
-  // Create context safely using registry
-  const AuthContext = createContextSafely<AuthContextType | undefined>(AUTH_CONTEXT_NAME, undefined);
-  
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -137,10 +136,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 };
 
-// Export hooks from here
+// Export hooks
 export const useAuth = () => {
-  const AuthContext = createContextSafely<AuthContextType | undefined>(AUTH_CONTEXT_NAME, undefined);
-  const context = React.useContext(AuthContext);
+  const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
@@ -148,7 +146,5 @@ export const useAuth = () => {
 };
 
 export const useAuthSafe = () => {
-  const AuthContext = createContextSafely<AuthContextType | undefined>(AUTH_CONTEXT_NAME, undefined);
-  const context = React.useContext(AuthContext);
-  return context;
+  return useContext(AuthContext);
 };
