@@ -128,9 +128,14 @@ export const SocialSharing: React.FC<SocialSharingProps> = ({
         setIsOpen(false);
       } catch (error) {
         // User cancelled or error occurred
-        console.error('Error sharing:', error);
+        if (error.name !== 'AbortError') {
+          console.error('Error sharing:', error);
+          // Fallback to copy if native share fails
+          copyToClipboard();
+        }
       }
     } else {
+      // Show more options by copying to clipboard
       copyToClipboard();
     }
   };
