@@ -1,129 +1,165 @@
-
-// CDN configuration for global performance
-export interface CDNConfig {
-  primaryDomain: string;
-  regions: string[];
-  cacheTTL: number;
-  imageFormats: string[];
-  compressionLevel: number;
+// CDN and edge caching configuration for global scale
+interface CDNConfig {
+  origin: string;
+  edges: string[];
+  cacheRules: CacheRule[];
+  compression: CompressionConfig;
 }
+
+interface CacheRule {
+  pattern: string;
+  ttl: number;
+  vary: string[];
+  staleWhileRevalidate?: number;
+}
+
+interface CompressionConfig {
+  enabled: boolean;
+  level: number;
+  types: string[];
+}
+
+export const CDN_CONFIGS: Record<string, CDNConfig> = {
+  production: {
+    origin: 'https://mwufulzthoqrwbwtvogx.supabase.co',
+    edges: [
+      'https://cdn-us-east.yourdomain.com',
+      'https://cdn-eu-west.yourdomain.com',
+      'https://cdn-asia-pacific.yourdomain.com'
+    ],
+    cacheRules: [
+      {
+        pattern: '/storage/v1/object/public/images/*',
+        ttl: 86400, // 24 hours
+        vary: ['Accept-Encoding', 'Accept'],
+        staleWhileRevalidate: 3600
+      },
+      {
+        pattern: '/rest/v1/facts*',
+        ttl: 300, // 5 minutes
+        vary: ['Authorization', 'Range'],
+        staleWhileRevalidate: 60
+      },
+      {
+        pattern: '/functions/v1/get-mapbox-token',
+        ttl: 3600, // 1 hour
+        vary: ['Authorization']
+      }
+    ],
+    compression: {
+      enabled: true,
+      level: 6,
+      types: ['application/json', 'text/plain', 'application/javascript', 'text/css']
+    }
+  }
+};
 
 export class CDNManager {
   private config: CDNConfig;
+  private cache: Map<string, { data: any; expires: number }> = new Map();
 
-  constructor(config: CDNConfig) {
-    this.config = config;
+  constructor(environment: string = 'production') {
+    this.config = CDN_CONFIGS[environment];
   }
 
-  // Get optimized URL for different regions
-  getRegionalURL(path: string, userRegion?: string): string {
-    const region = userRegion || this.detectUserRegion();
-    const regionalDomain = this.getRegionalDomain(region);
-    
-    return `https://${regionalDomain}${path}`;
+  // Get optimal edge server based on user location
+  getOptimalEdge(userLat?: number, userLon?: number): string {
+    if (!userLat || !userLon) {
+      return this.config.origin; // Fallback to origin
+    }
+
+    // Simple geographic routing logic
+    if (userLat > 45 && userLon > 0) {
+      return this.config.edges[1] || this.config.origin; // EU
+    } else if (userLat > 0 && userLon > 90) {
+      return this.config.edges[2] || this.config.origin; // APAC
+    } else {
+      return this.config.edges[0] || this.config.origin; // US
+    }
   }
 
-  // Get optimized image URL with format conversion
-  getOptimizedImageURL(
-    url: string,
-    options: {
-      width?: number;
-      height?: number;
-      quality?: number;
-      format?: 'webp' | 'avif' | 'jpeg' | 'png';
-      fit?: 'cover' | 'contain' | 'fill';
-    } = {}
-  ): string {
-    if (!url) return '';
+  // Generate cache headers based on URL pattern
+  getCacheHeaders(url: string): Record<string, string> {
+    const rule = this.config.cacheRules.find(rule => 
+      new RegExp(rule.pattern).test(url)
+    );
 
-    const {
-      width,
-      height,
-      quality = 85,
-      format = 'webp',
-      fit = 'cover'
-    } = options;
+    if (!rule) {
+      return {
+        'Cache-Control': 'no-cache'
+      };
+    }
 
-    // Build transformation parameters
-    const params = new URLSearchParams();
-    if (width) params.set('w', width.toString());
-    if (height) params.set('h', height.toString());
-    params.set('q', quality.toString());
-    params.set('f', format);
-    params.set('fit', fit);
+    const headers: Record<string, string> = {
+      'Cache-Control': `public, max-age=${rule.ttl}`,
+      'Vary': rule.vary.join(', ')
+    };
 
-    // Add cache control
-    params.set('cache', '31536000'); // 1 year
+    if (rule.staleWhileRevalidate) {
+      headers['Cache-Control'] += `, stale-while-revalidate=${rule.staleWhileRevalidate}`;
+    }
 
-    return `${url}?${params.toString()}`;
+    return headers;
+  }
+
+  // Client-side cache for API responses
+  async getCachedResponse<T>(key: string, fetcher: () => Promise<T>, ttl: number = 300): Promise<T> {
+    const cached = this.cache.get(key);
+    const now = Date.now();
+
+    if (cached && cached.expires > now) {
+      return cached.data;
+    }
+
+    const data = await fetcher();
+    this.cache.set(key, {
+      data,
+      expires: now + ttl * 1000
+    });
+
+    return data;
   }
 
   // Preload critical resources
-  preloadResources(resources: Array<{ url: string; type: 'image' | 'script' | 'style' | 'font' }>) {
-    resources.forEach(({ url, type }) => {
+  preloadCriticalResources(resources: string[]): void {
+    resources.forEach(url => {
       const link = document.createElement('link');
       link.rel = 'preload';
       link.href = url;
       
-      switch (type) {
-        case 'image':
-          link.as = 'image';
-          break;
-        case 'script':
-          link.as = 'script';
-          break;
-        case 'style':
-          link.as = 'style';
-          break;
-        case 'font':
-          link.as = 'font';
-          link.crossOrigin = 'anonymous';
-          break;
+      if (url.includes('.js')) {
+        link.as = 'script';
+      } else if (url.includes('.css')) {
+        link.as = 'style';
+      } else if (url.match(/\.(jpg|jpeg|png|webp|svg)$/)) {
+        link.as = 'image';
       }
-      
+
       document.head.appendChild(link);
     });
   }
 
-  // Prefetch resources for next navigation
-  prefetchResources(urls: string[]) {
-    urls.forEach(url => {
-      const link = document.createElement('link');
-      link.rel = 'prefetch';
-      link.href = url;
-      document.head.appendChild(link);
-    });
-  }
-
-  private detectUserRegion(): string {
-    // Detect user region based on various factors
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const language = navigator.language;
-    
-    // Simple region mapping
-    if (timezone.includes('America')) return 'us-east';
-    if (timezone.includes('Europe')) return 'eu-west';
-    if (timezone.includes('Asia')) return 'ap-southeast';
-    
-    return 'us-east'; // Default
-  }
-
-  private getRegionalDomain(region: string): string {
-    const domainMap: Record<string, string> = {
-      'us-east': 'cdn-us-east.localelore.com',
-      'us-west': 'cdn-us-west.localelore.com',
-      'eu-west': 'cdn-eu-west.localelore.com',
-      'ap-southeast': 'cdn-ap-southeast.localelore.com',
-    };
-
-    return domainMap[region] || this.config.primaryDomain;
+  // Cleanup expired cache entries
+  cleanupCache(): void {
+    const now = Date.now();
+    for (const [key, value] of this.cache.entries()) {
+      if (value.expires <= now) {
+        this.cache.delete(key);
+      }
+    }
   }
 }
 
-export const cdnManager = new CDNManager({
-  primaryDomain: 'cdn.localelore.com',
-  regions: ['us-east', 'us-west', 'eu-west', 'ap-southeast'],
-  cacheTTL: 31536000, // 1 year
-  imageFormats: ['webp', 'avif', 'jpeg', 'png'],
-  compressionLevel: 85
-});
+export const cdnManager = new CDNManager();
+
+// Critical resource preloading
+export const CRITICAL_RESOURCES = [
+  '/api/mapbox-token',
+  '/storage/v1/object/public/icons/marker.svg',
+  '/storage/v1/object/public/icons/cluster.svg'
+];
+
+// Auto-cleanup cache every 5 minutes
+if (typeof window !== 'undefined') {
+  setInterval(() => cdnManager.cleanupCache(), 300000);
+}

@@ -3319,6 +3319,24 @@ export type Database = {
           trigger_id: string
         }[]
       }
+      get_optimized_fact_clusters: {
+        Args: {
+          p_east: number
+          p_limit?: number
+          p_north: number
+          p_south: number
+          p_west: number
+          p_zoom?: number
+        }
+        Returns: {
+          cluster_bounds: Json
+          cluster_count: number
+          cluster_id: string
+          cluster_latitude: number
+          cluster_longitude: number
+          sample_facts: Json
+        }[]
+      }
       get_proj4_from_srid: {
         Args: { "": number }
         Returns: string

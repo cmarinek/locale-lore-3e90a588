@@ -9,6 +9,10 @@ import { useOfflineMap } from '@/hooks/useOfflineMap';
 import { useAdaptivePerformance } from '@/hooks/useAdaptivePerformance';
 import { useAdvancedGestures } from '@/hooks/useAdvancedGestures';
 import { useAppStore } from '@/stores/appStore';
+import { cdnManager } from '@/utils/scaling/cdn-config';
+import { useProductionMonitoring } from '@/hooks/useProductionMonitoring';
+import { useRequestOptimization } from '@/hooks/useRequestOptimization';
+import { NetworkAwareFallback, ErrorBoundaryWithRetry, MapFallback } from '@/components/ui/graceful-degradation';
 
 interface RetinaMobileMapProps {
   onFactClick?: (fact: FactMarker) => void;
@@ -24,6 +28,9 @@ export const RetinaMobileMapComponent: React.FC<RetinaMobileMapProps> = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<Map<string, mapboxgl.Marker>>(new Map());
+  
+  const { startMonitoring, trackMapLoad, reportError } = useProductionMonitoring();
+  const { getOptimizedFactClusters, healthCheck } = useRequestOptimization();
   const clustersSource = useRef<mapboxgl.GeoJSONSource | null>(null);
   
   const [isLoading, setIsLoading] = useState(true);
