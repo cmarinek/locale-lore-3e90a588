@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect, useState, lazy } from 'react';
+console.log('React imported in App.tsx:', React);
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Index from '@/pages/Index';
 import AuthMain from '@/pages/AuthMain';
@@ -112,6 +113,7 @@ const AppContent = () => {
 function App() {
 
   // Initialize Phase 4 enhancements
+  console.log('About to call useEffect in App.tsx, React is:', React);
   useEffect(() => {
     // Validate environment
     if (!SecurityUtils.validateEnvironment()) {

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+console.log('React imported in Map.tsx:', React);
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { ModernSearchBar } from '@/components/ui/modern-search-bar';
