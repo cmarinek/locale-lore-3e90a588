@@ -262,10 +262,6 @@ export const Hybrid: React.FC = () => {
         <link rel="canonical" href="/hybrid" />
       </Helmet>
 
-      {/* ViewModeToggle - consistent positioning */}
-      <div className="absolute top-4 right-4 z-20">
-        <ViewModeToggle variant="glass" />
-      </div>
 
       <div className="h-screen w-full flex flex-col">
         {/* Mobile-optimized Header - sticky with backdrop blur */}
@@ -275,12 +271,17 @@ export const Hybrid: React.FC = () => {
 
           {/* Search Section - optimized for one-handed use */}
           <div className="px-4 pt-4 pb-3">
-            <div className="glass rounded-xl p-3">
-              <ModernSearchBar 
-                onSearch={handleSearch} 
-                placeholder={isMobile ? "Search stories..." : "Search stories and locations..."}
-                className="text-base" // Larger text for mobile
-              />
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-1">
+                <div className="glass rounded-xl p-3">
+                  <ModernSearchBar 
+                    onSearch={handleSearch} 
+                    placeholder={isMobile ? "Search stories..." : "Search stories and locations..."}
+                    className="text-base" // Larger text for mobile
+                  />
+                </div>
+              </div>
+              <ViewModeToggle variant="glass" size="sm" />
             </div>
           </div>
           
