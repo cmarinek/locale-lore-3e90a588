@@ -76,18 +76,24 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       setLoadingState('map');
       mapboxgl.accessToken = token;
 
-      // Initialize to NYC area where we know there's sample data - make it more visible
-      const nycCenter: [number, number] = [-74.006, 40.7128]; // NYC coordinates
-      const startCenter = nycCenter; // Always start in NYC area for testing
+      // Try to get user's location first, fallback to global view
+      let startCenter: [number, number] = [0, 20]; // Global view default
+      let startZoom = 1.5; // Global zoom level
 
-      console.log('🗺️ Initializing map at center:', startCenter);
+      // Override with provided initial values if any
+      if (initialCenter && initialZoom) {
+        startCenter = initialCenter;
+        startZoom = initialZoom;
+      }
+
+      console.log('🗺️ Initializing map at center:', startCenter, 'zoom:', startZoom);
 
       // Initialize with default style to avoid circular dependency
       const mapInstance = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11', // Fixed default style
         center: startCenter,
-        zoom: 10, // Start at higher zoom to show individual facts or small clusters
+        zoom: startZoom,
         preserveDrawingBuffer: true,
         attributionControl: false,
         logoPosition: 'bottom-right',
@@ -127,11 +133,34 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         // Clear cache to ensure fresh data
         geoService.clearCache();
         
-        // Initial data load with delay to ensure map is ready
-        console.log('📊 Triggering initial data update after map load');
-        setTimeout(() => {
-          updateViewportDataWithDeps();
-        }, 100);
+        // Try to get user's location and center map there
+        if (!initialCenter) {
+          navigator.geolocation?.getCurrentPosition(
+            (position) => {
+              const userLocation: [number, number] = [
+                position.coords.longitude,
+                position.coords.latitude
+              ];
+              console.log('📍 Got user location, centering map:', userLocation);
+              mapInstance.setCenter(userLocation);
+              mapInstance.setZoom(10); // City level zoom when we have user location
+              // Trigger data update for user's location
+              setTimeout(() => updateViewportDataWithDeps(), 200);
+            },
+            (error) => {
+              console.log('📍 Geolocation failed:', error.message);
+              // Stay with global view and load global data
+              setTimeout(() => updateViewportDataWithDeps(), 100);
+            },
+            { timeout: 5000, enableHighAccuracy: false }
+          );
+        } else {
+          // Initial data load with delay to ensure map is ready
+          console.log('📊 Triggering initial data update after map load');
+          setTimeout(() => {
+            updateViewportDataWithDeps();
+          }, 100);
+        }
       });
 
       // Throttled viewport updates for performance with better debouncing
