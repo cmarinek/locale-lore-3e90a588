@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
+import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ModernViewToggle } from '@/components/ui/modern-view-toggle';
 import { GestureHandler } from '@/components/ui/gesture-handler';
@@ -262,6 +262,10 @@ export const Hybrid: React.FC = () => {
         <link rel="canonical" href="/hybrid" />
       </Helmet>
 
+      {/* ViewModeToggle - consistent positioning */}
+      <div className="absolute top-4 right-4 z-20">
+        <ViewModeToggle variant="glass" />
+      </div>
 
       <div className="h-screen w-full flex flex-col">
         {/* Mobile-optimized Header - sticky with backdrop blur */}
@@ -269,22 +273,13 @@ export const Hybrid: React.FC = () => {
           {/* Top spacing for mobile status bar */}
           <div className="h-safe-top" />
 
-          {/* Search Section and View Toggle */}
-          <div className="px-4 pt-4 pb-3 space-y-3">
+          {/* Search Section - optimized for one-handed use */}
+          <div className="px-4 pt-4 pb-3">
             <div className="glass rounded-xl p-3">
               <ModernSearchBar 
                 onSearch={handleSearch} 
                 placeholder={isMobile ? "Search stories..." : "Search stories and locations..."}
                 className="text-base" // Larger text for mobile
-              />
-            </div>
-            
-            {/* View Toggle - accessible on all screen sizes */}
-            <div className="flex justify-center">
-              <ModernViewToggle
-                activeView={activeTab}
-                onViewChange={setActiveTab}
-                className="w-fit"
               />
             </div>
           </div>
@@ -341,6 +336,13 @@ export const Hybrid: React.FC = () => {
             {/* Mobile Tab Navigation - optimized for thumb reach */}
             <div className="flex-1 min-h-0 flex flex-col">
                 <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'list' | 'map')} className="flex-1 min-h-0 flex flex-col">
+                  <div className="px-4 pt-2 pb-3">
+                    <ModernViewToggle
+                      activeView={activeTab}
+                      onViewChange={setActiveTab}
+                      className="w-full max-w-xs mx-auto"
+                    />
+                  </div>
 
                 <div className="flex-1 min-h-0">
                   {/* Stories List with Pull-to-Refresh */}
@@ -450,66 +452,64 @@ export const Hybrid: React.FC = () => {
             </div>
           </div>
         ) : (
-          /* Desktop: Responsive layout based on activeTab */
-          <div className="flex-1 flex min-h-0">
-            {activeTab === 'list' ? (
-              /* List View Only - Desktop */
-              <div className="flex-1 flex flex-col">
-                <div className="p-4 border-b border-border/50 py-2">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold">
-                      {displayedFacts.length} {displayedFacts.length === 1 ? 'Story' : 'Stories'}
-                    </h3>
-                    <Badge variant="outline">
-                      {userLocation ? 'Near you' : 'Explore'}
-                    </Badge>
-                  </div>
-                </div>
-                
-                <div className="flex-1 overflow-auto">
-                  <div className="p-4 space-y-3">
-                    {loading && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        Loading stories...
-                      </div>
-                    )}
-                    
-                    {!loading && displayedFacts.length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        No stories found
-                      </div>
-                    )}
-                    
-                    {displayedFacts.map(fact => (
-                      <div key={fact.id} onClick={() => handleFactClick(fact)} className="cursor-pointer">
-                        <FactCard 
-                          fact={{
-                            ...fact,
-                            distanceText: fact.distance ? formatDistance(fact.distance) : undefined
-                          }} 
-                          viewMode="list" 
-                          className="bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors" 
-                        />
-                      </div>
-                    ))}
-                  </div>
+          /* Desktop: Side-by-side layout (unchanged for now) */
+          <div className="flex-1 flex flex-col lg:flex-row min-h-0">
+            {/* Facts List - Desktop: Left sidebar */}
+            <div className="lg:w-1/3 flex-shrink-0 flex flex-col border-r border-border/50">
+              <div className="p-4 border-b border-border/50 py-2">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold">
+                    {displayedFacts.length} {displayedFacts.length === 1 ? 'Story' : 'Stories'}
+                  </h3>
+                  <Badge variant="outline">
+                    {userLocation ? 'Near you' : 'Explore'}
+                  </Badge>
                 </div>
               </div>
-            ) : (
-              /* Map View Only - Desktop */
-              <div className="flex-1 relative">
-                <React.Suspense fallback={<div className="absolute inset-0 grid place-items-center text-muted-foreground animate-fade-in">Loading map...</div>}>
-                  <LazyOptimizedMap 
-                    onFactClick={handleMapFactClick} 
-                    className="h-full w-full" 
-                    initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                    initialZoom={isMobile ? 12 : 10}
-                    showBuiltInSearch={false}
-                    isVisible={true}
-                  />
-                </React.Suspense>
+              
+              <div className="flex-1 overflow-auto">
+                <div className="p-4 space-y-3">
+                  {loading && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      Loading stories...
+                    </div>
+                  )}
+                  
+                  {!loading && displayedFacts.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No stories found
+                    </div>
+                  )}
+                  
+                  {displayedFacts.map(fact => (
+                    <div key={fact.id} onClick={() => handleFactClick(fact)} className="cursor-pointer">
+                      <FactCard 
+                        fact={{
+                          ...fact,
+                          distanceText: fact.distance ? formatDistance(fact.distance) : undefined
+                        }} 
+                        viewMode="list" 
+                        className="bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors" 
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            )}
+            </div>
+
+            {/* Map - Desktop: Right main area */}
+            <div className="flex-1 relative">
+              <React.Suspense fallback={<div className="absolute inset-0 grid place-items-center text-muted-foreground animate-fade-in">Loading map...</div>}>
+                <LazyOptimizedMap 
+                  onFactClick={handleMapFactClick} 
+                  className="h-full w-full" 
+                  initialCenter={[centerLocation.lng, centerLocation.lat]} 
+                  initialZoom={isMobile ? 12 : 10}
+                  showBuiltInSearch={false}
+                  isVisible={true}
+                />
+              </React.Suspense>
+            </div>
           </div>
         )}
 
