@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import { EnhancedScalableMapComponent } from '@/components/map/EnhancedScalableMapComponent';
+import { RetinaMobileMapComponent } from '@/components/map/RetinaMobileMapComponent';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
@@ -94,8 +94,8 @@ export const Map: React.FC = () => {
       </Helmet>
 
       <div className="h-screen w-full relative">
-        {/* Advanced Map with real Supabase data */}
-        <EnhancedScalableMapComponent
+        {/* Retina-optimized mobile-first map */}
+        <RetinaMobileMapComponent
           onFactClick={handleFactClick}
           className="h-full w-full"
           isVisible={true}
