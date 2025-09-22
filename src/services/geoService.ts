@@ -162,9 +162,31 @@ class GeoService {
   }
 
   private async getClusteredFacts(bounds: ViewportBounds, zoom: number): Promise<GeoCluster[]> {
-    // Use fallback clustering since PostGIS functions require migration
-    console.log('Using fallback clustering for scalability');
-    return this.fallbackClustering(bounds, zoom);
+    // Use the new PostGIS clustering function
+    const { data, error } = await supabase.rpc('get_fact_clusters', {
+      p_north: bounds.north,
+      p_south: bounds.south,
+      p_east: bounds.east,
+      p_west: bounds.west,
+      p_zoom: zoom,
+      p_radius: this.config.clusterRadius
+    });
+
+    if (error) {
+      console.warn('Clustering function error, using fallback:', error);
+      return this.fallbackClustering(bounds, zoom);
+    }
+
+    // Transform the database response to match our interface
+    return (data || []).map(cluster => ({
+      id: cluster.id,
+      center: [cluster.center[0], cluster.center[1]] as [number, number],
+      count: cluster.count,
+      verified_count: cluster.verified_count,
+      total_votes: cluster.total_votes,
+      bounds: typeof cluster.bounds === 'string' ? JSON.parse(cluster.bounds) : cluster.bounds,
+      zoom_level: cluster.zoom_level
+    }));
   }
 
   private async fallbackClustering(bounds: ViewportBounds, zoom: number): Promise<GeoCluster[]> {

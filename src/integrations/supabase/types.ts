@@ -3293,6 +3293,25 @@ export type Database = {
         Args: { "": string }
         Returns: unknown
       }
+      get_fact_clusters: {
+        Args: {
+          p_east: number
+          p_north: number
+          p_radius?: number
+          p_south: number
+          p_west: number
+          p_zoom: number
+        }
+        Returns: {
+          bounds: Json
+          center: number[]
+          count: number
+          id: string
+          total_votes: number
+          verified_count: number
+          zoom_level: number
+        }[]
+      }
       get_nearby_triggers: {
         Args: { max_distance?: number; user_lat: number; user_lng: number }
         Returns: {
@@ -3418,7 +3437,7 @@ export type Database = {
       }
       l2_normalize: {
         Args: { "": string } | { "": unknown } | { "": unknown }
-        Returns: string
+        Returns: unknown
       }
       longtransactionsenabled: {
         Args: Record<PropertyKey, never>
