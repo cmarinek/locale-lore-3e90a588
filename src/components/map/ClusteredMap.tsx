@@ -110,13 +110,7 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
         cooperativeGestures: false
       });
 
-      // Add controls - keep native controls in default position for reliability
-      const nav = new mapboxgl.NavigationControl({ 
-        visualizePitch: true,
-        showCompass: true,
-        showZoom: true
-      });
-      map.current.addControl(nav, 'top-right');
+      // Native controls removed - using custom controls positioned at 50vh
 
       // Event listeners
       map.current.on('load', () => {
@@ -326,6 +320,27 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
     }
   }, []);
 
+  // Zoom controls
+  const handleZoomIn = useCallback(() => {
+    if (map.current) {
+      const currentZoom = map.current.getZoom();
+      map.current.flyTo({
+        zoom: Math.min(currentZoom + 1, 20),
+        duration: 300
+      });
+    }
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    if (map.current) {
+      const currentZoom = map.current.getZoom();
+      map.current.flyTo({
+        zoom: Math.max(currentZoom - 1, 0),
+        duration: 300
+      });
+    }
+  }, []);
+
   // Get user location
   const handleMyLocation = useCallback(() => {
     if (navigator.geolocation) {
@@ -409,6 +424,26 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
               </span>
             </button>
           ))}
+        </div>
+
+        {/* Zoom Controls */}
+        <div className="flex flex-col bg-background/95 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
+          <button
+            onClick={handleZoomIn}
+            className="p-4 sm:p-3 hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground min-h-[44px] sm:min-h-0 flex items-center justify-center"
+            title="Zoom In"
+            aria-label="Zoom in"
+          >
+            <span className="text-lg sm:text-base">➕</span>
+          </button>
+          <button
+            onClick={handleZoomOut}
+            className="p-4 sm:p-3 hover:bg-muted/50 transition-colors border-t border-0 rounded-none bg-transparent text-foreground min-h-[44px] sm:min-h-0 flex items-center justify-center"
+            title="Zoom Out"
+            aria-label="Zoom out"
+          >
+            <span className="text-lg sm:text-base">➖</span>
+          </button>
         </div>
 
         {/* Navigation Controls */}
