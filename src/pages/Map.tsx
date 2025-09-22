@@ -101,8 +101,8 @@ export const Map: React.FC = () => {
           isVisible={true}
         />
 
-        {/* Search Bar - positioned lower to avoid overlap */}
-        <div className="absolute top-16 left-4 right-16 z-20">
+        {/* Search Bar - positioned to avoid overlap with map controls */}
+        <div className="absolute top-4 left-20 right-16 z-20">
           <ModernSearchBar onSearch={handleSearch} placeholder="Search stories on map..." showLocationButton={true} />
         </div>
 

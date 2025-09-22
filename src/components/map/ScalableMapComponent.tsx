@@ -7,6 +7,14 @@ import { geoService } from '@/services/geoService';
 import { FactMarker } from '@/types/map';
 import { cn } from '@/lib/utils';
 
+// Map styles for style controls
+const mapStyles = {
+  light: 'mapbox://styles/mapbox/light-v11',
+  dark: 'mapbox://styles/mapbox/dark-v11',
+  satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
+  terrain: 'mapbox://styles/mapbox/outdoors-v12'
+};
+
 interface ScalableMapProps {
   className?: string;
   initialCenter?: [number, number];
@@ -44,6 +52,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
   const [errorState, setErrorState] = useState<string | null>(null);
   const [currentBounds, setCurrentBounds] = useState<ViewportBounds | null>(null);
   const [currentZoom, setCurrentZoom] = useState(initialZoom);
+  const [mapStyle, setMapStyle] = useState<keyof typeof mapStyles>('light');
 
   // Enhanced initialization with preloaded token
   const initializeMap = useCallback(async () => {
@@ -63,7 +72,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
 
       const mapInstance = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: mapStyles[mapStyle],
         center: initialCenter,
         zoom: initialZoom,
         preserveDrawingBuffer: true,
@@ -382,6 +391,13 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
     }
   }, [isVisible, updateViewportData]);
 
+  // Handle map style changes
+  useEffect(() => {
+    if (map.current && loadingState === 'ready') {
+      map.current.setStyle(mapStyles[mapStyle]);
+    }
+  }, [mapStyle, loadingState]);
+
   // Cleanup
   useEffect(() => {
     return () => {
@@ -415,6 +431,31 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       {errorState && (
         <div className="absolute top-4 left-4 right-4 bg-destructive/90 backdrop-blur-sm text-destructive-foreground p-3 rounded-lg z-20">
           <div className="text-sm font-medium">{errorState}</div>
+        </div>
+      )}
+
+      {/* Map Style Controls */}
+      {loadingState === 'ready' && (
+        <div className="absolute top-4 left-4 flex flex-col space-y-2 z-30">
+          {Object.entries(mapStyles).map(([style, _]) => (
+            <button
+              key={style}
+              onClick={() => setMapStyle(style as keyof typeof mapStyles)}
+              className={cn(
+                'w-11 h-11 rounded-xl border-2 flex items-center justify-center text-base font-medium transition-all shadow-lg backdrop-blur-sm',
+                mapStyle === style 
+                  ? 'bg-primary text-primary-foreground border-primary shadow-primary/20' 
+                  : 'bg-background/80 text-foreground border-border hover:bg-accent hover:border-accent-foreground hover:shadow-lg'
+              )}
+              title={`Switch to ${style} style`}
+              aria-label={`Switch to ${style} map style`}
+            >
+              {style === 'light' && '☀️'}
+              {style === 'dark' && '🌙'}
+              {style === 'satellite' && '🛰️'}
+              {style === 'terrain' && '🏔️'}
+            </button>
+          ))}
         </div>
       )}
 

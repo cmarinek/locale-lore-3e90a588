@@ -35,14 +35,6 @@ const LazyScalableMap = React.lazy(() =>
 // Import error boundary
 import { ProductionErrorBoundary } from '@/components/common/ErrorBoundary';
 
-// Map styles for style controls
-const mapStyles = {
-  light: 'mapbox://styles/mapbox/light-v11',
-  dark: 'mapbox://styles/mapbox/dark-v11',
-  satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
-  terrain: 'mapbox://styles/mapbox/outdoors-v12'
-};
-
 export const Hybrid: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -53,7 +45,6 @@ export const Hybrid: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'list' | 'map'>('list');
   const [showFilters, setShowFilters] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [mapStyle, setMapStyle] = useState<keyof typeof mapStyles>('light');
   
   const {
     facts,
@@ -464,29 +455,6 @@ export const Hybrid: React.FC = () => {
                         {/* Map Overlay Controls - only show when map tab is active */}
                         {activeTab === 'map' && (
                           <>
-                            {/* Map Style Controls */}
-                            <div className="absolute top-4 left-4 flex flex-col space-y-2 z-30">
-                              {Object.entries(mapStyles).map(([style, _]) => (
-                                <button
-                                  key={style}
-                                  onClick={() => setMapStyle(style as keyof typeof mapStyles)}
-                                  className={cn(
-                                    'w-11 h-11 rounded-xl border-2 flex items-center justify-center text-base font-medium transition-all shadow-lg backdrop-blur-sm',
-                                    mapStyle === style 
-                                      ? 'bg-primary text-primary-foreground border-primary shadow-primary/20' 
-                                      : 'bg-background/80 text-foreground border-border hover:bg-accent hover:border-accent-foreground hover:shadow-lg'
-                                  )}
-                                  title={`Switch to ${style} style`}
-                                  aria-label={`Switch to ${style} map style`}
-                                >
-                                  {style === 'light' && '☀️'}
-                                  {style === 'dark' && '🌙'}
-                                  {style === 'satellite' && '🛰️'}
-                                  {style === 'terrain' && '🏔️'}
-                                </button>
-                              ))}
-                            </div>
-                            
                             {/* Search Bar Overlay */}
                             <div className="absolute top-4 left-20 right-16 z-20">
                               <ModernSearchBar 
