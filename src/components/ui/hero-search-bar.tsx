@@ -184,7 +184,7 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
       </motion.div>
 
       {/* Trending Searches */}
-      {showTrending && <motion.div className="text-center" initial={{
+      {showTrending && <motion.div className="text-center mb-8" initial={{
       opacity: 0,
       y: 20
     }} animate={{
@@ -199,12 +199,34 @@ export const HeroSearchBar: React.FC<HeroSearchBarProps> = ({
             <span className="text-sm text-muted-foreground">Trending searches</span>
           </div>
           
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-2 mb-6">
             {trendingSearches.map((trending, index) => <button key={index} onClick={() => handleTrendingClick(trending)} className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors duration-200">
                 {trending}
               </button>)}
           </div>
         </motion.div>}
+
+      {/* Main Action Buttons */}
+      <motion.div className="flex flex-wrap justify-center gap-4" initial={{
+      opacity: 0,
+      y: 20
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} transition={{
+      duration: 0.6,
+      delay: 1.0
+    }}>
+        <Button onClick={() => navigate('/explore')} className="rounded-full px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300">
+          <Sparkles className="h-4 w-4 mr-2" />
+          Explore Stories
+        </Button>
+        
+        <Button variant="outline" onClick={() => navigate('/map')} className="rounded-full px-8 py-3 border-2 hover:bg-accent hover:text-accent-foreground transition-all duration-300">
+          <MapPin className="h-4 w-4 mr-2" />
+          Explore Map
+        </Button>
+      </motion.div>
 
     </div>;
 };

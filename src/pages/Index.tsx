@@ -62,42 +62,6 @@ const Index: React.FC = () => {
             {t('subtitle', 'Discover fascinating local stories and legends from around the world')}
           </p>
 
-          {/* Main Action Buttons */}
-          <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-12">
-            <motion.div initial={{
-                opacity: 0,
-                x: -20
-              }} animate={{
-                opacity: 1,
-                x: 0
-              }} transition={{
-                delay: 0.3
-              }}>
-              <Button size="lg" onClick={() => navigate('/explore')} className="w-full h-24 bg-primary hover:bg-primary/90 text-primary-foreground">
-                <div className="flex flex-col items-center gap-2">
-                  <Compass className="w-8 h-8" />
-                  <span className="text-lg font-semibold">{t('exploreStories', 'Explore Stories')}</span>
-                </div>
-              </Button>
-            </motion.div>
-            
-            <motion.div initial={{
-                opacity: 0,
-                x: 20
-              }} animate={{
-                opacity: 1,
-                x: 0
-              }} transition={{
-                delay: 0.4
-              }}>
-              <Button variant="outline" onClick={() => navigate('/map')} className="w-full h-24 border-2 hover:bg-accent/50">
-                <div className="flex flex-col items-center gap-2">
-                  <MapPin className="w-8 h-8" />
-                  <span className="text-lg font-semibold">Explore Map</span>
-                </div>
-              </Button>
-            </motion.div>
-          </div>
 
           {/* Quick Actions */}
           <motion.div className="flex flex-wrap justify-center gap-4 mb-8" initial={{
