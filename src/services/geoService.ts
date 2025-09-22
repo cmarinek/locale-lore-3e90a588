@@ -31,7 +31,7 @@ class GeoService {
   private config: GeoServiceConfig = {
     maxFactsPerRequest: 1000,
     clusterRadius: 50, // km
-    maxZoomForClustering: 12, // Changed from 14 to 12 to match the map component
+    maxZoomForClustering: 14, // Match the map component threshold
     viewportPadding: 0.1 // 10% padding around viewport
   };
 
@@ -93,10 +93,14 @@ class GeoService {
     }
 
     try {
+      console.log(`🗺️ getFactsInViewport called with zoom ${zoom} (threshold: ${this.config.maxZoomForClustering})`);
+      
       // For high zoom levels, return individual facts
       if (zoom >= this.config.maxZoomForClustering) {
+        console.log('🔍 Zoom >= threshold, fetching individual facts');
         const facts = await this.getIndividualFacts(expandedBounds);
         const result = { facts, clusters: [], totalCount: undefined };
+        console.log(`✅ Returning ${facts.length} individual facts, 0 clusters`);
         
         // Cache the result
         this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
@@ -104,8 +108,10 @@ class GeoService {
       }
 
       // For lower zoom levels, return clusters
+      console.log('🎯 Zoom < threshold, fetching clusters');
       const clusters = await this.getClusteredFacts(expandedBounds, zoom);
       const result = { facts: [], clusters, totalCount: undefined };
+      console.log(`✅ Returning 0 facts, ${clusters.length} clusters`);
       
       // Cache the result
       this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
@@ -117,6 +123,8 @@ class GeoService {
   }
 
   private async getIndividualFacts(bounds: ViewportBounds): Promise<FactMarker[]> {
+    console.log('📍 Fetching individual facts from DB, bounds:', bounds);
+    
     const { data: facts, error } = await supabase
       .from('facts')
       .select(`
@@ -147,9 +155,19 @@ class GeoService {
       .in('status', ['verified', 'pending'])
       .limit(this.config.maxFactsPerRequest);
 
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Error fetching individual facts:', error);
+      throw error;
+    }
 
-    return (facts || []).map(fact => ({
+    console.log(`📊 Retrieved ${facts?.length || 0} individual facts from database`);
+
+    if (!facts || facts.length === 0) {
+      console.log('⚠️ No individual facts found in viewport');
+      return [];
+    }
+
+    const mappedFacts = facts.map(fact => ({
       id: fact.id,
       title: fact.title,
       latitude: fact.latitude,
@@ -157,8 +175,11 @@ class GeoService {
       category: fact.categories?.slug || 'default',
       verified: fact.status === 'verified',
       voteScore: (fact.vote_count_up || 0) - (fact.vote_count_down || 0),
-      authorName: fact.profiles?.username
+      authorName: fact.profiles?.username || 'Anonymous'
     }));
+
+    console.log(`✅ Mapped ${mappedFacts.length} facts for rendering:`, mappedFacts.slice(0, 3));
+    return mappedFacts;
   }
 
   private async getClusteredFacts(bounds: ViewportBounds, zoom: number): Promise<GeoCluster[]> {
@@ -170,7 +191,7 @@ class GeoService {
       p_south: bounds.south,
       p_east: bounds.east,
       p_west: bounds.west,
-      p_zoom: zoom
+      p_zoom: Math.round(zoom) // Round zoom to integer for database
     });
 
     if (error) {
