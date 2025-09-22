@@ -47,6 +47,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
   const map = useRef<mapboxgl.Map | null>(null);
   const hasInitializedRef = useRef(false);
   const updateTimeoutRef = useRef<NodeJS.Timeout>();
+  const isUpdatingRef = useRef(false);
   
   const [loadingState, setLoadingState] = useState<'token' | 'map' | 'ready' | 'error'>('token');
   const [errorState, setErrorState] = useState<string | null>(null);
@@ -151,8 +152,9 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
   const updateViewportData = useCallback(async () => {
     if (!map.current || loadingState !== 'ready') return;
 
-    // Prevent concurrent updates
-    if (updateTimeoutRef.current === null) return;
+    // Prevent concurrent updates using a flag instead of timeout check
+    if (isUpdatingRef.current) return;
+    isUpdatingRef.current = true;
 
     try {
       const bounds = map.current.getBounds();
@@ -175,15 +177,21 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         zoom
       );
 
+      console.log(`📊 Retrieved ${facts.length} facts and ${clusters.length} clusters`);
+
       // Update map visualization based on zoom level
       if (zoom >= ZOOM_THRESHOLDS.INDIVIDUAL_FACTS) {
+        console.log('📍 Rendering individual facts');
         renderIndividualFacts(facts);
       } else {
+        console.log('🎯 Rendering clusters');
         renderClusters(clusters);
       }
 
     } catch (error) {
       console.error('Error updating viewport data:', error);
+    } finally {
+      isUpdatingRef.current = false;
     }
   }, [loadingState]);
 
@@ -198,19 +206,23 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       }
     });
 
-    // Remove existing sources to prevent conflicts
+    // Remove existing sources to prevent conflicts - with proper error handling
     ['facts', 'clusters'].forEach(sourceId => {
-      if (map.current!.getSource(sourceId)) {
-        // Remove layers using this source first
-        const style = map.current!.getStyle();
-        if (style.layers) {
-          style.layers.forEach(layer => {
-            if (layer.source === sourceId && map.current!.getLayer(layer.id)) {
-              map.current!.removeLayer(layer.id);
-            }
-          });
+      try {
+        if (map.current!.getSource(sourceId)) {
+          // Remove layers using this source first
+          const style = map.current!.getStyle();
+          if (style && style.layers) {
+            style.layers.forEach(layer => {
+              if (layer.source === sourceId && map.current!.getLayer(layer.id)) {
+                map.current!.removeLayer(layer.id);
+              }
+            });
+          }
+          map.current!.removeSource(sourceId);
         }
-        map.current!.removeSource(sourceId);
+      } catch (error) {
+        console.warn(`Failed to remove source ${sourceId}:`, error);
       }
     });
 
@@ -288,19 +300,23 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       map.current.removeLayer('individual-facts');
     }
 
-    // Remove existing sources to prevent conflicts
+    // Remove existing sources to prevent conflicts - with proper error handling
     ['clusters', 'facts'].forEach(sourceId => {
-      if (map.current!.getSource(sourceId)) {
-        // Remove layers using this source first
-        const style = map.current!.getStyle();
-        if (style.layers) {
-          style.layers.forEach(layer => {
-            if (layer.source === sourceId && map.current!.getLayer(layer.id)) {
-              map.current!.removeLayer(layer.id);
-            }
-          });
+      try {
+        if (map.current!.getSource(sourceId)) {
+          // Remove layers using this source first
+          const style = map.current!.getStyle();
+          if (style && style.layers) {
+            style.layers.forEach(layer => {
+              if (layer.source === sourceId && map.current!.getLayer(layer.id)) {
+                map.current!.removeLayer(layer.id);
+              }
+            });
+          }
+          map.current!.removeSource(sourceId);
         }
-        map.current!.removeSource(sourceId);
+      } catch (error) {
+        console.warn(`Failed to remove source ${sourceId}:`, error);
       }
     });
 
