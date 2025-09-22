@@ -279,8 +279,8 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
         style={{ minHeight: '100%' }}
       />
       
-      {/* Map Style Controls - Left Side (50vh) */}
-      <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-20 flex flex-col gap-2 mr-2">
+      {/* Map Style Controls - Left Side (below map view) */}
+      <div className="absolute top-1/2 left-4 transform -translate-y-1/2 translate-y-16 z-20 flex flex-col gap-2">
         <div className="flex flex-col bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
           <button
             onClick={() => handleStyleChange('light')}
@@ -314,8 +314,8 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
       </div>
 
 
-      {/* Navigation Controls - Right Side (50vh) */}
-      <div className="absolute top-1/2 right-4 transform -translate-y-1/2 z-20 flex flex-col gap-2">
+      {/* Navigation Controls - Left Side (50vh) */}
+      <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-20 flex flex-col gap-2">
         <div className="flex flex-col bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
           <button
             onClick={() => handleResetView()}
