@@ -31,7 +31,7 @@ class GeoService {
   private config: GeoServiceConfig = {
     maxFactsPerRequest: 1000,
     clusterRadius: 50, // km
-    maxZoomForClustering: 14, // Match the map component threshold
+    maxZoomForClustering: 12, // Match the map component threshold
     viewportPadding: 0.1 // 10% padding around viewport
   };
 

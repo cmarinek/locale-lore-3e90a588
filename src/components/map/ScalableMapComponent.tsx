@@ -32,7 +32,7 @@ interface ViewportBounds {
 
 const ZOOM_THRESHOLDS = {
   CLUSTER_ONLY: 10,
-  INDIVIDUAL_FACTS: 14,
+  INDIVIDUAL_FACTS: 12, // Lower threshold to show facts sooner
   DETAILED_VIEW: 16
 };
 
@@ -185,10 +185,10 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
 
       // Update map visualization based on zoom level
       if (zoom >= ZOOM_THRESHOLDS.INDIVIDUAL_FACTS) {
-        console.log('📍 Rendering individual facts');
+        console.log(`📍 Rendering individual facts at zoom ${zoom.toFixed(1)} (${facts.length} facts available)`);
         renderIndividualFacts(facts);
       } else {
-        console.log(`🎯 Rendering ${clusters.length} clusters`);
+        console.log(`🎯 Rendering clusters at zoom ${zoom.toFixed(1)} (${clusters.length} clusters available)`);
         renderClusters(clusters);
       }
 
