@@ -24,7 +24,8 @@ export const Map: React.FC = () => {
     searchFacts,
     syncSelectedFact,
     setSyncSelectedFact,
-    fetchFactById
+    fetchFactById,
+    initializeData
   } = useDiscoveryStore();
 
   const handleFactClick = (fact: FactMarker) => {
@@ -71,6 +72,11 @@ export const Map: React.FC = () => {
     setSelectedFact(null);
     setSyncSelectedFact(null);
   };
+
+  // Initialize data when component mounts
+  useEffect(() => {
+    initializeData();
+  }, [initializeData]);
 
   // Handle syncSelectedFact when component mounts or changes
   useEffect(() => {
