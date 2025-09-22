@@ -4,6 +4,7 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { DiscussionThread } from '@/components/verification/DiscussionThread';
 import { SwipeToVote } from '@/components/verification/SwipeToVote';
 import { ReputationDisplay } from '@/components/verification/ReputationDisplay';
+import { SocialSharing } from '@/components/social/SocialSharing';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -247,30 +248,12 @@ export const Fact: React.FC = () => {
     }
   };
 
-  const handleShare = async () => {
-    if (navigator.share && fact) {
-      try {
-        await navigator.share({
-          title: fact.title,
-          text: fact.description,
-          url: window.location.href,
-        });
-      } catch (error) {
-        // Fallback to copying to clipboard
-        navigator.clipboard.writeText(window.location.href);
-        toast({
-          title: "Link copied!",
-          description: "Share link copied to clipboard",
-        });
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: "Link copied!",
-        description: "Share link copied to clipboard",
-      });
-    }
-  };
+  const shareContent = fact ? {
+    title: fact.title,
+    description: fact.description,
+    url: `${window.location.origin}/fact/${fact.id}`,
+    image: fact.media_urls?.[0]
+  } : null;
 
   if (loading) {
     return (
@@ -429,9 +412,16 @@ export const Fact: React.FC = () => {
                       >
                         <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={handleShare}>
-                        <Share2 className="w-4 h-4" />
-                      </Button>
+                      {shareContent && (
+                        <SocialSharing
+                          content={shareContent}
+                          trigger={
+                            <Button variant="ghost" size="sm">
+                              <Share2 className="w-4 h-4" />
+                            </Button>
+                          }
+                        />
+                      )}
                       <Button variant="ghost" size="sm">
                         <Flag className="w-4 h-4" />
                       </Button>

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LocationNavigationButton } from '@/components/ui/LocationNavigationButton';
 import { DiscussionThread } from '@/components/verification/DiscussionThread';
+import { SocialSharing } from '@/components/social/SocialSharing';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { EnhancedFact } from '@/types/fact';
 
@@ -34,21 +35,11 @@ export const FactPreviewModal: React.FC<FactPreviewModalProps> = ({
     toggleSavedFact(fact.id);
   };
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: fact.title,
-          text: fact.description,
-          url: window.location.href,
-        });
-      } catch (error) {
-        console.log('Error sharing:', error);
-      }
-    } else {
-      // Fallback to clipboard
-      navigator.clipboard.writeText(window.location.href);
-    }
+  const shareContent = {
+    title: fact.title,
+    description: fact.description,
+    url: `${window.location.origin}/fact/${fact.id}`,
+    image: fact.media_urls?.[0]
   };
 
   return (
@@ -161,10 +152,15 @@ export const FactPreviewModal: React.FC<FactPreviewModalProps> = ({
                 <Bookmark className={`h-4 w-4 mr-1 ${isSaved ? 'fill-current' : ''}`} />
                 {isSaved ? 'Saved' : 'Save'}
               </Button>
-              <Button variant="ghost" size="sm" onClick={handleShare}>
-                <Share2 className="h-4 w-4 mr-1" />
-                Share
-              </Button>
+              <SocialSharing
+                content={shareContent}
+                trigger={
+                  <Button variant="ghost" size="sm">
+                    <Share2 className="h-4 w-4 mr-1" />
+                    Share
+                  </Button>
+                }
+              />
             </div>
           </div>
 

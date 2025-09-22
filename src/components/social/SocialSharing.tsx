@@ -11,7 +11,8 @@ import {
   Instagram, 
   Linkedin,
   Copy,
-  ExternalLink
+  ExternalLink,
+  MessageCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -77,6 +78,11 @@ export const SocialSharing: React.FC<SocialSharingProps> = ({
     });
   }, [copyToClipboard]);
 
+  const shareToWhatsApp = useCallback(() => {
+    const text = encodeURIComponent(`${content.title}\n\n${content.description}\n\n${content.url}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  }, [content]);
+
   // Move icon references inside component with useMemo - v15
   const platforms = useMemo(() => [
     {
@@ -103,7 +109,13 @@ export const SocialSharing: React.FC<SocialSharingProps> = ({
       action: shareToInstagram,
       color: 'bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#FCB045] hover:opacity-90 text-white',
     },
-  ], [shareToX, shareToFacebook, shareToLinkedIn, shareToInstagram]);
+    {
+      name: 'WhatsApp',
+      icon: MessageCircle,
+      action: shareToWhatsApp,
+      color: 'bg-[#25D366] hover:bg-[#20BA5A] text-white',
+    },
+  ], [shareToX, shareToFacebook, shareToLinkedIn, shareToInstagram, shareToWhatsApp]);
 
   const shareNatively = async () => {
     if (navigator.share) {
