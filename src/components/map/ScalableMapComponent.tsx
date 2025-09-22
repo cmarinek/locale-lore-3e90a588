@@ -118,7 +118,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         // Initial data load with delay to ensure map is ready
         console.log('📊 Triggering initial data update after map load');
         setTimeout(() => {
-          updateViewportData();
+          updateViewportDataWithDeps();
         }, 500);
       });
 
@@ -129,9 +129,10 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         }
         
         updateTimeoutRef.current = setTimeout(() => {
-          updateViewportData();
+          console.log('🔄 Triggering viewport update after zoom/move');
+          updateViewportDataWithDeps();
           updateTimeoutRef.current = undefined;
-        }, 500); // Increased debounce to 500ms to reduce flicker
+        }, 300);
       };
 
       mapInstance.on('moveend', handleViewportChange);
@@ -154,10 +155,16 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
 
   // Efficient viewport data updates with loading state protection
   const updateViewportData = useCallback(async () => {
-    if (!map.current || loadingState !== 'ready') return;
+    if (!map.current || loadingState !== 'ready') {
+      console.log('⚠️ Cannot update viewport: map not ready or loading');
+      return;
+    }
 
     // Prevent concurrent updates using a flag instead of timeout check
-    if (isUpdatingRef.current) return;
+    if (isUpdatingRef.current) {
+      console.log('⚠️ Update already in progress, skipping');
+      return;
+    }
     isUpdatingRef.current = true;
 
     try {
@@ -197,7 +204,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
     } finally {
       isUpdatingRef.current = false;
     }
-  }, [loadingState]);
+  }, [loadingState]); // Keep simple dependencies for now
 
   // Render individual facts for high zoom levels
   const renderIndividualFacts = useCallback((facts: FactMarker[]) => {
@@ -428,6 +435,58 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
 
   }, []);
 
+  // Re-create updateViewportData with proper dependencies after render functions are defined
+  const updateViewportDataWithDeps = useCallback(async () => {
+    if (!map.current || loadingState !== 'ready') {
+      console.log('⚠️ Cannot update viewport: map not ready or loading');
+      return;
+    }
+
+    if (isUpdatingRef.current) {
+      console.log('⚠️ Update already in progress, skipping');
+      return;
+    }
+    isUpdatingRef.current = true;
+
+    try {
+      const bounds = map.current.getBounds();
+      const zoom = map.current.getZoom();
+      
+      const viewportBounds: ViewportBounds = {
+        north: bounds.getNorth(),
+        south: bounds.getSouth(),
+        east: bounds.getEast(),
+        west: bounds.getWest()
+      };
+
+      setCurrentBounds(viewportBounds);
+      setCurrentZoom(zoom);
+
+      console.log(`🗺️ Loading data for zoom ${zoom.toFixed(1)} (threshold: ${ZOOM_THRESHOLDS.INDIVIDUAL_FACTS})`);
+      
+      const { facts, clusters } = await geoService.getFactsInViewport(
+        viewportBounds, 
+        zoom
+      );
+
+      console.log(`📊 Retrieved ${facts.length} facts and ${clusters.length} clusters for zoom ${zoom}`);
+
+      // Update map visualization based on zoom level with clear logging
+      if (zoom >= ZOOM_THRESHOLDS.INDIVIDUAL_FACTS) {
+        console.log(`📍 Zoom ${zoom.toFixed(1)} >= ${ZOOM_THRESHOLDS.INDIVIDUAL_FACTS} - Rendering ${facts.length} individual facts`);
+        renderIndividualFacts(facts);
+      } else {
+        console.log(`🎯 Zoom ${zoom.toFixed(1)} < ${ZOOM_THRESHOLDS.INDIVIDUAL_FACTS} - Rendering ${clusters.length} clusters`);
+        renderClusters(clusters);
+      }
+
+    } catch (error) {
+      console.error('Error updating viewport data:', error);
+    } finally {
+      isUpdatingRef.current = false;
+    }
+  }, [loadingState, renderIndividualFacts, renderClusters]);
+
   // Initialize map when component mounts or becomes visible
   useEffect(() => {
     if (isVisible && !hasInitializedRef.current) {
@@ -442,14 +501,14 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
   useEffect(() => {
     if (isVisible && hasInitializedRef.current && map.current) {
       // Trigger resize to ensure map renders correctly
-      setTimeout(() => {
-        if (map.current) {
-          map.current.resize();
-          updateViewportData();
-        }
-      }, 100);
+        setTimeout(() => {
+          if (map.current) {
+            map.current.resize();
+            updateViewportDataWithDeps();
+          }
+        }, 100);
     }
-  }, [isVisible, initializeMap]);
+  }, [isVisible, initializeMap, updateViewportDataWithDeps]);
 
   // Handle map style changes (separate from initialization)
   useEffect(() => {
