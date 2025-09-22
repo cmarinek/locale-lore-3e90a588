@@ -128,21 +128,22 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
         scrollZoom: { around: 'center' }
       });
 
-      // Add navigation controls only if they don't already exist
-      if (!mapContainer.current?.querySelector('.mapboxgl-ctrl-top-right')) {
-        map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-      }
-
-      // Reposition Mapbox controls to 50vh after they're rendered
-      setTimeout(() => {
+      // Add navigation controls with custom positioning at 50vh
+      const nav = new mapboxgl.NavigationControl();
+      map.current.addControl(nav, 'top-right');
+      
+      // Position the control container at 50vh immediately
+      map.current.on('load', () => {
         const controlContainer = mapContainer.current?.querySelector('.mapboxgl-ctrl-top-right');
         if (controlContainer) {
           const element = controlContainer as HTMLElement;
+          element.style.position = 'absolute';
           element.style.top = '50vh';
           element.style.transform = 'translateY(-50%)';
           element.style.right = '12px';
+          element.style.margin = '0';
         }
-      }, 100);
+      });
 
       map.current.on('load', () => {
         endRenderMeasurement();
