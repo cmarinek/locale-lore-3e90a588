@@ -131,6 +131,17 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
       // Add navigation controls
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
+      // Reposition Mapbox controls to 50vh after they're rendered
+      setTimeout(() => {
+        const controlContainer = mapContainer.current?.querySelector('.mapboxgl-ctrl-top-right');
+        if (controlContainer) {
+          const element = controlContainer as HTMLElement;
+          element.style.top = '50vh';
+          element.style.transform = 'translateY(-50%)';
+          element.style.right = '12px';
+        }
+      }, 100);
+
       map.current.on('load', () => {
         endRenderMeasurement();
         console.log('🗺️ Experimental Map V2 loaded successfully');
