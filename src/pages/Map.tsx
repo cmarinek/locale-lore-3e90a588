@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import { OptimizedMapComponent } from '@/components/map/OptimizedMapComponent';
-import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { StableMapComponent } from '@/components/map/StableMapComponent';
+import { useDiscoveryStore } from '@/stores/discoveryStoreOptimized';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
 
@@ -94,8 +94,8 @@ export const Map: React.FC = () => {
       </Helmet>
 
       <div className="h-screen w-full relative">
-        {/* Optimized map with performance monitoring */}
-        <OptimizedMapComponent
+        {/* Stable map with no flickering */}
+        <StableMapComponent
           onFactClick={handleFactClick}
           className="h-full w-full"
           isVisible={true}
