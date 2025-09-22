@@ -42,7 +42,7 @@ export const Hybrid: React.FC = () => {
   
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [displayedFacts, setDisplayedFacts] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'list' | 'map'>('list');
+  const [activeTab, setActiveTab] = useState<'list' | 'map'>(isMobile ? 'map' : 'list');
   const [showFilters, setShowFilters] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
