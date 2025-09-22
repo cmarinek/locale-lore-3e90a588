@@ -24,7 +24,11 @@ import { useLocationSorting } from '@/hooks/useLocationSorting';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Lazy-load Scalable Map to improve initial render
-const LazyScalableMap = React.lazy(() => import('@/components/map/ScalableMapComponent').then(module => ({ default: module.ScalableMapComponent })));
+const LazyScalableMap = React.lazy(() => 
+  import('@/components/map/ScalableMapComponent').then(module => ({ 
+    default: module.ScalableMapComponent 
+  }))
+);
 
 // Import error boundary
 import { ProductionErrorBoundary } from '@/components/common/ErrorBoundary';

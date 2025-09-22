@@ -344,13 +344,26 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
 
   // Initialize map when component mounts or becomes visible
   useEffect(() => {
-    if (isVisible) {
+    if (isVisible && !hasInitializedRef.current) {
       // Preload token for faster initialization
       mapboxService.preloadToken().then(() => {
         initializeMap();
       });
     }
   }, [isVisible, initializeMap]);
+
+  // Re-initialize when becoming visible if not already initialized
+  useEffect(() => {
+    if (isVisible && hasInitializedRef.current && map.current) {
+      // Trigger resize to ensure map renders correctly
+      setTimeout(() => {
+        if (map.current) {
+          map.current.resize();
+          updateViewportData();
+        }
+      }, 100);
+    }
+  }, [isVisible, updateViewportData]);
 
   // Cleanup
   useEffect(() => {
