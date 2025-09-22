@@ -13,6 +13,8 @@ import { cdnManager } from '@/utils/scaling/cdn-config';
 import { useProductionMonitoring } from '@/hooks/useProductionMonitoring';
 import { useRequestOptimization } from '@/hooks/useRequestOptimization';
 import { NetworkAwareFallback, ErrorBoundaryWithRetry, MapFallback } from '@/components/ui/graceful-degradation';
+import { mapboxService } from '@/services/mapboxService';
+import { MapTokenMissing } from './MapTokenMissing';
 
 interface RetinaMobileMapProps {
   onFactClick?: (fact: FactMarker) => void;
@@ -36,6 +38,8 @@ export const RetinaMobileMapComponent: React.FC<RetinaMobileMapProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [currentZoom, setCurrentZoom] = useState(2);
   const [accessibilityOpen, setAccessibilityOpen] = useState(false);
+  const [mapboxToken, setMapboxToken] = useState<string | null>(null);
+  const [tokenMissing, setTokenMissing] = useState(false);
   
   const { facts, isLoading: factsLoading } = useDiscoveryStore();
   const { triggerHapticFeedback } = useAppStore();
@@ -60,13 +64,34 @@ export const RetinaMobileMapComponent: React.FC<RetinaMobileMapProps> = ({
     }
   }, [adaptivePerf.performanceSettings.tileQuality]);
 
+  // Load Mapbox token
+  useEffect(() => {
+    const loadToken = async () => {
+      try {
+        const token = await mapboxService.getToken();
+        if (mapboxService.isTokenMissing(token)) {
+          setTokenMissing(true);
+          setIsLoading(false);
+          return;
+        }
+        setMapboxToken(token);
+        setTokenMissing(false);
+      } catch (error) {
+        console.error('Failed to load Mapbox token:', error);
+        setTokenMissing(true);
+        setIsLoading(false);
+      }
+    };
+    loadToken();
+  }, []);
+
   // Initialize map with retina optimization
   useEffect(() => {
-    if (!mapContainer.current) return;
+    if (!mapContainer.current || !mapboxToken || tokenMissing) return;
 
     const pixelRatio = window.devicePixelRatio || 1;
     
-    mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN || '';
+    mapboxgl.accessToken = mapboxToken;
     
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -129,7 +154,7 @@ export const RetinaMobileMapComponent: React.FC<RetinaMobileMapProps> = ({
       markers.current.clear();
       map.current?.remove();
     };
-  }, [getOptimizedMapStyle, adaptivePerf.performanceScore, offlineMap.isOfflineMode]);
+  }, [mapboxToken, getOptimizedMapStyle, adaptivePerf.performanceScore, offlineMap.isOfflineMode]);
 
   // Advanced gesture handling
   const gestureHandlers = useAdvancedGestures(mapContainer, {
@@ -378,6 +403,11 @@ export const RetinaMobileMapComponent: React.FC<RetinaMobileMapProps> = ({
   }, [triggerHapticFeedback]);
 
   if (!isVisible) return null;
+
+  // Show token missing component if needed
+  if (tokenMissing) {
+    return <MapTokenMissing />;
+  }
 
   return (
     <div className={`relative h-full w-full ${className}`}>
