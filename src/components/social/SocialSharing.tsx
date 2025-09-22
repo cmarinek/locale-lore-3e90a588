@@ -118,25 +118,23 @@ export const SocialSharing: React.FC<SocialSharingProps> = ({
   ], [shareToX, shareToFacebook, shareToLinkedIn, shareToInstagram, shareToWhatsApp]);
 
   const shareNatively = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: content.title,
-          text: content.description,
-          url: content.url,
+    try {
+      await navigator.share({
+        title: content.title,
+        text: content.description,
+        url: content.url,
+      });
+      setIsOpen(false);
+    } catch (error) {
+      // User cancelled - don't show error for that
+      if (error.name !== 'AbortError') {
+        console.error('Error sharing:', error);
+        toast({
+          title: "Sharing failed",
+          description: "Please try again or use another sharing option.",
+          variant: "destructive",
         });
-        setIsOpen(false);
-      } catch (error) {
-        // User cancelled or error occurred
-        if (error.name !== 'AbortError') {
-          console.error('Error sharing:', error);
-          // Fallback to copy if native share fails
-          copyToClipboard();
-        }
       }
-    } else {
-      // Show more options by copying to clipboard
-      copyToClipboard();
     }
   };
 
