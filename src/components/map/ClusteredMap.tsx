@@ -404,7 +404,7 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
               <span className="text-base sm:text-sm">
                 {style === 'light' ? '🌞' : style === 'dark' ? '🌙' : style === 'satellite' ? '🛰️' : '🏔️'}
               </span>
-              <span className="sm:inline text-left">
+              <span className="hidden sm:inline text-left">
                 {style.charAt(0).toUpperCase() + style.slice(1)}
               </span>
             </button>
