@@ -3294,14 +3294,22 @@ export type Database = {
         Returns: unknown
       }
       get_fact_clusters: {
-        Args: {
-          p_east: number
-          p_north: number
-          p_radius?: number
-          p_south: number
-          p_west: number
-          p_zoom: number
-        }
+        Args:
+          | {
+              p_east: number
+              p_north: number
+              p_radius?: number
+              p_south: number
+              p_west: number
+              p_zoom: number
+            }
+          | {
+              p_east: number
+              p_north: number
+              p_south: number
+              p_west: number
+              p_zoom?: number
+            }
         Returns: {
           bounds: Json
           center: number[]
