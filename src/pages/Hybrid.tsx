@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ModernViewToggle } from '@/components/ui/modern-view-toggle';
 import { GestureHandler } from '@/components/ui/gesture-handler';
@@ -262,10 +262,6 @@ export const Hybrid: React.FC = () => {
         <link rel="canonical" href="/hybrid" />
       </Helmet>
 
-      {/* ViewModeToggle - consistent positioning */}
-      <div className="absolute top-4 right-4 z-20">
-        <ViewModeToggle variant="glass" />
-      </div>
 
       <div className="h-screen w-full flex flex-col">
         {/* Mobile-optimized Header - sticky with backdrop blur */}
@@ -273,13 +269,22 @@ export const Hybrid: React.FC = () => {
           {/* Top spacing for mobile status bar */}
           <div className="h-safe-top" />
 
-          {/* Search Section - optimized for one-handed use */}
-          <div className="px-4 pt-4 pb-3">
+          {/* Search Section and View Toggle */}
+          <div className="px-4 pt-4 pb-3 space-y-3">
             <div className="glass rounded-xl p-3">
               <ModernSearchBar 
                 onSearch={handleSearch} 
                 placeholder={isMobile ? "Search stories..." : "Search stories and locations..."}
                 className="text-base" // Larger text for mobile
+              />
+            </div>
+            
+            {/* View Toggle - accessible on all screen sizes */}
+            <div className="flex justify-center">
+              <ModernViewToggle
+                activeView={activeTab}
+                onViewChange={setActiveTab}
+                className="w-fit"
               />
             </div>
           </div>
@@ -336,13 +341,6 @@ export const Hybrid: React.FC = () => {
             {/* Mobile Tab Navigation - optimized for thumb reach */}
             <div className="flex-1 min-h-0 flex flex-col">
                 <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'list' | 'map')} className="flex-1 min-h-0 flex flex-col">
-                  <div className="px-4 pt-2 pb-3">
-                    <ModernViewToggle
-                      activeView={activeTab}
-                      onViewChange={setActiveTab}
-                      className="w-full max-w-xs mx-auto"
-                    />
-                  </div>
 
                 <div className="flex-1 min-h-0">
                   {/* Stories List with Pull-to-Refresh */}
