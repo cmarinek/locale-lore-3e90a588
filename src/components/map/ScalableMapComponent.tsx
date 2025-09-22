@@ -76,9 +76,9 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       setLoadingState('map');
       mapboxgl.accessToken = token;
 
-      // Initialize to NYC area where we know there's sample data
-      const nycCenter: [number, number] = [-74.006, 40.7128];
-      const startCenter = initialCenter || nycCenter;
+      // Initialize to NYC area where we know there's sample data - make it more visible
+      const nycCenter: [number, number] = [-74.006, 40.7128]; // NYC coordinates
+      const startCenter = nycCenter; // Always start in NYC area for testing
 
       console.log('🗺️ Initializing map at center:', startCenter);
 
@@ -87,7 +87,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11', // Fixed default style
         center: startCenter,
-        zoom: initialZoom,
+        zoom: 10, // Start at higher zoom to show individual facts or small clusters
         preserveDrawingBuffer: true,
         attributionControl: false,
         logoPosition: 'bottom-right',
@@ -123,6 +123,9 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         if (mapStyle !== 'light') {
           mapInstance.setStyle(mapStyles[mapStyle]);
         }
+        
+        // Clear cache to ensure fresh data
+        geoService.clearCache();
         
         // Initial data load with delay to ensure map is ready
         console.log('📊 Triggering initial data update after map load');
@@ -389,45 +392,52 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       data: geoJsonData
     });
 
-    // Style clusters
+    // Style clusters with simpler, more visible styling
     map.current.addLayer({
       id: 'clusters',
       type: 'circle',
       source: 'clusters',
       paint: {
         'circle-radius': [
-          'step',
+          'interpolate',
+          ['linear'],
           ['get', 'count'],
-          15,
-          10, 20,
-          50, 25,
-          100, 30
+          1, 20,
+          5, 30,
+          10, 40,
+          25, 50
         ],
-        'circle-color': [
-          'case',
-          ['>', ['get', 'verified_count'], ['/', ['get', 'count'], 2]],
-          '#10B981',
-          '#3B82F6'
-        ],
-        'circle-stroke-width': 2,
+        'circle-color': '#3b82f6',
+        'circle-stroke-width': 3,
         'circle-stroke-color': '#ffffff',
-        'circle-opacity': 0.8
+        'circle-opacity': 0.9
       }
     });
 
-    // Add cluster labels
+    // Add cluster labels with fallback fonts
     map.current.addLayer({
       id: 'cluster-count',
       type: 'symbol',
       source: 'clusters',
       layout: {
         'text-field': ['get', 'count'],
-        'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        'text-size': 12
+        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+        'text-size': 16,
+        'text-allow-overlap': true,
+        'text-ignore-placement': true
       },
       paint: {
-        'text-color': '#ffffff'
+        'text-color': '#ffffff',
+        'text-halo-color': '#000000',
+        'text-halo-width': 2
       }
+    });
+    
+    console.log(`✅ Successfully added ${clusters.length} cluster(s) to map`);
+    
+    // Debug: Log cluster positions for troubleshooting
+    clusters.forEach(cluster => {
+      console.log(`📍 Cluster at [${cluster.center[0]}, ${cluster.center[1]}] with ${cluster.count} facts`);
     });
 
     // Add click handlers for clusters
