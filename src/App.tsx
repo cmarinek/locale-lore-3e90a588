@@ -38,8 +38,8 @@ import { LoadingIntroduction } from '@/components/ui/loading-introduction';
 import { PerformanceMonitor } from '@/components/monitoring/PerformanceMonitor';
 import { useAuth } from '@/contexts/AuthProvider';
 import InitializationGate from '@/components/ui/initialization-gate';
-import { SecurityUtils } from '@/utils/security';
-import { seoManager } from '@/utils/seo';
+import { SecurityUtils, SessionManager } from '@/utils/security';
+import { seoManager, optimizeCriticalResources } from '@/utils/seo';
 
 
 // Lazy load the Map component
@@ -111,19 +111,37 @@ const AppContent = () => {
 
 function App() {
 
-  // Initialize security and SEO on app load
+  // Initialize Phase 4 enhancements
   useEffect(() => {
-    // Initialize security features
+    // Validate environment
     if (!SecurityUtils.validateEnvironment()) {
-      console.warn('Missing required environment variables');
+      console.error('Environment validation failed');
     }
+
+    // Initialize session management
+    const sessionManager = SessionManager.getInstance();
+    const handleActivity = () => sessionManager.updateActivity();
     
-    // Initialize SEO
+    // Track user activity for session management
+    window.addEventListener('click', handleActivity);
+    window.addEventListener('keypress', handleActivity);
+    window.addEventListener('scroll', handleActivity);
+
+    // Initialize SEO and performance optimization
     seoManager.preloadCriticalResources();
+    optimizeCriticalResources();
+
+    // Set default meta tags with GeoCache Lore branding
     seoManager.updateMeta({
-      title: 'LocaleLore - Discover Hidden Stories Around the World',
-      description: 'Explore fascinating facts and hidden stories about locations worldwide. Discover, learn, and share geographical knowledge with our community.'
+      title: 'GeoCache Lore - Discover Hidden Stories Around the World',
+      description: 'Explore fascinating facts and hidden stories about locations worldwide.',
     });
+
+    return () => {
+      window.removeEventListener('click', handleActivity);
+      window.removeEventListener('keypress', handleActivity);
+      window.removeEventListener('scroll', handleActivity);
+    };
   }, []);
 
   // Clear ServiceWorker cache on development reload
@@ -152,7 +170,7 @@ function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary enableRecovery={true} showErrorDetails={import.meta.env.DEV}>
       <HelmetProvider>
         <AuthProvider>
           <ThemeProvider>

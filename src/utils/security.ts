@@ -98,6 +98,39 @@ export const sanitizeInput = (input: string): string => {
     .trim();
 };
 
+// CSRF protection
+export const generateCSRFToken = (): string => {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+};
+
+// Session management
+export class SessionManager {
+  private static instance: SessionManager;
+  private sessionTimeout: number = 30 * 60 * 1000; // 30 minutes
+  private lastActivity: number = Date.now();
+
+  static getInstance(): SessionManager {
+    if (!SessionManager.instance) {
+      SessionManager.instance = new SessionManager();
+    }
+    return SessionManager.instance;
+  }
+
+  updateActivity(): void {
+    this.lastActivity = Date.now();
+  }
+
+  isSessionValid(): boolean {
+    return Date.now() - this.lastActivity < this.sessionTimeout;
+  }
+
+  getTimeUntilExpiry(): number {
+    return Math.max(0, this.sessionTimeout - (Date.now() - this.lastActivity));
+  }
+}
+
 // Enhanced security utilities
 export class SecurityUtils {
   // XSS Protection
@@ -138,11 +171,79 @@ export class SecurityUtils {
 
   // Environment validation
   static validateEnvironment(): boolean {
-    const requiredVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY'];
-    return requiredVars.every(envVar => {
+    const requiredVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'];
+    const isValid = requiredVars.every(envVar => {
       const value = import.meta.env[envVar];
       return value && value.length > 0;
     });
+
+    if (!isValid) {
+      console.error('Missing required environment variables:', 
+        requiredVars.filter(envVar => !import.meta.env[envVar]));
+    }
+
+    return isValid;
+  }
+
+  // Content validation
+  static validateContent(content: string, maxLength: number = 1000): boolean {
+    if (!content || content.length > maxLength) return false;
+    
+    // Check for suspicious patterns
+    const suspiciousPatterns = [
+      /<script[^>]*>.*?<\/script>/gi,
+      /javascript:/gi,
+      /data:text\/html/gi,
+      /vbscript:/gi,
+    ];
+
+    return !suspiciousPatterns.some(pattern => pattern.test(content));
+  }
+
+  // Password strength validation
+  static validatePasswordStrength(password: string): {
+    isValid: boolean;
+    score: number;
+    feedback: string[];
+  } {
+    const feedback: string[] = [];
+    let score = 0;
+
+    if (password.length >= 8) {
+      score += 1;
+    } else {
+      feedback.push('Use at least 8 characters');
+    }
+
+    if (/[A-Z]/.test(password)) {
+      score += 1;
+    } else {
+      feedback.push('Include uppercase letters');
+    }
+
+    if (/[a-z]/.test(password)) {
+      score += 1;
+    } else {
+      feedback.push('Include lowercase letters');
+    }
+
+    if (/\d/.test(password)) {
+      score += 1;
+    } else {
+      feedback.push('Include numbers');
+    }
+
+    if (/[^A-Za-z0-9]/.test(password)) {
+      score += 1;
+    } else {
+      feedback.push('Include special characters');
+    }
+
+    return {
+      isValid: score >= 3,
+      score,
+      feedback
+    };
   }
 
   // Generate secure random ID

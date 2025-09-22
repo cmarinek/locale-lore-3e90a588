@@ -1,13 +1,20 @@
 import React, { Component, ReactNode } from 'react';
+import { toast } from '@/hooks/use-toast';
 
-// Safe import for monitoring - using dynamic import
+// Enhanced error tracking with multiple services
 let trackError: any = () => {}; // Default safe fallback
+let reportError: any = () => {}; // Error reporting
 
-// Async initialization of monitoring
+// Async initialization of monitoring services
 (async () => {
   try {
     const monitoring = await import('@/utils/monitoring').catch(() => null);
     trackError = monitoring?.trackError || (() => {});
+    
+    // Initialize Sentry if available
+    if (typeof window !== 'undefined' && (window as any).Sentry) {
+      reportError = (window as any).Sentry.captureException;
+    }
   } catch (error) {
     console.warn('Monitoring utility not available:', error);
   }
@@ -18,26 +25,32 @@ interface Props {
   fallback?: ReactNode;
   isDiagnostic?: boolean;
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+  enableRecovery?: boolean;
+  showErrorDetails?: boolean;
+  enableUserFeedback?: boolean;
 }
 
 interface State {
   hasError: boolean;
   error?: Error;
   errorInfo?: React.ErrorInfo;
+  errorId?: string;
+  retryCount: number;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, retryCount: 0 };
     
     if (props.isDiagnostic) {
       console.log('DIAGNOSTIC: ErrorBoundary initialized');
     }
   }
 
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+  static getDerivedStateFromError(error: Error): Partial<State> {
+    const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return { hasError: true, error, errorId };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -48,16 +61,49 @@ export class ErrorBoundary extends Component<Props, State> {
       console.error('DIAGNOSTIC: Component error details:', { error, errorInfo });
     }
     
-    // Track the error for monitoring (unless in diagnostic mode)
-    if (!this.props.isDiagnostic && trackError) {
-      try {
-        trackError(error, {
-          componentStack: errorInfo.componentStack,
-          errorBoundary: true,
-        });
-      } catch (trackingError) {
-        console.warn('Error tracking failed:', trackingError);
+    // Enhanced error reporting
+    if (!this.props.isDiagnostic) {
+      // Track with multiple services
+      if (trackError) {
+        try {
+          trackError(error, {
+            componentStack: errorInfo.componentStack,
+            errorBoundary: true,
+            errorId: this.state.errorId,
+            retryCount: this.state.retryCount,
+            userAgent: navigator.userAgent,
+            url: window.location.href,
+            timestamp: new Date().toISOString(),
+          });
+        } catch (trackingError) {
+          console.warn('Error tracking failed:', trackingError);
+        }
       }
+
+      // Report to Sentry if available
+      if (reportError) {
+        try {
+          reportError(error, {
+            tags: {
+              component: 'ErrorBoundary',
+              errorId: this.state.errorId,
+            },
+            extra: {
+              componentStack: errorInfo.componentStack,
+              retryCount: this.state.retryCount,
+            },
+          });
+        } catch (reportingError) {
+          console.warn('Error reporting failed:', reportingError);
+        }
+      }
+
+      // Show user-friendly notification
+      toast({
+        title: "Something went wrong",
+        description: "We've been notified and are working on a fix. Try refreshing the page.",
+        variant: "destructive",
+      });
     }
 
     // Call custom error handler if provided
@@ -65,7 +111,25 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   handleRetry = () => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+    this.setState(prevState => ({ 
+      hasError: false, 
+      error: undefined, 
+      errorInfo: undefined,
+      retryCount: prevState.retryCount + 1 
+    }));
+    
+    // Track retry attempt
+    if (trackError) {
+      try {
+        trackError(new Error('Error boundary retry'), {
+          errorId: this.state.errorId,
+          retryCount: this.state.retryCount + 1,
+          action: 'retry',
+        });
+      } catch (error) {
+        console.warn('Retry tracking failed:', error);
+      }
+    }
   };
 
   handleGoHome = () => {

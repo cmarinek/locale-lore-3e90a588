@@ -20,10 +20,10 @@ interface SEOData {
 
 export class SEOManager {
   private defaultMeta: SEOData = {
-    title: 'LocaleLore - Discover Hidden Stories Around the World',
-    description: 'Explore fascinating facts and hidden stories about locations worldwide. Discover, learn, and share geographical knowledge with our community.',
-    keywords: ['geography', 'facts', 'travel', 'discovery', 'stories', 'locations'],
-    siteName: 'LocaleLore',
+    title: 'GeoCache Lore - Discover Hidden Stories Around the World',
+    description: 'Explore fascinating facts and hidden stories about locations worldwide. Discover, learn, and share geographical knowledge with our community-driven platform.',
+    keywords: ['geography', 'facts', 'travel', 'discovery', 'stories', 'locations', 'GeoCache', 'Lore'],
+    siteName: 'GeoCache Lore',
     type: 'website',
   };
 
@@ -169,7 +169,7 @@ export class SEOManager {
       image: fact.image_url,
       publisher: {
         '@type': 'Organization',
-        name: 'LocaleLore',
+        name: 'GeoCache Lore',
         logo: {
           '@type': 'ImageObject',
           url: '/icon-192.png',
@@ -190,6 +190,55 @@ export const useSEO = (config: Partial<SEOData>) => {
     generateArticleData: seoManager.generateArticleData.bind(seoManager),
     generateLocalBusinessData: seoManager.generateLocalBusinessData.bind(seoManager)
   };
+};
+
+// Critical resource optimization
+export const optimizeCriticalResources = () => {
+  // Preconnect to external domains
+  const preconnectDomains = [
+    'https://fonts.googleapis.com',
+    'https://fonts.gstatic.com',
+    'https://api.mapbox.com',
+  ];
+
+  preconnectDomains.forEach(domain => {
+    const link = document.createElement('link');
+    link.rel = 'preconnect';
+    link.href = domain;
+    link.crossOrigin = 'anonymous';
+    document.head.appendChild(link);
+  });
+
+  // Preload critical fonts
+  const criticalFonts = [
+    '/fonts/inter-400.woff2',
+    '/fonts/inter-500.woff2',
+  ];
+
+  criticalFonts.forEach(font => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.href = font;
+    link.as = 'font';
+    link.type = 'font/woff2';
+    link.crossOrigin = 'anonymous';
+    document.head.appendChild(link);
+  });
+};
+
+// Performance monitoring integration
+export const trackSEOPerformance = (pageName: string) => {
+  // Track Core Web Vitals for SEO
+  if ('PerformanceObserver' in window) {
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (entry.entryType === 'largest-contentful-paint') {
+          console.log(`LCP for ${pageName}:`, entry.startTime);
+        }
+      }
+    });
+    observer.observe({ entryTypes: ['largest-contentful-paint'] });
+  }
 };
 
 export const seoManager = new SEOManager();
