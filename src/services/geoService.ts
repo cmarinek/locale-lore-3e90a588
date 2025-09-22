@@ -102,13 +102,23 @@ class GeoService {
     console.log(`🔄 Cache miss - fetching fresh data for zoom ${zoom}`);
 
     try {
-      // Simplified strategy: always show individual facts at zoom 10+
-      console.log('🔄 Force using individual facts for debugging at zoom', zoom);
-      const facts = await this.getIndividualFacts(expandedBounds);
-      console.log(`📊 Retrieved ${facts.length} individual facts for debugging`);
-      const result = { facts, clusters: [], totalCount: options.includeCount ? facts.length : undefined };
-      this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
-      return result;
+      // Use clustering for lower zoom levels (global/regional view)
+      // Use individual facts for higher zoom levels (city/street view)
+      if (zoom < this.config.maxZoomForClustering) {
+        console.log(`🎯 Using clustering for zoom ${zoom} (< ${this.config.maxZoomForClustering})`);
+        const clusters = await this.getClusteredFacts(expandedBounds, zoom);
+        console.log(`📊 Retrieved ${clusters.length} clusters`);
+        const result = { facts: [], clusters, totalCount: options.includeCount ? clusters.reduce((sum, c) => sum + c.count, 0) : undefined };
+        this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
+        return result;
+      } else {
+        console.log(`📍 Using individual facts for zoom ${zoom} (>= ${this.config.maxZoomForClustering})`);
+        const facts = await this.getIndividualFacts(expandedBounds);
+        console.log(`📊 Retrieved ${facts.length} individual facts`);
+        const result = { facts, clusters: [], totalCount: options.includeCount ? facts.length : undefined };
+        this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
+        return result;
+      }
     } catch (error) {
       console.error('❌ Error fetching viewport data:', error);
       console.error('Bounds:', bounds, 'Zoom:', zoom);
