@@ -117,7 +117,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         updateViewportData();
       });
 
-      // Throttled viewport updates for performance
+      // Throttled viewport updates for performance with better debouncing
       const handleViewportChange = () => {
         if (updateTimeoutRef.current) {
           clearTimeout(updateTimeoutRef.current);
@@ -125,7 +125,8 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         
         updateTimeoutRef.current = setTimeout(() => {
           updateViewportData();
-        }, 300); // 300ms debounce
+          updateTimeoutRef.current = undefined;
+        }, 500); // Increased debounce to 500ms to reduce flicker
       };
 
       mapInstance.on('moveend', handleViewportChange);
@@ -146,9 +147,12 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
     }
   }, [initialCenter, initialZoom, isVisible]); // Removed mapStyle and updateViewportData dependencies
 
-  // Efficient viewport data updates
+  // Efficient viewport data updates with loading state protection
   const updateViewportData = useCallback(async () => {
-    if (!map.current) return;
+    if (!map.current || loadingState !== 'ready') return;
+
+    // Prevent concurrent updates
+    if (updateTimeoutRef.current === null) return;
 
     try {
       const bounds = map.current.getBounds();
@@ -181,7 +185,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
     } catch (error) {
       console.error('Error updating viewport data:', error);
     }
-  }, []);
+  }, [loadingState]);
 
   // Render individual facts for high zoom levels
   const renderIndividualFacts = useCallback((facts: FactMarker[]) => {
@@ -420,6 +424,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
     return () => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
+        updateTimeoutRef.current = undefined;
       }
       if (map.current) {
         map.current.remove();
