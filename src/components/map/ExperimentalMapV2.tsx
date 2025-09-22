@@ -49,6 +49,70 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
       authorName: fact.profiles?.username
     })), [facts]);
 
+  // Map style change handler
+  const handleStyleChange = useCallback((style: string) => {
+    if (!map.current) return;
+    
+    const styleMap = {
+      light: 'mapbox://styles/mapbox/light-v11',
+      dark: 'mapbox://styles/mapbox/dark-v11',
+      satellite: 'mapbox://styles/mapbox/satellite-v9',
+      terrain: 'mapbox://styles/mapbox/outdoors-v12'
+    };
+    
+    const mapStyle = styleMap[style as keyof typeof styleMap] || styleMap.light;
+    map.current.setStyle(mapStyle);
+    console.log('🎨 Map style changed to:', style);
+  }, []);
+
+  // Zoom controls
+  const handleZoomIn = useCallback(() => {
+    if (map.current) {
+      map.current.zoomIn();
+    }
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    if (map.current) {
+      map.current.zoomOut();
+    }
+  }, []);
+
+  // Reset view handler
+  const handleResetView = useCallback(() => {
+    if (map.current) {
+      map.current.flyTo({
+        center: [-74.5, 40],
+        zoom: 9,
+        duration: 1000
+      });
+    }
+  }, []);
+
+  // Share location handler
+  const handleShareLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      console.warn('Geolocation not supported');
+      return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        if (map.current) {
+          map.current.flyTo({
+            center: [longitude, latitude],
+            zoom: 15,
+            duration: 1000
+          });
+        }
+      },
+      (error) => {
+        console.warn('Error getting location:', error);
+      }
+    );
+  }, []);
+
   // Initialize map
   const initializeMap = useCallback(async () => {
     if (!mapContainer.current || map.current) return;
@@ -217,9 +281,83 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
         style={{ minHeight: '100%' }}
       />
       
+      {/* Map Style Controls - Top Left */}
+      <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+        <div className="flex flex-col bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
+          <button
+            onClick={() => handleStyleChange('light')}
+            className="px-3 py-2 text-xs hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground"
+            title="Light Style"
+          >
+            🌞 Light
+          </button>
+          <button
+            onClick={() => handleStyleChange('dark')}
+            className="px-3 py-2 text-xs hover:bg-muted/50 transition-colors border-t border-0 rounded-none bg-transparent text-foreground"
+            title="Dark Style"
+          >
+            🌙 Dark
+          </button>
+          <button
+            onClick={() => handleStyleChange('satellite')}
+            className="px-3 py-2 text-xs hover:bg-muted/50 transition-colors border-t border-0 rounded-none bg-transparent text-foreground"
+            title="Satellite Style"
+          >
+            🛰️ Satellite
+          </button>
+          <button
+            onClick={() => handleStyleChange('terrain')}
+            className="px-3 py-2 text-xs hover:bg-muted/50 transition-colors border-t border-0 rounded-none bg-transparent text-foreground"
+            title="Terrain Style"
+          >
+            🏔️ Terrain
+          </button>
+        </div>
+      </div>
+
+      {/* Zoom Controls - Left Side (50vh) */}
+      <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-20 flex flex-col gap-2">
+        <div className="flex flex-col bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
+          <button
+            onClick={() => handleZoomIn()}
+            className="p-3 hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground"
+            title="Zoom In"
+          >
+            ➕
+          </button>
+          <button
+            onClick={() => handleZoomOut()}
+            className="p-3 hover:bg-muted/50 transition-colors border-t border-0 rounded-none bg-transparent text-foreground"
+            title="Zoom Out"
+          >
+            ➖
+          </button>
+        </div>
+      </div>
+
+      {/* Navigation Controls - Right Side (50vh) */}
+      <div className="absolute top-1/2 right-4 transform -translate-y-1/2 z-20 flex flex-col gap-2">
+        <div className="flex flex-col bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
+          <button
+            onClick={() => handleResetView()}
+            className="p-3 hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground"
+            title="Reset View"
+          >
+            🧭
+          </button>
+          <button
+            onClick={() => handleShareLocation()}
+            className="p-3 hover:bg-muted/50 transition-colors border-t border-0 rounded-none bg-transparent text-foreground"
+            title="Share Location"
+          >
+            📍
+          </button>
+        </div>
+      </div>
+
       {/* Debug info in development */}
       {process.env.NODE_ENV === 'development' && (
-        <div className="absolute top-4 left-4 z-20 bg-black/80 text-white p-2 rounded text-xs">
+        <div className="absolute bottom-4 left-4 z-20 bg-black/80 text-white p-2 rounded text-xs">
           Experimental V2 • {factMarkers.length} markers
         </div>
       )}
