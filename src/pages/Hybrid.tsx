@@ -23,8 +23,8 @@ import { DistanceSortButton } from '@/components/ui/DistanceSortButton';
 import { useLocationSorting } from '@/hooks/useLocationSorting';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-// Lazy-load Enhanced Map to improve initial render
-const LazyEnhancedMap = React.lazy(() => import('@/components/map/EnhancedMapComponent').then(module => ({ default: module.EnhancedMapComponent })));
+// Lazy-load Scalable Map to improve initial render
+const LazyScalableMap = React.lazy(() => import('@/components/map/ScalableMapComponent').then(module => ({ default: module.ScalableMapComponent })));
 
 // Import error boundary
 import { ProductionErrorBoundary } from '@/components/common/ErrorBoundary';
@@ -436,14 +436,13 @@ export const Hybrid: React.FC = () => {
                             </div>
                           </div>
                         }>
-                          <LazyEnhancedMap
-                          onFactClick={handleMapFactClick} 
-                          className="h-full w-full"
-                          isVisible={activeTab === 'map'}
-                          initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                          initialZoom={isMobile ? 12 : 10}
-                          showBuiltInSearch={false} 
-                        />
+                           <LazyScalableMap
+                           onFactClick={handleMapFactClick} 
+                           className="h-full w-full"
+                           isVisible={activeTab === 'map'}
+                           initialCenter={[centerLocation.lng, centerLocation.lat]} 
+                           initialZoom={isMobile ? 12 : 10}
+                         />
                        </React.Suspense>
                       </ProductionErrorBoundary>
                      </div>
@@ -501,14 +500,13 @@ export const Hybrid: React.FC = () => {
             {/* Map - Desktop: Right main area */}
             <div className="flex-1 relative">
               <React.Suspense fallback={<div className="absolute inset-0 grid place-items-center text-muted-foreground animate-fade-in">Loading map...</div>}>
-                <LazyEnhancedMap 
-                  onFactClick={handleMapFactClick} 
-                  className="h-full w-full" 
-                  initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                  initialZoom={isMobile ? 12 : 10}
-                  showBuiltInSearch={false}
-                  isVisible={true}
-                />
+                 <LazyScalableMap 
+                   onFactClick={handleMapFactClick} 
+                   className="h-full w-full" 
+                   initialCenter={[centerLocation.lng, centerLocation.lat]} 
+                   initialZoom={isMobile ? 12 : 10}
+                   isVisible={true}
+                 />
               </React.Suspense>
             </div>
           </div>

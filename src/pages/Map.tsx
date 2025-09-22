@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import { EnhancedMapComponent } from '@/components/map/EnhancedMapComponent';
+import { ScalableMapComponent } from '@/components/map/ScalableMapComponent';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
@@ -95,10 +95,9 @@ export const Map: React.FC = () => {
 
       <div className="h-screen w-full relative">
         {/* Advanced Map with real Supabase data */}
-        <EnhancedMapComponent
+        <ScalableMapComponent
           onFactClick={handleFactClick}
           className="h-full w-full"
-          showBuiltInSearch={false}
           isVisible={true}
         />
 
