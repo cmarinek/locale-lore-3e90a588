@@ -132,16 +132,24 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
       const nav = new mapboxgl.NavigationControl();
       map.current.addControl(nav, 'top-right');
       
-      // Position the control container at 50vh immediately
+      // Position the control container at 50vh and hide any duplicates
       map.current.on('load', () => {
-        const controlContainer = mapContainer.current?.querySelector('.mapboxgl-ctrl-top-right');
-        if (controlContainer) {
-          const element = controlContainer as HTMLElement;
-          element.style.position = 'absolute';
-          element.style.top = '50vh';
-          element.style.transform = 'translateY(-50%)';
-          element.style.right = '12px';
-          element.style.margin = '0';
+        const controlContainers = mapContainer.current?.querySelectorAll('.mapboxgl-ctrl-top-right');
+        if (controlContainers) {
+          controlContainers.forEach((container, index) => {
+            const element = container as HTMLElement;
+            if (index === 0) {
+              // Keep the first one and position it at 50vh
+              element.style.position = 'absolute';
+              element.style.top = '50vh';
+              element.style.transform = 'translateY(-50%)';
+              element.style.right = '12px';
+              element.style.margin = '0';
+            } else {
+              // Hide any duplicates
+              element.style.display = 'none';
+            }
+          });
         }
       });
 
