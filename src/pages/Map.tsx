@@ -101,13 +101,13 @@ export const Map: React.FC = () => {
           isVisible={true}
         />
 
-        {/* Search Bar - mobile-first responsive positioning */}
-        <div className="absolute top-4 left-4 right-4 sm:left-20 sm:right-16 z-20">
+        {/* Mobile-optimized Search Bar - improved positioning */}
+        <div className="absolute top-4 left-4 right-4 z-20 max-w-md mx-auto sm:max-w-none sm:left-20 sm:right-20">
           <ModernSearchBar onSearch={handleSearch} placeholder="Search stories on map..." showLocationButton={true} />
         </div>
 
-        {/* View Mode Toggle - mobile-first responsive */}
-        <div className="absolute top-4 right-4 z-20">
+        {/* View Mode Toggle - mobile-first responsive with better spacing */}
+        <div className="absolute top-20 right-4 z-20 sm:top-4">
           <ViewModeToggle variant="glass" />
         </div>
 
@@ -120,21 +120,23 @@ export const Map: React.FC = () => {
           />
         )}
 
-        {/* Modern Bottom Bar */}
-        <ModernBottomBar
-          secondaryActions={[
-            {
-              label: "Favorite",
-              icon: <Heart className="h-4 w-4" />,
-              onClick: () => console.log("Favorite clicked")
-            },
-            {
-              label: "Save",
-              icon: <BookmarkPlus className="h-4 w-4" />,
-              onClick: () => console.log("Save clicked")
-            }
-          ]}
-        />
+        {/* Modern Bottom Bar with safe area padding */}
+        <div className="pb-safe-area-inset-bottom">
+          <ModernBottomBar
+            secondaryActions={[
+              {
+                label: "Favorite",
+                icon: <Heart className="h-4 w-4" />,
+                onClick: () => console.log("Favorite clicked")
+              },
+              {
+                label: "Save",
+                icon: <BookmarkPlus className="h-4 w-4" />,
+                onClick: () => console.log("Save clicked")
+              }
+            ]}
+          />
+        </div>
       </div>
     </MainLayout>
   );

@@ -78,12 +78,15 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
             size={size}
             onClick={() => handleModeClick(mode)}
             className={cn(
-              variant === 'glass' && "glass border-0 shadow-lg bg-background/80 backdrop-blur-sm"
+              "min-h-[44px] min-w-[44px]", // Ensure touch targets
+              variant === 'glass' && "glass border-0 shadow-lg bg-background/90 backdrop-blur-sm",
+              "touch-manipulation" // Improves touch responsiveness
             )}
+            aria-label={`Switch to ${getModeLabel(mode)}`}
           >
-            <Icon className="w-4 h-4 mr-2" />
+            <Icon className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">{getModeLabel(mode)}</span>
-            <span className="sm:hidden">{getModeShortLabel(mode)}</span>
+            <span className="sr-only sm:hidden">{getModeShortLabel(mode)}</span>
           </Button>
         );
       })}

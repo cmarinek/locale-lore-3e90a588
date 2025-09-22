@@ -34,13 +34,14 @@ export const ModernSearchBar: React.FC<ModernSearchBarProps> = ({
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
           className={cn(
-            "w-full pl-10 sm:pl-12 h-10 sm:h-12 rounded-full",
-            "bg-background/95 backdrop-blur-lg border border-border/50",
+            "w-full pl-10 sm:pl-12 h-12 sm:h-14 rounded-full",
+            "bg-background/90 backdrop-blur-lg border border-border/30",
             "text-sm sm:text-base",
-            "focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/20",
+            "focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/30",
             "transition-all duration-200",
-            "shadow-sm hover:shadow-md",
-            showLocationButton ? "pr-12 sm:pr-14" : "pr-4"
+            "shadow-lg hover:shadow-xl",
+            "min-h-[48px]", // Ensure minimum touch target
+            showLocationButton ? "pr-14 sm:pr-16" : "pr-4"
           )}
         />
         {showLocationButton && (
@@ -48,7 +49,8 @@ export const ModernSearchBar: React.FC<ModernSearchBarProps> = ({
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 rounded-full hover:bg-primary/10 z-10"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 sm:h-12 sm:w-12 rounded-full hover:bg-primary/10 z-10 min-h-[44px] min-w-[44px]"
+            aria-label="Use current location"
           >
             <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
