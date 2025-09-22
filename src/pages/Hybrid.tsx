@@ -450,64 +450,66 @@ export const Hybrid: React.FC = () => {
             </div>
           </div>
         ) : (
-          /* Desktop: Side-by-side layout (unchanged for now) */
-          <div className="flex-1 flex flex-col lg:flex-row min-h-0">
-            {/* Facts List - Desktop: Left sidebar */}
-            <div className="lg:w-1/3 flex-shrink-0 flex flex-col border-r border-border/50">
-              <div className="p-4 border-b border-border/50 py-2">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold">
-                    {displayedFacts.length} {displayedFacts.length === 1 ? 'Story' : 'Stories'}
-                  </h3>
-                  <Badge variant="outline">
-                    {userLocation ? 'Near you' : 'Explore'}
-                  </Badge>
+          /* Desktop: Responsive layout based on activeTab */
+          <div className="flex-1 flex min-h-0">
+            {activeTab === 'list' ? (
+              /* List View Only - Desktop */
+              <div className="flex-1 flex flex-col">
+                <div className="p-4 border-b border-border/50 py-2">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold">
+                      {displayedFacts.length} {displayedFacts.length === 1 ? 'Story' : 'Stories'}
+                    </h3>
+                    <Badge variant="outline">
+                      {userLocation ? 'Near you' : 'Explore'}
+                    </Badge>
+                  </div>
+                </div>
+                
+                <div className="flex-1 overflow-auto">
+                  <div className="p-4 space-y-3">
+                    {loading && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Loading stories...
+                      </div>
+                    )}
+                    
+                    {!loading && displayedFacts.length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        No stories found
+                      </div>
+                    )}
+                    
+                    {displayedFacts.map(fact => (
+                      <div key={fact.id} onClick={() => handleFactClick(fact)} className="cursor-pointer">
+                        <FactCard 
+                          fact={{
+                            ...fact,
+                            distanceText: fact.distance ? formatDistance(fact.distance) : undefined
+                          }} 
+                          viewMode="list" 
+                          className="bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors" 
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-              
-              <div className="flex-1 overflow-auto">
-                <div className="p-4 space-y-3">
-                  {loading && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      Loading stories...
-                    </div>
-                  )}
-                  
-                  {!loading && displayedFacts.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No stories found
-                    </div>
-                  )}
-                  
-                  {displayedFacts.map(fact => (
-                    <div key={fact.id} onClick={() => handleFactClick(fact)} className="cursor-pointer">
-                      <FactCard 
-                        fact={{
-                          ...fact,
-                          distanceText: fact.distance ? formatDistance(fact.distance) : undefined
-                        }} 
-                        viewMode="list" 
-                        className="bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors" 
-                      />
-                    </div>
-                  ))}
-                </div>
+            ) : (
+              /* Map View Only - Desktop */
+              <div className="flex-1 relative">
+                <React.Suspense fallback={<div className="absolute inset-0 grid place-items-center text-muted-foreground animate-fade-in">Loading map...</div>}>
+                  <LazyOptimizedMap 
+                    onFactClick={handleMapFactClick} 
+                    className="h-full w-full" 
+                    initialCenter={[centerLocation.lng, centerLocation.lat]} 
+                    initialZoom={isMobile ? 12 : 10}
+                    showBuiltInSearch={false}
+                    isVisible={true}
+                  />
+                </React.Suspense>
               </div>
-            </div>
-
-            {/* Map - Desktop: Right main area */}
-            <div className="flex-1 relative">
-              <React.Suspense fallback={<div className="absolute inset-0 grid place-items-center text-muted-foreground animate-fade-in">Loading map...</div>}>
-                <LazyOptimizedMap 
-                  onFactClick={handleMapFactClick} 
-                  className="h-full w-full" 
-                  initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                  initialZoom={isMobile ? 12 : 10}
-                  showBuiltInSearch={false}
-                  isVisible={true}
-                />
-              </React.Suspense>
-            </div>
+            )}
           </div>
         )}
 
