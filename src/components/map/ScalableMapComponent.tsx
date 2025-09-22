@@ -96,6 +96,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       mapInstance.on('load', () => {
         console.log('🗺️ Scalable map loaded successfully');
         setLoadingState('ready');
+        setErrorState(null); // Clear any previous errors
         updateViewportData();
       });
 
@@ -173,12 +174,20 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
     });
 
     // Remove existing sources to prevent conflicts
-    if (map.current.getSource('facts')) {
-      map.current.removeSource('facts');
-    }
-    if (map.current.getSource('clusters')) {
-      map.current.removeSource('clusters');
-    }
+    ['facts', 'clusters'].forEach(sourceId => {
+      if (map.current!.getSource(sourceId)) {
+        // Remove layers using this source first
+        const style = map.current!.getStyle();
+        if (style.layers) {
+          style.layers.forEach(layer => {
+            if (layer.source === sourceId && map.current!.getLayer(layer.id)) {
+              map.current!.removeLayer(layer.id);
+            }
+          });
+        }
+        map.current!.removeSource(sourceId);
+      }
+    });
 
     if (facts.length === 0) return;
 
@@ -255,12 +264,20 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
     }
 
     // Remove existing sources to prevent conflicts
-    if (map.current.getSource('clusters')) {
-      map.current.removeSource('clusters');
-    }
-    if (map.current.getSource('facts')) {
-      map.current.removeSource('facts');
-    }
+    ['clusters', 'facts'].forEach(sourceId => {
+      if (map.current!.getSource(sourceId)) {
+        // Remove layers using this source first
+        const style = map.current!.getStyle();
+        if (style.layers) {
+          style.layers.forEach(layer => {
+            if (layer.source === sourceId && map.current!.getLayer(layer.id)) {
+              map.current!.removeLayer(layer.id);
+            }
+          });
+        }
+        map.current!.removeSource(sourceId);
+      }
+    });
 
     if (clusters.length === 0) return;
 
