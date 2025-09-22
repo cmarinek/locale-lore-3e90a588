@@ -38,6 +38,7 @@ type ViewMode = 'grid' | 'list';
 export const Explore: React.FC = () => {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     const saved = localStorage.getItem('explore-view-mode');
     return (saved as ViewMode) || 'grid';
@@ -197,17 +198,11 @@ export const Explore: React.FC = () => {
                 <CleanSearchBar onQueryChange={handleSearch} />
               </div>
 
-              {/* Filters */}
-              {showFilters && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mb-6"
-                >
-                  <FilterPanel />
-                </motion.div>
-              )}
+               {/* Filters */}
+               <FilterPanel 
+                 isOpen={filterPanelOpen} 
+                 onClose={() => setFilterPanelOpen(false)} 
+               />
 
               {/* Loading/Error States */}
               {loading && <p className="text-center py-8">Loading stories...</p>}

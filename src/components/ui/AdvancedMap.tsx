@@ -187,71 +187,41 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
   }, [fetchMapboxToken, fetchFacts, setupRealtimeSubscription]);
 
   // Create custom marker element
-  const createMarkerElement = useCallback((fact: FactMarker) => {
+  const createMarkerElement = useCallback((fact: FactMarker): HTMLElement => {
     const el = document.createElement('div');
-    el.className = 'custom-marker';
-    const borderColor = isDarkMode ? 'hsl(var(--border))' : '#ffffff';
-    el.style.cssText = `
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: ${categoryColors[fact.category as keyof typeof categoryColors] || '#6B7280'};
-      border: 3px solid ${borderColor};
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      transform-origin: center bottom;
+    el.className = 'marker-container cursor-pointer';
+    
+    // Get category info
+    const category = fact.category || 'general';
+    const isVerified = fact.verified;
+    
+    // CashApp-style color mapping
+    const categoryColors: Record<string, string> = {
+      'history': '#dc2626', // Red like CVS
+      'culture': '#16a34a',   // Green like 7-Eleven
+      'nature': '#2563eb',    // Blue
+      'urban': '#7c3aed',      // Purple
+      'folklore': '#ea580c',   // Orange
+      'general': '#6b7280'     // Gray
+    };
+    
+    const bgColor = categoryColors[category] || categoryColors.general;
+    
+    el.innerHTML = `
+      <div class="relative">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-lg transform transition-all duration-200 hover:scale-110" 
+             style="background-color: ${bgColor}">
+          <span class="font-bold">📍</span>
+        </div>
+        ${isVerified ? 
+          '<div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center"><svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg></div>' : 
+          ''
+        }
+      </div>
     `;
-
-    // Add verification badge
-    if (fact.verified) {
-      const badge = document.createElement('div');
-      badge.innerHTML = '✓';
-      badge.style.cssText = `
-        position: absolute;
-        top: -2px;
-        right: -2px;
-        width: 16px;
-        height: 16px;
-        background: #10B981;
-        color: white;
-        border-radius: 50%;
-        font-size: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid ${borderColor};
-      `;
-      el.appendChild(badge);
-    }
-
-    // Add hover and click animations
-    el.addEventListener('mouseenter', () => {
-      el.style.transform = 'scale(1.1) translateY(-2px)';
-      el.style.boxShadow = '0 8px 25px rgba(0,0,0,0.25)';
-    });
-
-    el.addEventListener('mouseleave', () => {
-      el.style.transform = 'scale(1) translateY(0)';
-      el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-    });
-
-    el.addEventListener('click', () => {
-      // Haptic feedback animation
-      el.style.transform = 'scale(0.9) translateY(0)';
-      setTimeout(() => {
-        el.style.transform = 'scale(1.1) translateY(-2px)';
-      }, 100);
-      
-      onFactClick?.(fact);
-    });
-
+    
     return el;
-  }, [onFactClick, isDarkMode]);
+  }, []);
 
   // Initialize map
   useEffect(() => {

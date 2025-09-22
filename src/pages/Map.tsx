@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { CleanSearchBar } from '@/components/ui/clean-search-bar';
+import { ModernSearchBar } from '@/components/ui/modern-search-bar';
+import { ModernBottomBar } from '@/components/ui/modern-bottom-bar';
+import { Share, Heart, BookmarkPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -101,7 +103,7 @@ export const Map: React.FC = () => {
 
         {/* Search Bar - positioned lower to avoid overlap */}
         <div className="absolute top-16 left-4 right-16 z-20">
-          <CleanSearchBar onQueryChange={handleSearch} placeholder="Search stories on map..." />
+          <ModernSearchBar onSearch={handleSearch} placeholder="Search stories on map..." showLocationButton={true} />
         </div>
 
         {/* View Mode Toggle - back to original position */}
@@ -117,6 +119,34 @@ export const Map: React.FC = () => {
             onClose={handleCloseModal}
           />
         )}
+
+        {/* Modern Bottom Bar */}
+        <ModernBottomBar
+          primaryAction={{
+            label: "Share Location",
+            icon: <Share className="h-5 w-5" />,
+            onClick: () => {
+              if (navigator.share) {
+                navigator.share({
+                  title: "Check out this location on LocaleLore",
+                  url: window.location.href
+                });
+              }
+            }
+          }}
+          secondaryActions={[
+            {
+              label: "Favorite",
+              icon: <Heart className="h-4 w-4" />,
+              onClick: () => console.log("Favorite clicked")
+            },
+            {
+              label: "Save",
+              icon: <BookmarkPlus className="h-4 w-4" />,
+              onClick: () => console.log("Save clicked")
+            }
+          ]}
+        />
       </div>
     </MainLayout>
   );

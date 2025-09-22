@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { CleanSearchBar } from '@/components/ui/clean-search-bar';
+import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { ModernViewToggle } from '@/components/ui/modern-view-toggle';
 import { GestureHandler } from '@/components/ui/gesture-handler';
 import { PullToRefresh } from '@/components/ui/pull-to-refresh';
 import { List, Map as MapIcon, ChevronDown, Filter, MapPin } from 'lucide-react';
@@ -275,8 +276,8 @@ export const Hybrid: React.FC = () => {
           {/* Search Section - optimized for one-handed use */}
           <div className="px-4 pt-4 pb-3">
             <div className="glass rounded-xl p-3">
-              <CleanSearchBar 
-                onQueryChange={handleSearch} 
+              <ModernSearchBar 
+                onSearch={handleSearch} 
                 placeholder={isMobile ? "Search stories..." : "Search stories and locations..."}
                 className="text-base" // Larger text for mobile
               />
@@ -334,28 +335,14 @@ export const Hybrid: React.FC = () => {
           <div className="flex-1 flex flex-col">
             {/* Mobile Tab Navigation - optimized for thumb reach */}
             <div className="flex-1 min-h-0 flex flex-col">
-              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'list' | 'map')} className="flex-1 min-h-0 flex flex-col">
-                <div className="px-4 pt-2 pb-1">
-                  <TabsList className="grid w-full grid-cols-2 h-12 bg-muted/50 p-1 rounded-xl">
-                    <TabsTrigger 
-                      value="list" 
-                      className="flex items-center gap-2 h-10 rounded-lg text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
-                    >
-                      <List className="w-4 h-4" />
-                      <span className="hidden xs:inline">Stories</span>
-                      <Badge variant={activeTab === 'list' ? 'default' : 'secondary'} className="text-xs px-1.5 py-0.5">
-                        {displayedFacts.length}
-                      </Badge>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="map" 
-                      className="flex items-center gap-2 h-10 rounded-lg text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
-                    >
-                      <MapIcon className="w-4 h-4" />
-                      <span>Map</span>
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
+                <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'list' | 'map')} className="flex-1 min-h-0 flex flex-col">
+                  <div className="px-4 pt-2 pb-3">
+                    <ModernViewToggle
+                      activeView={activeTab}
+                      onViewChange={setActiveTab}
+                      className="w-full max-w-xs mx-auto"
+                    />
+                  </div>
 
                 <div className="flex-1 min-h-0">
                   {/* Stories List with Pull-to-Refresh */}
