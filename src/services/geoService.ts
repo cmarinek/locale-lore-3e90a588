@@ -83,24 +83,34 @@ class GeoService {
     zoom: number,
     options: { includeCount?: boolean } = {}
   ): Promise<{ facts: FactMarker[]; clusters: GeoCluster[]; totalCount?: number }> {
+    console.log(`🗺️ GeoService: Fetching data for bounds:`, {
+      north: bounds.north.toFixed(4),
+      south: bounds.south.toFixed(4),
+      east: bounds.east.toFixed(4),
+      west: bounds.west.toFixed(4),
+      zoom,
+      maxZoomForClustering: this.config.maxZoomForClustering
+    });
+
     const expandedBounds = this.expandBounds(bounds, this.config.viewportPadding);
     const cacheKey = this.getCacheKey(expandedBounds, zoom);
 
     // Check cache first
     if (this.isInCache(cacheKey)) {
+      console.log(`📋 Cache hit for zoom ${zoom}`);
       const cached = this.cache.get(cacheKey)!;
       return cached.data;
     }
 
+    console.log(`🔄 Cache miss - fetching fresh data for zoom ${zoom}`);
+
     try {
-      console.log(`🗺️ getFactsInViewport called with zoom ${zoom} (threshold: ${this.config.maxZoomForClustering})`);
-      
       // For high zoom levels, return individual facts
       if (zoom >= this.config.maxZoomForClustering) {
-        console.log('🔍 Zoom >= threshold, fetching individual facts');
+        console.log(`👤 Using individual facts mode (zoom ${zoom} >= ${this.config.maxZoomForClustering})`);
         const facts = await this.getIndividualFacts(expandedBounds);
-        const result = { facts, clusters: [], totalCount: undefined };
-        console.log(`✅ Returning ${facts.length} individual facts, 0 clusters`);
+        console.log(`✅ Retrieved ${facts.length} individual facts`);
+        const result = { facts, clusters: [], totalCount: options.includeCount ? facts.length : undefined };
         
         // Cache the result
         this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
@@ -108,17 +118,40 @@ class GeoService {
       }
 
       // For lower zoom levels, return clusters
-      console.log('🎯 Zoom < threshold, fetching clusters');
+      console.log(`🔵 Using clustered mode (zoom ${zoom} < ${this.config.maxZoomForClustering})`);
       const clusters = await this.getClusteredFacts(expandedBounds, zoom);
-      const result = { facts: [], clusters, totalCount: undefined };
-      console.log(`✅ Returning 0 facts, ${clusters.length} clusters`);
+      console.log(`✅ Retrieved ${clusters.length} clusters`);
+      
+      // Fallback: if no clusters but zoom is close to threshold, try individual facts
+      if (clusters.length === 0 && zoom >= this.config.maxZoomForClustering - 2) {
+        console.log(`⚠️ No clusters found, trying individual facts as fallback`);
+        const facts = await this.getIndividualFacts(expandedBounds);
+        console.log(`✅ Fallback retrieved ${facts.length} individual facts`);
+        const result = { facts, clusters: [], totalCount: options.includeCount ? facts.length : undefined };
+        
+        this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
+        return result;
+      }
+      
+      const result = { facts: [], clusters, totalCount: options.includeCount ? clusters.reduce((sum, c) => sum + c.count, 0) : undefined };
       
       // Cache the result
       this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
       return result;
     } catch (error) {
-      console.error('Error fetching viewport data:', error);
-      return { facts: [], clusters: [] };
+      console.error('❌ Error fetching viewport data:', error);
+      console.error('Bounds:', bounds, 'Zoom:', zoom);
+      
+      // Fallback: try to get individual facts if clustering fails
+      try {
+        console.log('🔄 Attempting fallback to individual facts...');
+        const facts = await this.getIndividualFacts(expandedBounds);
+        console.log(`✅ Fallback retrieved ${facts.length} individual facts`);
+        return { facts, clusters: [] };
+      } catch (fallbackError) {
+        console.error('❌ Fallback also failed:', fallbackError);
+        return { facts: [], clusters: [] };
+      }
     }
   }
 
@@ -183,7 +216,19 @@ class GeoService {
   }
 
   private async getClusteredFacts(bounds: ViewportBounds, zoom: number): Promise<GeoCluster[]> {
-    console.log(`🎯 Fetching clusters from DB for zoom ${zoom}, bounds:`, bounds);
+    console.log(`🔍 Calling get_fact_clusters with:`, {
+      p_north: bounds.north.toFixed(4),
+      p_south: bounds.south.toFixed(4),
+      p_east: bounds.east.toFixed(4),
+      p_west: bounds.west.toFixed(4),
+      p_zoom: zoom,
+      original_bounds: {
+        north: bounds.north.toFixed(4),
+        south: bounds.south.toFixed(4),
+        east: bounds.east.toFixed(4),
+        west: bounds.west.toFixed(4)
+      }
+    });
     
     // Use the corrected PostGIS clustering function
     const { data, error } = await supabase.rpc('get_fact_clusters', {
@@ -195,14 +240,25 @@ class GeoService {
     });
 
     if (error) {
-      console.warn('❌ Clustering function error, using fallback:', error);
+      console.error('❌ Database error in get_fact_clusters:', error);
+      console.warn('Using fallback clustering...');
       return this.fallbackClustering(bounds, zoom);
     }
 
-    console.log(`📊 DB returned ${data?.length || 0} clusters`);
+    if (!data || data.length === 0) {
+      console.log('⚠️ No clusters returned from database for bounds:', bounds);
+      return [];
+    }
+
+    console.log(`✅ Database returned ${data.length} clusters:`, data.map(d => ({ 
+      id: d.cluster_id, 
+      count: d.cluster_count,
+      lat: Number(d.cluster_latitude).toFixed(4),
+      lng: Number(d.cluster_longitude).toFixed(4)
+    })));
 
     // Transform the database response to match our interface
-    return (data || []).map((cluster: any) => ({
+    return data.map((cluster: any) => ({
       id: cluster.cluster_id,
       center: [cluster.cluster_longitude, cluster.cluster_latitude] as [number, number],
       count: cluster.cluster_count,
@@ -299,7 +355,9 @@ class GeoService {
 
   // Clear cache when needed
   clearCache(): void {
+    const cacheSize = this.cache.size;
     this.cache.clear();
+    console.log(`🗑️ GeoService cache cleared (removed ${cacheSize} entries)`);
   }
 
   // Update configuration for performance tuning

@@ -55,6 +55,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
   const [currentZoom, setCurrentZoom] = useState(initialZoom);
   const [mapStyle, setMapStyle] = useState<keyof typeof mapStyles>('light');
   const [tokenMissing, setTokenMissing] = useState(false);
+  const [debugInfo, setDebugInfo] = useState({ clusters: 0, facts: 0, lastUpdate: '' });
 
   // Enhanced initialization with preloaded token
   const initializeMap = useCallback(async () => {
@@ -73,11 +74,17 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       setLoadingState('map');
       mapboxgl.accessToken = token;
 
+      // Initialize to NYC area where we know there's sample data
+      const nycCenter: [number, number] = [-74.006, 40.7128];
+      const startCenter = initialCenter || nycCenter;
+
+      console.log('🗺️ Initializing map at center:', startCenter);
+
       // Initialize with default style to avoid circular dependency
       const mapInstance = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11', // Fixed default style
-        center: initialCenter,
+        center: startCenter,
         zoom: initialZoom,
         preserveDrawingBuffer: true,
         attributionControl: false,
@@ -106,7 +113,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
 
       // Setup efficient event listeners
       mapInstance.on('load', () => {
-        console.log('🗺️ Scalable map loaded successfully');
+        console.log('✅ Map loaded successfully at zoom:', mapInstance.getZoom());
         setLoadingState('ready');
         setErrorState(null);
         
@@ -119,7 +126,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         console.log('📊 Triggering initial data update after map load');
         setTimeout(() => {
           updateViewportDataWithDeps();
-        }, 500);
+        }, 100);
       });
 
       // Throttled viewport updates for performance with better debouncing
@@ -129,7 +136,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         }
         
         updateTimeoutRef.current = setTimeout(() => {
-          console.log('🔄 Triggering viewport update after zoom/move');
+          console.log('🚀 Map moveend/zoomend event triggered');
           updateViewportDataWithDeps();
           updateTimeoutRef.current = undefined;
         }, 300);
@@ -459,25 +466,46 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         west: bounds.getWest()
       };
 
+      console.log(`🗺️ Map: Updating viewport data at zoom ${zoom}`, {
+        bounds: {
+          north: viewportBounds.north.toFixed(4),
+          south: viewportBounds.south.toFixed(4),
+          east: viewportBounds.east.toFixed(4),
+          west: viewportBounds.west.toFixed(4)
+        },
+        center: [
+          ((viewportBounds.east + viewportBounds.west) / 2).toFixed(4),
+          ((viewportBounds.north + viewportBounds.south) / 2).toFixed(4)
+        ]
+      });
+
       setCurrentBounds(viewportBounds);
       setCurrentZoom(zoom);
 
-      console.log(`🗺️ Loading data for zoom ${zoom.toFixed(1)} (threshold: ${ZOOM_THRESHOLDS.INDIVIDUAL_FACTS})`);
-      
       const { facts, clusters } = await geoService.getFactsInViewport(
         viewportBounds, 
         zoom
       );
 
-      console.log(`📊 Retrieved ${facts.length} facts and ${clusters.length} clusters for zoom ${zoom}`);
+      console.log(`📊 Map: Received ${facts.length} facts and ${clusters.length} clusters`);
+      
+      setDebugInfo({
+        clusters: clusters.length,
+        facts: facts.length,
+        lastUpdate: new Date().toLocaleTimeString()
+      });
 
       // Update map visualization based on zoom level with clear logging
       if (zoom >= ZOOM_THRESHOLDS.INDIVIDUAL_FACTS) {
-        console.log(`📍 Zoom ${zoom.toFixed(1)} >= ${ZOOM_THRESHOLDS.INDIVIDUAL_FACTS} - Rendering ${facts.length} individual facts`);
+        console.log(`👤 Rendering ${facts.length} individual facts`);
         renderIndividualFacts(facts);
       } else {
-        console.log(`🎯 Zoom ${zoom.toFixed(1)} < ${ZOOM_THRESHOLDS.INDIVIDUAL_FACTS} - Rendering ${clusters.length} clusters`);
+        console.log(`🔵 Rendering ${clusters.length} clusters`);
         renderClusters(clusters);
+      }
+
+      if (facts.length === 0 && clusters.length === 0) {
+        console.log('⚠️ No data to render - no facts or clusters available');
       }
 
     } catch (error) {
@@ -596,11 +624,12 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         </div>
       )}
 
-      {/* Performance indicators for development */}
-      {process.env.NODE_ENV === 'development' && currentBounds && (
-        <div className="absolute bottom-4 left-4 bg-black/70 text-white text-xs p-2 rounded font-mono">
-          Zoom: {currentZoom.toFixed(1)} | 
-          Mode: {currentZoom >= ZOOM_THRESHOLDS.INDIVIDUAL_FACTS ? 'Facts' : 'Clusters'}
+      {/* Development info */}
+      {process.env.NODE_ENV === 'development' && currentZoom && (
+        <div className="absolute top-4 left-4 bg-black/80 text-white px-3 py-2 rounded text-sm font-mono space-y-1 z-10">
+          <div>Zoom: {currentZoom.toFixed(1)} | Mode: {currentZoom >= ZOOM_THRESHOLDS.INDIVIDUAL_FACTS ? 'Individual' : 'Clustered'}</div>
+          <div>Facts: {debugInfo.facts} | Clusters: {debugInfo.clusters}</div>
+          <div>Updated: {debugInfo.lastUpdate}</div>
         </div>
       )}
     </div>
