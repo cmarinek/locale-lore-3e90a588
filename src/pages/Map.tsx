@@ -2,10 +2,6 @@ import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { ModernSearchBar } from '@/components/ui/modern-search-bar';
-import { ModernBottomBar } from '@/components/ui/modern-bottom-bar';
-import { Share, Heart, BookmarkPlus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { List, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import ExperimentalMapV2 from '@/components/map/ExperimentalMapV2';
@@ -126,23 +122,6 @@ export const Map: React.FC = () => {
           />
         )}
 
-        {/* Modern Bottom Bar with safe area padding */}
-        <div className="pb-safe-area-inset-bottom">
-          <ModernBottomBar
-            secondaryActions={[
-              {
-                label: "Favorite",
-                icon: <Heart className="h-4 w-4" />,
-                onClick: () => console.log("Favorite clicked")
-              },
-              {
-                label: "Save",
-                icon: <BookmarkPlus className="h-4 w-4" />,
-                onClick: () => console.log("Save clicked")
-              }
-            ]}
-          />
-        </div>
       </div>
     </MainLayout>
   );
