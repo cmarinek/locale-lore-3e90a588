@@ -15,6 +15,7 @@ import { useRequestOptimization } from '@/hooks/useRequestOptimization';
 import { NetworkAwareFallback, ErrorBoundaryWithRetry, MapFallback } from '@/components/ui/graceful-degradation';
 import { mapboxService } from '@/services/mapboxService';
 import { MapTokenMissing } from './MapTokenMissing';
+import { logError, logWarn, logInfo } from '@/utils/production-logger';
 
 interface RetinaMobileMapProps {
   onFactClick?: (fact: FactMarker) => void;
@@ -111,24 +112,32 @@ export const RetinaMobileMapComponent: React.FC<RetinaMobileMapProps> = ({
       renderWorldCopies: false
     });
 
-    // Add retina-optimized controls
-    const nav = new mapboxgl.NavigationControl({
-      showCompass: false,
-      showZoom: false,
-      visualizePitch: false
-    });
-    
-    map.current.addControl(nav, 'top-right');
+    // Add retina-optimized controls with error handling
+    try {
+      const nav = new mapboxgl.NavigationControl({
+        showCompass: false,
+        showZoom: false,
+        visualizePitch: false
+      });
+      
+      map.current.addControl(nav, 'top-right');
+    } catch (error) {
+      logWarn('Failed to add map controls', error);
+    }
 
-    // Performance monitoring
+    // Performance monitoring with safety checks
     map.current.on('render', () => {
-      // Adaptive performance adjustments only if map is loaded
+      // Only apply performance adjustments if map is fully loaded
       if (adaptivePerf.performanceScore < 30 && map.current?.isStyleLoaded()) {
-        // Reduce visual quality
         try {
-          map.current.setLayoutProperty('water', 'visibility', 'none');
+          // Check if water layer exists before modifying
+          const style = map.current.getStyle();
+          if (style.layers?.some(layer => layer.id === 'water')) {
+            map.current.setLayoutProperty('water', 'visibility', 'none');
+          }
         } catch (error) {
-          // Ignore if layer doesn't exist
+          // Silently ignore layer modification errors in production
+          logWarn('Performance optimization skipped', error instanceof Error ? error.message : 'Unknown error');
         }
       }
     });
@@ -455,8 +464,8 @@ export const RetinaMobileMapComponent: React.FC<RetinaMobileMapProps> = ({
         onClose={() => setAccessibilityOpen(false)}
       />
 
-      {/* Performance indicator (dev mode) */}
-      {process.env.NODE_ENV === 'development' && (
+      {/* Performance indicator (removed in production) */}
+      {process.env.NODE_ENV === 'development' && adaptivePerf.performanceScore > 0 && (
         <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm rounded-lg p-2 text-xs space-y-1">
           <div>FPS: {adaptivePerf.performanceScore.toFixed(0)}</div>
           <div>Quality: {adaptivePerf.performanceSettings.tileQuality}</div>

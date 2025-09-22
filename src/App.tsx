@@ -33,6 +33,7 @@ import { ThemeProvider } from '@/contexts/ThemeProvider';
 import { Toaster } from '@/components/ui/toaster';
 import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { ProductionErrorBoundary } from '@/components/common/ProductionErrorBoundary';
 import { CookieConsent } from '@/components/compliance/CookieConsent';
 import { LoadingIntroduction } from '@/components/ui/loading-introduction';
 import { PerformanceMonitor } from '@/components/monitoring/PerformanceMonitor';
@@ -40,6 +41,8 @@ import { useAuth } from '@/contexts/AuthProvider';
 import InitializationGate from '@/components/ui/initialization-gate';
 import { SecurityUtils, SessionManager } from '@/utils/security';
 import { seoManager, optimizeCriticalResources } from '@/utils/seo';
+import { logError, logInfo } from '@/utils/production-logger';
+import { validateProductionRequirements } from '@/utils/production-config';
 
 
 // Lazy load the Map component
@@ -113,9 +116,15 @@ function App() {
 
   // Initialize Phase 4 enhancements
   useEffect(() => {
+    // Validate production requirements
+    const { isReady, issues } = validateProductionRequirements();
+    if (!isReady) {
+      logError('Production validation failed', { issues });
+    }
+
     // Validate environment
     if (!SecurityUtils.validateEnvironment()) {
-      console.error('Environment validation failed');
+      logError('Environment validation failed');
     }
 
     // Initialize session management
@@ -147,7 +156,7 @@ function App() {
   // Clear ServiceWorker cache on development reload
   useEffect(() => {
     if (import.meta.env.DEV && import.meta.hot) {
-      console.log('[DEV] Clearing caches for fresh start');
+      logInfo('DEV mode: Clearing caches for fresh start');
       
       // Clear ServiceWorker
       if ('serviceWorker' in navigator) {
@@ -169,8 +178,12 @@ function App() {
     }
   }, []);
 
+  const ErrorBoundaryComponent = process.env.NODE_ENV === 'production' 
+    ? ProductionErrorBoundary 
+    : ErrorBoundary;
+
   return (
-    <ErrorBoundary enableRecovery={true} showErrorDetails={import.meta.env.DEV}>
+    <ErrorBoundaryComponent {...(process.env.NODE_ENV === 'development' ? { enableRecovery: true, showErrorDetails: true } : {})}>
       <HelmetProvider>
         <AuthProvider>
           <ThemeProvider>
@@ -182,7 +195,7 @@ function App() {
           </ThemeProvider>
         </AuthProvider>
       </HelmetProvider>
-    </ErrorBoundary>
+    </ErrorBoundaryComponent>
   );
 }
 
