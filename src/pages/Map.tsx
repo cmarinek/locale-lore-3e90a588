@@ -126,3 +126,5 @@ export const Map: React.FC = () => {
     </MainLayout>
   );
 };
+
+export default Map;

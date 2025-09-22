@@ -46,7 +46,7 @@ import { validateProductionRequirements } from '@/utils/production-config';
 
 
 // Lazy load the Map component
-const LazyMap = lazy(() => import('@/pages/Map').then(module => ({ default: module.Map })));
+const LazyMap = lazy(() => import('@/pages/Map'));
 
 // Inner component that can use auth context  
 const AppContent = () => {
