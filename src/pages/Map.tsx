@@ -108,12 +108,12 @@ export const Map: React.FC = () => {
         />
 
         {/* Mobile-optimized Search Bar - improved positioning */}
-        <div className="absolute top-4 left-4 right-4 z-20 max-w-md mx-auto sm:max-w-none sm:left-20 sm:right-20">
+        <div className="absolute top-4 left-4 right-16 z-30 max-w-md mx-auto sm:max-w-none sm:left-20 sm:right-24">
           <ModernSearchBar onSearch={handleSearch} placeholder="Search stories on map..." showLocationButton={true} />
         </div>
 
         {/* View Mode Toggle - mobile-first responsive with better spacing */}
-        <div className="absolute top-20 right-4 z-20 sm:top-4">
+        <div className="absolute top-4 right-4 z-25 sm:top-4">
           <ViewModeToggle variant="glass" />
         </div>
 
