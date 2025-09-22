@@ -36,7 +36,7 @@ class GeoService {
   };
 
   private cache = new Map<string, { data: any; timestamp: number }>();
-  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private readonly CACHE_TTL = 15000; // Shorter cache for dynamic clustering
 
   static getInstance(): GeoService {
     if (!GeoService.instance) {
@@ -46,7 +46,9 @@ class GeoService {
   }
 
   private getCacheKey(bounds: ViewportBounds, zoom: number): string {
-    return `${bounds.north}_${bounds.south}_${bounds.east}_${bounds.west}_${zoom}`;
+    const precision = 3;
+    // Include zoom in key for more granular caching
+    return `${bounds.north.toFixed(precision)},${bounds.south.toFixed(precision)},${bounds.east.toFixed(precision)},${bounds.west.toFixed(precision)},z${zoom}`;
   }
 
   private isInCache(key: string): boolean {
@@ -79,8 +81,8 @@ class GeoService {
   }
 
   async getFactsInViewport(
-    bounds: ViewportBounds,
-    zoom: number,
+    bounds: ViewportBounds, 
+    zoom: number, 
     options: { includeCount?: boolean } = {}
   ): Promise<{ facts: FactMarker[]; clusters: GeoCluster[]; totalCount?: number }> {
     console.log(`🗺️ GeoService: Fetching data for bounds:`, {
@@ -105,39 +107,55 @@ class GeoService {
     console.log(`🔄 Cache miss - fetching fresh data for zoom ${zoom}`);
 
     try {
-      // For high zoom levels, return individual facts
-      if (zoom >= this.config.maxZoomForClustering) {
-        console.log(`👤 Using individual facts mode (zoom ${zoom} >= ${this.config.maxZoomForClustering})`);
-        const facts = await this.getIndividualFacts(expandedBounds);
-        console.log(`✅ Retrieved ${facts.length} individual facts`);
-        const result = { facts, clusters: [], totalCount: options.includeCount ? facts.length : undefined };
-        
-        // Cache the result
-        this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
-        return result;
-      }
+      // Progressive clustering strategy
+      const useIndividualFacts = zoom >= 16; // Only show individual facts at very high zoom
+      const useSmallClusters = zoom >= 14;   // Show small clusters at city level
+      
+      console.log(`🔵 Using ${useIndividualFacts ? 'individual' : useSmallClusters ? 'small clusters' : 'large clusters'} mode (zoom ${zoom})`);
 
-      // For lower zoom levels, return clusters
-      console.log(`🔵 Using clustered mode (zoom ${zoom} < ${this.config.maxZoomForClustering})`);
-      const clusters = await this.getClusteredFacts(expandedBounds, zoom);
-      console.log(`✅ Retrieved ${clusters.length} clusters`);
-      
-      // Fallback: if no clusters but zoom is close to threshold, try individual facts
-      if (clusters.length === 0 && zoom >= this.config.maxZoomForClustering - 2) {
-        console.log(`⚠️ No clusters found, trying individual facts as fallback`);
+      if (useIndividualFacts) {
+        // High zoom: individual facts
         const facts = await this.getIndividualFacts(expandedBounds);
-        console.log(`✅ Fallback retrieved ${facts.length} individual facts`);
         const result = { facts, clusters: [], totalCount: options.includeCount ? facts.length : undefined };
+        this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
+        return result;
+      } else {
+        // All other zooms: progressive clustering
+        const clusters = await this.getClusteredFacts(expandedBounds, zoom);
         
+        // Mixed mode: if clusters are very small, show as individual facts
+        if (useSmallClusters && clusters.length > 0) {
+          const smallClusters = clusters.filter(c => c.count <= 2);
+          const largeClusters = clusters.filter(c => c.count > 2);
+          
+          if (smallClusters.length > 0) {
+            console.log(`🔀 Mixed mode: ${largeClusters.length} clusters, ${smallClusters.length} small clusters`);
+            // Convert small clusters to individual facts
+            const individualFacts: FactMarker[] = [];
+            for (const cluster of smallClusters) {
+              const clusterFacts = await this.getIndividualFacts({
+                north: cluster.bounds.north,
+                south: cluster.bounds.south,
+                east: cluster.bounds.east,
+                west: cluster.bounds.west
+              });
+              individualFacts.push(...clusterFacts);
+            }
+            
+            const result = { 
+              facts: individualFacts, 
+              clusters: largeClusters, 
+              totalCount: options.includeCount ? (individualFacts.length + largeClusters.reduce((sum, c) => sum + c.count, 0)) : undefined 
+            };
+            this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
+            return result;
+          }
+        }
+        
+        const result = { facts: [], clusters, totalCount: options.includeCount ? clusters.reduce((sum, c) => sum + c.count, 0) : undefined };
         this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
         return result;
       }
-      
-      const result = { facts: [], clusters, totalCount: options.includeCount ? clusters.reduce((sum, c) => sum + c.count, 0) : undefined };
-      
-      // Cache the result
-      this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
-      return result;
     } catch (error) {
       console.error('❌ Error fetching viewport data:', error);
       console.error('Bounds:', bounds, 'Zoom:', zoom);

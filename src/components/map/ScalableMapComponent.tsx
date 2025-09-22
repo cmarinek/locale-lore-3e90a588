@@ -31,9 +31,11 @@ interface ViewportBounds {
 }
 
 const ZOOM_THRESHOLDS = {
-  CLUSTER_ONLY: 10,
-  INDIVIDUAL_FACTS: 14, // Match database function transition point
-  DETAILED_VIEW: 16
+  LARGE_CLUSTERS: 8,    // Large regional clusters
+  MEDIUM_CLUSTERS: 10,  // Medium city clusters  
+  SMALL_CLUSTERS: 12,   // Small neighborhood clusters
+  MIXED_MODE: 14,       // Mix of small clusters and individual facts
+  INDIVIDUAL_ONLY: 16   // Individual facts only
 };
 
 export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
@@ -197,12 +199,14 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
 
       console.log(`📊 Retrieved ${facts.length} facts and ${clusters.length} clusters for zoom ${zoom}`);
 
-      // Update map visualization based on zoom level
-      if (zoom >= ZOOM_THRESHOLDS.INDIVIDUAL_FACTS) {
-        console.log(`📍 Rendering individual facts at zoom ${zoom.toFixed(1)} (${facts.length} facts available)`);
+      // Progressive rendering based on zoom level and data
+      if (facts.length > 0) {
+        console.log(`📍 Rendering ${facts.length} individual facts at zoom ${zoom.toFixed(1)}`);
         renderIndividualFacts(facts);
-      } else {
-        console.log(`🎯 Rendering clusters at zoom ${zoom.toFixed(1)} (${clusters.length} clusters available)`);
+      }
+      
+      if (clusters.length > 0) {
+        console.log(`🎯 Rendering ${clusters.length} clusters at zoom ${zoom.toFixed(1)}`);
         renderClusters(clusters);
       }
 
@@ -435,7 +439,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         // Zoom into cluster
         map.current.flyTo({
           center: coordinates,
-          zoom: Math.min(map.current.getZoom() + 2, ZOOM_THRESHOLDS.INDIVIDUAL_FACTS)
+          zoom: Math.min(map.current.getZoom() + 2, ZOOM_THRESHOLDS.INDIVIDUAL_ONLY)
         });
       }
     });
@@ -495,8 +499,15 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
         lastUpdate: new Date().toLocaleTimeString()
       });
 
-      // Update map visualization based on zoom level with clear logging
-      if (zoom >= ZOOM_THRESHOLDS.INDIVIDUAL_FACTS) {
+      // Progressive rendering based on zoom level and data  
+      const isInMixedMode = zoom >= ZOOM_THRESHOLDS.MIXED_MODE && zoom < ZOOM_THRESHOLDS.INDIVIDUAL_ONLY;
+      const renderMode = zoom >= ZOOM_THRESHOLDS.INDIVIDUAL_ONLY ? 'individual' : 
+                        isInMixedMode ? 'mixed' : 'clusters';
+      
+      console.log(`🗺️ Rendering mode: ${renderMode} at zoom ${zoom.toFixed(1)}`);
+      
+      // Progressive rendering
+      if (facts.length > 0) {
         console.log(`👤 Rendering ${facts.length} individual facts`);
         renderIndividualFacts(facts);
       } else {
@@ -627,7 +638,7 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
       {/* Development info */}
       {process.env.NODE_ENV === 'development' && currentZoom && (
         <div className="absolute top-4 left-4 bg-black/80 text-white px-3 py-2 rounded text-sm font-mono space-y-1 z-10">
-          <div>Zoom: {currentZoom.toFixed(1)} | Mode: {currentZoom >= ZOOM_THRESHOLDS.INDIVIDUAL_FACTS ? 'Individual' : 'Clustered'}</div>
+          <div>Zoom: {currentZoom.toFixed(1)} | Mode: {currentZoom >= ZOOM_THRESHOLDS.INDIVIDUAL_ONLY ? 'Individual' : 'Clustered'}</div>
           <div>Facts: {debugInfo.facts} | Clusters: {debugInfo.clusters}</div>
           <div>Updated: {debugInfo.lastUpdate}</div>
         </div>
