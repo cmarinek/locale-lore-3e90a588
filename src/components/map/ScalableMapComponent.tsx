@@ -203,36 +203,51 @@ export const ScalableMapComponent: React.FC<ScalableMapProps> = ({
   const renderIndividualFacts = useCallback((facts: FactMarker[]) => {
     if (!map.current) return;
 
+    console.log(`🔍 renderIndividualFacts called with ${facts.length} facts`);
+
     // Clear existing cluster layers first
     ['clusters', 'cluster-count'].forEach(layerId => {
-      if (map.current!.getLayer(layerId)) {
-        map.current!.removeLayer(layerId);
-      }
-    });
-
-    // Remove existing sources to prevent conflicts - with proper error handling
-    ['facts', 'clusters'].forEach(sourceId => {
       try {
-        if (map.current!.getSource(sourceId)) {
-          // Remove layers using this source first
-          const style = map.current!.getStyle();
-          if (style && style.layers) {
-            style.layers.forEach(layer => {
-              if (layer.source === sourceId && map.current!.getLayer(layer.id)) {
-                map.current!.removeLayer(layer.id);
-              }
-            });
-          }
-          map.current!.removeSource(sourceId);
+        if (map.current!.getLayer(layerId)) {
+          map.current!.removeLayer(layerId);
+          console.log(`✅ Removed layer: ${layerId}`);
         }
       } catch (error) {
-        console.warn(`Failed to remove source ${sourceId}:`, error);
+        console.warn(`Failed to remove layer ${layerId}:`, error);
       }
     });
 
-    if (facts.length === 0) return;
+    // Remove sources with better error handling
+    try {
+      if (map.current.getSource('clusters')) {
+        map.current.removeSource('clusters');
+        console.log('✅ Removed clusters source');
+      }
+    } catch (error) {
+      console.warn('Failed to remove clusters source:', error);
+    }
+
+    if (facts.length === 0) {
+      console.log('⚠️ No facts to render');
+      return;
+    }
+
+    // Remove existing facts source/layer if it exists
+    try {
+      if (map.current.getLayer('individual-facts')) {
+        map.current.removeLayer('individual-facts');
+        console.log('✅ Removed individual-facts layer');
+      }
+      if (map.current.getSource('facts')) {
+        map.current.removeSource('facts');
+        console.log('✅ Removed facts source');
+      }
+    } catch (error) {
+      console.warn('Failed to remove facts source/layer:', error);
+    }
 
     // Add facts as individual points
+    console.log(`📍 Adding ${facts.length} individual facts to map`);
     map.current.addSource('facts', {
       type: 'geojson',
       data: {

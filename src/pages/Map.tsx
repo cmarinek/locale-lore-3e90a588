@@ -101,12 +101,12 @@ export const Map: React.FC = () => {
           isVisible={true}
         />
 
-        {/* Search Bar - positioned to avoid overlap with map controls */}
-        <div className="absolute top-4 left-20 right-16 z-20">
+        {/* Search Bar - mobile-first responsive positioning */}
+        <div className="absolute top-4 left-4 right-4 sm:left-20 sm:right-16 z-20">
           <ModernSearchBar onSearch={handleSearch} placeholder="Search stories on map..." showLocationButton={true} />
         </div>
 
-        {/* View Mode Toggle */}
+        {/* View Mode Toggle - mobile-first responsive */}
         <div className="absolute top-4 right-4 z-20">
           <ViewModeToggle variant="glass" />
         </div>
