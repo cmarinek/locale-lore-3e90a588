@@ -122,11 +122,13 @@ export const RetinaMobileMapComponent: React.FC<RetinaMobileMapProps> = ({
 
     // Performance monitoring
     map.current.on('render', () => {
-      // Adaptive performance adjustments
-      if (adaptivePerf.performanceScore < 30) {
+      // Adaptive performance adjustments only if map is loaded
+      if (adaptivePerf.performanceScore < 30 && map.current?.isStyleLoaded()) {
         // Reduce visual quality
-        if (map.current) {
+        try {
           map.current.setLayoutProperty('water', 'visibility', 'none');
+        } catch (error) {
+          // Ignore if layer doesn't exist
         }
       }
     });
