@@ -1,18 +1,12 @@
-import React, { useEffect, useState, createContext, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { createContextSafely, getContext } from '@/lib/context-registry';
+import { AuthContextType, AUTH_CONTEXT_NAME } from './auth-context';
 
-export interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  loading: boolean;
-  signOut: () => Promise<void>;
-  refreshProfile: () => Promise<void>;
-}
-
-// Create context directly
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Create context safely at module level
+const AuthContext = createContextSafely<AuthContextType | undefined>(AUTH_CONTEXT_NAME, undefined);
 
 interface AuthProviderProps {
   children: React.ReactNode;
