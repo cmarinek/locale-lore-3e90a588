@@ -170,7 +170,7 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
     const el = document.createElement('div');
     el.className = 'fact-marker';
     
-    // Modern glassmorphism design
+    // Modern glassmorphism design with proper centering
     el.style.cssText = `
       width: 40px;
       height: 40px;
@@ -192,6 +192,7 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
       display: flex;
       align-items: center;
       justify-content: center;
+      transform-origin: center center;
     `;
     
     // Category-based icon
@@ -238,9 +239,9 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
     // Click handler with haptic feedback
     el.addEventListener('click', () => {
       if (onFactClick) {
-        // Add click animation
+        // Add subtle click animation without displacement
         el.style.transform = 'scale(0.95)';
-        setTimeout(() => el.style.transform = 'scale(1.05)', 100);
+        setTimeout(() => el.style.transform = 'scale(1)', 150);
         
         const factMarker = {
           id: point.properties.id,
@@ -256,9 +257,9 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
       }
     });
     
-    // Enhanced hover effects
+    // Enhanced hover effects without position shifts
     el.addEventListener('mouseenter', () => {
-      el.style.transform = 'scale(1.15)';
+      el.style.transform = 'scale(1.1)';
       el.style.boxShadow = `
         0 12px 40px rgba(0,0,0,0.15),
         0 4px 12px rgba(0,0,0,0.1),
@@ -318,6 +319,7 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       z-index: 15;
+      transform-origin: center center;
     `;
     
     // Main count number
@@ -375,9 +377,9 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
     // Click to expand cluster with smooth animation
     el.addEventListener('click', () => {
       if (map.current && superclusterRef.current) {
-        // Add click animation
-        el.style.transform = 'scale(0.9)';
-        setTimeout(() => el.style.transform = 'scale(1.1)', 100);
+        // Add subtle click animation without displacement
+        el.style.transform = 'scale(0.95)';
+        setTimeout(() => el.style.transform = 'scale(1)', 150);
         
         const expansionZoom = Math.min(
           superclusterRef.current.getClusterExpansionZoom(cluster.properties.cluster_id),
@@ -439,7 +441,8 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
           const el = createClusterElement(cluster);
           marker = new mapboxgl.Marker({ 
             element: el,
-            anchor: 'center'
+            anchor: 'center',
+            offset: [0, 0]
           })
             .setLngLat([cluster.geometry.coordinates[0], cluster.geometry.coordinates[1]])
             .addTo(map.current!);
@@ -448,7 +451,8 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
           const el = createMarkerElement(cluster);
           marker = new mapboxgl.Marker({ 
             element: el,
-            anchor: 'center'
+            anchor: 'center',
+            offset: [0, 0]
           })
             .setLngLat([cluster.geometry.coordinates[0], cluster.geometry.coordinates[1]])
             .addTo(map.current!);
