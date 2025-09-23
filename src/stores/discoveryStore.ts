@@ -468,6 +468,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       initializeData: async () => {
         const state = get();
         if (state.facts.length === 0) {
+          console.log('🚀 Initializing data...');
           set({ loading: true });
           try {
             await Promise.all([
@@ -475,9 +476,12 @@ export const useDiscoveryStore = create<DiscoveryState>()(
               state.loadCategories(), 
               state.loadSavedFacts()
             ]);
+            console.log('✅ Data initialization complete');
           } finally {
             set({ loading: false });
           }
+        } else {
+          console.log(`📊 Data already loaded: ${state.facts.length} facts`);
         }
       }
     }),

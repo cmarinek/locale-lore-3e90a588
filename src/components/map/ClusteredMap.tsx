@@ -219,7 +219,7 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
       transition: transform 0.2s ease;
     `;
     
-    el.textContent = cluster.properties.point_count_abbreviated;
+    el.textContent = cluster.properties.point_count.toString();
     
     // Hover effects
     el.addEventListener('mouseenter', () => {
