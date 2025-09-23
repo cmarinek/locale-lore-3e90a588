@@ -406,7 +406,7 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
       />
       
       {/* Mobile-optimized Controls - 50vh positioning */}
-      <div className="absolute top-1/2 left-4 -translate-y-1/2 sm:top-4 sm:translate-y-0 z-10 flex flex-col gap-3">
+      <div className="absolute top-1/2 left-4 -translate-y-1/2 z-10 flex flex-col gap-3">
         {/* Style Controls */}
         <div className="flex flex-col bg-background/95 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
           {Object.keys(mapStyles).map((style) => (
