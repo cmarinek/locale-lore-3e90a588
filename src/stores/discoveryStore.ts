@@ -131,12 +131,12 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       
       loadMoreFacts: async () => {
         const state = get();
-        if (state.isLoading || !state.hasMore) return;
+        if (state.isLoading) return;
         
         set({ isLoading: true });
         
         try {
-          const limit = 50; // Increased from 10 to 50 to load more facts
+          const limit = 50; // Load more facts for better map coverage
           const offset = state.facts.length;
           
           const { data: facts, error } = await supabase
@@ -172,6 +172,8 @@ export const useDiscoveryStore = create<DiscoveryState>()(
               )
             `)
             .eq('categories.category_translations.language_code', 'en')
+            .not('latitude', 'is', null)
+            .not('longitude', 'is', null)
             .range(offset, offset + limit - 1)
             .order('created_at', { ascending: false });
 
@@ -194,7 +196,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
           }));
           
           set((state) => {
-            console.log(`📊 Loaded ${enhancedFacts.length} facts, total now: ${state.facts.length + enhancedFacts.length}`);
+            console.log(`📊 Loaded ${enhancedFacts.length} facts with coordinates, total now: ${state.facts.length + enhancedFacts.length}`);
             return {
               facts: [...state.facts, ...enhancedFacts],
               hasMore: enhancedFacts.length === limit,

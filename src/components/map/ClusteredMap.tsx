@@ -1,132 +1,141 @@
-import React, { useRef, useEffect, useCallback, memo, useMemo } from 'react';
+import React, { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Supercluster from 'supercluster';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { ErrorBoundary } from 'react-error-boundary';
-import { mapboxService } from '@/services/mapboxService';
-import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { FactMarker } from '@/types/map';
-import { ClusterPoint, Cluster, MapFeature } from '@/types/clustering';
-import { Loader2 } from 'lucide-react';
+import { ClusterPoint } from '@/types/clustering';
+import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { ErrorBoundary } from 'react-error-boundary';
+import { EnhancedMapControls } from './EnhancedMapControls';
+import { MapLoadingState } from './MapLoadingState';
 
 interface ClusteredMapProps {
-  onFactClick?: (fact: any) => void;
+  onFactClick?: (fact: FactMarker) => void;
   className?: string;
   isVisible?: boolean;
 }
 
-const MapErrorFallback = ({ error, resetErrorBoundary }: any) => (
-  <div className="flex items-center justify-center h-full bg-muted/50 rounded-lg">
+// Error fallback component
+const MapErrorFallback: React.FC<{ error: Error }> = ({ error }) => (
+  <div className="flex items-center justify-center h-full bg-muted/20 rounded-lg border border-border">
     <div className="text-center p-6">
-      <h3 className="font-semibold text-lg mb-2">Map Error</h3>
-      <p className="text-muted-foreground mb-4">Something went wrong loading the map</p>
-      <button 
-        onClick={resetErrorBoundary}
-        className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-      >
-        Retry
-      </button>
+      <h3 className="text-lg font-semibold text-destructive mb-2">Map Error</h3>
+      <p className="text-sm text-muted-foreground mb-4">Failed to load the map</p>
+      <p className="text-xs text-muted-foreground">{error.message}</p>
     </div>
   </div>
 );
 
-const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: ClusteredMapProps) => {
+export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactClick, className, isVisible }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const superclusterRef = useRef<Supercluster | null>(null);
   const isInitializedRef = useRef(false);
-  const lastZoomRef = useRef<number>(9);
+  const lastZoomRef = useRef(0);
+  const { startRenderMeasurement, endRenderMeasurement } = usePerformanceMonitor(true);
   
-  const { startRenderMeasurement, endRenderMeasurement } = usePerformanceMonitor();
-  const { facts, isLoading } = useDiscoveryStore();
+  const { facts, loading } = useDiscoveryStore();
+  const [mapStyle, setMapStyle] = useState('mapbox://styles/mapbox/light-v11');
+  const [isMapLoading, setIsMapLoading] = useState(true);
 
-  // Map styles
-  const mapStyles = {
-    light: 'mapbox://styles/mapbox/light-v11',
-    dark: 'mapbox://styles/mapbox/dark-v11',
-    satellite: 'mapbox://styles/mapbox/satellite-v9',
-    terrain: 'mapbox://styles/mapbox/outdoors-v12'
-  };
-
-  // Convert facts to clustering format
-  const clusterPoints = useMemo<ClusterPoint[]>(() => {
-    console.log(`📊 Converting ${facts.length} facts to cluster points`);
-    const points = facts.map(fact => ({
+  // Convert facts to cluster points for Supercluster
+  const clusterPoints: ClusterPoint[] = useMemo(() => {
+    const validFacts = facts.filter(fact => 
+      fact.latitude != null && 
+      fact.longitude != null && 
+      !isNaN(fact.latitude) && 
+      !isNaN(fact.longitude)
+    );
+    
+    console.log(`🗺️ Converting ${validFacts.length} facts to cluster points (filtered from ${facts.length} total)`);
+    
+    return validFacts.map(fact => ({
       type: 'Feature' as const,
       geometry: {
         type: 'Point' as const,
-        coordinates: [fact.longitude, fact.latitude] as [number, number]
+        coordinates: [fact.longitude, fact.latitude]
       },
       properties: {
         id: fact.id,
         title: fact.title,
-        description: fact.description,
-        category: fact.categories?.category_translations?.[0]?.name || 'unknown',
+        category: fact.categories?.slug || 'unknown',
         verified: fact.status === 'verified',
-        voteScore: fact.vote_count_up - fact.vote_count_down,
+        voteScore: (fact.vote_count_up || 0) - (fact.vote_count_down || 0),
         authorName: fact.profiles?.username || 'Anonymous'
       }
     }));
-    console.log(`📊 Created ${points.length} cluster points`);
-    return points;
   }, [facts]);
 
-  // Initialize Supercluster
+  // Initialize Supercluster when cluster points change
   useEffect(() => {
-    if (clusterPoints.length > 0) {
-      superclusterRef.current = new Supercluster({
-        radius: 80,
-        maxZoom: 16,
-        minZoom: 0,
-        minPoints: 2
-      });
-      
+    if (superclusterRef.current && clusterPoints.length > 0) {
+      console.log(`🔄 Loading ${clusterPoints.length} points into Supercluster`);
       superclusterRef.current.load(clusterPoints);
-      console.log('🔄 Supercluster initialized with', clusterPoints.length, 'points');
     }
   }, [clusterPoints]);
 
   // Initialize map
   const initializeMap = useCallback(async () => {
-    if (!mapContainer.current || map.current || isInitializedRef.current) return;
+    if (!mapContainer.current || isInitializedRef.current) return;
 
     try {
-      startRenderMeasurement();
+      // Get Mapbox token from Supabase secrets
+      const { data, error } = await supabase.functions.invoke('get-mapbox-token');
       
-      const token = await mapboxService.getToken();
-      if (!token) {
-        console.error('No Mapbox token available');
+      if (error || !data?.token) {
+        console.error('Failed to get Mapbox token:', error);
+        toast({
+          title: "Map Error",
+          description: "Failed to load map. Please check your Mapbox configuration.",
+          variant: "destructive"
+        });
         return;
       }
 
-      mapboxgl.accessToken = token;
+      mapboxgl.accessToken = data.token;
       isInitializedRef.current = true;
 
-      // Create map with optimizations
+      // Initialize Supercluster
+      superclusterRef.current = new Supercluster({
+        radius: 80,
+        maxZoom: 14,
+        minZoom: 0,
+        minPoints: 2
+      });
+
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: mapStyles.light,
-        center: [-74.5, 40],
-        zoom: 9,
-        antialias: false,
-        maxTileCacheSize: 50,
-        cooperativeGestures: false
+        style: mapStyle,
+        center: [0, 20],
+        zoom: 2,
+        projection: { name: 'globe' },
+        antialias: true
       });
 
-      // Native controls removed - using custom controls positioned at 50vh
+      // Add navigation controls
+      map.current.addControl(new mapboxgl.NavigationControl({
+        visualizePitch: true
+      }), 'top-left');
 
-      // Event listeners
+      // Disable map rotation using right click + drag
+      map.current.dragRotate.disable();
+      
+      // Disable map tilting using ctrl + drag
+      map.current.touchZoomRotate.disableRotation();
+
       map.current.on('load', () => {
-        endRenderMeasurement();
+        console.log('🗺️ Map loaded successfully');
+        setIsMapLoading(false);
         updateMarkers();
-        console.log('🗺️ Clustered map loaded successfully');
       });
 
-      map.current.on('zoom', () => {
-        const currentZoom = map.current?.getZoom() || 9;
-        // Only update if zoom changed significantly (performance optimization)
+      // Efficient zoom handling
+      map.current.on('zoomend', () => {
+        const currentZoom = map.current!.getZoom();
         if (Math.abs(currentZoom - lastZoomRef.current) > 0.5) {
           lastZoomRef.current = currentZoom;
           updateMarkers();
@@ -145,256 +154,412 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
       console.error('Failed to initialize clustered map:', error);
       isInitializedRef.current = false;
     }
-  }, [startRenderMeasurement, endRenderMeasurement]);
+  }, [startRenderMeasurement, endRenderMeasurement, mapStyle]);
 
   // Create marker element for individual points
   const createMarkerElement = useCallback((point: ClusterPoint) => {
     const el = document.createElement('div');
-    el.className = 'clustered-marker';
+    el.className = 'fact-marker';
+    
+    // Modern glassmorphism design
     el.style.cssText = `
-      width: 32px;
-      height: 32px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      background: ${point.properties.verified ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'};
-      border: 2px solid white;
+      background: ${point.properties.verified 
+        ? 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary))/0.8 100%)' 
+        : 'linear-gradient(135deg, hsl(var(--muted-foreground)) 0%, hsl(var(--muted-foreground))/0.8 100%)'
+      };
+      border: 3px solid rgba(255,255,255,0.9);
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.12),
+        0 2px 8px rgba(0,0,0,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      z-index: 10;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-size: 12px;
-      font-weight: bold;
-      transition: transform 0.2s ease;
     `;
     
-    el.textContent = point.properties.verified ? '✓' : '?';
+    // Category-based icon
+    const categoryIcons = {
+      history: '🏛️',
+      culture: '🎭',
+      nature: '🌿',
+      mystery: '🔮',
+      legend: '📜',
+      default: '📍'
+    };
     
-    // Hover effects
+    const icon = document.createElement('div');
+    icon.textContent = categoryIcons[point.properties.category as keyof typeof categoryIcons] || categoryIcons.default;
+    icon.style.cssText = `
+      font-size: 18px;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+    `;
+    el.appendChild(icon);
+    
+    // Verified badge
+    if (point.properties.verified) {
+      const badge = document.createElement('div');
+      badge.textContent = '✓';
+      badge.style.cssText = `
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 16px;
+        height: 16px;
+        background: hsl(var(--success));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      `;
+      el.appendChild(badge);
+    }
+    
+    // Click handler with haptic feedback
+    el.addEventListener('click', () => {
+      if (onFactClick) {
+        // Add click animation
+        el.style.transform = 'scale(0.95)';
+        setTimeout(() => el.style.transform = 'scale(1.05)', 100);
+        
+        const factMarker = {
+          id: point.properties.id,
+          title: point.properties.title,
+          latitude: point.geometry.coordinates[1],
+          longitude: point.geometry.coordinates[0],
+          category: point.properties.category,
+          verified: point.properties.verified,
+          voteScore: point.properties.voteScore,
+          authorName: point.properties.authorName
+        };
+        onFactClick(factMarker);
+      }
+    });
+    
+    // Enhanced hover effects
     el.addEventListener('mouseenter', () => {
-      el.style.transform = 'scale(1.2)';
-      el.style.zIndex = '1000';
+      el.style.transform = 'scale(1.15)';
+      el.style.boxShadow = `
+        0 12px 40px rgba(0,0,0,0.15),
+        0 4px 12px rgba(0,0,0,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.4)
+      `;
+      el.style.zIndex = '20';
     });
     
     el.addEventListener('mouseleave', () => {
       el.style.transform = 'scale(1)';
-      el.style.zIndex = '100';
+      el.style.boxShadow = `
+        0 8px 32px rgba(0,0,0,0.12),
+        0 2px 8px rgba(0,0,0,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.3)
+      `;
+      el.style.zIndex = '10';
     });
     
-    // Click handler
-    el.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (onFactClick) {
-        const fullFact = facts.find(f => f.id === point.properties.id);
-        if (fullFact) {
-          onFactClick(fullFact);
-        }
-      }
-    });
-
     return el;
-  }, [onFactClick, facts]);
+  }, [onFactClick]);
 
-  // Create cluster element
-  const createClusterElement = useCallback((cluster: Cluster) => {
+  // Create cluster element for grouped points
+  const createClusterElement = useCallback((cluster: any) => {
+    const pointCount = cluster.properties.point_count;
     const el = document.createElement('div');
-    el.className = 'cluster-marker';
+    el.className = 'fact-cluster';
     
-    const size = Math.min(50, 30 + (cluster.properties.point_count / 10));
+    // Dynamic sizing based on point count
+    const size = pointCount < 10 ? 50 : pointCount < 50 ? 60 : pointCount < 100 ? 70 : 80;
+    
+    // Gradient color based on cluster size
+    const getClusterColor = (count: number) => {
+      if (count < 10) return 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary))/0.8 100%)';
+      if (count < 50) return 'linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent))/0.8 100%)';
+      return 'linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(var(--destructive))/0.8 100%)';
+    };
     
     el.style.cssText = `
       width: ${size}px;
       height: ${size}px;
       border-radius: 50%;
-      background: hsl(var(--primary));
-      border: 3px solid white;
+      background: ${getClusterColor(pointCount)};
+      border: 4px solid rgba(255,255,255,0.95);
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      font-weight: 700;
       color: white;
-      font-size: ${Math.min(16, 10 + cluster.properties.point_count / 5)}px;
-      font-weight: bold;
-      transition: transform 0.2s ease;
+      font-size: ${size > 60 ? '16px' : '14px'};
+      box-shadow: 
+        0 12px 40px rgba(0,0,0,0.15),
+        0 4px 12px rgba(0,0,0,0.1),
+        inset 0 2px 0 rgba(255,255,255,0.3);
+      backdrop-filter: blur(12px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      z-index: 15;
     `;
     
-    el.textContent = cluster.properties.point_count.toString();
+    // Main count number
+    const countElement = document.createElement('div');
+    countElement.textContent = pointCount.toString();
+    countElement.style.cssText = `
+      font-size: ${size > 60 ? '18px' : '16px'};
+      font-weight: 800;
+      line-height: 1;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    `;
+    el.appendChild(countElement);
     
-    // Hover effects
+    // "stories" label for larger clusters
+    if (size > 50) {
+      const label = document.createElement('div');
+      label.textContent = 'stories';
+      label.style.cssText = `
+        font-size: 9px;
+        font-weight: 600;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: -2px;
+      `;
+      el.appendChild(label);
+    }
+    
+    // Pulse animation for large clusters
+    if (pointCount > 50) {
+      el.style.animation = 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite';
+    }
+    
+    // Enhanced hover effects
     el.addEventListener('mouseenter', () => {
       el.style.transform = 'scale(1.1)';
-      el.style.backgroundColor = 'hsl(var(--primary)/0.8)';
+      el.style.boxShadow = `
+        0 16px 50px rgba(0,0,0,0.2),
+        0 6px 16px rgba(0,0,0,0.15),
+        inset 0 2px 0 rgba(255,255,255,0.4)
+      `;
+      el.style.zIndex = '25';
     });
     
     el.addEventListener('mouseleave', () => {
       el.style.transform = 'scale(1)';
-      el.style.backgroundColor = 'hsl(var(--primary))';
+      el.style.boxShadow = `
+        0 12px 40px rgba(0,0,0,0.15),
+        0 4px 12px rgba(0,0,0,0.1),
+        inset 0 2px 0 rgba(255,255,255,0.3)
+      `;
+      el.style.zIndex = '15';
     });
     
-    // Click to expand cluster
-    el.addEventListener('click', (e) => {
-      e.stopPropagation();
+    // Click to expand cluster with smooth animation
+    el.addEventListener('click', () => {
       if (map.current && superclusterRef.current) {
-        const expansionZoom = superclusterRef.current.getClusterExpansionZoom(cluster.properties.cluster_id);
-        map.current.flyTo({
-          center: cluster.coordinates,
+        // Add click animation
+        el.style.transform = 'scale(0.9)';
+        setTimeout(() => el.style.transform = 'scale(1.1)', 100);
+        
+        const expansionZoom = Math.min(
+          superclusterRef.current.getClusterExpansionZoom(cluster.properties.cluster_id),
+          20
+        );
+        
+        map.current.easeTo({
+          center: [cluster.geometry.coordinates[0], cluster.geometry.coordinates[1]],
           zoom: expansionZoom,
-          duration: 500
+          duration: 800,
+          essential: true
         });
       }
     });
-
+    
     return el;
   }, []);
 
-  // Update markers based on current viewport
+  // Update markers based on current map view
   const updateMarkers = useCallback(() => {
-    if (!map.current || !superclusterRef.current || !isVisible) return;
-
-    // Clear existing markers
-    markersRef.current.forEach(marker => marker.remove());
-    markersRef.current = [];
-
-    const bounds = map.current.getBounds();
-    const zoom = Math.floor(map.current.getZoom());
+    if (!map.current || !superclusterRef.current || !clusterPoints.length) {
+      console.log('⚠️ Cannot update markers: missing requirements', {
+        map: !!map.current,
+        supercluster: !!superclusterRef.current,
+        points: clusterPoints.length
+      });
+      return;
+    }
     
-    // Get clusters/points for current viewport
-    const clusters = superclusterRef.current.getClusters([
-      bounds.getWest(),
-      bounds.getSouth(),
-      bounds.getEast(),
-      bounds.getNorth()
-    ], zoom);
-
-    console.log(`🎯 Rendering ${clusters.length} clusters/points at zoom ${zoom} from ${clusterPoints.length} total facts`);
-
-    // Batch marker creation for performance
-    requestAnimationFrame(() => {
-      clusters.forEach((feature: any) => {
-        const [lng, lat] = feature.geometry.coordinates;
+    startRenderMeasurement?.();
+    
+    try {
+      const bounds = map.current.getBounds();
+      const zoom = Math.floor(map.current.getZoom());
+      
+      const bbox = [
+        bounds.getWest(),
+        bounds.getSouth(), 
+        bounds.getEast(),
+        bounds.getNorth()
+      ] as [number, number, number, number];
+      
+      const clusters = superclusterRef.current.getClusters(bbox, zoom);
+      console.log(`🗺️ Updating markers: ${clusters.length} clusters/points at zoom ${zoom}`);
+      
+      // Clear existing markers efficiently
+      markersRef.current.forEach(marker => marker.remove());
+      markersRef.current = [];
+      
+      // Add new markers with optimized rendering
+      const newMarkers: mapboxgl.Marker[] = [];
+      
+      clusters.forEach((cluster: any) => {
+        let marker;
         
-        let el: HTMLElement;
-        
-        if (feature.properties?.cluster) {
-          // It's a cluster - create cluster element
-          el = createClusterElement({
-            id: feature.properties.cluster_id.toString(),
-            coordinates: [lng, lat],
-            properties: {
-              cluster: true,
-              cluster_id: feature.properties.cluster_id,
-              point_count: feature.properties.point_count,
-              point_count_abbreviated: feature.properties.point_count_abbreviated || feature.properties.point_count.toString()
-            }
-          });
+        if (cluster.properties?.cluster) {
+          // This is a cluster
+          const el = createClusterElement(cluster);
+          marker = new mapboxgl.Marker({ 
+            element: el,
+            anchor: 'center'
+          })
+            .setLngLat([cluster.geometry.coordinates[0], cluster.geometry.coordinates[1]])
+            .addTo(map.current!);
         } else {
-          // It's an individual point - create marker element
-          el = createMarkerElement({
-            type: 'Feature',
-            geometry: feature.geometry,
-            properties: feature.properties
-          });
+          // This is an individual point
+          const el = createMarkerElement(cluster);
+          marker = new mapboxgl.Marker({ 
+            element: el,
+            anchor: 'center'
+          })
+            .setLngLat([cluster.geometry.coordinates[0], cluster.geometry.coordinates[1]])
+            .addTo(map.current!);
         }
         
-        const marker = new mapboxgl.Marker(el)
-          .setLngLat([lng, lat])
-          .addTo(map.current!);
-        
-        markersRef.current.push(marker);
+        newMarkers.push(marker);
       });
+      
+      markersRef.current = newMarkers;
+      console.log(`✅ Added ${newMarkers.length} markers to map`);
+      
+    } catch (error) {
+      console.error('❌ Error updating markers:', error);
+    } finally {
+      endRenderMeasurement?.();
+    }
+  }, [createMarkerElement, createClusterElement, startRenderMeasurement, endRenderMeasurement, clusterPoints.length]);
+
+  // Map style change handler
+  const handleStyleChange = useCallback(() => {
+    if (!map.current) return;
+    
+    const styles = [
+      'mapbox://styles/mapbox/light-v11',
+      'mapbox://styles/mapbox/dark-v11',
+      'mapbox://styles/mapbox/satellite-streets-v12',
+      'mapbox://styles/mapbox/outdoors-v12'
+    ];
+    
+    const currentIndex = styles.indexOf(mapStyle);
+    const nextIndex = (currentIndex + 1) % styles.length;
+    const newStyle = styles[nextIndex];
+    
+    setMapStyle(newStyle);
+    map.current.setStyle(newStyle);
+    
+    // Show style change feedback
+    const styleName = newStyle.split('/').pop()?.replace('-v11', '').replace('-v12', '') || 'Unknown';
+    toast({
+      title: "Map style changed",
+      description: `Switched to ${styleName} theme`,
+      duration: 2000
     });
-  }, [isVisible, createMarkerElement, createClusterElement]);
+  }, [mapStyle]);
 
-  // Map style controls
-  const handleStyleChange = useCallback((style: keyof typeof mapStyles) => {
-    if (map.current) {
-      map.current.setStyle(mapStyles[style]);
-      console.log('🎨 Map style changed to:', style);
-    }
-  }, []);
-
-  // Reset view
+  // Reset view handler
   const handleResetView = useCallback(() => {
-    if (map.current) {
-      map.current.flyTo({
-        center: [-74.5, 40],
-        zoom: 9,
-        duration: 1000
-      });
-    }
+    if (!map.current) return;
+    map.current.easeTo({
+      center: [0, 20],
+      zoom: 2,
+      duration: 1000
+    });
   }, []);
 
-  // Zoom controls
+  // Zoom handlers
   const handleZoomIn = useCallback(() => {
-    if (map.current) {
-      const currentZoom = map.current.getZoom();
-      map.current.flyTo({
-        zoom: Math.min(currentZoom + 1, 20),
-        duration: 300
-      });
-    }
+    if (!map.current) return;
+    map.current.zoomIn();
   }, []);
 
   const handleZoomOut = useCallback(() => {
-    if (map.current) {
-      const currentZoom = map.current.getZoom();
-      map.current.flyTo({
-        zoom: Math.max(currentZoom - 1, 0),
-        duration: 300
-      });
-    }
+    if (!map.current) return;
+    map.current.zoomOut();
   }, []);
 
-  // Get user location
+  // My location handler
   const handleMyLocation = useCallback(() => {
+    if (!map.current) return;
+    
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          if (map.current) {
-            map.current.flyTo({
-              center: [position.coords.longitude, position.coords.latitude],
-              zoom: 15,
-              duration: 1000
-            });
-          }
+          const { latitude, longitude } = position.coords;
+          map.current!.easeTo({
+            center: [longitude, latitude],
+            zoom: 14,
+            duration: 1000
+          });
+          
+          toast({
+            title: "Location found",
+            description: "Centered map on your location",
+            duration: 2000
+          });
         },
-        (error) => console.warn('Location error:', error)
+        (error) => {
+          console.error('Geolocation error:', error);
+          toast({
+            title: "Location error",
+            description: "Could not get your location",
+            variant: "destructive",
+            duration: 3000
+          });
+        }
       );
     }
   }, []);
 
-  // Initialize map when visible
+  // Initialize map when component becomes visible
   useEffect(() => {
-    if (isVisible) {
+    if (isVisible && !isInitializedRef.current) {
       initializeMap();
     }
-
-    return () => {
-      if (map.current) {
-        map.current.remove();
-        map.current = null;
-        isInitializedRef.current = false;
-      }
-    };
   }, [isVisible, initializeMap]);
 
   // Update markers when facts change or map loads
   useEffect(() => {
-    if (map.current && !isLoading && superclusterRef.current) {
-      if (map.current.isStyleLoaded()) {
-        updateMarkers();
-      } else {
-        map.current.once('load', updateMarkers);
-      }
+    if (map.current && superclusterRef.current && clusterPoints.length > 0 && isVisible) {
+      updateMarkers();
     }
-  }, [facts, isLoading, updateMarkers]);
+  }, [clusterPoints, updateMarkers, isVisible]);
 
-  // Cleanup markers on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       markersRef.current.forEach(marker => marker.remove());
       markersRef.current = [];
+      map.current?.remove();
+      map.current = null;
+      isInitializedRef.current = false;
     };
   }, []);
 
@@ -403,89 +568,37 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
   }
 
   return (
-    <div className={`relative ${className}`}>
-      <div 
-        ref={mapContainer} 
-        className="absolute inset-0 w-full h-full"
-        style={{ minHeight: '100%' }}
-      />
+    <div className={`relative h-full w-full ${className}`}>
+      <div ref={mapContainer} className="h-full w-full rounded-lg overflow-hidden" />
       
-      {/* Mobile-optimized Controls - 50vh positioning */}
-      <div className="absolute top-1/2 left-4 -translate-y-1/2 z-10 flex flex-col gap-3">
-        {/* Style Controls */}
-        <div className="flex flex-col bg-background/95 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
-          {Object.keys(mapStyles).map((style) => (
-            <button
-              key={style}
-              onClick={() => handleStyleChange(style as keyof typeof mapStyles)}
-              className="px-4 py-3 sm:px-3 sm:py-2 text-sm sm:text-xs hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground first:border-t-0 border-t min-h-[44px] sm:min-h-0 flex items-center justify-start gap-2 w-full"
-              title={`${style.charAt(0).toUpperCase() + style.slice(1)} Style`}
-            >
-              <span className="text-base sm:text-sm">
-                {style === 'light' ? '🌞' : style === 'dark' ? '🌙' : style === 'satellite' ? '🛰️' : '🏔️'}
-              </span>
-              <span className="hidden sm:inline text-left">
-                {style.charAt(0).toUpperCase() + style.slice(1)}
-              </span>
-            </button>
-          ))}
-        </div>
+      {/* Enhanced Map Controls */}
+      <EnhancedMapControls
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onRecenter={handleResetView}
+        onMyLocation={handleMyLocation}
+        onStyleChange={handleStyleChange}
+        onResetView={handleResetView}
+        position="right"
+      />
 
-        {/* Zoom Controls */}
-        <div className="flex flex-col bg-background/95 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
-          <button
-            onClick={handleZoomIn}
-            className="p-4 sm:p-3 hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground min-h-[44px] sm:min-h-0 flex items-center justify-center"
-            title="Zoom In"
-            aria-label="Zoom in"
-          >
-            <span className="text-lg sm:text-base">➕</span>
-          </button>
-          <button
-            onClick={handleZoomOut}
-            className="p-4 sm:p-3 hover:bg-muted/50 transition-colors border-t border-0 rounded-none bg-transparent text-foreground min-h-[44px] sm:min-h-0 flex items-center justify-center"
-            title="Zoom Out"
-            aria-label="Zoom out"
-          >
-            <span className="text-lg sm:text-base">➖</span>
-          </button>
-        </div>
-
-        {/* Navigation Controls */}
-        <div className="flex flex-col bg-background/95 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
-          <button
-            onClick={handleResetView}
-            className="p-4 sm:p-3 hover:bg-muted/50 transition-colors border-0 rounded-none bg-transparent text-foreground min-h-[44px] sm:min-h-0 flex items-center justify-center"
-            title="Reset View"
-            aria-label="Reset map view"
-          >
-            <span className="text-lg sm:text-base">🧭</span>
-          </button>
-          <button
-            onClick={handleMyLocation}
-            className="p-4 sm:p-3 hover:bg-muted/50 transition-colors border-t border-0 rounded-none bg-transparent text-foreground min-h-[44px] sm:min-h-0 flex items-center justify-center"
-            title="My Location"
-            aria-label="Go to my location"
-          >
-            <span className="text-lg sm:text-base">📍</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Loading indicator */}
-      {isLoading && (
-        <div className="absolute top-4 right-20 z-10 bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg p-3">
-          <div className="flex items-center gap-2 text-sm">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Loading facts...
-          </div>
-        </div>
+      {/* Loading States */}
+      {(loading || isMapLoading) && (
+        <MapLoadingState 
+          message={loading ? "Loading stories..." : "Initializing map..."}
+          showProgress={loading}
+          progress={facts.length > 0 ? 100 : 0}
+        />
       )}
 
       {/* Debug info in development */}
       {process.env.NODE_ENV === 'development' && (
-        <div className="absolute bottom-4 right-4 z-10 bg-black/80 text-white p-2 rounded text-xs">
-          Clustered Map • {facts.length} facts • {markersRef.current.length} markers
+        <div className="absolute top-20 left-4 z-20 bg-black/80 text-white p-3 rounded-xl text-xs font-mono space-y-1">
+          <div>📊 Facts: {facts.length}</div>
+          <div>🗺️ Cluster Points: {clusterPoints.length}</div>
+          <div>📍 Markers: {markersRef.current.length}</div>
+          <div>🔍 Zoom: {map.current?.getZoom()?.toFixed(1) || 'N/A'}</div>
+          <div>🎯 Style: {mapStyle.split('/').pop()}</div>
         </div>
       )}
     </div>
@@ -494,6 +607,7 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
 
 ClusteredMap.displayName = 'ClusteredMap';
 
+// Wrap with error boundary
 const ClusteredMapWithErrorBoundary: React.FC<ClusteredMapProps> = (props) => (
   <ErrorBoundary FallbackComponent={MapErrorFallback}>
     <ClusteredMap {...props} />
