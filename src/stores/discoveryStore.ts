@@ -193,11 +193,14 @@ export const useDiscoveryStore = create<DiscoveryState>()(
             profiles: fact.profiles || { id: '', username: 'Anonymous', avatar_url: null }
           }));
           
-          set((state) => ({
-            facts: [...state.facts, ...enhancedFacts],
-            hasMore: enhancedFacts.length === limit,
-            isLoading: false
-          }));
+          set((state) => {
+            console.log(`📊 Loaded ${enhancedFacts.length} facts, total now: ${state.facts.length + enhancedFacts.length}`);
+            return {
+              facts: [...state.facts, ...enhancedFacts],
+              hasMore: enhancedFacts.length === limit,
+              isLoading: false
+            };
+          });
         } catch (error) {
           console.error('Error loading more facts:', error);
           set({ isLoading: false });

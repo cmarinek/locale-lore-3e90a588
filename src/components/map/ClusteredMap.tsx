@@ -51,8 +51,9 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
   };
 
   // Convert facts to clustering format
-  const clusterPoints = useMemo<ClusterPoint[]>(() => 
-    facts.map(fact => ({
+  const clusterPoints = useMemo<ClusterPoint[]>(() => {
+    console.log(`📊 Converting ${facts.length} facts to cluster points`);
+    const points = facts.map(fact => ({
       type: 'Feature' as const,
       geometry: {
         type: 'Point' as const,
@@ -61,12 +62,16 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
       properties: {
         id: fact.id,
         title: fact.title,
+        description: fact.description,
         category: fact.categories?.category_translations?.[0]?.name || 'unknown',
         verified: fact.status === 'verified',
         voteScore: fact.vote_count_up - fact.vote_count_down,
-        authorName: fact.profiles?.username
+        authorName: fact.profiles?.username || 'Anonymous'
       }
-    })), [facts]);
+    }));
+    console.log(`📊 Created ${points.length} cluster points`);
+    return points;
+  }, [facts]);
 
   // Initialize Supercluster
   useEffect(() => {
@@ -262,7 +267,7 @@ const ClusteredMap = memo(({ onFactClick, className = "", isVisible = true }: Cl
       bounds.getNorth()
     ], zoom);
 
-    console.log(`🎯 Rendering ${clusters.length} clusters/points at zoom ${zoom}`);
+    console.log(`🎯 Rendering ${clusters.length} clusters/points at zoom ${zoom} from ${clusterPoints.length} total facts`);
 
     // Batch marker creation for performance
     requestAnimationFrame(() => {

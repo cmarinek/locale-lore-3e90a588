@@ -42,10 +42,10 @@ export const usePerformanceMonitor = (
     
     const deltaTime = now - lastTime.current;
     
-    // Calculate FPS every 60 frames
-    if (frameCount.current >= 60) {
-      const fps = Math.round(60000 / deltaTime);
-      const frameTime = deltaTime / 60;
+    // Calculate FPS every 120 frames (reduced frequency)
+    if (frameCount.current >= 120) {
+      const fps = Math.round(120000 / deltaTime);
+      const frameTime = deltaTime / 120;
       
       const newMetrics: PerformanceMetrics = {
         fps,
