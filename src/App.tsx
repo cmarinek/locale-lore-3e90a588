@@ -1,4 +1,5 @@
-import React, { Suspense, useEffect, useState, lazy } from 'react';
+import * as React from 'react';
+const { Suspense, useEffect, useState, lazy } = React;
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Index from '@/pages/Index';
 import AuthMain from '@/pages/AuthMain';
@@ -121,9 +122,23 @@ const AppContent = () => {
 };
 
 function App() {
-
+  // Debug: Check if React is properly loaded
+  console.log('React object:', React);
+  console.log('useEffect:', React?.useEffect);
+  
+  // Safety check: Ensure React is properly loaded
+  if (!React || typeof React.useEffect !== 'function') {
+    console.error('React is not properly loaded or useEffect is not available');
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h1>Loading Error</h1>
+        <p>React is not properly loaded. Please refresh the page.</p>
+      </div>
+    );
+  }
+  
   // Initialize Phase 4 enhancements
-  useEffect(() => {
+  React.useEffect(() => {
     // Validate production requirements
     const { isReady, issues } = validateProductionRequirements();
     if (!isReady) {
@@ -162,7 +177,7 @@ function App() {
   }, []);
 
   // Clear ServiceWorker cache on development reload
-  useEffect(() => {
+  React.useEffect(() => {
     if (import.meta.env.DEV && import.meta.hot) {
       logInfo('DEV mode: Clearing caches for fresh start');
       
