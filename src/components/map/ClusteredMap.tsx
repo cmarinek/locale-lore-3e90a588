@@ -34,6 +34,7 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const superclusterRef = useRef<Supercluster | null>(null);
+  const superclusterLoadedRef = useRef<boolean>(false);
   const isInitializedRef = useRef(false);
   const lastZoomRef = useRef(0);
   const { startRenderMeasurement, endRenderMeasurement } = usePerformanceMonitor(true);
@@ -75,8 +76,16 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
     if (superclusterRef.current && clusterPoints.length > 0) {
       console.log(`🔄 Loading ${clusterPoints.length} points into Supercluster`);
       superclusterRef.current.load(clusterPoints);
+      superclusterLoadedRef.current = true;
+      
+      // Update markers after loading data
+      if (map.current && !isMapLoading) {
+        updateMarkers();
+      }
+    } else {
+      superclusterLoadedRef.current = false;
     }
-  }, [clusterPoints]);
+  }, [clusterPoints, isMapLoading]);
 
   // Initialize map
   const initializeMap = useCallback(async () => {
@@ -389,10 +398,11 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
 
   // Update markers based on current map view
   const updateMarkers = useCallback(() => {
-    if (!map.current || !superclusterRef.current || !clusterPoints.length) {
+    if (!map.current || !superclusterRef.current || !superclusterLoadedRef.current || !clusterPoints.length) {
       console.log('⚠️ Cannot update markers: missing requirements', {
         map: !!map.current,
         supercluster: !!superclusterRef.current,
+        loaded: superclusterLoadedRef.current,
         points: clusterPoints.length
       });
       return;
@@ -412,7 +422,7 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
       ] as [number, number, number, number];
       
       const clusters = superclusterRef.current.getClusters(bbox, zoom);
-      console.log(`🗺️ Updating markers: ${clusters.length} clusters/points at zoom ${zoom}`);
+      console.log(`🗺️ Updating markers: ${clusters.length} clusters/points at zoom ${zoom}`, { bbox, zoom, totalPoints: clusterPoints.length });
       
       // Clear existing markers efficiently
       markersRef.current.forEach(marker => marker.remove());
@@ -547,10 +557,10 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
 
   // Update markers when facts change or map loads
   useEffect(() => {
-    if (map.current && superclusterRef.current && clusterPoints.length > 0 && isVisible) {
+    if (map.current && superclusterRef.current && superclusterLoadedRef.current && clusterPoints.length > 0 && isVisible && !isMapLoading) {
       updateMarkers();
     }
-  }, [clusterPoints, updateMarkers, isVisible]);
+  }, [clusterPoints, updateMarkers, isVisible, isMapLoading]);
 
   // Cleanup on unmount
   useEffect(() => {
