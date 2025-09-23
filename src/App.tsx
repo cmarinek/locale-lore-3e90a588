@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Index from '@/pages/Index';
 import AuthMain from '@/pages/AuthMain';
 import AuthCallback from '@/pages/AuthCallback';
@@ -48,17 +48,19 @@ import { validateProductionRequirements } from '@/utils/production-config';
 // Lazy load the Map component
 const LazyMap = lazy(() => import('@/pages/Map'));
 
-// Inner component that can use auth context  
-const AppContent = () => {
+// Component that handles loading and routing logic
+const AppRoutes = () => {
   const { loading: authLoading } = useAuth();
   const [showLoading, setShowLoading] = useState(true);
+  const location = useLocation();
 
   const handleLoadingComplete = () => {
     setShowLoading(false);
   };
 
-  // Show loading until auth is ready
-  const shouldShowLoading = showLoading || authLoading;
+  // Only show loading on home page
+  const isHomePage = location.pathname === '/';
+  const shouldShowLoading = isHomePage && (showLoading || authLoading);
 
   return (
     <>
@@ -68,47 +70,53 @@ const AppContent = () => {
           minDisplayTime={5000}
         />
       ) : (
-        <Router>
-          <div className="App">
-            
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth/*" element={<AuthMain />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="/auth/confirm" element={<AuthConfirm />} />
-              <Route path="/auth/reset-password" element={<AuthResetPassword />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/hybrid" element={<Hybrid />} />
-              <Route path="/map" element={<React.Suspense fallback={<div>Loading...</div>}><LazyMap /></React.Suspense>} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/submit" element={<Submit />} />
-              <Route path="/profile/:id?" element={<Profile />} />
-              <Route path="/fact/:id" element={<Fact />} />
-              <Route path="/gamification" element={<Gamification />} />
-              <Route path="/media" element={<MediaManagement />} />
-              <Route path="/billing" element={<Billing />} />
-              <Route path="/social" element={<Social />} />
-              <Route path="/stories" element={<Stories />} />
-              <Route path="/contributor" element={<ContributorEconomy />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/production-readiness" element={<ProductionReadiness />} />
-              <Route path="/support" element={<Support />} />
-              <Route path="/content-guidelines" element={<ContentGuidelines />} />
-              <Route path="/translation-test" element={<TranslationTest />} />
-              <Route path="/showcase" element={<ComponentShowcase />} />
-              {/* Legacy redirects */}
-              <Route path="/lore/submit" element={<Submit />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-            <CookieConsent />
-            <PerformanceMonitor />
-          </div>
-        </Router>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth/*" element={<AuthMain />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/auth/confirm" element={<AuthConfirm />} />
+            <Route path="/auth/reset-password" element={<AuthResetPassword />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/hybrid" element={<Hybrid />} />
+            <Route path="/map" element={<React.Suspense fallback={<div>Loading...</div>}><LazyMap /></React.Suspense>} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/submit" element={<Submit />} />
+            <Route path="/profile/:id?" element={<Profile />} />
+            <Route path="/fact/:id" element={<Fact />} />
+            <Route path="/gamification" element={<Gamification />} />
+            <Route path="/media" element={<MediaManagement />} />
+            <Route path="/billing" element={<Billing />} />
+            <Route path="/social" element={<Social />} />
+            <Route path="/stories" element={<Stories />} />
+            <Route path="/contributor" element={<ContributorEconomy />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/production-readiness" element={<ProductionReadiness />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/content-guidelines" element={<ContentGuidelines />} />
+            <Route path="/translation-test" element={<TranslationTest />} />
+            <Route path="/showcase" element={<ComponentShowcase />} />
+            {/* Legacy redirects */}
+            <Route path="/lore/submit" element={<Submit />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+          <CookieConsent />
+          <PerformanceMonitor />
+        </div>
       )}
     </>
+  );
+};
+
+// Inner component that wraps routes with Router
+const AppContent = () => {
+  return (
+    <Router>
+      <AppRoutes />
+    </Router>
   );
 };
 
