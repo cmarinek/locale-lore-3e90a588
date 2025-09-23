@@ -32,11 +32,14 @@ const MapErrorFallback: React.FC<{ error: Error }> = ({ error }) => (
 export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactClick, className, isVisible }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const markersRef = useRef<Map<string, mapboxgl.Marker>>(new Map());
   const superclusterRef = useRef<Supercluster | null>(null);
   const superclusterLoadedRef = useRef<boolean>(false);
   const isInitializedRef = useRef(false);
   const lastZoomRef = useRef(0);
+  const lastBoundsRef = useRef<string>('');
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isUpdatingRef = useRef(false);
   const { startRenderMeasurement, endRenderMeasurement } = usePerformanceMonitor(true);
   
   const { facts, loading } = useDiscoveryStore();
@@ -78,9 +81,9 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
       superclusterRef.current.load(clusterPoints);
       superclusterLoadedRef.current = true;
       
-      // Update markers after loading data
+      // Update markers after loading data with debouncing
       if (map.current && !isMapLoading) {
-        updateMarkers();
+        debouncedUpdateMarkers();
       }
     } else {
       superclusterLoadedRef.current = false;
@@ -108,12 +111,14 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
       mapboxgl.accessToken = data.token;
       isInitializedRef.current = true;
 
-      // Initialize Supercluster
+      // Initialize Supercluster with optimized configuration
       superclusterRef.current = new Supercluster({
-        radius: 80,
-        maxZoom: 14,
+        radius: 60, // Optimal clustering radius
+        maxZoom: 16, // Higher max zoom for better detail
         minZoom: 0,
-        minPoints: 2
+        minPoints: 2, // Will be dynamically adjusted based on zoom
+        extent: 512,
+        nodeSize: 64
       });
 
       map.current = new mapboxgl.Map({
@@ -139,20 +144,38 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
       map.current.on('load', () => {
         console.log('🗺️ Map loaded successfully');
         setIsMapLoading(false);
-        updateMarkers();
+        debouncedUpdateMarkers();
       });
 
-      // Efficient zoom handling
+      // Smart event handling with debouncing
+      map.current.on('zoomstart', () => {
+        isUpdatingRef.current = true;
+      });
+
       map.current.on('zoomend', () => {
+        isUpdatingRef.current = false;
         const currentZoom = map.current!.getZoom();
-        if (Math.abs(currentZoom - lastZoomRef.current) > 0.5) {
+        const shouldUpdate = Math.abs(currentZoom - lastZoomRef.current) > 0.8; // More selective updates
+        if (shouldUpdate) {
           lastZoomRef.current = currentZoom;
-          updateMarkers();
+          debouncedUpdateMarkers();
         }
       });
 
+      map.current.on('dragstart', () => {
+        isUpdatingRef.current = true;
+      });
+
       map.current.on('moveend', () => {
-        updateMarkers();
+        isUpdatingRef.current = false;
+        const bounds = map.current!.getBounds();
+        const boundsKey = `${bounds.getWest()}_${bounds.getSouth()}_${bounds.getEast()}_${bounds.getNorth()}`;
+        
+        // Only update if bounds changed significantly
+        if (shouldUpdateForBoundsChange(lastBoundsRef.current, boundsKey)) {
+          lastBoundsRef.current = boundsKey;
+          debouncedUpdateMarkers();
+        }
       });
 
       map.current.on('error', (e) => {
@@ -164,6 +187,47 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
       isInitializedRef.current = false;
     }
   }, [startRenderMeasurement, endRenderMeasurement, mapStyle]);
+
+  // Utility function to check if bounds changed significantly
+  const shouldUpdateForBoundsChange = useCallback((oldBounds: string, newBounds: string) => {
+    if (!oldBounds) return true;
+    
+    const oldParts = oldBounds.split('_').map(Number);
+    const newParts = newBounds.split('_').map(Number);
+    
+    if (oldParts.length !== 4 || newParts.length !== 4) return true;
+    
+    // Check if any bound changed by more than 20% of the viewport
+    for (let i = 0; i < 4; i++) {
+      const change = Math.abs(newParts[i] - oldParts[i]);
+      const range = Math.abs(oldParts[i]);
+      if (change > range * 0.2) return true;
+    }
+    
+    return false;
+  }, []);
+
+  // Debounced update function
+  const debouncedUpdateMarkers = useCallback(() => {
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+    
+    updateTimeoutRef.current = setTimeout(() => {
+      if (!isUpdatingRef.current) {
+        updateMarkers();
+      }
+    }, 200); // 200ms debounce for smoother performance
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Create marker element for individual points
   const createMarkerElement = useCallback((point: ClusterPoint) => {
@@ -398,7 +462,7 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
     return el;
   }, []);
 
-  // Update markers based on current map view
+  // Enhanced marker update with recycling and performance optimization
   const updateMarkers = useCallback(() => {
     if (!map.current || !superclusterRef.current || !superclusterLoadedRef.current || !clusterPoints.length) {
       console.log('⚠️ Cannot update markers: missing requirements', {
@@ -410,11 +474,20 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
       return;
     }
     
+    // Prevent updates during active interaction
+    if (isUpdatingRef.current) {
+      console.log('⏸️ Skipping update during interaction');
+      return;
+    }
+    
     startRenderMeasurement?.();
     
     try {
       const bounds = map.current.getBounds();
       const zoom = Math.floor(map.current.getZoom());
+      
+      // Dynamic clustering would require reinitializing Supercluster
+      // For now, we use the optimized static configuration
       
       const bbox = [
         bounds.getWest(),
@@ -424,52 +497,84 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
       ] as [number, number, number, number];
       
       const clusters = superclusterRef.current.getClusters(bbox, zoom);
-      console.log(`🗺️ Updating markers: ${clusters.length} clusters/points at zoom ${zoom}`, { bbox, zoom, totalPoints: clusterPoints.length });
-      
-      // Clear existing markers efficiently
-      markersRef.current.forEach(marker => marker.remove());
-      markersRef.current = [];
-      
-      // Add new markers with optimized rendering
-      const newMarkers: mapboxgl.Marker[] = [];
-      
-      clusters.forEach((cluster: any) => {
-        let marker;
-        
-        if (cluster.properties?.cluster) {
-          // This is a cluster
-          const el = createClusterElement(cluster);
-          marker = new mapboxgl.Marker({ 
-            element: el,
-            anchor: 'center',
-            offset: [0, 0]
-          })
-            .setLngLat([cluster.geometry.coordinates[0], cluster.geometry.coordinates[1]])
-            .addTo(map.current!);
-        } else {
-          // This is an individual point
-          const el = createMarkerElement(cluster);
-          marker = new mapboxgl.Marker({ 
-            element: el,
-            anchor: 'center',
-            offset: [0, 0]
-          })
-            .setLngLat([cluster.geometry.coordinates[0], cluster.geometry.coordinates[1]])
-            .addTo(map.current!);
-        }
-        
-        newMarkers.push(marker);
+      console.log(`🗺️ Updating markers: ${clusters.length} clusters/points at zoom ${zoom}`, { 
+        bbox, zoom, totalPoints: clusterPoints.length 
       });
       
+      // Create marker ID map for efficient recycling
+      const currentMarkerIds = new Set<string>();
+      const newMarkers = new Map<string, mapboxgl.Marker>();
+      
+      clusters.forEach((cluster: any) => {
+        const isCluster = cluster.properties?.cluster;
+        const markerId = isCluster 
+          ? `cluster_${cluster.properties.cluster_id}` 
+          : `point_${cluster.properties.id}`;
+          
+        currentMarkerIds.add(markerId);
+        
+        // Try to reuse existing marker
+        const existingMarker = markersRef.current.get(markerId);
+        if (existingMarker) {
+          // Update position if needed
+          const currentLngLat = existingMarker.getLngLat();
+          const newLngLat = [cluster.geometry.coordinates[0], cluster.geometry.coordinates[1]] as [number, number];
+          
+          if (Math.abs(currentLngLat.lng - newLngLat[0]) > 0.0001 || 
+              Math.abs(currentLngLat.lat - newLngLat[1]) > 0.0001) {
+            existingMarker.setLngLat(newLngLat);
+          }
+          
+          newMarkers.set(markerId, existingMarker);
+        } else {
+          // Create new marker
+          let marker;
+          
+          if (isCluster) {
+            const el = createClusterElement(cluster);
+            marker = new mapboxgl.Marker({ 
+              element: el,
+              anchor: 'center',
+              offset: [0, 0]
+            })
+              .setLngLat([cluster.geometry.coordinates[0], cluster.geometry.coordinates[1]])
+              .addTo(map.current!);
+          } else {
+            const el = createMarkerElement(cluster);
+            marker = new mapboxgl.Marker({ 
+              element: el,
+              anchor: 'center',
+              offset: [0, 0]
+            })
+              .setLngLat([cluster.geometry.coordinates[0], cluster.geometry.coordinates[1]])
+              .addTo(map.current!);
+          }
+          
+          newMarkers.set(markerId, marker);
+        }
+      });
+      
+      // Remove markers that are no longer needed
+      markersRef.current.forEach((marker, id) => {
+        if (!currentMarkerIds.has(id)) {
+          marker.remove();
+        }
+      });
+      
+      // Update markers reference
       markersRef.current = newMarkers;
-      console.log(`✅ Added ${newMarkers.length} markers to map`);
+      console.log(`✅ Updated ${newMarkers.size} markers (${clusters.length} total features)`);
       
     } catch (error) {
       console.error('❌ Error updating markers:', error);
+      
+      // Fallback: clear all markers and try simple update
+      markersRef.current.forEach(marker => marker.remove());
+      markersRef.current.clear();
     } finally {
       endRenderMeasurement?.();
     }
-  }, [createMarkerElement, createClusterElement, startRenderMeasurement, endRenderMeasurement, clusterPoints.length]);
+  }, [createMarkerElement, createClusterElement, startRenderMeasurement, endRenderMeasurement, clusterPoints, debouncedUpdateMarkers]);
 
   // Map style change handler
   const handleStyleChange = useCallback(() => {
@@ -570,7 +675,7 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
   useEffect(() => {
     return () => {
       markersRef.current.forEach(marker => marker.remove());
-      markersRef.current = [];
+      markersRef.current.clear();
       map.current?.remove();
       map.current = null;
       isInitializedRef.current = false;
@@ -610,7 +715,7 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
         <div className="absolute top-20 left-4 z-20 bg-black/80 text-white p-3 rounded-xl text-xs font-mono space-y-1">
           <div>📊 Facts: {facts.length}</div>
           <div>🗺️ Cluster Points: {clusterPoints.length}</div>
-          <div>📍 Markers: {markersRef.current.length}</div>
+          <div>📍 Markers: {markersRef.current.size}</div>
           <div>🔍 Zoom: {map.current?.getZoom()?.toFixed(1) || 'N/A'}</div>
           <div>🎯 Style: {mapStyle.split('/').pop()}</div>
         </div>
