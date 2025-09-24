@@ -171,18 +171,21 @@ export class SecurityUtils {
 
   // Environment validation
   static validateEnvironment(): boolean {
-    const requiredVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'];
-    const isValid = requiredVars.every(envVar => {
-      const value = import.meta.env[envVar];
-      return value && value.length > 0;
-    });
-
-    if (!isValid) {
-      console.error('Missing required environment variables:', 
-        requiredVars.filter(envVar => !import.meta.env[envVar]));
+    // Check if Supabase is properly configured
+    try {
+      const supabaseUrl = "https://mwufulzthoqrwbwtvogx.supabase.co";
+      const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13dWZ1bHp0aG9xcndid3R2b2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MjA5NzMsImV4cCI6MjA3MjI5Njk3M30.uO5bo6elt4LdAL0ULyIMQtaxnXAnfZRhIK8UqApm5B8";
+      
+      if (!supabaseUrl || !supabaseKey) {
+        console.error('Supabase configuration is missing');
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Environment validation failed:', error);
+      return false;
     }
-
-    return isValid;
   }
 
   // Content validation
