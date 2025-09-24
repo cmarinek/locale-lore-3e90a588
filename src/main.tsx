@@ -5,6 +5,27 @@ import './index.css';
 
 console.log('🚀 MAIN: Starting simple app initialization...');
 
+// Critical React safety check before any components are loaded
+if (!React || !React.createContext || !React.useEffect || !React.useState) {
+  console.error('❌ MAIN: React is not properly loaded or missing essential APIs');
+  document.body.innerHTML = `
+    <div style="
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: #1f2937; color: white; font-size: 18px; padding: 40px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-family: system-ui;
+    ">
+      <h1>⚠️ React Loading Error</h1>
+      <p>React is not properly initialized. Please refresh the page.</p>
+      <button onclick="window.location.reload()" style="
+        padding: 12px 24px; margin-top: 20px; background: #3b82f6; color: white;
+        border: none; border-radius: 6px; cursor: pointer; font-size: 16px;
+      ">Reload Page</button>
+    </div>
+  `;
+  throw new Error('React not properly loaded');
+}
+
 // Simple initialization with detailed logging
 async function initializeApp() {
   try {
