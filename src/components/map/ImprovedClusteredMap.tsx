@@ -143,10 +143,9 @@ function ClusteredMapContent({ onFactClick, className, isVisible }: ImprovedClus
         newMarkers.push(marker);
       });
 
-      // Add individual fact markers for high zoom levels
-      if (zoom >= 12) {
-        viewportFacts.forEach(fact => {
-          if (!isValidCoordinate(fact.longitude, fact.latitude)) return;
+      // Add individual fact markers (either from transition zone or high zoom)
+      viewportFacts.forEach(fact => {
+        if (!isValidCoordinate(fact.longitude, fact.latitude)) return;
 
           const markerElement = document.createElement('div');
           markerElement.className = 'fact-marker';
@@ -168,9 +167,8 @@ function ClusteredMapContent({ onFactClick, className, isVisible }: ImprovedClus
             .setLngLat([fact.longitude, fact.latitude])
             .addTo(map);
 
-          newMarkers.push(marker);
-        });
-      }
+        newMarkers.push(marker);
+      });
 
       setMarkers(newMarkers);
       setClusters(viewportClusters);

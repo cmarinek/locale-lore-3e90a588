@@ -32,7 +32,7 @@ class GeoService {
   private config: GeoServiceConfig = {
     maxFactsPerRequest: 1000,
     clusterRadius: 50, // km
-    maxZoomForClustering: 14, // Increased to match database function logic
+    maxZoomForClustering: 12, // Lowered for better transition
     viewportPadding: 0.1 // 10% padding around viewport
   };
 
@@ -103,8 +103,7 @@ class GeoService {
     console.log(`🔄 Cache miss - fetching fresh data for zoom ${zoom}`);
 
     try {
-      // Use clustering for lower zoom levels (global/regional view)
-      // Use individual facts for higher zoom levels (city/street view)
+      // Progressive transition: mix clusters and individual facts based on zoom
       if (zoom < this.config.maxZoomForClustering) {
         console.log(`🎯 Using clustering for zoom ${zoom} (< ${this.config.maxZoomForClustering})`);
         const clusters = await this.getClusteredFacts(expandedBounds, zoom);
@@ -112,8 +111,25 @@ class GeoService {
         const result = { facts: [], clusters, totalCount: options.includeCount ? clusters.reduce((sum, c) => sum + c.count, 0) : undefined };
         this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
         return result;
+      } else if (zoom < this.config.maxZoomForClustering + 2) {
+        // Transition zone: show both small clusters and individual facts
+        console.log(`🔄 Using mixed mode for zoom ${zoom} (transition zone)`);
+        const [clusters, facts] = await Promise.all([
+          this.getClusteredFacts(expandedBounds, zoom),
+          this.getIndividualFacts(expandedBounds)
+        ]);
+        // Filter out small clusters (1-2 facts) in transition zone
+        const filteredClusters = clusters.filter(cluster => cluster.count >= 3);
+        console.log(`📊 Retrieved ${filteredClusters.length} clusters and ${facts.length} individual facts`);
+        const result = { 
+          facts, 
+          clusters: filteredClusters, 
+          totalCount: options.includeCount ? (facts.length + filteredClusters.reduce((sum, c) => sum + c.count, 0)) : undefined 
+        };
+        this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
+        return result;
       } else {
-        console.log(`📍 Using individual facts for zoom ${zoom} (>= ${this.config.maxZoomForClustering})`);
+        console.log(`📍 Using individual facts for zoom ${zoom} (>= ${this.config.maxZoomForClustering + 2})`);
         const facts = await this.getIndividualFacts(expandedBounds);
         console.log(`📊 Retrieved ${facts.length} individual facts`);
         const result = { facts, clusters: [], totalCount: options.includeCount ? facts.length : undefined };
