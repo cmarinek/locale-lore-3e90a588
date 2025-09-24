@@ -20,6 +20,18 @@ const AppLoadingFallback = () => (
 );
 
 export const PerformanceOptimizedApp: React.FC<PerformanceOptimizedAppProps> = ({ children }) => {
+  // Safety check for React hooks
+  if (!React || typeof React.useEffect !== 'function') {
+    console.error('React hooks not available in PerformanceOptimizedApp');
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-destructive">Loading Error: React hooks not available</p>
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     // Mark app initialization start
     performanceMonitor.mark('app-init-start');
