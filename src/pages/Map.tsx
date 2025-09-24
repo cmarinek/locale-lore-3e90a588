@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import { UnifiedMapComponent } from '@/components/map/UnifiedMapComponent';
+import MapWithContext from '@/components/map/MapWithContext';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
@@ -131,11 +131,10 @@ export const Map: React.FC = () => {
               </div>
             }
           >
-            <UnifiedMapComponent
-              variant="enhanced"
-              enableClustering={true}
+            <MapWithContext
               onFactClick={handleFactClick}
               className="h-full w-full"
+              isVisible={true}
             />
           </SafeComponentWrapper>
 
