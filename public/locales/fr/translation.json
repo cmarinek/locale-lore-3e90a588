@@ -1,0 +1,12 @@
+{
+  "title": "GeoCache Lore",
+  "subtitle": "Découvrez des histoires et légendes locales fascinantes du monde entier",
+  "welcome": "Bienvenue à GeoCache Lore",
+  "getStarted": "Commencer",
+  "learnMore": "En Savoir Plus",
+  "features": {
+    "discover": "Découvrir des Histoires",
+    "share": "Partagez Vos Histoires",
+    "explore": "Explorer la Carte"
+  }
+}

@@ -18,3 +18,6 @@ verify_jwt = false
 
 [functions.fact-acquisition]
 verify_jwt = false
+
+[functions.mapbox-proxy]
+verify_jwt = false
