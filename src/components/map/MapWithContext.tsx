@@ -1,6 +1,6 @@
 import React from 'react';
 import { MapProvider } from '@/contexts/MapContext';
-import { ImprovedClusteredMap } from './ImprovedClusteredMap';
+import { UnifiedMapComponent } from './UnifiedMapComponent';
 import { FactMarker } from '@/types/map';
 
 interface MapWithContextProps {
@@ -10,13 +10,18 @@ interface MapWithContextProps {
 }
 
 /**
- * Map component that provides the MapContext and renders the improved clustered map
- * Use this component instead of ClusteredMap for better architecture and error handling
+ * Map component that provides the MapContext and renders the unified map
+ * Use this component for better architecture and error handling
  */
 export function MapWithContext(props: MapWithContextProps) {
   return (
     <MapProvider>
-      <ImprovedClusteredMap {...props} />
+      <UnifiedMapComponent 
+        variant="clustered"
+        enableClustering={true}
+        enablePerformanceOptimizations={true}
+        {...props} 
+      />
     </MapProvider>
   );
 }

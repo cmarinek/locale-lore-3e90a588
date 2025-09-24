@@ -91,7 +91,7 @@ export const routeComponents = {
   WelcomeHero: createLazyComponent(() => import('@/components/organisms/WelcomeHeroOptimized').then(m => ({ default: m.WelcomeHeroOptimized })), { preload: true }),
   
   // Map components (important, heavy)
-  MapComponent: createLazyComponent(() => import('@/components/map/MapWithContext').then(m => ({ default: m.default || m.MapWithContext })), {
+  MapComponent: createLazyComponent(() => import('@/components/map/UnifiedMapComponent').then(m => ({ default: m.UnifiedMapComponent })), {
     fallback: () => React.createElement('div', { 
       className: 'w-full h-96 bg-muted rounded-lg flex items-center justify-center' 
     }, 'Loading map...'),

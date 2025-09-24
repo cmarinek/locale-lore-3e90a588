@@ -25,15 +25,15 @@ import { DistanceSortButton } from '@/components/ui/DistanceSortButton';
 import { useLocationSorting } from '@/hooks/useLocationSorting';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-// Lazy-load Scalable Map to improve initial render
-const LazyScalableMap = React.lazy(() => 
-  import('@/components/map/ScalableMapComponent').then(module => ({ 
-    default: module.ScalableMapComponent 
+// Lazy-load Unified Map to improve initial render
+const LazyUnifiedMap = React.lazy(() => 
+  import('@/components/map/UnifiedMapComponent').then(module => ({ 
+    default: module.UnifiedMapComponent 
   }))
 );
 
 // Import error boundary
-import { ProductionErrorBoundary } from '@/components/common/ErrorBoundary';
+import { ProductionErrorBoundary } from '@/components/common/UnifiedErrorBoundary';
 
 export const Hybrid: React.FC = () => {
   const navigate = useNavigate();
@@ -442,13 +442,14 @@ export const Hybrid: React.FC = () => {
                              </div>
                            </div>
                          }>
-                            <LazyScalableMap
-                            onFactClick={handleMapFactClick} 
-                            className="h-full w-full"
-                            isVisible={activeTab === 'map'}
-                            initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                            initialZoom={isMobile ? 12 : 10}
-                          />
+                             <LazyUnifiedMap
+                             variant="scalable"
+                             enableClustering={true}
+                             onFactClick={handleMapFactClick} 
+                             className="h-full w-full"
+                             center={[centerLocation.lng, centerLocation.lat]} 
+                             zoom={isMobile ? 12 : 10}
+                           />
                         </React.Suspense>
                        </ProductionErrorBoundary>
 
@@ -574,12 +575,13 @@ export const Hybrid: React.FC = () => {
             {/* Map - Desktop: Right main area */}
             <div className="flex-1 relative">
               <React.Suspense fallback={<div className="absolute inset-0 grid place-items-center text-muted-foreground animate-fade-in">Loading map...</div>}>
-                 <LazyScalableMap 
+                 <LazyUnifiedMap 
+                   variant="scalable"
+                   enableClustering={true}
                    onFactClick={handleMapFactClick} 
                    className="h-full w-full" 
-                   initialCenter={[centerLocation.lng, centerLocation.lat]} 
-                   initialZoom={isMobile ? 12 : 10}
-                   isVisible={true}
+                   center={[centerLocation.lng, centerLocation.lat]} 
+                   zoom={isMobile ? 12 : 10}
                  />
               </React.Suspense>
             </div>

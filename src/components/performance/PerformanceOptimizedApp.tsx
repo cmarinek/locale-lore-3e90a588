@@ -1,6 +1,6 @@
 // Performance-optimized app wrapper
 import React, { Suspense } from 'react';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { UnifiedErrorBoundary } from '@/components/common/UnifiedErrorBoundary';
 
 interface PerformanceOptimizedAppProps {
   children: React.ReactNode;
@@ -18,10 +18,10 @@ const AppLoadingFallback = () => (
 
 export const PerformanceOptimizedApp: React.FC<PerformanceOptimizedAppProps> = ({ children }) => {
   return (
-    <ErrorBoundary>
+    <UnifiedErrorBoundary mode="production">
       <Suspense fallback={<AppLoadingFallback />}>
         {children}
       </Suspense>
-    </ErrorBoundary>
+    </UnifiedErrorBoundary>
   );
 };

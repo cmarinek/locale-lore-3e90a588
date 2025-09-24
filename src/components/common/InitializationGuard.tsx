@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { UnifiedErrorBoundary } from '@/components/common/UnifiedErrorBoundary';
 
 interface InitializationGuardProps {
   children: React.ReactNode;
@@ -80,8 +80,8 @@ export const InitializationGuard: React.FC<InitializationGuardProps> = ({
   }
 
   return (
-    <ErrorBoundary enableRecovery={true}>
+    <UnifiedErrorBoundary mode="development" enableRecovery={true}>
       {children}
-    </ErrorBoundary>
+    </UnifiedErrorBoundary>
   );
 };

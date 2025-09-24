@@ -4,8 +4,7 @@ import { AuthProvider } from '@/contexts/AuthProvider';
 import { ThemeProvider } from '@/contexts/ThemeProvider';
 import { LanguageProvider } from '@/contexts/LanguageProvider';
 import { PerformanceOptimizedApp } from '@/components/performance/PerformanceOptimizedApp';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { ProductionErrorBoundary } from '@/components/common/ProductionErrorBoundary';
+import { UnifiedErrorBoundary, DevelopmentErrorBoundary, ProductionErrorBoundary } from '@/components/common/UnifiedErrorBoundary';
 import InitializationGate from '@/components/ui/initialization-gate';
 
 interface AppProvidersProps {
@@ -15,7 +14,7 @@ interface AppProvidersProps {
 export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
   const ErrorBoundaryComponent = process.env.NODE_ENV === 'production' 
     ? ProductionErrorBoundary 
-    : ErrorBoundary;
+    : DevelopmentErrorBoundary;
 
   return (
     <PerformanceOptimizedApp>

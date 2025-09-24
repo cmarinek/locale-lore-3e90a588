@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { UnifiedErrorBoundary } from '@/components/common/UnifiedErrorBoundary';
 
 interface SafeComponentWrapperProps {
   children: React.ReactNode;
@@ -63,7 +63,8 @@ export const SafeComponentWrapper: React.FC<SafeComponentWrapperProps> = ({
   }
 
   return (
-    <ErrorBoundary 
+    <UnifiedErrorBoundary 
+      mode="development"
       enableRecovery={true}
       fallback={
         <div className="p-4 text-center">
@@ -73,6 +74,6 @@ export const SafeComponentWrapper: React.FC<SafeComponentWrapperProps> = ({
       }
     >
       {children}
-    </ErrorBoundary>
+    </UnifiedErrorBoundary>
   );
 };
