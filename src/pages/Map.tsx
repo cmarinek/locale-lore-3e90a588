@@ -4,11 +4,11 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import MapWithContext from '@/components/map/MapWithContext';
+import { UnifiedMapComponent } from '@/components/map/UnifiedMapComponent';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { UnifiedErrorBoundary } from '@/components/common/UnifiedErrorBoundary';
 import { SafeComponentWrapper } from '@/components/common/SafeComponentWrapper';
 
 export const Map: React.FC = () => {
@@ -90,7 +90,8 @@ export const Map: React.FC = () => {
   }, [syncSelectedFact, setSelectedFact, fetchFactById]);
 
   return (
-    <ErrorBoundary 
+    <UnifiedErrorBoundary
+      mode="production"
       enableRecovery={true}
       fallback={
         <div className="min-h-screen flex items-center justify-center">
@@ -130,10 +131,11 @@ export const Map: React.FC = () => {
               </div>
             }
           >
-            <MapWithContext
+            <UnifiedMapComponent
+              variant="enhanced"
+              enableClustering={true}
               onFactClick={handleFactClick}
               className="h-full w-full"
-              isVisible={true}
             />
           </SafeComponentWrapper>
 
@@ -158,7 +160,7 @@ export const Map: React.FC = () => {
 
         </div>
       </MainLayout>
-    </ErrorBoundary>
+    </UnifiedErrorBoundary>
   );
 };
 

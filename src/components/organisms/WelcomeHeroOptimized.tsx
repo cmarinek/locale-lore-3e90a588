@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from "@/contexts/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { LogIn, UserPlus } from "lucide-react";
-import { HeroSearchBarOptimized } from "@/components/ui/hero-search-bar-optimized";
+import { UnifiedHeroSearchBar } from "@/components/ui/UnifiedHeroSearchBar";
 
 export const WelcomeHeroOptimized = () => {
   const [email, setEmail] = useState("");
@@ -29,7 +29,7 @@ export const WelcomeHeroOptimized = () => {
 
           {/* Search bar */}
           <div className="mb-8">
-            <HeroSearchBarOptimized className="w-full max-w-2xl mx-auto" />
+            <UnifiedHeroSearchBar variant="optimized" className="w-full max-w-2xl mx-auto" />
           </div>
         </div>
 
