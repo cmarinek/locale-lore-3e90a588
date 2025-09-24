@@ -3,6 +3,11 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
+// Defensive React check to prevent null useState errors
+if (!React || typeof React.useState !== 'function') {
+  console.error('React is not properly loaded in AuthProvider');
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -18,6 +23,12 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = React.memo(({ children }: AuthProviderProps) => {
+  // Early return if React hooks are not available
+  if (!React || typeof React.useState !== 'function') {
+    console.error('React hooks not available in AuthProvider');
+    return <>{children}</>;
+  }
+
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);

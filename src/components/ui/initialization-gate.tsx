@@ -1,5 +1,5 @@
 /**
- * Simple initialization gate that just renders children
+ * Initialization gate with React availability checks
  */
 
 import React from 'react';
@@ -13,7 +13,17 @@ export const InitializationGate: React.FC<InitializationGateProps> = ({
   children,
   fallback
 }) => {
-  // Simply render children - no complex initialization needed
+  // Check if React is properly loaded
+  if (!React || typeof React.useState !== 'function') {
+    console.error('React is not properly loaded in InitializationGate');
+    return fallback || (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h3>Loading React...</h3>
+        <p>Please wait while the application initializes.</p>
+      </div>
+    );
+  }
+
   return <>{children}</>;
 };
 
