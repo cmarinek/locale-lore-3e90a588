@@ -10,6 +10,8 @@ import { StatisticsCard } from '@/components/profile/StatisticsCard';
 import { AchievementShowcase } from '@/components/profile/AchievementShowcase';
 import { DataExportPanel } from '@/components/profile/DataExportPanel';
 import { DataDeletionPanel } from '@/components/profile/DataDeletionPanel';
+import { SavedLocations } from '@/components/profile/SavedLocations';
+import { UserContributions } from '@/components/profile/UserContributions';
 import { SubscriptionStatusCard } from '@/components/ui/subscription-status-card';
 import { useAuth } from '@/contexts/AuthProvider';
 import { motion } from 'framer-motion';
@@ -116,6 +118,10 @@ export const Profile: React.FC = () => {
             <Tabs defaultValue="profile" className="space-y-6">
               <TabsList className="w-full overflow-x-auto">
                 <TabsTrigger value="profile">{t('editProfile', { defaultValue: 'Edit Profile' })}</TabsTrigger>
+                <TabsTrigger value="locations">{t('savedLocations', { defaultValue: 'Saved Locations' })}</TabsTrigger>
+                {isContributor && (
+                  <TabsTrigger value="contributions">{t('contributions', { defaultValue: 'My Contributions' })}</TabsTrigger>
+                )}
                 <TabsTrigger value="statistics">{t('statistics.title', { defaultValue: 'Statistics' })}</TabsTrigger>
                 <TabsTrigger value="achievements">{t('achievements.title', { defaultValue: 'Achievements' })}</TabsTrigger>
                 <TabsTrigger value="settings">{t('preferences.title', { defaultValue: 'Preferences' })}</TabsTrigger>
@@ -131,6 +137,20 @@ export const Profile: React.FC = () => {
                   />
                 </ErrorBoundary>
               </TabsContent>
+
+              <TabsContent value="locations">
+                <ErrorBoundary>
+                  <SavedLocations />
+                </ErrorBoundary>
+              </TabsContent>
+
+              {isContributor && (
+                <TabsContent value="contributions">
+                  <ErrorBoundary>
+                    <UserContributions />
+                  </ErrorBoundary>
+                </TabsContent>
+              )}
 
               <TabsContent value="statistics">
                 <ErrorBoundary>
