@@ -22,13 +22,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider = React.memo(({ children }: AuthProviderProps) => {
-  // Early return if React hooks are not available
-  if (!React || typeof React.useState !== 'function') {
-    console.error('React hooks not available in AuthProvider');
-    return <>{children}</>;
-  }
-
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -139,7 +133,7 @@ export const AuthProvider = React.memo(({ children }: AuthProviderProps) => {
       {children}
     </AuthContext.Provider>
   );
-});
+};
 
 // Export hooks
 export const useAuth = () => {
