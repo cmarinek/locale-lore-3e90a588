@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, memo } from 'react';
-import * as mapboxgl from 'mapbox-gl';
+import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { mapboxService } from '@/services/mapboxService';
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
@@ -26,7 +26,7 @@ const MapCore = memo(({ onFactClick, facts, isLoading, isVisible }: MapCoreProps
       const token = await mapboxService.getToken();
       if (!token) return;
 
-      (mapboxgl as any).accessToken = token;
+      mapboxgl.accessToken = token;
 
       // Create map with performance optimizations
       map.current = new mapboxgl.Map({

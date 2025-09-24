@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
-import * as mapboxgl from 'mapbox-gl';
+import mapboxgl from 'mapbox-gl';
 import { mapboxService } from '@/services/mapboxService';
 import { Coordinate, isValidCoordinate, DEFAULT_COORDINATE } from '@/utils/coordinates';
 
@@ -49,7 +49,7 @@ export function MapProvider({ children }: MapProviderProps) {
         throw new Error('Unable to get Mapbox access token');
       }
 
-      (mapboxgl as any).accessToken = token;
+      mapboxgl.accessToken = token;
 
       const defaultOptions: mapboxgl.MapboxOptions = {
         container: mapContainer.current,

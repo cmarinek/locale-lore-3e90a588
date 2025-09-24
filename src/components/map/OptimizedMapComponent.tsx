@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import * as mapboxgl from 'mapbox-gl';
+import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactMarker } from '@/types/map';
@@ -85,7 +85,7 @@ export const OptimizedMapComponent: React.FC<OptimizedMapProps> = ({
     startRenderMeasurement();
     
     try {
-      (mapboxgl as any).accessToken = mapboxToken;
+      mapboxgl.accessToken = mapboxToken;
       
       // Performance-optimized map configuration
       map.current = new mapboxgl.Map({
