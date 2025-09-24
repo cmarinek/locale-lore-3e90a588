@@ -742,6 +742,105 @@ export type Database = {
           },
         ]
       }
+      enhanced_notifications: {
+        Row: {
+          action_url: string | null
+          body: string
+          bundle_id: string | null
+          campaign_id: string | null
+          category: string
+          channels_used: string[] | null
+          clicked_at: string | null
+          context: Json | null
+          created_at: string
+          data: Json | null
+          delivered_at: string | null
+          dismissed_at: string | null
+          experiment_id: string | null
+          expires_at: string | null
+          group_key: string | null
+          icon_url: string | null
+          id: string
+          image_url: string | null
+          interaction_count: number | null
+          priority: Database["public"]["Enums"]["notification_priority"] | null
+          read_at: string | null
+          scheduled_for: string | null
+          source_app: string | null
+          status: Database["public"]["Enums"]["notification_status"] | null
+          tags: string[] | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+          view_duration_seconds: number | null
+        }
+        Insert: {
+          action_url?: string | null
+          body: string
+          bundle_id?: string | null
+          campaign_id?: string | null
+          category: string
+          channels_used?: string[] | null
+          clicked_at?: string | null
+          context?: Json | null
+          created_at?: string
+          data?: Json | null
+          delivered_at?: string | null
+          dismissed_at?: string | null
+          experiment_id?: string | null
+          expires_at?: string | null
+          group_key?: string | null
+          icon_url?: string | null
+          id?: string
+          image_url?: string | null
+          interaction_count?: number | null
+          priority?: Database["public"]["Enums"]["notification_priority"] | null
+          read_at?: string | null
+          scheduled_for?: string | null
+          source_app?: string | null
+          status?: Database["public"]["Enums"]["notification_status"] | null
+          tags?: string[] | null
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+          view_duration_seconds?: number | null
+        }
+        Update: {
+          action_url?: string | null
+          body?: string
+          bundle_id?: string | null
+          campaign_id?: string | null
+          category?: string
+          channels_used?: string[] | null
+          clicked_at?: string | null
+          context?: Json | null
+          created_at?: string
+          data?: Json | null
+          delivered_at?: string | null
+          dismissed_at?: string | null
+          experiment_id?: string | null
+          expires_at?: string | null
+          group_key?: string | null
+          icon_url?: string | null
+          id?: string
+          image_url?: string | null
+          interaction_count?: number | null
+          priority?: Database["public"]["Enums"]["notification_priority"] | null
+          read_at?: string | null
+          scheduled_for?: string | null
+          source_app?: string | null
+          status?: Database["public"]["Enums"]["notification_status"] | null
+          tags?: string[] | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+          view_duration_seconds?: number | null
+        }
+        Relationships: []
+      }
       fact_comments: {
         Row: {
           author_id: string
@@ -1236,6 +1335,153 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_analytics: {
+        Row: {
+          browser: string | null
+          channel: string
+          created_at: string
+          device_type: string | null
+          event_type: string
+          id: string
+          location_city: string | null
+          location_country: string | null
+          notification_id: string
+          user_id: string
+        }
+        Insert: {
+          browser?: string | null
+          channel: string
+          created_at?: string
+          device_type?: string | null
+          event_type: string
+          id?: string
+          location_city?: string | null
+          location_country?: string | null
+          notification_id: string
+          user_id: string
+        }
+        Update: {
+          browser?: string | null
+          channel?: string
+          created_at?: string
+          device_type?: string | null
+          event_type?: string
+          id?: string
+          location_city?: string | null
+          location_country?: string | null
+          notification_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_bundles: {
+        Row: {
+          category: string
+          collapse_after_count: number | null
+          created_at: string
+          id: string
+          is_collapsed: boolean | null
+          is_read: boolean | null
+          last_activity_at: string | null
+          max_notifications: number | null
+          notification_count: number | null
+          summary: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          collapse_after_count?: number | null
+          created_at?: string
+          id?: string
+          is_collapsed?: boolean | null
+          is_read?: boolean | null
+          last_activity_at?: string | null
+          max_notifications?: number | null
+          notification_count?: number | null
+          summary: string
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          collapse_after_count?: number | null
+          created_at?: string
+          id?: string
+          is_collapsed?: boolean | null
+          is_read?: boolean | null
+          last_activity_at?: string | null
+          max_notifications?: number | null
+          notification_count?: number | null
+          summary?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          ai_optimization_enabled: boolean | null
+          category_preferences: Json | null
+          created_at: string
+          digest_frequency: string | null
+          email_enabled: boolean | null
+          id: string
+          in_app_enabled: boolean | null
+          location_based_enabled: boolean | null
+          push_enabled: boolean | null
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          smart_bundling_enabled: boolean | null
+          sms_enabled: boolean | null
+          timezone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_optimization_enabled?: boolean | null
+          category_preferences?: Json | null
+          created_at?: string
+          digest_frequency?: string | null
+          email_enabled?: boolean | null
+          id?: string
+          in_app_enabled?: boolean | null
+          location_based_enabled?: boolean | null
+          push_enabled?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          smart_bundling_enabled?: boolean | null
+          sms_enabled?: boolean | null
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_optimization_enabled?: boolean | null
+          category_preferences?: Json | null
+          created_at?: string
+          digest_frequency?: string | null
+          email_enabled?: boolean | null
+          id?: string
+          in_app_enabled?: boolean | null
+          location_based_enabled?: boolean | null
+          push_enabled?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          smart_bundling_enabled?: boolean | null
+          sms_enabled?: boolean | null
+          timezone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -1399,6 +1645,54 @@ export type Database = {
           reputation_score?: number
           updated_at?: string
           username?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth_key: string
+          browser: string | null
+          created_at: string
+          device_type: string | null
+          endpoint: string
+          failure_count: number | null
+          id: string
+          is_active: boolean | null
+          last_used_at: string | null
+          os: string | null
+          p256dh_key: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth_key: string
+          browser?: string | null
+          created_at?: string
+          device_type?: string | null
+          endpoint: string
+          failure_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_used_at?: string | null
+          os?: string | null
+          p256dh_key: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth_key?: string
+          browser?: string | null
+          created_at?: string
+          device_type?: string | null
+          endpoint?: string
+          failure_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_used_at?: string | null
+          os?: string | null
+          p256dh_key?: string
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -4835,6 +5129,14 @@ export type Database = {
     }
     Enums: {
       fact_status: "pending" | "verified" | "disputed" | "rejected"
+      notification_priority: "low" | "normal" | "high" | "urgent"
+      notification_status:
+        | "pending"
+        | "delivered"
+        | "read"
+        | "clicked"
+        | "dismissed"
+        | "expired"
       notification_type:
         | "vote"
         | "comment"
@@ -4978,6 +5280,15 @@ export const Constants = {
   public: {
     Enums: {
       fact_status: ["pending", "verified", "disputed", "rejected"],
+      notification_priority: ["low", "normal", "high", "urgent"],
+      notification_status: [
+        "pending",
+        "delivered",
+        "read",
+        "clicked",
+        "dismissed",
+        "expired",
+      ],
       notification_type: [
         "vote",
         "comment",
