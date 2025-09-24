@@ -18,7 +18,14 @@ export const WelcomeHeroOptimized = () => {
       <div className="container mx-auto px-4 py-16 md:py-24">
         <div className="text-center max-w-4xl mx-auto">
           {/* Main heading */}
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground animate-fade-in">
+            {t('welcome.title', 'Discover Hidden Stories Around the World')}
+          </h1>
+          
           {/* Subtitle */}
+          <p className="text-xl md:text-2xl mb-8 text-muted-foreground animate-fade-in">
+            {t('welcome.subtitle', 'Explore fascinating facts and hidden stories about locations worldwide.')}
+          </p>
 
           {/* Search bar */}
           <div className="mb-8">
