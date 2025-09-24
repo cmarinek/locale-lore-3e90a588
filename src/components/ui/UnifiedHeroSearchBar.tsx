@@ -3,6 +3,7 @@ import { Search, MapPin, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
+import { TrendingSearches } from '@/components/realtime/TrendingSearches';
 
 interface UnifiedHeroSearchBarProps {
   onSearch?: (query: string) => void;
@@ -234,6 +235,19 @@ export const UnifiedHeroSearchBar: React.FC<UnifiedHeroSearchBarProps> = ({
               {suggestion}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Trending searches */}
+      {(variant === 'optimized' || variant === 'default') && (
+        <div className="mt-6">
+          <TrendingSearches 
+            searches={popularSearches.slice(0, 6)}
+            onSelect={(search) => {
+              setQuery(search);
+              handleSearch(search);
+            }}
+          />
         </div>
       )}
 
