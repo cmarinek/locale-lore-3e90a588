@@ -24,7 +24,7 @@ export const WelcomeHeroOptimized = () => {
           
           {/* Subtitle */}
           <p className="text-xl md:text-2xl mb-8 text-muted-foreground animate-fade-in">
-            {t('welcome.subtitle', 'Explore fascinating facts and hidden stories about locations worldwide.')}
+            {t('welcome.subtitle', 'Discover and share unknown stories and hidden secrets about places around the world.')}
           </p>
 
           {/* Search bar */}
