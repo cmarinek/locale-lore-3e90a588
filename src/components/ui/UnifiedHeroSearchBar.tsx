@@ -236,6 +236,28 @@ export const UnifiedHeroSearchBar: React.FC<UnifiedHeroSearchBarProps> = ({
           ))}
         </div>
       )}
+
+      {/* Action buttons for variants that need them */}
+      {(variant === 'optimized' || variant === 'default') && (
+        <div className="flex flex-wrap justify-center gap-4 mt-8">
+          <Button 
+            onClick={() => navigate('/explore')}
+            className="rounded-full px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
+          >
+            <Search className="h-4 w-4 mr-2" />
+            Explore Stories
+          </Button>
+          
+          <Button 
+            variant="outline"
+            onClick={() => navigate('/map')}
+            className="rounded-full px-8 py-3 border-2 hover:bg-accent hover:text-accent-foreground transition-all duration-300"
+          >
+            <MapPin className="h-4 w-4 mr-2" />
+            Explore Map
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
