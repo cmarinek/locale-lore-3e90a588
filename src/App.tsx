@@ -31,6 +31,7 @@ import TranslationTest from '@/pages/TranslationTest';
 import { AuthProvider } from '@/contexts/AuthProvider';
 import { LanguageProvider } from '@/contexts/LanguageProvider';
 import { ThemeProvider } from '@/contexts/ThemeProvider';
+import { PerformanceOptimizedApp } from '@/components/performance/PerformanceOptimizedApp';
 import { Toaster } from '@/components/ui/toaster';
 import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
@@ -206,19 +207,21 @@ function App() {
     : ErrorBoundary;
 
   return (
-    <ErrorBoundaryComponent {...(process.env.NODE_ENV === 'development' ? { enableRecovery: true, showErrorDetails: true } : {})}>
-      <HelmetProvider>
-        <AuthProvider>
-          <ThemeProvider>
-            <LanguageProvider>
-              <InitializationGate>
-                <AppContent />
-              </InitializationGate>
-            </LanguageProvider>
-          </ThemeProvider>
-        </AuthProvider>
-      </HelmetProvider>
-    </ErrorBoundaryComponent>
+    <PerformanceOptimizedApp>
+      <ErrorBoundaryComponent {...(process.env.NODE_ENV === 'development' ? { enableRecovery: true, showErrorDetails: true } : {})}>
+        <HelmetProvider>
+          <AuthProvider>
+            <ThemeProvider>
+              <LanguageProvider>
+                <InitializationGate>
+                  <AppContent />
+                </InitializationGate>
+              </LanguageProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </HelmetProvider>
+      </ErrorBoundaryComponent>
+    </PerformanceOptimizedApp>
   );
 }
 

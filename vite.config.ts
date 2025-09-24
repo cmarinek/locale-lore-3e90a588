@@ -31,13 +31,44 @@ export default defineConfig(({ mode }) => ({
     sourcemap: mode === "development",
     rollupOptions: {
       output: {
-        // Ensure proper module loading order
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-         // manualChunks removed to simplify bundling
+        // Optimized code splitting
+        manualChunks: (id) => {
+          // Vendor chunks
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('@radix-ui') || id.includes('framer-motion')) {
+              return 'ui-vendor';
+            }
+            if (id.includes('mapbox') || id.includes('supercluster')) {
+              return 'map-vendor';
+            }
+            if (id.includes('i18next') || id.includes('date-fns')) {
+              return 'i18n-vendor';
+            }
+            return 'vendor';
+          }
+          
+          // Feature chunks
+          if (id.includes('/pages/Admin') || id.includes('/components/admin/')) {
+            return 'admin';
+          }
+          if (id.includes('/pages/Map') || id.includes('/components/map/')) {
+            return 'map';
+          }
+          if (id.includes('/components/auth/') || id.includes('/pages/Auth')) {
+            return 'auth';
+          }
+        }
       },
     },
+    // Performance optimizations
+    chunkSizeWarningLimit: 500,
+    reportCompressedSize: false, // Faster builds
   },
   optimizeDeps: {
     include: [
@@ -45,11 +76,21 @@ export default defineConfig(({ mode }) => ({
       "react-dom", 
       "react-router-dom", 
       "clsx",
-      "tailwind-merge"
+      "tailwind-merge",
+      "@supabase/supabase-js",
+      "i18next",
+      "react-i18next",
+      "framer-motion",
+      "lucide-react"
     ],
-    force: true, // Force re-optimization to clear any cached issues
+    exclude: [
+      "mapbox-gl", // Large library, load on demand
+      "@capacitor/core" // Mobile-specific
+    ],
+    force: true,
     esbuildOptions: {
-      mainFields: ['module', 'main']
+      mainFields: ['module', 'main'],
+      target: 'esnext'
     }
   },
   ssr: {
