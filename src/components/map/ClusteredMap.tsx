@@ -40,6 +40,7 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
   const lastBoundsRef = useRef<string>('');
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isUpdatingRef = useRef(false);
+  const isAnimatingRef = useRef(false);
   const { startRenderMeasurement, endRenderMeasurement } = usePerformanceMonitor(true);
   
   const { facts, loading } = useDiscoveryStore();
@@ -438,23 +439,100 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
       el.style.zIndex = '15';
     });
     
-    // Click to expand cluster with smooth animation
+    // Click to expand cluster with comprehensive validation and error handling
     el.addEventListener('click', () => {
-      if (map.current && superclusterRef.current) {
-        // Add subtle click animation without displacement
+      // Prevent clicks during animations or if required objects are missing
+      if (isAnimatingRef.current || !map.current || !superclusterRef.current) {
+        console.log('🚫 Cluster click blocked: animation in progress or missing dependencies');
+        return;
+      }
+
+      try {
+        // Validate cluster properties
+        const clusterId = cluster.properties?.cluster_id;
+        const coordinates = cluster.geometry?.coordinates;
+        
+        if (!clusterId || typeof clusterId !== 'number') {
+          console.error('❌ Invalid cluster_id:', clusterId);
+          toast({
+            title: "Cluster Error",
+            description: "Unable to expand cluster - invalid cluster ID",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        if (!Array.isArray(coordinates) || coordinates.length !== 2 || 
+            typeof coordinates[0] !== 'number' || typeof coordinates[1] !== 'number' ||
+            isNaN(coordinates[0]) || isNaN(coordinates[1])) {
+          console.error('❌ Invalid cluster coordinates:', coordinates);
+          toast({
+            title: "Cluster Error", 
+            description: "Unable to expand cluster - invalid coordinates",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        console.log('🎯 Cluster click:', {
+          clusterId,
+          coordinates,
+          pointCount: cluster.properties?.point_count
+        });
+
+        // Add visual feedback
         el.style.transform = 'scale(0.95)';
-        setTimeout(() => el.style.transform = 'scale(1)', 150);
-        
-        const expansionZoom = Math.min(
-          superclusterRef.current.getClusterExpansionZoom(cluster.properties.cluster_id),
-          20
-        );
-        
+        setTimeout(() => {
+          if (el.style) el.style.transform = 'scale(1)';
+        }, 150);
+
+        // Set animation flag to prevent race conditions
+        isAnimatingRef.current = true;
+
+        // Get expansion zoom with error handling
+        let expansionZoom: number;
+        try {
+          expansionZoom = superclusterRef.current.getClusterExpansionZoom(clusterId);
+          
+          // Validate expansion zoom
+          if (typeof expansionZoom !== 'number' || isNaN(expansionZoom)) {
+            throw new Error(`Invalid expansion zoom: ${expansionZoom}`);
+          }
+          
+          // Ensure zoom is within reasonable bounds
+          expansionZoom = Math.max(1, Math.min(expansionZoom, 20));
+          
+        } catch (error) {
+          console.error('❌ Failed to get cluster expansion zoom:', error);
+          // Fallback: zoom in by 2 levels from current zoom
+          const currentZoom = map.current.getZoom();
+          expansionZoom = Math.min(currentZoom + 2, 20);
+          console.log(`🔄 Using fallback zoom: ${expansionZoom}`);
+        }
+
+        console.log(`📍 Expanding cluster to zoom ${expansionZoom} at [${coordinates[0]}, ${coordinates[1]}]`);
+
+        // Animate to cluster location
         map.current.easeTo({
-          center: [cluster.geometry.coordinates[0], cluster.geometry.coordinates[1]],
+          center: [coordinates[0], coordinates[1]],
           zoom: expansionZoom,
           duration: 800,
           essential: true
+        });
+
+        // Clear animation flag when animation completes
+        setTimeout(() => {
+          isAnimatingRef.current = false;
+        }, 1000); // Slightly longer than animation duration
+
+      } catch (error) {
+        console.error('❌ Cluster click error:', error);
+        isAnimatingRef.current = false;
+        
+        toast({
+          title: "Cluster Error",
+          description: "Failed to expand cluster. Please try again.",
+          variant: "destructive"
         });
       }
     });
