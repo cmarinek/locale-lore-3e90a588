@@ -1620,6 +1620,7 @@ export type Database = {
           followers_count: number | null
           following_count: number | null
           id: string
+          is_public: boolean | null
           reputation_score: number
           updated_at: string
           username: string
@@ -1631,6 +1632,7 @@ export type Database = {
           followers_count?: number | null
           following_count?: number | null
           id: string
+          is_public?: boolean | null
           reputation_score?: number
           updated_at?: string
           username: string
@@ -1642,6 +1644,7 @@ export type Database = {
           followers_count?: number | null
           following_count?: number | null
           id?: string
+          is_public?: boolean | null
           reputation_score?: number
           updated_at?: string
           username?: string
@@ -3201,6 +3204,10 @@ export type Database = {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
+      add_to_bundle: {
+        Args: { p_bundle_id: string; p_notification_id: string }
+        Returns: boolean
+      }
       addauth: {
         Args: { "": string }
         Returns: boolean
@@ -3327,6 +3334,16 @@ export type Database = {
       cleanup_expired_stories: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      create_notification_bundle: {
+        Args: {
+          p_category: string
+          p_summary: string
+          p_title: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: string
       }
       disablelongtransactions: {
         Args: Record<PropertyKey, never>
@@ -3613,6 +3630,16 @@ export type Database = {
           trigger_id: string
         }[]
       }
+      get_notification_preferences: {
+        Args: { p_user_id: string }
+        Returns: {
+          category_preferences: Json
+          email_enabled: boolean
+          in_app_enabled: boolean
+          push_enabled: boolean
+          smart_bundling_enabled: boolean
+        }[]
+      }
       get_optimized_fact_clusters: {
         Args: {
           p_east: number
@@ -3750,6 +3777,10 @@ export type Database = {
       }
       longtransactionsenabled: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      mark_notification_read: {
+        Args: { p_channel?: string; p_notification_id: string }
         Returns: boolean
       }
       path: {
