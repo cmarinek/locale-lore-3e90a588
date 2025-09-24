@@ -1,16 +1,8 @@
 import { create } from 'zustand';
-import { useFilterPersistence } from '@/hooks/useFilterPersistence';
-
-interface DiscoveryFilters {
-  search: string;
-  category: string;
-  sortBy: 'relevance' | 'date' | 'distance' | 'popularity';
-  dateRange: string;
-  verified: boolean;
-}
 import { persist } from 'zustand/middleware';
 import { EnhancedFact, EnhancedCategory, SearchFilters } from '@/types/fact';
 import { supabase } from '@/integrations/supabase/client';
+import { Coordinate, isValidCoordinate, sanitizeCoordinate } from '@/utils/coordinates';
 
 interface DiscoveryState {
   // Facts
@@ -33,10 +25,10 @@ interface DiscoveryState {
   savedFacts: string[];
   
   // Location & View State
-  userLocation: [number, number] | null;
+  userLocation: Coordinate | null;
   viewMode: 'explore' | 'hybrid' | 'map';
   syncSelectedFact: string | null; // For syncing between map and list
-  mapCenter: [number, number] | null; // For centering map on location
+  mapCenter: Coordinate | null; // For centering map on location
   
   // Actions
   setFacts: (facts: EnhancedFact[]) => void;
@@ -48,15 +40,15 @@ interface DiscoveryState {
   setModalOpen: (open: boolean) => void;
   toggleSavedFact: (factId: string) => void;
   updateSearchSuggestions: (suggestions: string[]) => void;
-  setUserLocation: (location: [number, number] | null) => void;
+  setUserLocation: (location: Coordinate | null) => void;
   setViewMode: (mode: 'explore' | 'hybrid' | 'map') => void;
   setSyncSelectedFact: (factId: string | null) => void;
-  setMapCenter: (center: [number, number] | null) => void;
+  setMapCenter: (center: Coordinate | null) => void;
   loadMoreFacts: () => Promise<void>;
   loadCategories: () => Promise<void>;
   loadSavedFacts: () => Promise<void>;
   searchFacts: (query: string) => Promise<void>;
-  searchFactsWithLocation: (query: string, location?: [number, number]) => Promise<void>;
+  searchFactsWithLocation: (query: string, location?: Coordinate) => Promise<void>;
   fetchFactById: (factId: string) => Promise<EnhancedFact | null>;
   initializeData: () => Promise<void>;
 }
@@ -118,6 +110,12 @@ export const useDiscoveryStore = create<DiscoveryState>()(
       setViewMode: (mode) => set({ viewMode: mode }),
       setSyncSelectedFact: (factId) => set({ syncSelectedFact: factId }),
       setMapCenter: (center) => set((state) => {
+        // Validate coordinates before setting
+        if (center && !isValidCoordinate(center[0], center[1])) {
+          console.warn('Invalid coordinates provided to setMapCenter:', center);
+          return state;
+        }
+        
         // Prevent unnecessary updates if center hasn't changed significantly
         if (state.mapCenter && center) {
           const distance = Math.sqrt(
@@ -179,21 +177,48 @@ export const useDiscoveryStore = create<DiscoveryState>()(
 
           if (error) throw error;
           
-          const enhancedFacts: EnhancedFact[] = (facts || []).map(fact => ({
-            ...fact,
-            category: fact.categories?.slug || 'unknown',
-            verified: fact.status === 'verified',
-            categories: fact.categories ? {
-              ...fact.categories,
-              category_translations: fact.categories.category_translations || []
-            } : {
-              slug: 'unknown',
-              icon: '📍',
-              color: '#3B82F6',
-              category_translations: [{ name: 'Unknown', language_code: 'en' }]
-            },
-            profiles: fact.profiles || { id: '', username: 'Anonymous', avatar_url: null }
-          }));
+          const enhancedFacts: EnhancedFact[] = (facts || [])
+            .filter(fact => {
+              // Validate coordinates and filter out invalid ones
+              if (fact.latitude == null || fact.longitude == null) {
+                console.warn('Fact missing coordinates:', fact.id, fact.title);
+                return false;
+              }
+              
+              const lng = typeof fact.longitude === 'string' ? parseFloat(fact.longitude) : fact.longitude;
+              const lat = typeof fact.latitude === 'string' ? parseFloat(fact.latitude) : fact.latitude;
+              
+              if (!isValidCoordinate(lng, lat)) {
+                console.warn('Fact has invalid coordinates:', fact.id, { lat, lng });
+                return false;
+              }
+              
+              return true;
+            })
+            .map(fact => {
+              // Sanitize coordinates
+              const lng = typeof fact.longitude === 'string' ? parseFloat(fact.longitude) : fact.longitude;
+              const lat = typeof fact.latitude === 'string' ? parseFloat(fact.latitude) : fact.latitude;
+              const [sanitizedLng, sanitizedLat] = sanitizeCoordinate(lng, lat);
+              
+              return {
+                ...fact,
+                longitude: sanitizedLng,
+                latitude: sanitizedLat,
+                category: fact.categories?.slug || 'unknown',
+                verified: fact.status === 'verified',
+                categories: fact.categories ? {
+                  ...fact.categories,
+                  category_translations: fact.categories.category_translations || []
+                } : {
+                  slug: 'unknown',
+                  icon: '📍',
+                  color: '#3B82F6',
+                  category_translations: [{ name: 'Unknown', language_code: 'en' }]
+                },
+                profiles: fact.profiles || { id: '', username: 'Anonymous', avatar_url: null }
+              };
+            });
           
           set((state) => {
             console.log(`📊 Loaded ${enhancedFacts.length} facts with coordinates, total now: ${state.facts.length + enhancedFacts.length}`);
@@ -265,7 +290,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
         }
       },
 
-      searchFactsWithLocation: async (query: string, location?: [number, number]) => {
+      searchFactsWithLocation: async (query: string, location?: Coordinate) => {
         set({ loading: true, error: null });
         try {
           let queryBuilder = supabase

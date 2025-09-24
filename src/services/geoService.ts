@@ -1,6 +1,7 @@
 // Scalable geographic service for handling millions of facts
 import { supabase } from '@/integrations/supabase/client';
 import { FactMarker } from '@/types/map';
+import { isValidCoordinate, sanitizeCoordinate } from '@/utils/coordinates';
 
 interface ViewportBounds {
   north: number;
@@ -174,16 +175,35 @@ class GeoService {
       return [];
     }
 
-    const mappedFacts = facts.map(fact => ({
-      id: fact.id,
-      title: fact.title,
-      latitude: fact.latitude,
-      longitude: fact.longitude,
-      category: fact.categories?.slug || 'default',
-      verified: fact.status === 'verified',
-      voteScore: (fact.vote_count_up || 0) - (fact.vote_count_down || 0),
-      authorName: fact.profiles?.username || 'Anonymous'
-    }));
+    const mappedFacts = facts
+      .filter(fact => {
+        // Validate coordinates
+        const lng = typeof fact.longitude === 'string' ? parseFloat(fact.longitude) : fact.longitude;
+        const lat = typeof fact.latitude === 'string' ? parseFloat(fact.latitude) : fact.latitude;
+        
+        if (!isValidCoordinate(lng, lat)) {
+          console.warn('🚨 Invalid coordinates for fact:', fact.id, { lat, lng });
+          return false;
+        }
+        return true;
+      })
+      .map(fact => {
+        // Sanitize coordinates
+        const lng = typeof fact.longitude === 'string' ? parseFloat(fact.longitude) : fact.longitude;
+        const lat = typeof fact.latitude === 'string' ? parseFloat(fact.latitude) : fact.latitude;
+        const [sanitizedLng, sanitizedLat] = sanitizeCoordinate(lng, lat);
+        
+        return {
+          id: fact.id,
+          title: fact.title,
+          latitude: sanitizedLat,
+          longitude: sanitizedLng,
+          category: fact.categories?.slug || 'default',
+          verified: fact.status === 'verified',
+          voteScore: (fact.vote_count_up || 0) - (fact.vote_count_down || 0),
+          authorName: fact.profiles?.username || 'Anonymous'
+        };
+      });
 
     console.log(`✅ Mapped ${mappedFacts.length} facts for rendering:`, mappedFacts.slice(0, 3));
     return mappedFacts;

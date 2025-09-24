@@ -1,50 +1,61 @@
 import { useCallback } from 'react';
+import { Coordinate, isValidCoordinate, sanitizeCoordinate, toStandardCoordinate } from '@/utils/coordinates';
 
 export interface CoordinateValidationResult {
   isValid: boolean;
-  sanitized: [number, number];
+  sanitized: Coordinate;
   errors: string[];
 }
 
 export const useMapCoordinateValidation = () => {
   const validateCoordinates = useCallback((
-    latitude: number | string, 
-    longitude: number | string
+    longitude: number | string, 
+    latitude: number | string
   ): CoordinateValidationResult => {
     const errors: string[] = [];
     
     // Convert to numbers
-    const lat = typeof latitude === 'string' ? parseFloat(latitude) : latitude;
     const lng = typeof longitude === 'string' ? parseFloat(longitude) : longitude;
+    const lat = typeof latitude === 'string' ? parseFloat(latitude) : latitude;
     
-    // Check for NaN
-    if (isNaN(lat)) {
-      errors.push('Invalid latitude: not a number');
-    }
-    if (isNaN(lng)) {
-      errors.push('Invalid longitude: not a number');
-    }
-    
-    // Check latitude bounds
-    if (!isNaN(lat) && (lat < -90 || lat > 90)) {
-      errors.push(`Latitude ${lat} out of bounds (-90 to 90)`);
-    }
-    
-    // Check longitude bounds  
-    if (!isNaN(lng) && (lng < -180 || lng > 180)) {
-      errors.push(`Longitude ${lng} out of bounds (-180 to 180)`);
+    // Check for valid numbers and ranges
+    if (!isValidCoordinate(lng, lat)) {
+      if (isNaN(lng)) errors.push('Invalid longitude: not a number');
+      if (isNaN(lat)) errors.push('Invalid latitude: not a number');
+      if (!isNaN(lng) && (lng < -180 || lng > 180)) {
+        errors.push(`Longitude ${lng} out of bounds (-180 to 180)`);
+      }
+      if (!isNaN(lat) && (lat < -90 || lat > 90)) {
+        errors.push(`Latitude ${lat} out of bounds (-90 to 90)`);
+      }
     }
     
-    // Sanitize coordinates by clamping to valid ranges
-    const sanitizedLat = isNaN(lat) ? 0 : Math.max(-90, Math.min(90, lat));
-    const sanitizedLng = isNaN(lng) ? 0 : Math.max(-180, Math.min(180, lng));
+    // Sanitize coordinates
+    const sanitized = sanitizeCoordinate(lng, lat);
     
     return {
       isValid: errors.length === 0,
-      sanitized: [sanitizedLng, sanitizedLat],
+      sanitized,
       errors
     };
   }, []);
+
+  const validateCoordinateInput = useCallback((input: any): CoordinateValidationResult => {
+    const errors: string[] = [];
+    
+    const coordinate = toStandardCoordinate(input);
+    if (!coordinate) {
+      errors.push('Invalid coordinate format');
+      return {
+        isValid: false,
+        sanitized: [0, 0],
+        errors
+      };
+    }
+    
+    const [lng, lat] = coordinate;
+    return validateCoordinates(lng, lat);
+  }, [validateCoordinates]);
   
   const validateBounds = useCallback((
     north: number,
@@ -122,6 +133,7 @@ export const useMapCoordinateValidation = () => {
   
   return {
     validateCoordinates,
+    validateCoordinateInput,
     validateBounds,
     formatCoordinates,
     calculateDistance

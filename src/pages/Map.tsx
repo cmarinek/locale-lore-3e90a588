@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import ClusteredMap from '@/components/map/ClusteredMap';
+import MapWithContext from '@/components/map/MapWithContext';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
@@ -96,8 +96,8 @@ export const Map: React.FC = () => {
       </Helmet>
 
       <div className="h-screen w-full relative">
-        {/* Clustered Map - Clean implementation with clustering */}
-        <ClusteredMap
+        {/* Improved Map with Context - Better error handling and architecture */}
+        <MapWithContext
           onFactClick={handleFactClick}
           className="h-full w-full"
           isVisible={true}
