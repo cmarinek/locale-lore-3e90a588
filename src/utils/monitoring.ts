@@ -34,18 +34,15 @@ export const initializePerformanceMonitoring = () => {
       const observer = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
           if (entry.entryType === 'largest-contentful-paint') {
-            console.log('LCP:', entry.startTime);
             trackMetric('lcp', entry.startTime);
           }
           
           if (entry.entryType === 'first-input') {
             const fid = (entry as any).processingStart - entry.startTime;
-            console.log('FID:', fid);
             trackMetric('fid', fid);
           }
           
           if (entry.entryType === 'layout-shift' && !(entry as any).hadRecentInput) {
-            console.log('CLS:', (entry as any).value);
             trackMetric('cls', (entry as any).value);
           }
         });
@@ -89,10 +86,8 @@ export const trackMetric = (name: string, value: number, labels?: Record<string,
     });
   }
   
-  // Log for debugging
-  if (config.logLevel === 'debug') {
-    console.log(`Metric: ${name}`, value, labels);
-  }
+  // Only track to analytics, no console logging
+  // Removed debug logging to reduce console noise
 };
 
 // Custom error tracking

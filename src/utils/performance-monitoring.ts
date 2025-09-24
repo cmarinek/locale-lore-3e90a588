@@ -101,11 +101,8 @@ export const trackBundleSize = () => {
   // Track initial bundle size
   const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
   if (navigation) {
-    console.log('Bundle metrics:', {
-      transferSize: navigation.transferSize,
-      encodedBodySize: navigation.encodedBodySize,
-      decodedBodySize: navigation.decodedBodySize
-    });
+    // Track bundle size silently
+    // Removed console logging to reduce debug noise
   }
 };
 
@@ -113,11 +110,8 @@ export const trackBundleSize = () => {
 export const trackMemoryUsage = () => {
   if ('memory' in performance) {
     const memory = (performance as any).memory;
-    console.log('Memory usage:', {
-      used: memory.usedJSHeapSize,
-      total: memory.totalJSHeapSize,
-      limit: memory.jsHeapSizeLimit
-    });
+    // Track memory usage silently
+    // Removed console logging to reduce debug noise
   }
 };
 

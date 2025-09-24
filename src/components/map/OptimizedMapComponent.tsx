@@ -246,11 +246,9 @@ export const OptimizedMapComponent: React.FC<OptimizedMapProps> = ({
     return () => clearTimeout(timeoutId);
   }, [updateMarkers]);
 
-  // Performance monitoring
+  // Performance monitoring - silently track without console logs
   useEffect(() => {
-    if (metrics.fps < 30) {
-      console.warn('⚠️ Map performance degraded - FPS:', metrics.fps);
-    }
+    // Monitor performance without console notifications
   }, [metrics.fps]);
 
   if (tokenMissing) {

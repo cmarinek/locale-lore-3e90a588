@@ -222,7 +222,7 @@ export const EnhancedScalableMapComponent: React.FC<ScalableMapProps> = ({
     setCurrentZoom(zoom);
 
     try {
-      console.log(`🔄 Fetching data for zoom ${zoom.toFixed(1)} (FPS: ${metrics.fps.toFixed(0)})...`);
+      // Fetching data silently
 
       const viewportBounds: ViewportBounds = {
         north: bounds.getNorth(),
@@ -252,12 +252,10 @@ export const EnhancedScalableMapComponent: React.FC<ScalableMapProps> = ({
       const shouldUseClusters = zoom < ZOOM_THRESHOLDS.INDIVIDUAL_FACTS || metrics.fps < 45;
       
       if (shouldUseClusters && data.clusters && data.clusters.length > 0) {
-        console.log(`🎯 Rendering ${data.clusters.length} clusters (Performance mode: ${metrics.fps < 45})`);
         renderClusters(data.clusters);
       } else if (data.facts && data.facts.length > 0) {
         const maxFacts = metrics.fps < 30 ? 100 : metrics.fps < 45 ? 200 : 500;
         const factsToRender = data.facts.slice(0, maxFacts);
-        console.log(`📍 Rendering ${factsToRender.length}/${data.facts.length} individual facts`);
         renderIndividualFacts(factsToRender);
       }
 
