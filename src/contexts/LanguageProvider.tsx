@@ -1,46 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { markModule } from '@/debug/module-dupe-check';
 import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from '@/utils/languages';
-import { LanguageContextType, LANGUAGE_CONTEXT_NAME } from './language-context';
-import { createContextSafely } from '@/lib/context-registry';
 
-// Mark module load for debugging
-markModule('LanguageProvider-v14');
-
-
-interface LanguageProviderProps {
-  children: React.ReactNode;
+interface LanguageContextType {
+  currentLanguage: SupportedLanguage;
+  setLanguage: (language: SupportedLanguage) => Promise<void>;
+  supportedLanguages: typeof SUPPORTED_LANGUAGES;
+  isLoading: boolean;
+  isRTL: boolean;
 }
 
-export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  
-  
-  // Create context safely using registry
-  const LanguageContext = createContextSafely<LanguageContextType | null>(LANGUAGE_CONTEXT_NAME, null);
-  
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+interface LanguageProviderProps {
+  children: ReactNode;
+}
+
+export const LanguageProvider = ({ children }: LanguageProviderProps) => {
   const { i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   
-  const detectedLanguage = i18n.language?.split('-')[0] || 'en';
-  const currentLanguage = (SUPPORTED_LANGUAGES[detectedLanguage as SupportedLanguage] ? detectedLanguage : 'en') as SupportedLanguage;
+  const currentLanguage: SupportedLanguage = (i18n.language?.split('-')[0] as SupportedLanguage) || 'en';
   const isRTL = SUPPORTED_LANGUAGES[currentLanguage]?.rtl || false;
 
-  const setLanguage = async (language: SupportedLanguage): Promise<void> => {
-    if (isLoading) return; // Prevent concurrent changes
-    
+  const setLanguage = async (language: SupportedLanguage) => {
     setIsLoading(true);
     try {
       await i18n.changeLanguage(language);
       updateDocumentDirection(language);
-      
-      // Store preference
-      localStorage.setItem('locale-lore-language', language);
-      
-      // Dispatch event for other components
-      window.dispatchEvent(new CustomEvent('languageChanged', { 
-        detail: { language, isRTL: SUPPORTED_LANGUAGES[language].rtl } 
-      }));
+      localStorage.setItem('language', language);
     } catch (error) {
       console.error('Failed to change language:', error);
     } finally {
@@ -48,20 +36,18 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     }
   };
 
-  // Update document direction when language changes
   useEffect(() => {
+    // Set initial direction
     updateDocumentDirection(currentLanguage);
   }, [currentLanguage]);
 
   const value: LanguageContextType = {
     currentLanguage,
     setLanguage,
-    isRTL,
     supportedLanguages: SUPPORTED_LANGUAGES,
     isLoading,
+    isRTL,
   };
-
-  
 
   return (
     <LanguageContext.Provider value={value}>
@@ -70,20 +56,10 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   );
 };
 
-// Export hook from here
 export const useLanguage = () => {
-  const LanguageContext = createContextSafely<LanguageContextType | null>(LANGUAGE_CONTEXT_NAME, null);
-  const context = React.useContext(LanguageContext);
-  if (!context) {
-    // Return fallback values instead of throwing error
-    console.warn('useLanguage called outside LanguageProvider, using fallback values');
-    return {
-      currentLanguage: 'en' as SupportedLanguage,
-      setLanguage: async () => {},
-      isRTL: false,
-      supportedLanguages: SUPPORTED_LANGUAGES,
-      isLoading: false,
-    };
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;
 };

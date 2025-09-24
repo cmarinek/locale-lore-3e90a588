@@ -3,7 +3,6 @@ import React from 'react';
 
 // Export the new context registry components
 export { ABTestProvider, useABTest } from './ABTestProvider';
-export type { ABTest, ABTestContextType } from './ab-test-context';
 
 // Import for internal use
 import { useABTest } from './ABTestProvider';

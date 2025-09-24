@@ -1,78 +1,57 @@
-import React, { useEffect, useState } from 'react';
-import { markModule } from '@/debug/module-dupe-check';
-import { Theme, ThemeContextType, THEME_CONTEXT_NAME } from './theme-context';
-import { createContextSafely } from '@/lib/context-registry';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-// Mark module load for debugging
-markModule('ThemeProvider-v14');
+export type Theme = 'light' | 'dark' | 'auto';
 
-
-interface ThemeProviderProps {
-  children: React.ReactNode;
+interface ThemeContextType {
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  actualTheme: 'light' | 'dark';
 }
 
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  
-  
-  // Create context safely using registry
-  const ThemeContext = createContextSafely<ThemeContextType | undefined>(THEME_CONTEXT_NAME, undefined);
-  
-  // Use localStorage for theme persistence instead of depending on user authentication
-  const [theme, setThemeState] = useState<Theme>(() => {
-    const stored = localStorage.getItem('locale-lore-theme');
-    return (stored as Theme) || 'auto';
-  });
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+interface ThemeProviderProps {
+  children: ReactNode;
+}
+
+export const ThemeProvider = ({ children }: ThemeProviderProps) => {
+  const [theme, setTheme] = useState<Theme>('auto');
   const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light');
 
-  const applyTheme = (themeToApply: Theme) => {
-    const root = document.documentElement;
-    
-    let finalTheme: 'light' | 'dark';
-    
-    if (themeToApply === 'auto') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      finalTheme = mediaQuery.matches ? 'dark' : 'light';
-    } else {
-      finalTheme = themeToApply;
-    }
-
-    // Remove existing theme classes
-    root.classList.remove('light', 'dark');
-    
-    // Add the appropriate theme class
-    root.classList.add(finalTheme);
-    
-    setActualTheme(finalTheme);
-  };
-
-  const setTheme = (newTheme: Theme) => {
-    // Store theme in localStorage for persistence
-    localStorage.setItem('locale-lore-theme', newTheme);
-    setThemeState(newTheme);
-    applyTheme(newTheme);
+  const updateTheme = (newTheme: Theme) => {
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
   };
 
   useEffect(() => {
-    // Apply theme on mount and when theme changes
-    applyTheme(theme);
-
-    // Listen for system theme changes when in auto mode
-    if (theme === 'auto') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = () => applyTheme(theme);
-      
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') as Theme;
+    if (savedTheme) {
+      setTheme(savedTheme);
     }
+
+    // Set up media query listener for auto theme
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const updateActualTheme = () => {
+      const shouldBeDark = theme === 'dark' || (theme === 'auto' && mediaQuery.matches);
+      setActualTheme(shouldBeDark ? 'dark' : 'light');
+      
+      // Update document class
+      document.documentElement.classList.toggle('dark', shouldBeDark);
+    };
+
+    updateActualTheme();
+    mediaQuery.addEventListener('change', updateActualTheme);
+
+    return () => mediaQuery.removeEventListener('change', updateActualTheme);
   }, [theme]);
 
   const value: ThemeContextType = {
     theme,
-    setTheme,
+    setTheme: updateTheme,
     actualTheme,
   };
-
-  
 
   return (
     <ThemeContext.Provider value={value}>
@@ -81,11 +60,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   );
 };
 
-// Export hook from here
 export const useTheme = () => {
-  const ThemeContext = createContextSafely<ThemeContextType | undefined>(THEME_CONTEXT_NAME, undefined);
-  const context = React.useContext(ThemeContext);
-  if (!context) {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;

@@ -1,14 +1,20 @@
-import React, { useEffect, useState, useContext, createContext } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { AuthContextType } from './auth-context';
 
-// Create context directly using React.createContext
+interface AuthContextType {
+  user: User | null;
+  session: Session | null;
+  loading: boolean;
+  signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
@@ -77,12 +83,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
-    
-    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -119,8 +122,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     signOut,
     refreshProfile,
   };
-
-  
 
   return (
     <AuthContext.Provider value={value}>
