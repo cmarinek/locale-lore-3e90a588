@@ -1735,6 +1735,38 @@ export type Database = {
           },
         ]
       }
+      saved_locations: {
+        Row: {
+          created_at: string
+          fact_id: string
+          id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fact_id: string
+          id?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fact_id?: string
+          id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_locations_fact_id_fkey"
+            columns: ["fact_id"]
+            isOneToOne: false
+            referencedRelation: "facts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_searches: {
         Row: {
           created_at: string

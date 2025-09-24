@@ -2,23 +2,32 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Calendar, ExternalLink } from 'lucide-react';
+import { MapPin, Calendar, Heart, BookmarkX } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { motion } from 'framer-motion';
+import { toast } from '@/hooks/use-toast';
 
 interface SavedLocation {
   id: string;
-  location_name: string;
-  latitude: number;
-  longitude: number;
+  fact_id: string;
   created_at: string;
-  scan_count: number;
+  notes?: string;
+  facts: {
+    id: string;
+    title: string;
+    description: string;
+    location_name: string;
+    latitude: number;
+    longitude: number;
+    status: string;
+    vote_count_up: number;
+  };
 }
 
 export const SavedLocations: React.FC = () => {
   const { user } = useAuth();
-  const [locations, setLocations] = useState<SavedLocation[]>([]);
+  const [savedLocations, setSavedLocations] = useState<SavedLocation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,13 +36,25 @@ export const SavedLocations: React.FC = () => {
 
       try {
         const { data, error } = await supabase
-          .from('location_qr_codes')
-          .select('*')
-          .eq('created_by', user.id)
+          .from('saved_locations')
+          .select(`
+            *,
+            facts (
+              id,
+              title,
+              description,
+              location_name,
+              latitude,
+              longitude,
+              status,
+              vote_count_up
+            )
+          `)
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setLocations(data || []);
+        setSavedLocations(data || []);
       } catch (error) {
         console.error('Error fetching saved locations:', error);
       } finally {
@@ -44,12 +65,39 @@ export const SavedLocations: React.FC = () => {
     fetchSavedLocations();
   }, [user]);
 
+  const handleRemoveBookmark = async (savedLocationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('saved_locations')
+        .delete()
+        .eq('id', savedLocationId);
+
+      if (error) throw error;
+
+      setSavedLocations(prev => 
+        prev.filter(location => location.id !== savedLocationId)
+      );
+
+      toast({
+        title: "Bookmark removed",
+        description: "Location has been removed from your saved locations.",
+      });
+    } catch (error) {
+      console.error('Error removing bookmark:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove bookmark. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MapPin className="w-5 h-5" />
+            <Heart className="w-5 h-5" />
             Saved Locations
           </CardTitle>
         </CardHeader>
@@ -62,21 +110,21 @@ export const SavedLocations: React.FC = () => {
     );
   }
 
-  if (locations.length === 0) {
+  if (savedLocations.length === 0) {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MapPin className="w-5 h-5" />
+            <Heart className="w-5 h-5" />
             Saved Locations
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
-            <MapPin className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+            <Heart className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">No saved locations yet</h3>
             <p className="text-muted-foreground">
-              Create QR codes for locations to see them here.
+              Bookmark interesting locations you discover to see them here.
             </p>
           </div>
         </CardContent>
@@ -88,15 +136,15 @@ export const SavedLocations: React.FC = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <MapPin className="w-5 h-5" />
-          Saved Locations ({locations.length})
+          <Heart className="w-5 h-5" />
+          Saved Locations ({savedLocations.length})
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {locations.map((location, index) => (
+          {savedLocations.map((savedLocation, index) => (
             <motion.div
-              key={location.id}
+              key={savedLocation.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
@@ -104,34 +152,63 @@ export const SavedLocations: React.FC = () => {
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="font-medium text-lg mb-2">{location.location_name}</h3>
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-medium text-lg">{savedLocation.facts.title}</h3>
+                    <Badge variant={savedLocation.facts.status === 'verified' ? 'default' : 'secondary'}>
+                      {savedLocation.facts.status}
+                    </Badge>
+                  </div>
+                  
+                  <p className="text-muted-foreground mb-3 line-clamp-2">
+                    {savedLocation.facts.description}
+                  </p>
+                  
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                     <div className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
-                      {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+                      {savedLocation.facts.location_name}
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      {new Date(location.created_at).toLocaleDateString()}
+                      Saved {new Date(savedLocation.created_at).toLocaleDateString()}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary">
-                      {location.scan_count} scans
+                  
+                  {savedLocation.notes && (
+                    <div className="mb-3 p-2 bg-muted rounded text-sm">
+                      <strong>Your note:</strong> {savedLocation.notes}
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-4">
+                    <Badge variant="outline">
+                      {savedLocation.facts.vote_count_up} votes
                     </Badge>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const url = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
-                    window.open(url, '_blank');
-                  }}
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  View on Map
-                </Button>
+                
+                <div className="flex items-center gap-2 ml-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const url = `https://www.google.com/maps?q=${savedLocation.facts.latitude},${savedLocation.facts.longitude}`;
+                      window.open(url, '_blank');
+                    }}
+                  >
+                    <MapPin className="w-4 h-4 mr-2" />
+                    View on Map
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleRemoveBookmark(savedLocation.id)}
+                  >
+                    <BookmarkX className="w-4 h-4 mr-2" />
+                    Remove
+                  </Button>
+                </div>
               </div>
             </motion.div>
           ))}
