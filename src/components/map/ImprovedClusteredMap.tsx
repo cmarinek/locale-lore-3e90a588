@@ -6,7 +6,7 @@ import { geoService, ViewportBounds, GeoCluster } from '@/services/geoService';
 import { FactMarker } from '@/types/map';
 import { Coordinate, isValidCoordinate, toLatLng } from '@/utils/coordinates';
 import { useMapCoordinateValidation } from '@/hooks/useMapCoordinateValidation';
-import mapboxgl from 'mapbox-gl';
+import * as mapboxgl from 'mapbox-gl';
 
 interface ImprovedClusteredMapProps {
   onFactClick?: (fact: FactMarker) => void;

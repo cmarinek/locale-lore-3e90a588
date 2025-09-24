@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import mapboxgl from 'mapbox-gl';
+import * as mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { mapboxService } from '@/services/mapboxService';
 import { MapTokenMissing } from './MapTokenMissing';
@@ -89,7 +89,7 @@ export const UnifiedMapComponent: React.FC<UnifiedMapProps> = ({
 
     try {
       setLoadingState('map');
-      mapboxgl.accessToken = mapboxToken;
+      (mapboxgl as any).accessToken = mapboxToken;
 
       // Performance optimizations based on variant
       const mapOptions: mapboxgl.MapboxOptions = {

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, memo, useMemo } from 'react';
-import mapboxgl from 'mapbox-gl';
+import * as mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { ErrorBoundary } from 'react-error-boundary';
 import { mapboxService } from '@/services/mapboxService';
@@ -113,7 +113,7 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
         return;
       }
 
-      mapboxgl.accessToken = token;
+      (mapboxgl as any).accessToken = token;
 
       // Create map with React 18 optimizations
       map.current = new mapboxgl.Map({
