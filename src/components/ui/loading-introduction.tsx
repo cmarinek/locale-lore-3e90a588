@@ -55,7 +55,15 @@ export const LoadingIntroduction: React.FC<LoadingIntroductionProps> = ({
           <p className="text-xl md:text-2xl text-muted-foreground font-light">
             learn what&apos;s around
           </p>
+          
+          {/* Progress line for fallback */}
           <div className="mt-12 flex justify-center">
+            <div className="w-32 h-0.5 bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full animate-[slide-in-right_2s_ease-in-out]" />
+            </div>
+          </div>
+          
+          <div className="mt-6 flex justify-center">
             <div className="flex space-x-2">
               {[...Array(3)].map((_, i) => (
                 <div
@@ -182,14 +190,42 @@ export const LoadingIntroduction: React.FC<LoadingIntroductionProps> = ({
               />
             </div>
 
-            {/* Pulsing loading indicator */}
+            {/* Progress line above loading dots */}
             <motion.div 
               className="mt-12 flex justify-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{
                 duration: 0.5,
-                delay: 2.5,
+                delay: 2.2,
+              }}
+            >
+              <div className="w-32 relative">
+                {/* Background line */}
+                <div className="h-0.5 w-full bg-muted rounded-full" />
+                
+                {/* Expanding line */}
+                <motion.div 
+                  className="absolute top-0 left-0 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{
+                    duration: 1.8,
+                    delay: 2.4,
+                    ease: "easeInOut"
+                  }}
+                />
+              </div>
+            </motion.div>
+
+            {/* Pulsing loading indicator */}
+            <motion.div 
+              className="mt-6 flex justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{
+                duration: 0.5,
+                delay: 2.8,
               }}
             >
               <div className="flex space-x-2">
