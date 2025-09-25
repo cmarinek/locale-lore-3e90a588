@@ -24,8 +24,8 @@ export const Navigation: React.FC = () => {
   
   // Filter utility navigation items for desktop header
   const headerActions = navigationConfig.utility.filter(item => {
-    // Only show profile and admin items in header
-    return item.id === 'profile' || item.id === 'admin';
+    // Show profile, billing, and admin items in header
+    return item.id === 'profile' || item.id === 'billing' || item.id === 'admin';
   });
 
   // Add auth item for guests

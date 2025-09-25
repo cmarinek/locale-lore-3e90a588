@@ -180,10 +180,11 @@ export function useNavigationItems() {
         category: 'primary'
       },
       {
-        id: 'stories',
-        label: t('stories'),
-        path: '/stories',
-        icon: Camera,
+        id: 'billing',
+        label: t('billing'),
+        path: '/billing',
+        icon: Wallet,
+        requiresAuth: true,
         category: 'primary'
       },
       {
