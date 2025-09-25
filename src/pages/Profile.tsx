@@ -10,6 +10,7 @@ import { StatisticsCard } from '@/components/profile/StatisticsCard';
 import { AchievementShowcase } from '@/components/profile/AchievementShowcase';
 import { DataExportPanel } from '@/components/profile/DataExportPanel';
 import { DataDeletionPanel } from '@/components/profile/DataDeletionPanel';
+import { FavoriteCitiesManager } from '@/components/profile/FavoriteCitiesManager';
 import { SavedLocations } from '@/components/profile/SavedLocations';
 import { UserContributions } from '@/components/profile/UserContributions';
 import { SubscriptionStatusCard } from '@/components/ui/subscription-status-card';
@@ -166,11 +167,14 @@ export const Profile: React.FC = () => {
 
               <TabsContent value="settings">
                 <ErrorBoundary>
-                  <SettingsPanel
-                    settings={settings}
-                    onUpdate={updateSettings}
-                    loading={loading}
-                  />
+                  <div className="space-y-6">
+                    <SettingsPanel
+                      settings={settings}
+                      onUpdate={updateSettings}
+                      loading={loading}
+                    />
+                    <FavoriteCitiesManager />
+                  </div>
                 </ErrorBoundary>
               </TabsContent>
 

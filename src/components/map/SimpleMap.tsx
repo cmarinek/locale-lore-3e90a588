@@ -4,11 +4,20 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { mapboxService } from '@/services/mapboxService';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthProvider';
+import { useFavoriteCities } from '@/hooks/useFavoriteCities';
 
 interface MapStyle {
   id: string;
   name: string;
   style: string;
+}
+
+interface FavoriteCity {
+  name: string;
+  emoji: string;
+  lat: number;
+  lng: number;
 }
 
 const mapStyles: MapStyle[] = [
@@ -38,6 +47,8 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentStyle, setCurrentStyle] = useState('light');
+  const { user } = useAuth();
+  const { favoriteCities } = useFavoriteCities();
 
   useEffect(() => {
     let mounted = true;
@@ -405,38 +416,24 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
           </div>
         )}
 
-        {/* Additional Custom Controls - Right side at 50vh (below native controls) */}
-        {showControls && !isLoading && !error && (
-          <div className="absolute right-4 z-20 flex flex-col gap-2 mt-2" style={{ top: '50vh', transform: 'translateY(-50%) translateY(80px)' }}>
+        {/* Quick Location Controls - Only for authenticated users with favorite cities */}
+        {showControls && !isLoading && !error && user && favoriteCities.length > 0 && (
+          <div className="absolute left-4 z-20 flex flex-col gap-2" style={{ top: '50vh', transform: 'translateY(-50%) translateY(200px)' }}>
             <Card className="p-2 shadow-lg">
+              <div className="text-xs font-semibold mb-2 text-foreground">Quick Travel</div>
               <div className="flex flex-col gap-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => map.current?.flyTo({ center: [-74.5, 40], zoom: 9 })}
-                  className="text-xs px-2 py-1 h-auto min-h-[36px]"
-                  title="Reset to NYC"
-                >
-                  🏙️ NYC
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => map.current?.flyTo({ center: [-122.4, 37.8], zoom: 9 })}
-                  className="text-xs px-2 py-1 h-auto min-h-[36px]"
-                  title="Go to San Francisco"
-                >
-                  🌉 SF
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => map.current?.flyTo({ center: [2.3, 48.9], zoom: 9 })}
-                  className="text-xs px-2 py-1 h-auto min-h-[36px]"
-                  title="Go to Paris"
-                >
-                  🗼 Paris
-                </Button>
+                {favoriteCities.map((city, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => map.current?.flyTo({ center: [city.lng, city.lat], zoom: 9 })}
+                    className="text-xs px-2 py-1 h-auto min-h-[36px] justify-start"
+                    title={`Go to ${city.name}`}
+                  >
+                    {city.emoji} {city.name}
+                  </Button>
+                ))}
               </div>
             </Card>
           </div>
