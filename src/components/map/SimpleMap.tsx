@@ -5,12 +5,14 @@ import { mapboxService } from '@/services/mapboxService';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthProvider';
+import { Sun, Moon, Map, Satellite } from 'lucide-react';
 import { useFavoriteCities } from '@/hooks/useFavoriteCities';
 
 interface MapStyle {
   id: string;
   name: string;
   style: string;
+  icon: any;
 }
 
 interface FavoriteCity {
@@ -21,10 +23,10 @@ interface FavoriteCity {
 }
 
 const mapStyles: MapStyle[] = [
-  { id: 'light', name: 'Light', style: 'mapbox://styles/mapbox/light-v11' },
-  { id: 'dark', name: 'Dark', style: 'mapbox://styles/mapbox/dark-v11' },
-  { id: 'streets', name: 'Streets', style: 'mapbox://styles/mapbox/streets-v12' },
-  { id: 'satellite', name: 'Satellite', style: 'mapbox://styles/mapbox/satellite-v9' },
+  { id: 'light', name: 'Light', style: 'mapbox://styles/mapbox/light-v11', icon: Sun },
+  { id: 'dark', name: 'Dark', style: 'mapbox://styles/mapbox/dark-v11', icon: Moon },
+  { id: 'streets', name: 'Streets', style: 'mapbox://styles/mapbox/streets-v12', icon: Map },
+  { id: 'satellite', name: 'Satellite', style: 'mapbox://styles/mapbox/satellite-v9', icon: Satellite },
 ];
 
 interface SimpleMapProps {
@@ -397,20 +399,23 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
         {/* Map Style Controls - Left side at 50vh */}
         {showControls && !isLoading && !error && (
           <div className="absolute left-4 z-20 flex flex-col gap-2" style={{ top: '50vh', transform: 'translateY(-50%)' }}>
-            <Card className="p-3 shadow-lg">
-              <div className="text-xs font-semibold mb-3 text-foreground">Map Style</div>
-              <div className="flex flex-col gap-2">
-                {mapStyles.map((style) => (
-                  <Button
-                    key={style.id}
-                    variant={currentStyle === style.id ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleStyleChange(style.id)}
-                    className="text-sm px-3 py-2 h-auto min-h-[44px] w-full justify-start"
-                  >
-                    {style.name}
-                  </Button>
-                ))}
+            <Card className="p-2 shadow-lg">
+              <div className="flex flex-col gap-1">
+                {mapStyles.map((style) => {
+                  const IconComponent = style.icon;
+                  return (
+                    <Button
+                      key={style.id}
+                      variant={currentStyle === style.id ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleStyleChange(style.id)}
+                      className="p-2 h-auto min-h-[36px] w-[36px] justify-center"
+                      title={style.name}
+                    >
+                      <IconComponent size={16} />
+                    </Button>
+                  );
+                })}
               </div>
             </Card>
           </div>
@@ -418,9 +423,8 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
 
         {/* Quick Location Controls - Only for authenticated users with favorite cities */}
         {showControls && !isLoading && !error && user && favoriteCities.length > 0 && (
-          <div className="absolute left-4 z-20 flex flex-col gap-2" style={{ top: '50vh', transform: 'translateY(-50%) translateY(200px)' }}>
+          <div className="absolute left-4 z-20 flex flex-col gap-2" style={{ top: '50vh', transform: 'translateY(-50%) translateY(120px)' }}>
             <Card className="p-2 shadow-lg">
-              <div className="text-xs font-semibold mb-2 text-foreground">Quick Travel</div>
               <div className="flex flex-col gap-1">
                 {favoriteCities.map((city, index) => (
                   <Button
@@ -428,10 +432,10 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={() => map.current?.flyTo({ center: [city.lng, city.lat], zoom: 9 })}
-                    className="text-xs px-2 py-1 h-auto min-h-[36px] justify-start"
+                    className="text-xs p-2 h-auto min-h-[36px] w-[36px] justify-center"
                     title={`Go to ${city.name}`}
                   >
-                    {city.emoji} {city.name}
+                    {city.emoji}
                   </Button>
                 ))}
               </div>
