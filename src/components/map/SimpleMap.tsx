@@ -25,6 +25,7 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
 
   useEffect(() => {
     let mounted = true;
+    let mapInstance: mapboxgl.Map | null = null;
 
     const initializeMap = async () => {
       if (!mapContainer.current) return;
@@ -44,7 +45,7 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
         console.log('🗺️ SimpleMap: Creating map instance...');
 
         // Create map with performance optimizations
-        const mapInstance = new mapboxgl.Map({
+        mapInstance = new mapboxgl.Map({
           container: mapContainer.current,
           style: 'mapbox://styles/mapbox/light-v11',
           center: center,
@@ -162,7 +163,9 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
 
           mapInstance.on('click', 'unclustered-point', (e) => {
             const feature = e.features[0];
-            onFactClick?.(feature.properties);
+            if (onFactClick) {
+              onFactClick(feature.properties);
+            }
           });
 
           // Change cursor on hover
@@ -200,13 +203,28 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
 
     return () => {
       mounted = false;
+      if (mapInstance) {
+        mapInstance.remove();
+        mapInstance = null;
+      }
       if (map.current) {
-        map.current.remove();
         map.current = null;
       }
     };
-  }, [center, zoom, onFactClick]);
+  }, []); // Empty dependency array - only run once
 
+  // Handle prop updates without recreating the map
+  useEffect(() => {
+    if (map.current && center) {
+      map.current.setCenter(center);
+    }
+  }, [center]);
+
+  useEffect(() => {
+    if (map.current && typeof zoom === 'number') {
+      map.current.setZoom(zoom);
+    }
+  }, [zoom]);
   // Generate sample data for testing
   function generateSampleFacts() {
     const features = [];
