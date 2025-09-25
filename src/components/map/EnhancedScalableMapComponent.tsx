@@ -531,9 +531,9 @@ export const EnhancedScalableMapComponent: React.FC<ScalableMapProps> = ({
     <div className={`h-full w-full relative ${className}`}>
       <div ref={mapContainer} className="h-full w-full" />
       
-      {/* Performance Monitor */}
+      {/* Performance Monitor - admin only */}
       <PerformanceMonitor 
-        enabled={process.env.NODE_ENV === 'development'} 
+        enabled={true} 
         showDetailed={false}
       />
       

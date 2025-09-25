@@ -3,6 +3,7 @@ import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, Zap, MemoryStick, Clock } from 'lucide-react';
+import { useAdmin } from '@/hooks/useAdmin';
 
 interface PerformanceMonitorProps {
   enabled?: boolean;
@@ -16,8 +17,9 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
   className = ""
 }) => {
   const { metrics, isPerformanceGood } = usePerformanceMonitor(enabled);
+  const { isAdmin } = useAdmin();
 
-  if (!enabled) return null;
+  if (!enabled || (process.env.NODE_ENV === 'production' && !isAdmin)) return null;
 
   const getFpsColor = (fps: number) => {
     if (fps >= 55) return 'bg-green-500';

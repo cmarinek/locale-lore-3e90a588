@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { useAdmin } from '@/hooks/useAdmin';
 
 interface MapPerformanceDashboardProps {
   markersCount?: number;
@@ -14,8 +15,9 @@ export const MapPerformanceDashboard: React.FC<MapPerformanceDashboardProps> = (
   isVisible = false 
 }) => {
   const { metrics, isPerformanceGood } = usePerformanceMonitor(true);
+  const { isAdmin } = useAdmin();
 
-  if (!isVisible || process.env.NODE_ENV !== 'development') {
+  if (!isVisible || (process.env.NODE_ENV === 'production' && !isAdmin)) {
     return null;
   }
 

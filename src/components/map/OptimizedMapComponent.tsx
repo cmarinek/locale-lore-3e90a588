@@ -285,13 +285,11 @@ export const OptimizedMapComponent: React.FC<OptimizedMapProps> = ({
         </div>
       )}
 
-      {/* Performance indicator - development only */}
-      {process.env.NODE_ENV === 'development' && (
-        <MapPerformanceDashboard 
-          markersCount={markers.current.size}
-          isVisible={true}
-        />
-      )}
+      {/* Performance indicator - admin only */}
+      <MapPerformanceDashboard 
+        markersCount={markers.current.size}
+        isVisible={true}
+      />
     </div>
   );
 };
