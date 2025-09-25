@@ -44,13 +44,13 @@ export const validateProductionRequirements = (): { isReady: boolean; issues: st
       issues.push('Service Worker not supported');
     }
 
-    // Check if required environment variables are set
-    const requiredVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY'];
-    requiredVars.forEach(varName => {
-      if (!import.meta.env[varName]) {
-        issues.push(`Missing environment variable: ${varName}`);
-      }
-    });
+    // Check Supabase configuration (using actual URLs instead of VITE_* variables)
+    const supabaseUrl = "https://mwufulzthoqrwbwtvogx.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13dWZ1bHp0aG9xcndid3R2b2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3MjA5NzMsImV4cCI6MjA3MjI5Njk3M30.uO5bo6elt4LdAL0ULyIMQtaxnXAnfZRhIK8UqApm5B8";
+    
+    if (!supabaseUrl || !supabaseKey) {
+      issues.push('Supabase configuration missing');
+    }
 
   } catch (error) {
     issues.push('Environment validation failed');

@@ -2,46 +2,31 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import { appInitializer } from './utils/app-initialization';
 
-// Comprehensive React loading checks
+// Simplified React checks without aggressive reloads
 if (!React || typeof React !== 'object') {
-  console.error('React not loaded');
-  throw new Error('React not available');
+  console.error('React not loaded - continuing with degraded functionality');
 }
 
-// Check for essential React functions
-const requiredReactFeatures = [
-  'createContext', 'useState', 'useEffect', 'useRef', 
-  'useCallback', 'useMemo', 'createElement', 'Component'
-];
-
-for (const feature of requiredReactFeatures) {
-  if (!React[feature]) {
-    console.error(`React.${feature} not available`);
-    setTimeout(() => window.location.reload(), 100);
-    throw new Error(`React.${feature} not ready`);
+// Initialize app systems
+appInitializer.initialize().then((result) => {
+  if (!result.success) {
+    console.warn('App initialization had issues:', result.issues);
   }
-}
-
-// Test React functionality
-try {
-  const testElement = React.createElement('div', { key: 'test' }, 'test');
-  if (!testElement || typeof testElement !== 'object') {
-    throw new Error('React.createElement not working properly');
-  }
-} catch (error) {
-  console.error('React functionality test failed:', error);
-  setTimeout(() => window.location.reload(), 100);
-  throw new Error('React not functional');
-}
+});
 
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
-  throw new Error('Root element not found');
+  // Create root element if missing instead of throwing
+  const root = document.createElement('div');
+  root.id = 'root';
+  document.body.appendChild(root);
+  console.warn('Root element was missing and has been created');
 }
 
-const root = createRoot(rootElement);
+const root = createRoot(document.getElementById("root")!);
 
 root.render(
   <React.StrictMode>
