@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { mapboxService } from '@/services/mapboxService';
@@ -39,6 +39,19 @@ interface SimpleMapProps {
   showControls?: boolean;
 }
 
+// Debounce helper function
+const debounce = <T extends (...args: any[]) => any>(func: T, wait: number) => {
+  let timeout: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
 export const SimpleMap: React.FC<SimpleMapProps> = ({ 
   onFactClick, 
   className = "w-full h-full", 
@@ -52,13 +65,34 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [currentStyle, setCurrentStyle] = useState('light');
   const [facts, setFacts] = useState<FactMarker[]>([]);
+  const [isDataLoading, setIsDataLoading] = useState(false);
   const { user } = useAuth();
   const { favoriteCities } = useFavoriteCities();
 
-  // Fetch real facts from database
-  const fetchRealFacts = useCallback(async () => {
+  // Cache for loaded data to prevent unnecessary refetches
+  const factCache = useRef<{ [key: string]: FactMarker[] }>({});
+
+  // Optimized fact fetching with viewport-based loading
+  const fetchFactsForBounds = useCallback(async (bounds: mapboxgl.LngLatBounds, currentZoom: number) => {
     try {
-      console.log('🔄 Fetching real facts from database...');
+      const ne = bounds.getNorthEast();
+      const sw = bounds.getSouthWest();
+      
+      // Create cache key based on bounds and zoom
+      const cacheKey = `${sw.lng.toFixed(3)},${sw.lat.toFixed(3)},${ne.lng.toFixed(3)},${ne.lat.toFixed(3)},${Math.floor(currentZoom)}`;
+      
+      // Check cache first
+      if (factCache.current[cacheKey]) {
+        console.log('📋 Using cached facts for bounds');
+        return factCache.current[cacheKey] || [];
+      }
+
+      setIsDataLoading(true);
+      console.log('🔄 Fetching facts for bounds:', { sw: sw.toArray(), ne: ne.toArray(), zoom: currentZoom });
+      
+      // Limit results based on zoom level to improve performance
+      const limit = currentZoom >= 12 ? 200 : currentZoom >= 10 ? 150 : 100;
+      
       const { data: factData, error } = await supabase
         .from('facts')
         .select(`
@@ -83,7 +117,12 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
         `)
         .not('latitude', 'is', null)
         .not('longitude', 'is', null)
-        .in('status', ['verified', 'pending']);
+        .gte('longitude', sw.lng)
+        .lte('longitude', ne.lng)
+        .gte('latitude', sw.lat)
+        .lte('latitude', ne.lat)
+        .in('status', ['verified', 'pending'])
+        .limit(limit);
 
       if (error) throw error;
       
@@ -97,16 +136,83 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
         voteScore: (fact.vote_count_up || 0) - (fact.vote_count_down || 0),
         authorName: fact.profiles?.username || 'Anonymous'
       }));
+
+      // Cache the results
+      factCache.current[cacheKey] = transformedFacts;
       
-      console.log(`✅ Loaded ${transformedFacts.length} real facts`);
-      setFacts(transformedFacts);
+      // Clear old cache entries if cache gets too large
+      const cacheKeys = Object.keys(factCache.current);
+      if (cacheKeys.length > 20) {
+        delete factCache.current[cacheKeys[0]];
+      }
+      
+      console.log(`✅ Loaded ${transformedFacts.length} facts for current bounds`);
+      setIsDataLoading(false);
       return transformedFacts;
     } catch (error) {
-      console.error('❌ Error fetching facts:', error);
-      setError('Failed to load fact data');
+      console.error('❌ Error fetching facts for bounds:', error);
+      setIsDataLoading(false);
       return [];
     }
   }, []);
+
+  // Memoized GeoJSON features for better performance
+  const geoJsonFeatures = useMemo(() => {
+    return facts.map(fact => ({
+      type: 'Feature' as const,
+      properties: {
+        id: fact.id,
+        title: fact.title,
+        category: fact.category,
+        verified: fact.verified,
+        voteScore: fact.voteScore,
+        authorName: fact.authorName
+      },
+      geometry: {
+        type: 'Point' as const,
+        coordinates: [fact.longitude, fact.latitude]
+      }
+    }));
+  }, [facts]);
+
+  // Debounced map update function
+  const debouncedUpdateData = useMemo(
+    () => debounce(async (mapInstance: mapboxgl.Map) => {
+      if (!mapInstance) return;
+      
+      const bounds = mapInstance.getBounds();
+      const currentZoom = mapInstance.getZoom();
+      
+      const newFacts = await fetchFactsForBounds(bounds, currentZoom);
+      setFacts(newFacts);
+      
+      // Update map source with new data
+      const source = mapInstance.getSource('facts') as mapboxgl.GeoJSONSource;
+      if (source) {
+        const features = newFacts.map(fact => ({
+          type: 'Feature' as const,
+          properties: {
+            id: fact.id,
+            title: fact.title,
+            category: fact.category,
+            verified: fact.verified,
+            voteScore: fact.voteScore,
+            authorName: fact.authorName
+          },
+          geometry: {
+            type: 'Point' as const,
+            coordinates: [fact.longitude, fact.latitude]
+          }
+        }));
+        
+        source.setData({
+          type: 'FeatureCollection',
+          features
+        });
+      }
+    }, 300), // 300ms debounce
+    [fetchFactsForBounds]
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -129,18 +235,24 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
         mapboxgl.accessToken = token;
         console.log('🗺️ SimpleMap: Creating map instance...');
 
-        // Create map with performance optimizations
+        // Create map with enhanced performance optimizations
         mapInstance = new mapboxgl.Map({
           container: mapContainer.current,
           style: mapStyles.find(s => s.id === currentStyle)?.style || 'mapbox://styles/mapbox/light-v11',
           center: center,
           zoom: zoom,
-          // Performance optimizations
+          // Enhanced performance optimizations for smoother experience
           antialias: false,
-          maxTileCacheSize: 50,
+          maxTileCacheSize: 100, // Increased cache for smoother panning
           preserveDrawingBuffer: false,
-          fadeDuration: 0,
-          attributionControl: false
+          fadeDuration: 150, // Smooth fade transitions
+          attributionControl: false,
+          // Additional performance settings
+          touchZoomRotate: {
+            around: 'center'
+          },
+          doubleClickZoom: true,
+          keyboard: true
         });
 
         if (!mounted) {
@@ -170,36 +282,27 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
           
           console.log('🗺️ SimpleMap: Map loaded successfully');
           
-          // Load real facts from database
-          const realFacts = await fetchRealFacts();
+          // Load initial facts for current viewport
+          const bounds = mapInstance.getBounds();
+          const currentZoom = mapInstance.getZoom();
+          const initialFacts = await fetchFactsForBounds(bounds, currentZoom);
+          setFacts(initialFacts);
           
-          // Convert facts to GeoJSON features
-          const features = realFacts.map(fact => ({
-            type: 'Feature' as const,
-            properties: {
-              id: fact.id,
-              title: fact.title,
-              category: fact.category,
-              verified: fact.verified,
-              voteScore: fact.voteScore,
-              authorName: fact.authorName
-            },
-            geometry: {
-              type: 'Point' as const,
-              coordinates: [fact.longitude, fact.latitude]
-            }
-          }));
-          
-          // Add real data source for clustering
+          // Add real data source for clustering with initial data
           mapInstance.addSource('facts', {
             type: 'geojson',
             data: {
               type: 'FeatureCollection',
-              features
+              features: geoJsonFeatures
             },
             cluster: true,
             clusterMaxZoom: 14,
-            clusterRadius: 50
+            clusterRadius: 50,
+            // Optimize clustering for performance
+            clusterProperties: {
+              'max_vote_score': [['max'], ['get', 'voteScore']],
+              'verified_count': [['sum'], ['case', ['get', 'verified'], 1, 0]]
+            }
           });
 
           // Modern gradient-based cluster circles with glassmorphism
@@ -407,6 +510,12 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
             ]);
           });
 
+          // Add smooth map event listeners for progressive data loading
+          const updateMapData = () => debouncedUpdateData(mapInstance);
+          
+          mapInstance.on('moveend', updateMapData);
+          mapInstance.on('zoomend', updateMapData);
+
           console.log('🗺️ SimpleMap: All layers added successfully');
           setIsLoading(false);
         });
@@ -463,33 +572,20 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
         map.current.once('style.load', () => {
           if (!map.current) return;
           
-          // Convert current facts to GeoJSON features
-          const features = facts.map(fact => ({
-            type: 'Feature' as const,
-            properties: {
-              id: fact.id,
-              title: fact.title,
-              category: fact.category,
-              verified: fact.verified,
-              voteScore: fact.voteScore,
-              authorName: fact.authorName
-            },
-            geometry: {
-              type: 'Point' as const,
-              coordinates: [fact.longitude, fact.latitude]
-            }
-          }));
-          
-          // Re-add the facts source and layers with modern styling
+          // Re-add the facts source and layers with current data
           map.current.addSource('facts', {
             type: 'geojson',
             data: {
               type: 'FeatureCollection',
-              features
+              features: geoJsonFeatures
             },
             cluster: true,
             clusterMaxZoom: 14,
-            clusterRadius: 50
+            clusterRadius: 50,
+            clusterProperties: {
+              'max_vote_score': [['max'], ['get', 'voteScore']],
+              'verified_count': [['sum'], ['case', ['get', 'verified'], 1, 0]]
+            }
           });
 
           // Re-add all modern layers
@@ -606,6 +702,11 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
               'circle-stroke-opacity': 1
             }
           });
+
+          // Re-add smooth event listeners
+          const updateMapData = () => debouncedUpdateData(map.current!);
+          map.current.on('moveend', updateMapData);
+          map.current.on('zoomend', updateMapData);
         });
       }
     }
@@ -630,25 +731,32 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
   return (
     <div className={className}>
       <div ref={mapContainer} className="w-full h-full relative">
-{isLoading && (
-        <div className="absolute inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center z-10">
-          <div className="text-center space-y-4 p-6 bg-card/95 rounded-xl shadow-xl max-w-sm">
-            <div className="relative">
-              <div className="animate-spin h-12 w-12 border-4 border-primary/30 border-t-primary rounded-full mx-auto" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="animate-pulse h-4 w-4 bg-primary rounded-full" />
+        {(isLoading || isDataLoading) && (
+          <div className="absolute inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center z-10">
+            <div className="text-center space-y-4 p-6 bg-card/95 rounded-xl shadow-xl max-w-sm">
+              <div className="relative">
+                <div className="animate-spin h-12 w-12 border-4 border-primary/30 border-t-primary rounded-full mx-auto" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="animate-pulse h-4 w-4 bg-primary rounded-full" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-lg font-semibold">
+                  {isLoading ? 'Loading World-Class Map' : 'Updating Stories'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {isLoading 
+                    ? `Fetching ${facts.length > 0 ? facts.length : '60+'} real stories from around the world...`
+                    : 'Loading stories for this area...'
+                  }
+                </p>
+              </div>
+              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary to-primary/60 rounded-full animate-pulse" style={{ width: '75%' }} />
               </div>
             </div>
-            <div className="space-y-2">
-              <p className="text-lg font-semibold">Loading World-Class Map</p>
-              <p className="text-sm text-muted-foreground">Fetching {facts.length > 0 ? facts.length : '60+'} real stories from around the world...</p>
-            </div>
-            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-primary to-primary/60 rounded-full animate-pulse" style={{ width: '75%' }} />
-            </div>
           </div>
-        </div>
-      )}
+        )}
         
         {/* Modern Map Style Controls - Left side at 50vh */}
         {showControls && !isLoading && !error && (
