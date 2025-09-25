@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { performanceMonitor2025, PERFORMANCE_BUDGETS } from '@/utils/performance-core-2025';
 
 interface AdvancedPerformanceMetrics {

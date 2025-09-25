@@ -1,281 +1,120 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+// Ultra-fast SimpleMap component - no complex clustering, just pure performance
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { mapboxService } from '@/services/mapboxService';
-import { supabase } from '@/integrations/supabase/client';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthProvider';
-import { Sun, Moon, Map, Satellite } from 'lucide-react';
-import { useFavoriteCities } from '@/hooks/useFavoriteCities';
 import { FactMarker } from '@/types/map';
-
-interface MapStyle {
-  id: string;
-  name: string;
-  style: string;
-  icon: any;
-}
-
-interface FavoriteCity {
-  name: string;
-  emoji: string;
-  lat: number;
-  lng: number;
-}
-
-const mapStyles: MapStyle[] = [
-  { id: 'light', name: 'Light', style: 'mapbox://styles/mapbox/light-v11', icon: Sun },
-  { id: 'dark', name: 'Dark', style: 'mapbox://styles/mapbox/dark-v11', icon: Moon },
-  { id: 'streets', name: 'Streets', style: 'mapbox://styles/mapbox/streets-v12', icon: Map },
-  { id: 'satellite', name: 'Satellite', style: 'mapbox://styles/mapbox/satellite-v9', icon: Satellite },
-];
+import { fastGeoService } from '@/services/fastGeoService';
+import MapControls from './MapControls';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
 interface SimpleMapProps {
   onFactClick?: (fact: FactMarker) => void;
   className?: string;
-  center?: [number, number];
+  isVisible?: boolean;
+  center?: number[];
   zoom?: number;
-  showControls?: boolean;
 }
 
-// Debounce helper function
-const debounce = <T extends (...args: any[]) => any>(func: T, wait: number) => {
-  let timeout: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-};
-
-export const SimpleMap: React.FC<SimpleMapProps> = ({ 
-  onFactClick, 
-  className = "w-full h-full", 
-  center = [-74.5, 40],
-  zoom = 9,
-  showControls = true
+export const SimpleMap: React.FC<SimpleMapProps> = ({
+  onFactClick,
+  className = "",
+  isVisible = true,
+  center = [0, 20],
+  zoom = 2
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentStyle, setCurrentStyle] = useState('light');
   const [facts, setFacts] = useState<FactMarker[]>([]);
-  const [isDataLoading, setIsDataLoading] = useState(false);
-  const { user } = useAuth();
-  const { favoriteCities } = useFavoriteCities();
+  const [isLoaded, setIsLoaded] = useState(false);
+  const lastBounds = useRef<string>('');
 
-  // Cache for loaded data to prevent unnecessary refetches
-  const factCache = useRef<{ [key: string]: FactMarker[] }>({});
+  // Simplified facts fetching
+  const fetchFactsForBounds = useCallback(async (bounds: mapboxgl.LngLatBounds, zoom: number) => {
+    const boundsObj = {
+      north: bounds.getNorth(),
+      south: bounds.getSouth(),
+      east: bounds.getEast(),
+      west: bounds.getWest()
+    };
 
-  // Optimized fact fetching with viewport-based loading
-  const fetchFactsForBounds = useCallback(async (bounds: mapboxgl.LngLatBounds, currentZoom: number) => {
-    try {
-      const ne = bounds.getNorthEast();
-      const sw = bounds.getSouthWest();
-      
-      // Create cache key based on bounds and zoom
-      const cacheKey = `${sw.lng.toFixed(3)},${sw.lat.toFixed(3)},${ne.lng.toFixed(3)},${ne.lat.toFixed(3)},${Math.floor(currentZoom)}`;
-      
-      // Check cache first
-      if (factCache.current[cacheKey]) {
-        console.log('📋 Using cached facts for bounds');
-        return factCache.current[cacheKey] || [];
-      }
-
-      setIsDataLoading(true);
-      console.log('🔄 Fetching facts for bounds:', { sw: sw.toArray(), ne: ne.toArray(), zoom: currentZoom });
-      
-      // Limit results based on zoom level to improve performance
-      const limit = currentZoom >= 12 ? 200 : currentZoom >= 10 ? 150 : 100;
-      
-      const { data: factData, error } = await supabase
-        .from('facts')
-        .select(`
-          id,
-          title,
-          description,
-          latitude,
-          longitude,
-          category_id,
-          status,
-          vote_count_up,
-          vote_count_down,
-          categories!facts_category_id_fkey(
-            slug,
-            icon,
-            color
-          ),
-          profiles!facts_author_id_fkey(
-            username,
-            avatar_url
-          )
-        `)
-        .not('latitude', 'is', null)
-        .not('longitude', 'is', null)
-        .gte('longitude', sw.lng)
-        .lte('longitude', ne.lng)
-        .gte('latitude', sw.lat)
-        .lte('latitude', ne.lat)
-        .in('status', ['verified', 'pending'])
-        .limit(limit);
-
-      if (error) throw error;
-      
-      const transformedFacts: FactMarker[] = (factData || []).map(fact => ({
-        id: fact.id,
-        title: fact.title,
-        latitude: typeof fact.latitude === 'string' ? parseFloat(fact.latitude) : fact.latitude,
-        longitude: typeof fact.longitude === 'string' ? parseFloat(fact.longitude) : fact.longitude,
-        category: fact.categories?.slug || 'default',
-        verified: fact.status === 'verified',
-        voteScore: (fact.vote_count_up || 0) - (fact.vote_count_down || 0),
-        authorName: fact.profiles?.username || 'Anonymous'
-      }));
-
-      // Cache the results
-      factCache.current[cacheKey] = transformedFacts;
-      
-      // Clear old cache entries if cache gets too large
-      const cacheKeys = Object.keys(factCache.current);
-      if (cacheKeys.length > 20) {
-        delete factCache.current[cacheKeys[0]];
-      }
-      
-      console.log(`✅ Loaded ${transformedFacts.length} facts for current bounds`);
-      setIsDataLoading(false);
-      return transformedFacts;
-    } catch (error) {
-      console.error('❌ Error fetching facts for bounds:', error);
-      setIsDataLoading(false);
-      return [];
+    const boundsKey = `${boundsObj.north.toFixed(3)},${boundsObj.south.toFixed(3)},${boundsObj.east.toFixed(3)},${boundsObj.west.toFixed(3)}`;
+    
+    // Avoid duplicate requests for same bounds
+    if (lastBounds.current === boundsKey) {
+      return facts;
     }
-  }, []);
+    
+    lastBounds.current = boundsKey;
+    return await fastGeoService.getFactsForBounds(boundsObj, zoom);
+  }, [facts]);
 
-  // Memoized GeoJSON features for better performance
-  const geoJsonFeatures = useMemo(() => {
-    return facts.map(fact => ({
+  // Update map data
+  const updateMapData = useCallback((newFacts: FactMarker[]) => {
+    if (!map.current || !isLoaded) return;
+    
+    const features = newFacts.map(fact => ({
       type: 'Feature' as const,
       properties: {
         id: fact.id,
         title: fact.title,
         category: fact.category,
         verified: fact.verified,
-        voteScore: fact.voteScore,
-        authorName: fact.authorName
+        voteScore: fact.voteScore
       },
       geometry: {
         type: 'Point' as const,
         coordinates: [fact.longitude, fact.latitude]
       }
     }));
-  }, [facts]);
 
-  // Debounced map update function
-  const debouncedUpdateData = useMemo(
-    () => debounce(async (mapInstance: mapboxgl.Map) => {
-      if (!mapInstance) return;
-      
-      const bounds = mapInstance.getBounds();
-      const currentZoom = mapInstance.getZoom();
-      
-      const newFacts = await fetchFactsForBounds(bounds, currentZoom);
+    const source = map.current.getSource('facts') as mapboxgl.GeoJSONSource;
+    if (source) {
+      source.setData({
+        type: 'FeatureCollection',
+        features
+      });
+    }
+  }, [isLoaded]);
+
+  // Handle viewport changes
+  const handleViewportChange = useCallback(async () => {
+    if (!map.current || !isLoaded) return;
+    
+    const bounds = map.current.getBounds();
+    const zoom = map.current.getZoom();
+    
+    try {
+      const newFacts = await fetchFactsForBounds(bounds, zoom);
       setFacts(newFacts);
-      
-      // Update map source with new data
-      const source = mapInstance.getSource('facts') as mapboxgl.GeoJSONSource;
-      if (source) {
-        const features = newFacts.map(fact => ({
-          type: 'Feature' as const,
-          properties: {
-            id: fact.id,
-            title: fact.title,
-            category: fact.category,
-            verified: fact.verified,
-            voteScore: fact.voteScore,
-            authorName: fact.authorName
-          },
-          geometry: {
-            type: 'Point' as const,
-            coordinates: [fact.longitude, fact.latitude]
-          }
-        }));
-        
-        source.setData({
-          type: 'FeatureCollection',
-          features
-        });
-      }
-    }, 300), // 300ms debounce
-    [fetchFactsForBounds]
-  );
+      updateMapData(newFacts);
+    } catch (error) {
+      console.error('Error updating viewport:', error);
+    }
+  }, [isLoaded, fetchFactsForBounds, updateMapData]);
 
+  // Initialize map
   useEffect(() => {
+    if (!mapContainer.current || map.current) return;
+
     let mounted = true;
-    let mapInstance: mapboxgl.Map | null = null;
 
-    const initializeMap = async () => {
-      if (!mapContainer.current) return;
-
+    const initMap = async () => {
       try {
-        setIsLoading(true);
-        console.log('🗺️ SimpleMap: Starting initialization...');
+        console.log('🗺️ SimpleMap: Initializing...');
         
-        // Get Mapbox token
-        const token = await mapboxService.getToken();
-        console.log('🗺️ SimpleMap: Token received:', !!token);
-        if (!token) {
-          throw new Error('Mapbox token not available');
-        }
+        // Set Mapbox token
+        mapboxgl.accessToken = 'pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbHdmYzI5azQwM2p2MmxwOXh3cnB1bGJ5In0.TvNwd5pttC67qlhZv8G7_w';
 
-        mapboxgl.accessToken = token;
-        console.log('🗺️ SimpleMap: Creating map instance...');
-
-        // Create map with enhanced performance optimizations
-        mapInstance = new mapboxgl.Map({
-          container: mapContainer.current,
-          style: mapStyles.find(s => s.id === currentStyle)?.style || 'mapbox://styles/mapbox/light-v11',
-          center: center,
+        const mapInstance = new mapboxgl.Map({
+          container: mapContainer.current!,
+          style: 'mapbox://styles/mapbox/light-v11',
+          center: center as [number, number],
           zoom: zoom,
-          // Enhanced performance optimizations for smoother experience
-          antialias: false,
-          maxTileCacheSize: 100, // Increased cache for smoother panning
-          preserveDrawingBuffer: false,
-          fadeDuration: 150, // Smooth fade transitions
           attributionControl: false,
-          // Additional performance settings
-          touchZoomRotate: {
-            around: 'center'
-          },
-          doubleClickZoom: true,
-          keyboard: true
+          logoPosition: 'bottom-right' as const
         });
-
-        if (!mounted) {
-          mapInstance.remove();
-          return;
-        }
 
         map.current = mapInstance;
-
-        // Add navigation controls at 50vh
-        mapInstance.addControl(new mapboxgl.NavigationControl({ 
-          showCompass: true,
-          showZoom: true 
-        }), 'top-right');
-
-        // Position native controls at 50vh via CSS
-        setTimeout(() => {
-          const controls = mapContainer.current?.querySelector('.mapboxgl-ctrl-top-right');
-          if (controls) {
-            (controls as HTMLElement).style.top = '50vh';
-            (controls as HTMLElement).style.transform = 'translateY(-50%)';
-          }
-        }, 100);
 
         mapInstance.on('load', async () => {
           if (!mounted) return;
@@ -288,551 +127,110 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
           const initialFacts = await fetchFactsForBounds(bounds, currentZoom);
           setFacts(initialFacts);
           
-          // Create GeoJSON features from initial facts
-          const initialFeatures = initialFacts.map(fact => ({
-            type: 'Feature' as const,
-            properties: {
-              id: fact.id,
-              title: fact.title,
-              category: fact.category,
-              verified: fact.verified,
-              voteScore: fact.voteScore,
-              authorName: fact.authorName
-            },
-            geometry: {
-              type: 'Point' as const,
-              coordinates: [fact.longitude, fact.latitude]
-            }
-          }));
-          
-          // Add data source for clustering with initial data
+          // Add data source with initial data
           mapInstance.addSource('facts', {
             type: 'geojson',
             data: {
               type: 'FeatureCollection',
-              features: initialFeatures
-            },
-            cluster: true,
-            clusterMaxZoom: 14,
-            clusterRadius: 50,
-            // Optimize clustering for performance
-            clusterProperties: {
-              'max_vote_score': [['max'], ['get', 'voteScore']],
-              'verified_count': [['sum'], ['case', ['get', 'verified'], 1, 0]]
+              features: []
             }
           });
 
-          // Modern gradient-based cluster circles with glassmorphism
+          // Add circle layer for facts
           mapInstance.addLayer({
-            id: 'clusters',
+            id: 'facts-points',
             type: 'circle',
             source: 'facts',
-            filter: ['has', 'point_count'],
             paint: {
-              'circle-color': [
-                'interpolate',
-                ['linear'],
-                ['get', 'point_count'],
-                2, 'hsl(200, 80%, 60%)',
-                5, 'hsl(280, 70%, 65%)',
-                10, 'hsl(320, 75%, 60%)',
-                20, 'hsl(350, 80%, 65%)',
-                50, 'hsl(20, 85%, 60%)'
-              ],
-              'circle-radius': [
-                'interpolate',
-                ['exponential', 1.5],
-                ['get', 'point_count'],
-                2, 25,
-                5, 35,
-                10, 45,
-                20, 55,
-                50, 70
-              ],
-              'circle-stroke-width': 3,
-              'circle-stroke-color': 'rgba(255, 255, 255, 0.8)',
-              'circle-opacity': 0.85,
-              'circle-stroke-opacity': 0.9
-            }
-          });
-
-          // Add inner glow effect for clusters
-          mapInstance.addLayer({
-            id: 'clusters-glow',
-            type: 'circle',
-            source: 'facts',
-            filter: ['has', 'point_count'],
-            paint: {
-              'circle-color': [
-                'interpolate',
-                ['linear'],
-                ['get', 'point_count'],
-                2, 'hsl(200, 80%, 60%)',
-                5, 'hsl(280, 70%, 65%)',
-                10, 'hsl(320, 75%, 60%)',
-                20, 'hsl(350, 80%, 65%)',
-                50, 'hsl(20, 85%, 60%)'
-              ],
-              'circle-radius': [
-                'interpolate',
-                ['exponential', 1.5],
-                ['get', 'point_count'],
-                2, 15,
-                5, 22,
-                10, 28,
-                20, 35,
-                50, 45
-              ],
-              'circle-opacity': 0.4,
-              'circle-blur': 1
-            }
-          });
-
-          // Modern cluster count with better typography
-          mapInstance.addLayer({
-            id: 'cluster-count',
-            type: 'symbol',
-            source: 'facts',
-            filter: ['has', 'point_count'],
-            layout: {
-              'text-field': '{point_count_abbreviated}',
-              'text-font': ['DIN Offc Pro Bold', 'Arial Unicode MS Bold'],
-              'text-size': [
-                'interpolate',
-                ['linear'],
-                ['get', 'point_count'],
-                2, 14,
-                10, 16,
-                50, 18
-              ]
-            },
-            paint: {
-              'text-color': 'rgba(255, 255, 255, 0.95)',
-              'text-halo-color': 'rgba(0, 0, 0, 0.4)',
-              'text-halo-width': 1
-            }
-          });
-
-          // Modern individual points with category-based colors
-          mapInstance.addLayer({
-            id: 'unclustered-point',
-            type: 'circle',
-            source: 'facts',
-            filter: ['!', ['has', 'point_count']],
-            paint: {
-              'circle-color': [
-                'case',
-                ['==', ['get', 'verified'], true], 'hsl(142, 70%, 50%)',
-                'hsl(210, 80%, 55%)'
-              ],
               'circle-radius': [
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                10, 8,
-                14, 12,
-                16, 16
+                1, 3,
+                5, 6,
+                10, 10,
+                15, 15
               ],
-              'circle-stroke-width': 2,
-              'circle-stroke-color': 'rgba(255, 255, 255, 0.9)',
-              'circle-opacity': 0.9,
-              'circle-stroke-opacity': 1
+              'circle-color': [
+                'case',
+                ['get', 'verified'],
+                '#22c55e', // verified = green
+                '#f59e0b'  // unverified = amber
+              ],
+              'circle-stroke-width': 1,
+              'circle-stroke-color': '#ffffff',
+              'circle-opacity': 0.8
             }
           });
 
-          // Add verified badge layer for individual points
-          mapInstance.addLayer({
-            id: 'verified-points',
-            type: 'symbol',
-            source: 'facts',
-            filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'verified'], true]],
-            layout: {
-              'icon-image': 'custom-verified-icon',
-              'icon-size': 0.8,
-              'icon-allow-overlap': true,
-              'icon-ignore-placement': true
+          // Add click handler for facts
+          mapInstance.on('click', 'facts-points', (e) => {
+            if (e.features && e.features[0] && onFactClick) {
+              const feature = e.features[0];
+              const factId = feature.properties?.id;
+              const fact = facts.find(f => f.id === factId);
+              if (fact) {
+                onFactClick(fact);
+              }
             }
           });
 
-          // Enhanced click events with smooth animations
-          mapInstance.on('click', 'clusters', (e) => {
-            const features = mapInstance.queryRenderedFeatures(e.point, {
-              layers: ['clusters']
-            });
-            
-            const clusterId = features[0].properties.cluster_id;
-            const source = mapInstance.getSource('facts') as mapboxgl.GeoJSONSource;
-            source.getClusterExpansionZoom(clusterId, (err, zoom) => {
-              if (err) return;
-              
-              mapInstance.easeTo({
-                center: (features[0].geometry as any).coordinates,
-                zoom: Math.min(zoom + 1, 16),
-                duration: 800,
-                curve: 1.4
-              });
-            });
-          });
-
-          mapInstance.on('click', 'unclustered-point', (e) => {
-            const feature = e.features[0];
-            if (onFactClick && feature.properties) {
-              // Convert to FactMarker format
-              const factMarker: FactMarker = {
-                id: feature.properties.id,
-                title: feature.properties.title,
-                latitude: (feature.geometry as any).coordinates[1],
-                longitude: (feature.geometry as any).coordinates[0],
-                category: feature.properties.category,
-                verified: feature.properties.verified,
-                voteScore: feature.properties.voteScore,
-                authorName: feature.properties.authorName
-              };
-              onFactClick(factMarker);
-            }
-          });
-
-          // Enhanced hover effects with smooth transitions
-          ['clusters', 'clusters-glow'].forEach(layerId => {
-            mapInstance.on('mouseenter', layerId, () => {
-              mapInstance.getCanvas().style.cursor = 'pointer';
-              mapInstance.setPaintProperty(layerId, 'circle-opacity', 1);
-            });
-            mapInstance.on('mouseleave', layerId, () => {
-              mapInstance.getCanvas().style.cursor = '';
-              mapInstance.setPaintProperty(layerId, 'circle-opacity', layerId === 'clusters' ? 0.85 : 0.4);
-            });
-          });
-
-          mapInstance.on('mouseenter', 'unclustered-point', () => {
+          // Change cursor on hover
+          mapInstance.on('mouseenter', 'facts-points', () => {
             mapInstance.getCanvas().style.cursor = 'pointer';
-            mapInstance.setPaintProperty('unclustered-point', 'circle-radius', [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              10, 10,
-              14, 15,
-              16, 20
-            ]);
           });
-          mapInstance.on('mouseleave', 'unclustered-point', () => {
+          mapInstance.on('mouseleave', 'facts-points', () => {
             mapInstance.getCanvas().style.cursor = '';
-            mapInstance.setPaintProperty('unclustered-point', 'circle-radius', [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              10, 8,
-              14, 12,
-              16, 16
-            ]);
           });
 
-          // Add smooth map event listeners for progressive data loading
-          const updateMapData = () => debouncedUpdateData(mapInstance);
+          // Update data with initial facts
+          updateMapData(initialFacts);
+          setIsLoaded(true);
           
-          mapInstance.on('moveend', updateMapData);
-          mapInstance.on('zoomend', updateMapData);
-
-          console.log('🗺️ SimpleMap: All layers added successfully');
-          setIsLoading(false);
+          console.log(`✅ SimpleMap: Loaded with ${initialFacts.length} facts`);
         });
 
-        mapInstance.on('error', (e) => {
-          console.error('🗺️ SimpleMap: Map error:', e);
-          setError('Failed to load map');
-          setIsLoading(false);
-        });
+        // Handle viewport changes
+        mapInstance.on('moveend', handleViewportChange);
+        mapInstance.on('zoomend', handleViewportChange);
 
       } catch (error) {
-        console.error('🗺️ SimpleMap: Failed to initialize map:', error);
-        setError(error instanceof Error ? error.message : 'Unknown error');
-        setIsLoading(false);
+        console.error('❌ SimpleMap: Initialization failed:', error);
       }
     };
 
-    initializeMap();
+    initMap();
 
     return () => {
       mounted = false;
-      if (mapInstance) {
-        mapInstance.remove();
-        mapInstance = null;
-      }
       if (map.current) {
+        map.current.remove();
         map.current = null;
       }
     };
-  }, []); // Empty dependency array - only run once
+  }, [fetchFactsForBounds, updateMapData, handleViewportChange, onFactClick, facts]);
 
-  // Handle prop updates without recreating the map
+  // Update facts when they change
   useEffect(() => {
-    if (map.current && center) {
-      map.current.setCenter(center);
+    if (isLoaded && facts.length > 0) {
+      updateMapData(facts);
     }
-  }, [center]);
+  }, [facts, isLoaded, updateMapData]);
 
-  useEffect(() => {
-    if (map.current && typeof zoom === 'number') {
-      map.current.setZoom(zoom);
-    }
-  }, [zoom]);
-
-  // Handle style changes
-  const handleStyleChange = (styleId: string) => {
-    if (map.current) {
-      const style = mapStyles.find(s => s.id === styleId);
-      if (style) {
-        setCurrentStyle(styleId);
-        map.current.setStyle(style.style);
-        
-        // Re-add sources and layers after style change with modern design
-        map.current.once('style.load', () => {
-          if (!map.current) return;
-          
-          // Re-add the facts source and layers with current data
-          map.current.addSource('facts', {
-            type: 'geojson',
-            data: {
-              type: 'FeatureCollection',
-              features: geoJsonFeatures
-            },
-            cluster: true,
-            clusterMaxZoom: 14,
-            clusterRadius: 50,
-            clusterProperties: {
-              'max_vote_score': [['max'], ['get', 'voteScore']],
-              'verified_count': [['sum'], ['case', ['get', 'verified'], 1, 0]]
-            }
-          });
-
-          // Re-add all modern layers
-          map.current.addLayer({
-            id: 'clusters',
-            type: 'circle',
-            source: 'facts',
-            filter: ['has', 'point_count'],
-            paint: {
-              'circle-color': [
-                'interpolate',
-                ['linear'],
-                ['get', 'point_count'],
-                2, 'hsl(200, 80%, 60%)',
-                5, 'hsl(280, 70%, 65%)',
-                10, 'hsl(320, 75%, 60%)',
-                20, 'hsl(350, 80%, 65%)',
-                50, 'hsl(20, 85%, 60%)'
-              ],
-              'circle-radius': [
-                'interpolate',
-                ['exponential', 1.5],
-                ['get', 'point_count'],
-                2, 25,
-                5, 35,
-                10, 45,
-                20, 55,
-                50, 70
-              ],
-              'circle-stroke-width': 3,
-              'circle-stroke-color': 'rgba(255, 255, 255, 0.8)',
-              'circle-opacity': 0.85,
-              'circle-stroke-opacity': 0.9
-            }
-          });
-
-          map.current.addLayer({
-            id: 'clusters-glow',
-            type: 'circle',
-            source: 'facts',
-            filter: ['has', 'point_count'],
-            paint: {
-              'circle-color': [
-                'interpolate',
-                ['linear'],
-                ['get', 'point_count'],
-                2, 'hsl(200, 80%, 60%)',
-                5, 'hsl(280, 70%, 65%)',
-                10, 'hsl(320, 75%, 60%)',
-                20, 'hsl(350, 80%, 65%)',
-                50, 'hsl(20, 85%, 60%)'
-              ],
-              'circle-radius': [
-                'interpolate',
-                ['exponential', 1.5],
-                ['get', 'point_count'],
-                2, 15,
-                5, 22,
-                10, 28,
-                20, 35,
-                50, 45
-              ],
-              'circle-opacity': 0.4,
-              'circle-blur': 1
-            }
-          });
-
-          map.current.addLayer({
-            id: 'cluster-count',
-            type: 'symbol',
-            source: 'facts',
-            filter: ['has', 'point_count'],
-            layout: {
-              'text-field': '{point_count_abbreviated}',
-              'text-font': ['DIN Offc Pro Bold', 'Arial Unicode MS Bold'],
-              'text-size': [
-                'interpolate',
-                ['linear'],
-                ['get', 'point_count'],
-                2, 14,
-                10, 16,
-                50, 18
-              ]
-            },
-            paint: {
-              'text-color': 'rgba(255, 255, 255, 0.95)',
-              'text-halo-color': 'rgba(0, 0, 0, 0.4)',
-              'text-halo-width': 1
-            }
-          });
-
-          map.current.addLayer({
-            id: 'unclustered-point',
-            type: 'circle',
-            source: 'facts',
-            filter: ['!', ['has', 'point_count']],
-            paint: {
-              'circle-color': [
-                'case',
-                ['==', ['get', 'verified'], true], 'hsl(142, 70%, 50%)',
-                'hsl(210, 80%, 55%)'
-              ],
-              'circle-radius': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                10, 8,
-                14, 12,
-                16, 16
-              ],
-              'circle-stroke-width': 2,
-              'circle-stroke-color': 'rgba(255, 255, 255, 0.9)',
-              'circle-opacity': 0.9,
-              'circle-stroke-opacity': 1
-            }
-          });
-
-          // Re-add smooth event listeners
-          const updateMapData = () => debouncedUpdateData(map.current!);
-          map.current.on('moveend', updateMapData);
-          map.current.on('zoomend', updateMapData);
-        });
-      }
-    }
-  };
-
-  if (error) {
-    return (
-      <div className={`${className} flex items-center justify-center bg-muted`}>
-        <Card className="p-6 max-w-md">
-          <div className="text-center space-y-4">
-            <h3 className="text-lg font-semibold text-destructive">Map Error</h3>
-            <p className="text-sm text-muted-foreground">{error}</p>
-            <Button onClick={() => window.location.reload()} size="sm">
-              Retry
-            </Button>
-          </div>
-        </Card>
-      </div>
-    );
+  if (!isVisible) {
+    return null;
   }
 
   return (
-    <div className={className}>
-      <div ref={mapContainer} className="w-full h-full relative">
-        {(isLoading || isDataLoading) && (
-          <div className="absolute inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center z-10">
-            <div className="text-center space-y-4 p-6 bg-card/95 rounded-xl shadow-xl max-w-sm">
-              <div className="relative">
-                <div className="animate-spin h-12 w-12 border-4 border-primary/30 border-t-primary rounded-full mx-auto" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="animate-pulse h-4 w-4 bg-primary rounded-full" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <p className="text-lg font-semibold">
-                  {isLoading ? 'Loading World-Class Map' : 'Updating Stories'}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {isLoading 
-                    ? `Fetching ${facts.length > 0 ? facts.length : '60+'} real stories from around the world...`
-                    : 'Loading stories for this area...'
-                  }
-                </p>
-              </div>
-              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-primary/60 rounded-full animate-pulse" style={{ width: '75%' }} />
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Modern Map Style Controls - Left side at 50vh */}
-        {showControls && !isLoading && !error && (
-          <div className="absolute left-4 z-20 flex flex-col gap-3" style={{ top: '50vh', transform: 'translateY(-50%)' }}>
-            <Card className="p-3 shadow-xl backdrop-blur-md bg-background/95 border-primary/20 rounded-xl">
-              <div className="flex flex-col gap-2">
-                {mapStyles.map((style) => {
-                  const IconComponent = style.icon;
-                  return (
-                    <Button
-                      key={style.id}
-                      variant={currentStyle === style.id ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handleStyleChange(style.id)}
-                      className={`p-2 h-auto min-h-[44px] w-[44px] justify-center transition-all duration-200 hover:scale-105 ${
-                        currentStyle === style.id 
-                          ? 'shadow-lg bg-gradient-to-br from-primary to-primary/80 border-primary/30' 
-                          : 'hover:shadow-md hover:bg-accent/50 border-border/50'
-                      }`}
-                      title={style.name}
-                    >
-                      <IconComponent size={18} />
-                    </Button>
-                  );
-                })}
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Quick Location Controls - Only for authenticated users with favorite cities */}
-        {showControls && !isLoading && !error && user && favoriteCities.length > 0 && (
-          <div className="absolute left-4 z-20 flex flex-col gap-2" style={{ top: '50vh', transform: 'translateY(-50%) translateY(140px)' }}>
-            <Card className="p-2 shadow-lg backdrop-blur-sm bg-background/90 border-primary/20">
-              <div className="flex flex-col gap-1">
-                {favoriteCities.map((city, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => map.current?.flyTo({ 
-                      center: [city.lng, city.lat], 
-                      zoom: 10,
-                      duration: 1200,
-                      curve: 1.4
-                    })}
-                    className="text-sm p-2 h-auto min-h-[40px] w-[40px] justify-center hover:scale-110 transition-all duration-200 hover:shadow-lg"
-                    title={`Fly to ${city.name}`}
-                  >
-                    {city.emoji}
-                  </Button>
-                ))}
-              </div>
-            </Card>
+    <ErrorBoundary>
+      <div className={`relative w-full h-full ${className}`}>
+        <div ref={mapContainer} className="absolute inset-0" />
+        {map.current && (
+          <div className="absolute top-4 right-4 z-10">
+            <MapControls />
           </div>
         )}
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };
-
-export default SimpleMap;
