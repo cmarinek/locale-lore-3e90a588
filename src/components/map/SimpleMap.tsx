@@ -81,11 +81,20 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
 
         map.current = mapInstance;
 
-        // Add navigation controls
+        // Add navigation controls at 50vh
         mapInstance.addControl(new mapboxgl.NavigationControl({ 
-          showCompass: false,
+          showCompass: true,
           showZoom: true 
         }), 'top-right');
+
+        // Position native controls at 50vh via CSS
+        setTimeout(() => {
+          const controls = mapContainer.current?.querySelector('.mapboxgl-ctrl-top-right');
+          if (controls) {
+            (controls as HTMLElement).style.top = '50vh';
+            (controls as HTMLElement).style.transform = 'translateY(-50%)';
+          }
+        }, 100);
 
         mapInstance.on('load', () => {
           if (!mounted) return;
@@ -374,19 +383,19 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
           </div>
         )}
         
-        {/* Map Style Controls */}
+        {/* Map Style Controls - Left side at 50vh */}
         {showControls && !isLoading && !error && (
-          <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
-            <Card className="p-2">
-              <div className="text-xs font-medium mb-2 text-muted-foreground">Map Style</div>
-              <div className="grid grid-cols-2 gap-1">
+          <div className="absolute left-4 z-20 flex flex-col gap-2" style={{ top: '50vh', transform: 'translateY(-50%)' }}>
+            <Card className="p-3 shadow-lg">
+              <div className="text-xs font-semibold mb-3 text-foreground">Map Style</div>
+              <div className="flex flex-col gap-2">
                 {mapStyles.map((style) => (
                   <Button
                     key={style.id}
                     variant={currentStyle === style.id ? "default" : "outline"}
                     size="sm"
                     onClick={() => handleStyleChange(style.id)}
-                    className="text-xs px-2 py-1 h-auto"
+                    className="text-sm px-3 py-2 h-auto min-h-[44px] w-full justify-start"
                   >
                     {style.name}
                   </Button>
@@ -396,34 +405,40 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
           </div>
         )}
 
-        {/* Zoom Controls */}
+        {/* Additional Custom Controls - Right side at 50vh (below native controls) */}
         {showControls && !isLoading && !error && (
-          <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => map.current?.zoomIn()}
-              className="w-8 h-8 p-0"
-            >
-              +
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => map.current?.zoomOut()}
-              className="w-8 h-8 p-0"
-            >
-              −
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => map.current?.resetNorth()}
-              className="w-8 h-8 p-0"
-              title="Reset bearing"
-            >
-              ⊙
-            </Button>
+          <div className="absolute right-4 z-20 flex flex-col gap-2 mt-2" style={{ top: '50vh', transform: 'translateY(-50%) translateY(80px)' }}>
+            <Card className="p-2 shadow-lg">
+              <div className="flex flex-col gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => map.current?.flyTo({ center: [-74.5, 40], zoom: 9 })}
+                  className="text-xs px-2 py-1 h-auto min-h-[36px]"
+                  title="Reset to NYC"
+                >
+                  🏙️ NYC
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => map.current?.flyTo({ center: [-122.4, 37.8], zoom: 9 })}
+                  className="text-xs px-2 py-1 h-auto min-h-[36px]"
+                  title="Go to San Francisco"
+                >
+                  🌉 SF
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => map.current?.flyTo({ center: [2.3, 48.9], zoom: 9 })}
+                  className="text-xs px-2 py-1 h-auto min-h-[36px]"
+                  title="Go to Paris"
+                >
+                  🗼 Paris
+                </Button>
+              </div>
+            </Card>
           </div>
         )}
       </div>
