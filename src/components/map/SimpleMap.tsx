@@ -288,12 +288,37 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
           const initialFacts = await fetchFactsForBounds(bounds, currentZoom);
           setFacts(initialFacts);
           
+          // Update the source with initial data
+          const source = mapInstance.getSource('facts') as mapboxgl.GeoJSONSource;
+          if (source && initialFacts.length > 0) {
+            const features = initialFacts.map(fact => ({
+              type: 'Feature' as const,
+              properties: {
+                id: fact.id,
+                title: fact.title,
+                category: fact.category,
+                verified: fact.verified,
+                voteScore: fact.voteScore,
+                authorName: fact.authorName
+              },
+              geometry: {
+                type: 'Point' as const,
+                coordinates: [fact.longitude, fact.latitude]
+              }
+            }));
+            
+            source.setData({
+              type: 'FeatureCollection',
+              features
+            });
+          }
+          
           // Add real data source for clustering with initial data
           mapInstance.addSource('facts', {
             type: 'geojson',
             data: {
               type: 'FeatureCollection',
-              features: geoJsonFeatures
+              features: []
             },
             cluster: true,
             clusterMaxZoom: 14,
