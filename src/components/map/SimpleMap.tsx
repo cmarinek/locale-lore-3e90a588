@@ -5,23 +5,39 @@ import { mapboxService } from '@/services/mapboxService';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
+interface MapStyle {
+  id: string;
+  name: string;
+  style: string;
+}
+
+const mapStyles: MapStyle[] = [
+  { id: 'light', name: 'Light', style: 'mapbox://styles/mapbox/light-v11' },
+  { id: 'dark', name: 'Dark', style: 'mapbox://styles/mapbox/dark-v11' },
+  { id: 'streets', name: 'Streets', style: 'mapbox://styles/mapbox/streets-v12' },
+  { id: 'satellite', name: 'Satellite', style: 'mapbox://styles/mapbox/satellite-v9' },
+];
+
 interface SimpleMapProps {
   onFactClick?: (fact: any) => void;
   className?: string;
   center?: [number, number];
   zoom?: number;
+  showControls?: boolean;
 }
 
 export const SimpleMap: React.FC<SimpleMapProps> = ({ 
   onFactClick, 
   className = "w-full h-full", 
   center = [-74.5, 40],
-  zoom = 9
+  zoom = 9,
+  showControls = true
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentStyle, setCurrentStyle] = useState('light');
 
   useEffect(() => {
     let mounted = true;
@@ -47,7 +63,7 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
         // Create map with performance optimizations
         mapInstance = new mapboxgl.Map({
           container: mapContainer.current,
-          style: 'mapbox://styles/mapbox/light-v11',
+          style: mapStyles.find(s => s.id === currentStyle)?.style || 'mapbox://styles/mapbox/light-v11',
           center: center,
           zoom: zoom,
           // Performance optimizations
@@ -225,6 +241,87 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
       map.current.setZoom(zoom);
     }
   }, [zoom]);
+
+  // Handle style changes
+  const handleStyleChange = (styleId: string) => {
+    if (map.current) {
+      const style = mapStyles.find(s => s.id === styleId);
+      if (style) {
+        setCurrentStyle(styleId);
+        map.current.setStyle(style.style);
+        
+        // Re-add sources and layers after style change
+        map.current.once('style.load', () => {
+          if (!map.current) return;
+          
+          // Re-add the facts source and layers
+          map.current.addSource('facts', {
+            type: 'geojson',
+            data: {
+              type: 'FeatureCollection',
+              features: generateSampleFacts()
+            },
+            cluster: true,
+            clusterMaxZoom: 14,
+            clusterRadius: 50
+          });
+
+          // Re-add all layers
+          map.current.addLayer({
+            id: 'clusters',
+            type: 'circle',
+            source: 'facts',
+            filter: ['has', 'point_count'],
+            paint: {
+              'circle-color': [
+                'step',
+                ['get', 'point_count'],
+                '#51bbd6',
+                100,
+                '#f1f075',
+                750,
+                '#f28cb1'
+              ],
+              'circle-radius': [
+                'step',
+                ['get', 'point_count'],
+                20,
+                100,
+                30,
+                750,
+                40
+              ]
+            }
+          });
+
+          map.current.addLayer({
+            id: 'cluster-count',
+            type: 'symbol',
+            source: 'facts',
+            filter: ['has', 'point_count'],
+            layout: {
+              'text-field': '{point_count_abbreviated}',
+              'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+              'text-size': 12
+            }
+          });
+
+          map.current.addLayer({
+            id: 'unclustered-point',
+            type: 'circle',
+            source: 'facts',
+            filter: ['!', ['has', 'point_count']],
+            paint: {
+              'circle-color': '#11b4da',
+              'circle-radius': 8,
+              'circle-stroke-width': 2,
+              'circle-stroke-color': '#fff'
+            }
+          });
+        });
+      }
+    }
+  };
   // Generate sample data for testing
   function generateSampleFacts() {
     const features = [];
@@ -274,6 +371,59 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
               <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
               <p className="text-sm text-muted-foreground">Loading map...</p>
             </div>
+          </div>
+        )}
+        
+        {/* Map Style Controls */}
+        {showControls && !isLoading && !error && (
+          <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+            <Card className="p-2">
+              <div className="text-xs font-medium mb-2 text-muted-foreground">Map Style</div>
+              <div className="grid grid-cols-2 gap-1">
+                {mapStyles.map((style) => (
+                  <Button
+                    key={style.id}
+                    variant={currentStyle === style.id ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleStyleChange(style.id)}
+                    className="text-xs px-2 py-1 h-auto"
+                  >
+                    {style.name}
+                  </Button>
+                ))}
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Zoom Controls */}
+        {showControls && !isLoading && !error && (
+          <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => map.current?.zoomIn()}
+              className="w-8 h-8 p-0"
+            >
+              +
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => map.current?.zoomOut()}
+              className="w-8 h-8 p-0"
+            >
+              −
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => map.current?.resetNorth()}
+              className="w-8 h-8 p-0"
+              title="Reset bearing"
+            >
+              ⊙
+            </Button>
           </div>
         )}
       </div>

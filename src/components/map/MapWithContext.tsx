@@ -6,6 +6,7 @@ interface MapWithContextProps {
   onFactClick?: (fact: FactMarker) => void;
   className?: string;
   isVisible?: boolean;
+  showControls?: boolean;
 }
 
 /**
@@ -17,6 +18,7 @@ export function MapWithContext(props: MapWithContextProps) {
     <SimpleMap 
       onFactClick={props.onFactClick}
       className={props.className}
+      showControls={props.showControls}
     />
   );
 }
