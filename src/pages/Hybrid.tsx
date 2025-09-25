@@ -26,7 +26,7 @@ import { useLocationSorting } from '@/hooks/useLocationSorting';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Import simple map component
-import { SimpleMapComponent } from '@/components/map/SimpleMapComponent';
+import { SimpleMap } from '@/components/map/SimpleMap';
 
 // Import error boundary
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
@@ -424,7 +424,7 @@ export const Hybrid: React.FC = () => {
                   <TabsContent value="map" forceMount className="h-full data-[state=inactive]:hidden">
                     <div className="relative h-full">
                        <ErrorBoundary>
-                           <SimpleMapComponent
+                           <SimpleMap
                              onFactClick={handleMapFactClick} 
                              className="h-full w-full"
                              center={[centerLocation.lng, centerLocation.lat]} 
@@ -553,7 +553,7 @@ export const Hybrid: React.FC = () => {
 
             {/* Map - Desktop: Right main area */}
             <div className="flex-1 relative">
-              <SimpleMapComponent 
+              <SimpleMap 
                 onFactClick={handleMapFactClick} 
                 className="h-full w-full" 
                 center={[centerLocation.lng, centerLocation.lat]} 

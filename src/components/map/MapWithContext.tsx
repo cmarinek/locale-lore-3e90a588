@@ -1,6 +1,5 @@
 import React from 'react';
-import { MapProvider } from '@/contexts/MapContext';
-import { UnifiedMapComponent } from './UnifiedMapComponent';
+import { SimpleMap } from './SimpleMap';
 import { FactMarker } from '@/types/map';
 
 interface MapWithContextProps {
@@ -10,19 +9,15 @@ interface MapWithContextProps {
 }
 
 /**
- * Map component that provides the MapContext and renders the unified map
- * Use this component for better architecture and error handling
+ * Simplified map component with native Mapbox clustering
+ * Much faster and more reliable than custom clustering implementations
  */
 export function MapWithContext(props: MapWithContextProps) {
   return (
-    <MapProvider>
-      <UnifiedMapComponent 
-        variant="clustered"
-        enableClustering={true}
-        enablePerformanceOptimizations={true}
-        {...props} 
-      />
-    </MapProvider>
+    <SimpleMap 
+      onFactClick={props.onFactClick}
+      className={props.className}
+    />
   );
 }
 
