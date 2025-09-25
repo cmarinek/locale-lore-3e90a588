@@ -8,8 +8,7 @@ import MapWithContext from '@/components/map/MapWithContext';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
-import { UnifiedErrorBoundary } from '@/components/common/UnifiedErrorBoundary';
-import { SafeComponentWrapper } from '@/components/common/SafeComponentWrapper';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
 export const Map: React.FC = () => {
   const navigate = useNavigate();
@@ -90,9 +89,7 @@ export const Map: React.FC = () => {
   }, [syncSelectedFact, setSelectedFact, fetchFactById]);
 
   return (
-    <UnifiedErrorBoundary
-      mode="production"
-      enableRecovery={true}
+    <ErrorBoundary
       fallback={
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center space-y-4">
@@ -118,9 +115,7 @@ export const Map: React.FC = () => {
 
         <div className="h-screen w-full relative">
           {/* Improved Map with Context - Better error handling and architecture */}
-          <SafeComponentWrapper 
-            name="MapWithContext" 
-            timeout={15000}
+          <ErrorBoundary 
             fallback={
               <div className="h-full w-full flex items-center justify-center bg-muted">
                 <div className="text-center space-y-4">
@@ -136,7 +131,7 @@ export const Map: React.FC = () => {
               className="h-full w-full"
               isVisible={true}
             />
-          </SafeComponentWrapper>
+          </ErrorBoundary>
 
           {/* Mobile-optimized Search Bar - fixed spacing to prevent overlaps */}
           <div className="absolute top-4 left-4 right-16 z-20 max-w-md mx-auto sm:max-w-none sm:left-32 sm:right-56">
@@ -159,7 +154,7 @@ export const Map: React.FC = () => {
 
         </div>
       </MainLayout>
-    </UnifiedErrorBoundary>
+    </ErrorBoundary>
   );
 };
 

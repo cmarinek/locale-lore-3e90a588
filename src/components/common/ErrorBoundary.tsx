@@ -1,148 +1,36 @@
 import React, { Component, ReactNode } from 'react';
-import { toast } from '@/hooks/use-toast';
-
-// Enhanced error tracking with multiple services
-let trackError: any = () => {}; // Default safe fallback
-let reportError: any = () => {}; // Error reporting
-
-// Async initialization of monitoring services
-(async () => {
-  try {
-    const monitoring = await import('@/utils/monitoring').catch(() => null);
-    trackError = monitoring?.trackError || (() => {});
-    
-    // Initialize Sentry if available
-    if (typeof window !== 'undefined' && (window as any).Sentry) {
-      reportError = (window as any).Sentry.captureException;
-    }
-  } catch (error) {
-    console.warn('Monitoring utility not available:', error);
-  }
-})();
+import { Button } from '@/components/ui/button';
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
-  isDiagnostic?: boolean;
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
-  enableRecovery?: boolean;
-  showErrorDetails?: boolean;
-  enableUserFeedback?: boolean;
 }
 
 interface State {
   hasError: boolean;
   error?: Error;
-  errorInfo?: React.ErrorInfo;
-  errorId?: string;
-  retryCount: number;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, retryCount: 0 };
-    
-    if (props.isDiagnostic) {
-      console.log('DIAGNOSTIC: ErrorBoundary initialized');
-    }
+    this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): Partial<State> {
-    const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    return { hasError: true, error, errorId };
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    this.setState({ errorInfo });
-    
-    if (this.props.isDiagnostic) {
-      console.error('DIAGNOSTIC: ErrorBoundary caught error:', error);
-      console.error('DIAGNOSTIC: Component error details:', { error, errorInfo });
-    }
-    
-    // Enhanced error reporting
-    if (!this.props.isDiagnostic) {
-      // Track with multiple services
-      if (trackError) {
-        try {
-          trackError(error, {
-            componentStack: errorInfo.componentStack,
-            errorBoundary: true,
-            errorId: this.state.errorId,
-            retryCount: this.state.retryCount,
-            userAgent: navigator.userAgent,
-            url: window.location.href,
-            timestamp: new Date().toISOString(),
-          });
-        } catch (trackingError) {
-          console.warn('Error tracking failed:', trackingError);
-        }
-      }
-
-      // Report to Sentry if available
-      if (reportError) {
-        try {
-          reportError(error, {
-            tags: {
-              component: 'ErrorBoundary',
-              errorId: this.state.errorId,
-            },
-            extra: {
-              componentStack: errorInfo.componentStack,
-              retryCount: this.state.retryCount,
-            },
-          });
-        } catch (reportingError) {
-          console.warn('Error reporting failed:', reportingError);
-        }
-      }
-
-      // Show user-friendly notification
-      toast({
-        title: "Something went wrong",
-        description: "We've been notified and are working on a fix. Try refreshing the page.",
-        variant: "destructive",
-      });
-    }
-
-    // Call custom error handler if provided
-    this.props.onError?.(error, errorInfo);
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
-  handleRetry = () => {
-    this.setState(prevState => ({ 
-      hasError: false, 
-      error: undefined, 
-      errorInfo: undefined,
-      retryCount: prevState.retryCount + 1 
-    }));
-    
-    // Track retry attempt
-    if (trackError) {
-      try {
-        trackError(new Error('Error boundary retry'), {
-          errorId: this.state.errorId,
-          retryCount: this.state.retryCount + 1,
-          action: 'retry',
-        });
-      } catch (error) {
-        console.warn('Retry tracking failed:', error);
-      }
-    }
+  handleReset = () => {
+    this.setState({ hasError: false, error: undefined });
   };
 
-  handleGoHome = () => {
-    try {
-      if (typeof window !== 'undefined') {
-        window.location.href = '/';
-      }
-    } catch (error) {
-      console.error('Navigation failed:', error);
-      if (typeof window !== 'undefined') {
-        window.location.reload();
-      }
-    }
+  handleReload = () => {
+    window.location.reload();
   };
 
   render() {
@@ -151,130 +39,43 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
-      // Diagnostic mode rendering (for development)
-      if (this.props.isDiagnostic) {
-        return (
-          <div style={{ padding: '20px', color: 'red', fontFamily: 'monospace' }}>
-            <h1>Application Error (Diagnostic)</h1>
-            <p>Component: {this.state.error?.name}</p>
-            <p>Message: {this.state.error?.message}</p>
-            <pre style={{ background: '#f5f5f5', padding: '10px', overflow: 'auto' }}>
-              {this.state.error?.stack}
-            </pre>
-            <button 
-              onClick={this.handleRetry}
-              style={{ padding: '10px', margin: '10px 0' }}
-            >
-              Try Again
-            </button>
-          </div>
-        );
-      }
-
-      // Production mode rendering with inline styles to avoid dependency issues
       return (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          padding: '16px',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            backgroundColor: 'var(--card, #ffffff)',
-            borderRadius: '12px',
-            padding: '32px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-            maxWidth: '448px',
-            margin: '0 auto'
-          }}>
-            <div style={{
-              height: '64px',
-              width: '64px',
-              margin: '0 auto 16px',
-              backgroundColor: 'var(--destructive, #ef4444)',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '24px'
-            }}>⚠️</div>
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="max-w-md mx-auto text-center space-y-6 p-6">
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-foreground">Something went wrong</h1>
+              <p className="text-muted-foreground">
+                We're sorry, but something unexpected happened. You can try refreshing the page or go back to the homepage.
+              </p>
+            </div>
             
-            <h2 style={{
-              fontSize: '20px',
-              fontWeight: '600',
-              marginBottom: '8px',
-              color: 'var(--foreground, #000000)'
-            }}>
-              Something went wrong
-            </h2>
-            
-            <p style={{
-              color: 'var(--muted-foreground, #6b7280)',
-              marginBottom: '24px'
-            }}>
-              We're sorry, but something unexpected happened. The error has been reported to our team.
-            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button onClick={this.handleReset} variant="outline">
+                Try Again
+              </Button>
+              <Button onClick={this.handleReload}>
+                Refresh Page
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={() => window.location.href = '/'}
+              >
+                Go Home
+              </Button>
+            </div>
             
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details style={{ marginBottom: '16px', textAlign: 'left' }}>
-                <summary style={{
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  marginBottom: '8px'
-                }}>
-                  Error Details (Development)
+              <details className="mt-6 text-left">
+                <summary className="cursor-pointer text-sm text-muted-foreground">
+                  Technical Details
                 </summary>
-                <pre style={{
-                  fontSize: '12px',
-                  backgroundColor: 'var(--muted, #f3f4f6)',
-                  padding: '8px',
-                  borderRadius: '4px',
-                  overflow: 'auto',
-                  maxHeight: '128px'
-                }}>
-                  {this.state.error.toString()}
-                  {this.state.errorInfo?.componentStack}
+                <pre className="mt-2 text-xs bg-muted p-4 rounded overflow-auto">
+                  {this.state.error.message}
+                  {'\n\n'}
+                  {this.state.error.stack}
                 </pre>
               </details>
             )}
-            
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <button 
-                onClick={this.handleRetry}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: 'var(--primary, #3b82f6)',
-                  color: 'var(--primary-foreground, #ffffff)',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                🔄 Try Again
-              </button>
-              <button 
-                onClick={this.handleGoHome}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: 'transparent',
-                  color: 'var(--foreground, #000000)',
-                  border: '1px solid var(--border, #e5e7eb)',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                Go Home
-              </button>
-            </div>
           </div>
         </div>
       );
@@ -284,11 +85,4 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-// Convenience exports for backwards compatibility
-export const DiagnosticErrorBoundary = (props: Omit<Props, 'isDiagnostic'>) => (
-  <ErrorBoundary {...props} isDiagnostic={true} />
-);
-
-export const ProductionErrorBoundary = (props: Omit<Props, 'isDiagnostic'>) => (
-  <ErrorBoundary {...props} isDiagnostic={false} />
-);
+export default ErrorBoundary;

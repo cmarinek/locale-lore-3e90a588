@@ -29,7 +29,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { SimpleMapComponent } from '@/components/map/SimpleMapComponent';
 
 // Import error boundary
-import { ProductionErrorBoundary } from '@/components/common/UnifiedErrorBoundary';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
 export const Hybrid: React.FC = () => {
   const navigate = useNavigate();
@@ -423,14 +423,14 @@ export const Hybrid: React.FC = () => {
                   {/* Map View - lazy loaded and optimized */}
                   <TabsContent value="map" forceMount className="h-full data-[state=inactive]:hidden">
                     <div className="relative h-full">
-                       <ProductionErrorBoundary>
-                          <SimpleMapComponent
-                            onFactClick={handleMapFactClick} 
-                            className="h-full w-full"
-                            center={[centerLocation.lng, centerLocation.lat]} 
-                            zoom={isMobile ? 12 : 10}
-                          />
-                        </ProductionErrorBoundary>
+                       <ErrorBoundary>
+                           <SimpleMapComponent
+                             onFactClick={handleMapFactClick} 
+                             className="h-full w-full"
+                             center={[centerLocation.lng, centerLocation.lat]} 
+                             zoom={isMobile ? 12 : 10}
+                           />
+                         </ErrorBoundary>
 
                         {/* Map Overlay Controls - only show when map tab is active */}
                         {activeTab === 'map' && (

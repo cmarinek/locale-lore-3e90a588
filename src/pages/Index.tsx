@@ -11,8 +11,7 @@ import { useCommunityStats } from '@/hooks/useCommunityStats';
 import { WelcomeOnboarding } from '@/components/onboarding/WelcomeOnboarding';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useAuth } from '@/contexts/AuthProvider';
-import { InitializationGuard } from '@/components/common/InitializationGuard';
-import { SafeComponentWrapper } from '@/components/common/SafeComponentWrapper';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 const Index: React.FC = () => {
   console.log('📄 INDEX: Component rendering...');
   try {
@@ -60,11 +59,11 @@ const Index: React.FC = () => {
       }
     ];
 
-    return <InitializationGuard initSteps={initSteps}>
+    return (
       <MainLayout>
-      <div className="min-h-screen">
-        {/* Hero Section */}
-        <SafeComponentWrapper name="WelcomeHero" fallback={
+        <div className="min-h-screen">
+          {/* Hero Section */}
+          <ErrorBoundary fallback={
           <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center">
             <div className="text-center space-y-4">
               <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
@@ -73,7 +72,7 @@ const Index: React.FC = () => {
           </div>
         }>
           <WelcomeHeroOptimized />
-        </SafeComponentWrapper>
+        </ErrorBoundary>
       
       {/* Main Actions */}
       <div className="container mx-auto px-4 py-12">
@@ -216,14 +215,14 @@ const Index: React.FC = () => {
       </div>
     </div>
 
-    {/* Welcome Onboarding */}
-    {showOnboarding && (
-      <SafeComponentWrapper name="OnboardingModal">
-        <WelcomeOnboarding onComplete={completeOnboarding} onSkip={skipOnboarding} />
-      </SafeComponentWrapper>
-    )}
-  </MainLayout>
-</InitializationGuard>;
+        {/* Welcome Onboarding */}
+        {showOnboarding && (
+          <ErrorBoundary>
+            <WelcomeOnboarding onComplete={completeOnboarding} onSkip={skipOnboarding} />
+          </ErrorBoundary>
+        )}
+      </MainLayout>
+    );
   } catch (error) {
     console.error('📄 INDEX: Error during render:', error);
     return <div style={{
