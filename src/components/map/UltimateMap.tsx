@@ -247,37 +247,37 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
     setMapStyle(nextStyle);
     
     if (map.current) {
-      // Store current markers before style change
-      const currentMarkers = [...markers.current];
+      // Store current map state
+      const currentCenter = map.current.getCenter();
+      const currentZoom = map.current.getZoom();
+      const currentBearing = map.current.getBearing();
+      const currentPitch = map.current.getPitch();
       
       map.current.setStyle(getMapStyleUrl(nextStyle));
       
-      // Re-add markers after style loads
+      // Restore map state and markers after style loads
       map.current.once('styledata', () => {
-        // Clear any existing markers first
-        markers.current.forEach(marker => marker.remove());
-        markers.current = [];
+        // Restore view state
+        map.current!.jumpTo({
+          center: currentCenter,
+          zoom: currentZoom,
+          bearing: currentBearing,
+          pitch: currentPitch
+        });
         
         // Re-add all markers
-        currentMarkers.forEach(marker => {
-          const fact = facts.find(f => 
-            f.latitude === marker.getLngLat().lat && 
-            f.longitude === marker.getLngLat().lng
-          );
-          
-          if (fact) {
-            const el = document.createElement('div');
-            el.className = 'w-3 h-3 bg-primary rounded-full border border-white cursor-pointer hover:scale-125 transition-transform';
-            el.addEventListener('click', () => {
-              if (onFactClick) onFactClick(fact);
-            });
+        facts.forEach(fact => {
+          const el = document.createElement('div');
+          el.className = 'w-3 h-3 bg-primary rounded-full border border-white cursor-pointer hover:scale-125 transition-transform';
+          el.addEventListener('click', () => {
+            if (onFactClick) onFactClick(fact);
+          });
 
-            const newMarker = new mapboxgl.Marker(el)
-              .setLngLat([fact.longitude, fact.latitude])
-              .addTo(map.current!);
-            
-            markers.current.push(newMarker);
-          }
+          const newMarker = new mapboxgl.Marker(el)
+            .setLngLat([fact.longitude, fact.latitude])
+            .addTo(map.current!);
+          
+          markers.current.push(newMarker);
         });
       });
     }
