@@ -6,16 +6,22 @@ import { AppLayout } from '@/components/app/AppLayout';
 import { AppRoutes } from '@/components/app/AppRoutes';
 
 function App() {
+  // Ensure React hooks are available before rendering
+  if (!React.useRef || !React.useState || !React.useEffect) {
+    console.error('React hooks not available');
+    return <div>Loading...</div>;
+  }
+
   return (
-    <AppProviders>
-      <AppInitialization>
-        <Router>
+    <Router>
+      <AppProviders>
+        <AppInitialization>
           <AppLayout>
             <AppRoutes />
           </AppLayout>
-        </Router>
-      </AppInitialization>
-    </AppProviders>
+        </AppInitialization>
+      </AppProviders>
+    </Router>
   );
 }
 
