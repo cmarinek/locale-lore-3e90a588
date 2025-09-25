@@ -78,36 +78,46 @@ export const AdminDashboard: React.FC = () => {
       <div className="min-h-screen flex w-full">
         <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-screen">
           {/* Header with sidebar trigger */}
-          <header className="h-16 flex items-center justify-between border-b bg-background/95 backdrop-blur-sm px-4">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger />
+          <header className="h-16 flex items-center justify-between border-b bg-background/95 backdrop-blur-sm px-6 sticky top-0 z-10">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger className="lg:hidden" />
               <div className="flex items-center gap-3">
                 <Shield className="w-6 h-6 text-primary" />
                 <div>
-                  <h1 className="text-xl font-bold">{t('dashboard')}</h1>
+                  <h1 className="text-xl font-bold">{t('dashboard', { defaultValue: 'Admin Dashboard' })}</h1>
                   <p className="text-xs text-muted-foreground hidden sm:block">
-                    Admin Dashboard
+                    System Administration & Management
                   </p>
                 </div>
               </div>
             </div>
+            
+            {/* Status indicator */}
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-950 rounded-full">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-xs font-medium text-green-700 dark:text-green-300">
+                Admin Active
+              </span>
+            </div>
           </header>
 
           {/* Alert */}
-          <div className="p-4">
-            <Alert className="text-sm">
-              <Shield className="h-4 w-4" />
-              <AlertDescription>
-                Admin access active. All actions are logged.
+          <div className="p-6 pb-4">
+            <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+              <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <AlertDescription className="text-blue-800 dark:text-blue-200">
+                Admin access active. All actions are monitored and logged for security purposes.
               </AlertDescription>
             </Alert>
           </div>
 
           {/* Main content */}
-          <main className="flex-1 p-4">
-            {renderContent()}
+          <main className="flex-1 p-6 pt-2 overflow-auto">
+            <div className="max-w-7xl mx-auto">
+              {renderContent()}
+            </div>
           </main>
         </div>
       </div>
