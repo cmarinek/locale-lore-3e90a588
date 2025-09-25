@@ -24,7 +24,7 @@ interface LoadingIntroductionProps {
 export const LoadingIntroduction: React.FC<LoadingIntroductionProps> = ({ 
   className,
   onComplete,
-  minDisplayTime = 4000
+  minDisplayTime = 2000
 }) => {
   const [shouldFadeOut, setShouldFadeOut] = useState(false);
 
@@ -34,7 +34,7 @@ export const LoadingIntroduction: React.FC<LoadingIntroductionProps> = ({
       // Call onComplete after fade out animation
       setTimeout(() => {
         onComplete?.();
-      }, 1500);
+      }, 800);
     }, minDisplayTime);
 
     return () => clearTimeout(timer);

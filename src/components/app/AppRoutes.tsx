@@ -57,7 +57,7 @@ export const AppRoutes: React.FC = () => {
     return (
       <LoadingIntroduction 
         onComplete={handleLoadingComplete}
-        minDisplayTime={5000}
+        minDisplayTime={2000}
       />
     );
   }
