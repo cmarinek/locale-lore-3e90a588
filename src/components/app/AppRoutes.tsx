@@ -49,9 +49,9 @@ export const AppRoutes: React.FC = () => {
     setShowLoading(false);
   };
 
-  // Only show loading on home page, with timeout
+  // Only show loading on home page
   const isHomePage = location.pathname === '/';
-  const shouldShowLoading = isHomePage && showLoading && authLoading;
+  const shouldShowLoading = isHomePage && showLoading;
 
   if (shouldShowLoading) {
     return (
