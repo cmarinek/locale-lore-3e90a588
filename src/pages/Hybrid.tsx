@@ -25,8 +25,8 @@ import { DistanceSortButton } from '@/components/ui/DistanceSortButton';
 import { useLocationSorting } from '@/hooks/useLocationSorting';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-// Import simple map component
-import BasicMap from '@/components/map/BasicMap';
+// Import ultimate optimized map component
+import UltimateMap from '@/components/map/UltimateMap';
 
 // Import error boundary
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
@@ -424,7 +424,7 @@ export const Hybrid: React.FC = () => {
                   <TabsContent value="map" forceMount className="h-full data-[state=inactive]:hidden">
                     <div className="relative h-full">
                        <ErrorBoundary>
-                            <BasicMap
+                            <UltimateMap
                               onFactClick={handleMapFactClick} 
                               className="h-full w-full"
                               center={[centerLocation.lng, centerLocation.lat]} 
@@ -553,7 +553,7 @@ export const Hybrid: React.FC = () => {
 
             {/* Map - Desktop: Right main area */}
             <div className="flex-1 relative">
-              <BasicMap 
+              <UltimateMap 
                 onFactClick={handleMapFactClick} 
                 className="h-full w-full" 
                 center={[centerLocation.lng, centerLocation.lat]} 
