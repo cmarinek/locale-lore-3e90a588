@@ -125,9 +125,6 @@ export const ContributorPlans: React.FC = () => {
               $1.97
               <span className="text-sm font-normal text-muted-foreground">/month</span>
             </div>
-            <Badge variant="secondary" className="mt-2">
-              7-day free trial
-            </Badge>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-xs text-muted-foreground mb-3">Everything in Free, plus:</div>
