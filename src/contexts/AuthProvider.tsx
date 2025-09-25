@@ -18,14 +18,14 @@ interface AuthProviderProps {
 
 function AuthProviderComponent({ children }: AuthProviderProps) {
   // Ensure React hooks are available before using them
-  if (!React.useState || !React.useEffect || !React.useContext) {
+  if (!React.useState || !React.useEffect || !React.useContext || !React) {
     console.error('React hooks not available in AuthProvider');
-    return <div>Loading...</div>;
+    return React.createElement('div', {}, 'Loading auth...');
   }
 
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = React.useState<User | null>(null);
+  const [session, setSession] = React.useState<Session | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
   const signOut = async () => {
     try {
@@ -41,7 +41,7 @@ function AuthProviderComponent({ children }: AuthProviderProps) {
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
@@ -77,7 +77,7 @@ export const AuthProvider = AuthProviderComponent;
 
 // Export hooks
 export const useAuth = () => {
-  const context = useContext(AuthContext);
+  const context = React.useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
@@ -85,5 +85,5 @@ export const useAuth = () => {
 };
 
 export const useAuthSafe = () => {
-  return useContext(AuthContext);
+  return React.useContext(AuthContext);
 };
