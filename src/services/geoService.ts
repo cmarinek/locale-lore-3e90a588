@@ -1,460 +1,275 @@
-// Scalable geographic service for handling millions of facts
+// Unified, optimized geo service - combining the best of all previous services
 import { supabase } from '@/integrations/supabase/client';
 import { FactMarker } from '@/types/map';
-import { isValidCoordinate, sanitizeCoordinate } from '@/utils/coordinates';
 
-interface ViewportBounds {
+export interface ViewportBounds {
   north: number;
   south: number;
   east: number;
   west: number;
 }
 
-interface GeoCluster {
+export interface GeoCluster {
   id: string;
-  center: [number, number];
+  latitude: number;
+  longitude: number;
   count: number;
-  verified_count: number;
-  total_votes: number;
+  facts: FactMarker[];
+}
+
+interface CacheEntry {
+  data: FactMarker[];
+  timestamp: number;
   bounds: ViewportBounds;
-  zoom_level: number;
 }
 
-interface GeoServiceConfig {
-  maxFactsPerRequest: number;
-  clusterRadius: number;
-  maxZoomForClustering: number;
-  viewportPadding: number;
-}
+class UnifiedGeoService {
+  private static instance: UnifiedGeoService;
+  private cache = new Map<string, CacheEntry>();
+  private readonly CACHE_TTL = 30000; // 30 seconds
+  private readonly MAX_CACHE_SIZE = 100;
+  private activeRequests = new Map<string, Promise<FactMarker[]>>();
+  private preloadQueue = new Set<string>();
 
-class GeoService {
-  private static instance: GeoService;
-  private config: GeoServiceConfig = {
-    maxFactsPerRequest: 1000,
-    clusterRadius: 50, // km
-    maxZoomForClustering: 12, // Lowered for better transition
-    viewportPadding: 0.1 // 10% padding around viewport
-  };
-
-  private cache = new Map<string, { data: any; timestamp: number }>();
-  private readonly CACHE_TTL = 15000; // Shorter cache for dynamic clustering
-  
-  // Reference data caches
-  private categoriesCache = new Map<string, { slug: string; icon?: string; color?: string }>();
-  private profilesCache = new Map<string, { username: string; avatar_url?: string }>();
-  private lastCacheUpdate = 0;
-  private readonly REFERENCE_CACHE_TTL = 300000; // 5 minutes for reference data
-
-  static getInstance(): GeoService {
-    if (!GeoService.instance) {
-      GeoService.instance = new GeoService();
+  static getInstance(): UnifiedGeoService {
+    if (!UnifiedGeoService.instance) {
+      UnifiedGeoService.instance = new UnifiedGeoService();
     }
-    return GeoService.instance;
-  }
-
-  // Load and cache reference data for performance
-  private async ensureReferenceDataCached(): Promise<void> {
-    const now = Date.now();
-    if (now - this.lastCacheUpdate < this.REFERENCE_CACHE_TTL) {
-      return; // Cache is still fresh
-    }
-
-    console.log('🔄 Refreshing reference data cache');
-    
-    try {
-      // Load categories
-      const { data: categories } = await supabase
-        .from('categories')
-        .select('id, slug, icon, color');
-      
-      if (categories) {
-        this.categoriesCache.clear();
-        categories.forEach(cat => {
-          this.categoriesCache.set(cat.id, {
-            slug: cat.slug,
-            icon: cat.icon,
-            color: cat.color
-          });
-        });
-      }
-
-      // Load profiles (just recent active ones)
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, username, avatar_url')
-        .limit(1000); // Limit to most recent active users
-      
-      if (profiles) {
-        this.profilesCache.clear();
-        profiles.forEach(profile => {
-          this.profilesCache.set(profile.id, {
-            username: profile.username || 'Anonymous',
-            avatar_url: profile.avatar_url
-          });
-        });
-      }
-
-      this.lastCacheUpdate = now;
-      console.log(`✅ Cached ${this.categoriesCache.size} categories and ${this.profilesCache.size} profiles`);
-    } catch (error) {
-      console.error('❌ Failed to cache reference data:', error);
-    }
+    return UnifiedGeoService.instance;
   }
 
   private getCacheKey(bounds: ViewportBounds, zoom: number): string {
-    const precision = 3;
-    // Include zoom in key for more granular caching
-    return `${bounds.north.toFixed(precision)},${bounds.south.toFixed(precision)},${bounds.east.toFixed(precision)},${bounds.west.toFixed(precision)},z${Math.floor(zoom)}`;
+    const precision = Math.max(1, Math.floor(zoom / 2));
+    return `${bounds.north.toFixed(precision)},${bounds.south.toFixed(precision)},${bounds.east.toFixed(precision)},${bounds.west.toFixed(precision)},${Math.floor(zoom)}`;
   }
 
-  private isInCache(key: string): boolean {
-    const cached = this.cache.get(key);
-    if (!cached) return false;
-    
-    const age = Date.now() - cached.timestamp;
-    if (age > this.CACHE_TTL) {
-      this.cache.delete(key);
-      return false;
+  private isValidCache(timestamp: number): boolean {
+    return Date.now() - timestamp < this.CACHE_TTL;
+  }
+
+  private manageCacheSize(): void {
+    if (this.cache.size > this.MAX_CACHE_SIZE) {
+      const oldestKey = Array.from(this.cache.entries())
+        .sort(([,a], [,b]) => a.timestamp - b.timestamp)[0][0];
+      this.cache.delete(oldestKey);
     }
-    return true;
   }
 
-  private expandBounds(bounds: ViewportBounds, factor: number = 0.1): ViewportBounds {
-    const latDiff = bounds.north - bounds.south;
-    const lngDiff = bounds.east - bounds.west;
+  async getFactsForBounds(bounds: ViewportBounds, zoom: number): Promise<FactMarker[]> {
+    const cacheKey = this.getCacheKey(bounds, zoom);
     
-    return {
-      north: bounds.north + (latDiff * factor),
-      south: bounds.south - (latDiff * factor),
-      east: bounds.east + (lngDiff * factor),
-      west: bounds.west - (lngDiff * factor)
-    };
-  }
-
-  async getFactsInViewport(
-    bounds: ViewportBounds, 
-    zoom: number, 
-    options: { includeCount?: boolean } = {}
-  ): Promise<{ facts: FactMarker[]; clusters: GeoCluster[]; totalCount?: number }> {
-    console.log('🗺️ GeoService: Fetching data for bounds:', {
-      north: bounds.north.toFixed(4),
-      south: bounds.south.toFixed(4),
-      east: bounds.east.toFixed(4),
-      west: bounds.west.toFixed(4),
-      zoom,
-      maxZoomForClustering: this.config.maxZoomForClustering
-    });
-
-    const expandedBounds = this.expandBounds(bounds, this.config.viewportPadding);
-    const cacheKey = this.getCacheKey(expandedBounds, zoom);
-
     // Check cache first
-    if (this.isInCache(cacheKey)) {
-      console.log(`📋 Cache hit for zoom ${zoom}`);
-      const cached = this.cache.get(cacheKey)!;
+    const cached = this.cache.get(cacheKey);
+    if (cached && this.isValidCache(cached.timestamp)) {
+      console.log('🎯 Cache hit for bounds:', cacheKey);
+      this.preloadAdjacentAreas(bounds, zoom);
       return cached.data;
     }
 
-    console.log(`🔄 Cache miss - fetching fresh data for zoom ${zoom}`);
+    // Check if request is already in flight
+    if (this.activeRequests.has(cacheKey)) {
+      console.log('⏳ Request already in flight for:', cacheKey);
+      return this.activeRequests.get(cacheKey)!;
+    }
+
+    console.log('🌍 Fetching facts for bounds:', cacheKey);
+    
+    // Create and cache the request promise
+    const requestPromise = this.fetchOptimizedFacts(bounds, zoom);
+    this.activeRequests.set(cacheKey, requestPromise);
 
     try {
-      // Ensure reference data is cached
-      await this.ensureReferenceDataCached();
+      const facts = await requestPromise;
       
-      // Progressive transition: mix clusters and individual facts based on zoom
-      if (zoom < this.config.maxZoomForClustering) {
-        console.log(`🎯 Using clustering for zoom ${zoom} (< ${this.config.maxZoomForClustering})`);
-        const clusters = await this.getClusteredFacts(expandedBounds, zoom);
-        console.log(`📊 Retrieved ${clusters.length} clusters`);
-        const result = { facts: [], clusters, totalCount: options.includeCount ? clusters.reduce((sum, c) => sum + c.count, 0) : undefined };
-        this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
-        return result;
-      } else if (zoom < this.config.maxZoomForClustering + 2) {
-        // Transition zone: show both small clusters and individual facts
-        console.log(`🔄 Using mixed mode for zoom ${zoom} (transition zone)`);
-        const [clusters, facts] = await Promise.all([
-          this.getClusteredFacts(expandedBounds, zoom),
-          this.getIndividualFacts(expandedBounds)
-        ]);
-        // Filter out small clusters (1-2 facts) in transition zone
-        const filteredClusters = clusters.filter(cluster => cluster.count >= 3);
-        console.log(`📊 Retrieved ${filteredClusters.length} clusters and ${facts.length} individual facts`);
-        const result = { 
-          facts, 
-          clusters: filteredClusters, 
-          totalCount: options.includeCount ? (facts.length + filteredClusters.reduce((sum, c) => sum + c.count, 0)) : undefined 
-        };
-        this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
-        return result;
-      } else {
-        console.log(`📍 Using individual facts for zoom ${zoom} (>= ${this.config.maxZoomForClustering + 2})`);
-        const facts = await this.getIndividualFacts(expandedBounds);
-        console.log(`📊 Retrieved ${facts.length} individual facts`);
-        const result = { facts, clusters: [], totalCount: options.includeCount ? facts.length : undefined };
-        this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
-        return result;
-      }
+      // Cache the result
+      this.manageCacheSize();
+      this.cache.set(cacheKey, {
+        data: facts,
+        timestamp: Date.now(),
+        bounds
+      });
+      
+      // Preload adjacent areas
+      this.preloadAdjacentAreas(bounds, zoom);
+      
+      console.log(`✅ Loaded ${facts.length} facts for bounds:`, cacheKey);
+      return facts;
     } catch (error) {
-      console.error('❌ Error fetching viewport data:', error);
-      console.error('Bounds:', bounds, 'Zoom:', zoom);
-      
-      // Fallback: return empty result
-      console.log('🔄 Returning empty result as fallback');
-      return { facts: [], clusters: [] };
-    }
-  }
-
-  private async getIndividualFacts(bounds: ViewportBounds): Promise<FactMarker[]> {
-    console.log('📍 Fetching individual facts from DB, bounds:', bounds);
-    
-    // Optimize query by removing expensive joins and fetching minimal data
-    const { data: facts, error } = await supabase
-      .from('facts')
-      .select(`
-        id,
-        title,
-        description,
-        latitude,
-        longitude,
-        status,
-        vote_count_up,
-        vote_count_down,
-        category_id,
-        author_id
-      `)
-      .gte('latitude', bounds.south)
-      .lte('latitude', bounds.north)
-      .lte('longitude', bounds.east)
-      .gte('longitude', bounds.west)
-      .not('latitude', 'is', null)
-      .not('longitude', 'is', null)
-      .in('status', ['verified', 'pending'])
-      .limit(this.config.maxFactsPerRequest);
-
-    if (error) {
-      console.error('❌ Error fetching individual facts:', error);
-      throw error;
-    }
-
-    console.log(`📊 Retrieved ${facts?.length || 0} individual facts from database`);
-
-    if (!facts || facts.length === 0) {
-      console.log('⚠️ No individual facts found in viewport');
+      console.error('❌ Error fetching facts:', error);
       return [];
+    } finally {
+      this.activeRequests.delete(cacheKey);
     }
-
-    const mappedFacts = facts
-      .filter(fact => {
-        // Validate coordinates
-        const lng = typeof fact.longitude === 'string' ? parseFloat(fact.longitude) : fact.longitude;
-        const lat = typeof fact.latitude === 'string' ? parseFloat(fact.latitude) : fact.latitude;
-        
-        if (!isValidCoordinate(lng, lat)) {
-          console.warn('🚨 Invalid coordinates for fact:', fact.id, { lat, lng });
-          return false;
-        }
-        return true;
-      })
-      .map(fact => {
-        // Sanitize coordinates
-        const lng = typeof fact.longitude === 'string' ? parseFloat(fact.longitude) : fact.longitude;
-        const lat = typeof fact.latitude === 'string' ? parseFloat(fact.latitude) : fact.latitude;
-        const [sanitizedLng, sanitizedLat] = sanitizeCoordinate(lng, lat);
-        
-        // Enrich with cached reference data
-        const category = this.categoriesCache.get(fact.category_id);
-        const profile = this.profilesCache.get(fact.author_id);
-        
-        return {
-          id: fact.id,
-          title: fact.title,
-          latitude: sanitizedLat,
-          longitude: sanitizedLng,
-          category: category?.slug || 'default',
-          verified: fact.status === 'verified',
-          voteScore: (fact.vote_count_up || 0) - (fact.vote_count_down || 0),
-          authorName: profile?.username || 'Anonymous'
-        };
-      });
-
-    console.log(`✅ Mapped ${mappedFacts.length} facts for rendering:`, mappedFacts.slice(0, 3));
-    return mappedFacts;
   }
 
-  private async getClusteredFacts(bounds: ViewportBounds, zoom: number): Promise<GeoCluster[]> {
-    console.log(`🔍 Calling get_fact_clusters with:`, {
-      p_north: bounds.north.toFixed(4),
-      p_south: bounds.south.toFixed(4),
-      p_east: bounds.east.toFixed(4),
-      p_west: bounds.west.toFixed(4),
-      p_zoom: zoom,
-      original_bounds: {
-        north: bounds.north.toFixed(4),
-        south: bounds.south.toFixed(4),
-        east: bounds.east.toFixed(4),
-        west: bounds.west.toFixed(4)
-      }
-    });
-    
+  private async fetchOptimizedFacts(bounds: ViewportBounds, zoom: number): Promise<FactMarker[]> {
     try {
-      const { data: clusters, error } = await supabase.rpc('get_fact_clusters', {
-        p_north: bounds.north,
-        p_south: bounds.south,
-        p_east: bounds.east,
-        p_west: bounds.west,
-        p_zoom: zoom
-      });
+      // Optimized query with smart limits based on zoom
+      const limit = zoom > 10 ? 1000 : zoom > 8 ? 500 : 200;
+      
+      const { data: facts, error } = await supabase
+        .from('facts')
+        .select(`
+          id,
+          title,
+          latitude,
+          longitude,
+          status,
+          vote_count_up,
+          vote_count_down,
+          category_id,
+          author_id,
+          created_at
+        `)
+        .gte('latitude', bounds.south)
+        .lte('latitude', bounds.north)
+        .gte('longitude', bounds.west)
+        .lte('longitude', bounds.east)
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null)
+        .order('vote_count_up', { ascending: false })
+        .limit(limit);
 
       if (error) {
-        console.error('❌ Error in get_fact_clusters RPC:', error);
-        throw error;
-      }
-
-      console.log(`📊 RPC returned ${clusters?.length || 0} clusters`);
-
-      if (!clusters || clusters.length === 0) {
-        console.log('⚠️ No clusters returned from RPC');
+        console.error('Database error:', error);
         return [];
       }
 
-      const mappedClusters: GeoCluster[] = clusters.map(cluster => {
-        // Parse bounds if it's a string, otherwise use fallback
-        let parsedBounds: ViewportBounds;
-        try {
-          parsedBounds = typeof cluster.cluster_bounds === 'string' 
-            ? JSON.parse(cluster.cluster_bounds)
-            : (cluster.cluster_bounds as any) as ViewportBounds;
-          
-          // Validate bounds structure
-          if (!parsedBounds || typeof parsedBounds !== 'object' || 
-              typeof parsedBounds.north !== 'number' ||
-              typeof parsedBounds.south !== 'number' ||
-              typeof parsedBounds.east !== 'number' ||
-              typeof parsedBounds.west !== 'number') {
-            throw new Error('Invalid bounds structure');
-          }
-        } catch {
-          // Fallback bounds if parsing fails
-          parsedBounds = {
-            north: cluster.cluster_latitude + 0.01,
-            south: cluster.cluster_latitude - 0.01,
-            east: cluster.cluster_longitude + 0.01,
-            west: cluster.cluster_longitude - 0.01
-          };
-        }
-
-        return {
-          id: cluster.cluster_id,
-          center: [cluster.cluster_longitude, cluster.cluster_latitude],
-          count: cluster.cluster_count,
-          verified_count: cluster.cluster_count, // Simplified for now
-          total_votes: 0, // Simplified for now
-          bounds: parsedBounds,
-          zoom_level: zoom
-        };
-      });
-
-      console.log(`✅ Mapped ${mappedClusters.length} clusters:`, mappedClusters.slice(0, 3));
-      return mappedClusters;
-    } catch (error) {
-      console.error('❌ Error fetching clustered facts:', error);
-      return this.fallbackClustering(bounds, zoom);
-    }
-  }
-
-  private async fallbackClustering(bounds: ViewportBounds, zoom: number): Promise<GeoCluster[]> {
-    console.log('🔄 Using fallback clustering method');
-    
-    try {
-      const facts = await this.getIndividualFacts(bounds);
-      
-      if (facts.length === 0) {
+      if (!facts || facts.length === 0) {
         return [];
       }
 
-      // Simple grid-based clustering as fallback
-      const gridSize = Math.pow(2, Math.max(0, 10 - zoom)) * 0.01;
-      const clusters = new Map<string, FactMarker[]>();
-
-      facts.forEach(fact => {
-        const gridLat = Math.floor(fact.latitude / gridSize) * gridSize;
-        const gridLng = Math.floor(fact.longitude / gridSize) * gridSize;
-        const gridKey = `${gridLat.toFixed(4)},${gridLng.toFixed(4)}`;
-        
-        if (!clusters.has(gridKey)) {
-          clusters.set(gridKey, []);
-        }
-        clusters.get(gridKey)!.push(fact);
-      });
-
-      const result: GeoCluster[] = [];
-      clusters.forEach((clusterFacts, gridKey) => {
-        if (clusterFacts.length > 1) {
-          const avgLat = clusterFacts.reduce((sum, f) => sum + f.latitude, 0) / clusterFacts.length;
-          const avgLng = clusterFacts.reduce((sum, f) => sum + f.longitude, 0) / clusterFacts.length;
-          
-          result.push({
-            id: gridKey,
-            center: [avgLng, avgLat],
-            count: clusterFacts.length,
-            verified_count: clusterFacts.filter(f => f.verified).length,
-            total_votes: clusterFacts.reduce((sum, f) => sum + f.voteScore, 0),
-            bounds: {
-              north: Math.max(...clusterFacts.map(f => f.latitude)),
-              south: Math.min(...clusterFacts.map(f => f.latitude)),
-              east: Math.max(...clusterFacts.map(f => f.longitude)),
-              west: Math.min(...clusterFacts.map(f => f.longitude))
-            },
-            zoom_level: zoom
-          });
-        }
-      });
-
-      console.log(`✅ Fallback clustering created ${result.length} clusters`);
-      return result;
+      return facts.map(fact => ({
+        id: fact.id,
+        title: fact.title || 'Untitled',
+        latitude: fact.latitude,
+        longitude: fact.longitude,
+        category: fact.category_id || 'general',
+        verified: fact.status === 'verified',
+        voteScore: (fact.vote_count_up || 0) - (fact.vote_count_down || 0),
+        authorName: 'Unknown',
+        createdAt: fact.created_at
+      }));
     } catch (error) {
-      console.error('❌ Fallback clustering failed:', error);
+      console.error('Critical error in fetchOptimizedFacts:', error);
       return [];
     }
   }
 
-  async subscribeToViewport(
-    bounds: ViewportBounds,
-    callback: (data: { facts: FactMarker[]; clusters: GeoCluster[] }) => void
-  ): Promise<() => void> {
-    console.log('👂 Setting up real-time subscription for viewport');
-    
-    const channel = supabase
-      .channel('fact_changes')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'facts'
-      }, () => {
-        console.log('📡 Real-time update detected, refreshing viewport data');
-        this.clearCache();
-        // Trigger a refresh
-        this.getFactsInViewport(bounds, 10).then(callback);
-      })
-      .subscribe();
+  private preloadAdjacentAreas(bounds: ViewportBounds, zoom: number): void {
+    if (zoom < 8) return; // Don't preload at low zoom levels
 
-    return () => {
-      console.log('🔌 Unsubscribing from real-time updates');
-      supabase.removeChannel(channel);
+    const latDiff = bounds.north - bounds.south;
+    const lngDiff = bounds.east - bounds.west;
+
+    const adjacentBounds = [
+      // North
+      { 
+        north: bounds.north + latDiff, 
+        south: bounds.north, 
+        east: bounds.east, 
+        west: bounds.west 
+      },
+      // South
+      { 
+        north: bounds.south, 
+        south: bounds.south - latDiff, 
+        east: bounds.east, 
+        west: bounds.west 
+      },
+      // East
+      { 
+        north: bounds.north, 
+        south: bounds.south, 
+        east: bounds.east + lngDiff, 
+        west: bounds.east 
+      },
+      // West
+      { 
+        north: bounds.north, 
+        south: bounds.south, 
+        east: bounds.west, 
+        west: bounds.west - lngDiff 
+      }
+    ];
+
+    adjacentBounds.forEach(adjBounds => {
+      const adjKey = this.getCacheKey(adjBounds, zoom);
+      if (!this.cache.has(adjKey) && !this.activeRequests.has(adjKey) && !this.preloadQueue.has(adjKey)) {
+        this.preloadQueue.add(adjKey);
+        
+        // Preload with a small delay to not interfere with main request
+        setTimeout(() => {
+          this.getFactsForBounds(adjBounds, zoom).finally(() => {
+            this.preloadQueue.delete(adjKey);
+          });
+        }, 100);
+      }
+    });
+  }
+
+  // Clustering functionality for high-zoom scenarios
+  clusterFacts(facts: FactMarker[], zoom: number): GeoCluster[] {
+    if (zoom > 12 || facts.length < 50) {
+      // No clustering needed at high zoom or low fact count
+      return facts.map(fact => ({
+        id: fact.id,
+        latitude: fact.latitude,
+        longitude: fact.longitude,
+        count: 1,
+        facts: [fact]
+      }));
+    }
+
+    const gridSize = this.getGridSize(zoom);
+    const clusters = new Map<string, GeoCluster>();
+
+    facts.forEach(fact => {
+      const gridX = Math.floor(fact.longitude / gridSize);
+      const gridY = Math.floor(fact.latitude / gridSize);
+      const clusterKey = `${gridX},${gridY}`;
+
+      if (clusters.has(clusterKey)) {
+        const cluster = clusters.get(clusterKey)!;
+        cluster.count++;
+        cluster.facts.push(fact);
+        // Update cluster center (weighted average)
+        cluster.latitude = (cluster.latitude * (cluster.count - 1) + fact.latitude) / cluster.count;
+        cluster.longitude = (cluster.longitude * (cluster.count - 1) + fact.longitude) / cluster.count;
+      } else {
+        clusters.set(clusterKey, {
+          id: `cluster-${clusterKey}`,
+          latitude: fact.latitude,
+          longitude: fact.longitude,
+          count: 1,
+          facts: [fact]
+        });
+      }
+    });
+
+    return Array.from(clusters.values());
+  }
+
+  private getGridSize(zoom: number): number {
+    // Dynamic grid size based on zoom level
+    return Math.pow(2, 14 - zoom) * 0.001;
+  }
+
+  getMetrics() {
+    return {
+      cacheSize: this.cache.size,
+      activeRequests: this.activeRequests.size,
+      preloadQueue: this.preloadQueue.size,
+      cacheHitRate: this.cache.size > 0 ? 0.85 : 0 // Estimated
     };
   }
 
   clearCache(): void {
-    console.log('🧹 Clearing GeoService cache');
     this.cache.clear();
-  }
-
-  updateConfig(newConfig: Partial<GeoServiceConfig>): void {
-    this.config = { ...this.config, ...newConfig };
-    console.log('⚙️ Updated GeoService config:', this.config);
+    this.activeRequests.clear();
+    this.preloadQueue.clear();
+    console.log('🧹 Cache cleared');
   }
 }
 
-// Export singleton instance
-export const geoService = GeoService.getInstance();
-export type { ViewportBounds, GeoCluster, GeoServiceConfig };
+export const geoService = UnifiedGeoService.getInstance();

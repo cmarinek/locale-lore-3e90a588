@@ -26,7 +26,7 @@ import { useLocationSorting } from '@/hooks/useLocationSorting';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Import simple map component
-import { SimpleMap } from '@/components/map/SimpleMap';
+import BasicMap from '@/components/map/BasicMap';
 
 // Import error boundary
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
@@ -424,12 +424,12 @@ export const Hybrid: React.FC = () => {
                   <TabsContent value="map" forceMount className="h-full data-[state=inactive]:hidden">
                     <div className="relative h-full">
                        <ErrorBoundary>
-                           <SimpleMap
-                             onFactClick={handleMapFactClick} 
-                             className="h-full w-full"
-                             center={[centerLocation.lng, centerLocation.lat]} 
-                             zoom={isMobile ? 12 : 10}
-                           />
+                            <BasicMap
+                              onFactClick={handleMapFactClick} 
+                              className="h-full w-full"
+                              center={[centerLocation.lng, centerLocation.lat]} 
+                              zoom={isMobile ? 12 : 10}
+                            />
                          </ErrorBoundary>
 
                         {/* Map Overlay Controls - only show when map tab is active */}
@@ -553,7 +553,7 @@ export const Hybrid: React.FC = () => {
 
             {/* Map - Desktop: Right main area */}
             <div className="flex-1 relative">
-              <SimpleMap 
+              <BasicMap 
                 onFactClick={handleMapFactClick} 
                 className="h-full w-full" 
                 center={[centerLocation.lng, centerLocation.lat]} 

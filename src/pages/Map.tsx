@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import { UltraFastMap } from '@/components/map/UltraFastMap';
+import OptimizedMap from '@/components/map/OptimizedMap';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
@@ -126,7 +126,7 @@ export const Map: React.FC = () => {
               </div>
             }
           >
-            <UltraFastMap
+            <OptimizedMap
               onFactClick={handleFactClick}
               className="h-full w-full"
               center={[0, 20]}
