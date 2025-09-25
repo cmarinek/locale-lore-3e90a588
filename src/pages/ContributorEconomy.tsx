@@ -212,21 +212,21 @@ const LocationClaimsManager: React.FC = () => (
     <CardHeader>
       <CardTitle className="flex items-center gap-2">
         <MapPin className="w-5 h-5" />
-        Location Claims
+        Story Sharing
       </CardTitle>
       <CardDescription>
-        Claim ownership of locations and promote your business or expertise
+        Share your local stories and connect with your community
       </CardDescription>
     </CardHeader>
     <CardContent className="py-8 text-center">
       <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-      <h3 className="text-lg font-semibold mb-2">Claim Your Territory</h3>
+      <h3 className="text-lg font-semibold mb-2">Share Your Local Story</h3>
       <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-        Become the verified expert for specific locations. Add business information, special offers, and exclusive content.
+        Become a storyteller for your favorite places. Share experiences, memories, and insider knowledge that brings locations to life.
       </p>
       <Button>
         <MapPin className="w-4 h-4 mr-2" />
-        Claim a Location
+        Share a Story
       </Button>
     </CardContent>
   </Card>
