@@ -14,6 +14,26 @@ interface AppProvidersProps {
 }
 
 export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
+  // Safety check: Ensure React hooks are available before using providers
+  if (!React || typeof React.useState !== 'function') {
+    console.error('React hooks not available - React may not be properly loaded');
+    return (
+      <div style={{ 
+        padding: '20px', 
+        textAlign: 'center',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div>
+          <h3>Loading Application...</h3>
+          <p>Please wait while React initializes.</p>
+        </div>
+      </div>
+    );
+  }
+
   const ErrorBoundaryComponent = process.env.NODE_ENV === 'production' 
     ? ProductionErrorBoundary 
     : DevelopmentErrorBoundary;

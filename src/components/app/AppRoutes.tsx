@@ -42,13 +42,23 @@ const LoadingFallback = () => (
 
 export const AppRoutes: React.FC = () => {
   const { loading: authLoading } = useAuth();
+  const [showLoading, setShowLoading] = useState(true);
+  const location = useLocation();
 
-  // Only show loading during auth state resolution
-  if (authLoading) {
+  const handleLoadingComplete = () => {
+    setShowLoading(false);
+  };
+
+  // Only show loading on home page
+  const isHomePage = location.pathname === '/';
+  const shouldShowLoading = isHomePage && (showLoading || authLoading);
+
+  if (shouldShowLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      <LoadingIntroduction 
+        onComplete={handleLoadingComplete}
+        minDisplayTime={5000}
+      />
     );
   }
 
