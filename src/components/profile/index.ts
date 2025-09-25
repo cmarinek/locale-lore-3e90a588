@@ -1,6 +1,7 @@
 
 export { AchievementShowcase } from './AchievementShowcase';
 export { DataExportPanel } from './DataExportPanel';
+export { FavoriteCitiesManager } from './FavoriteCitiesManager';
 export { ProfileEditor } from './ProfileEditor';
 export { SettingsPanel } from './SettingsPanel';
 export { StatisticsCard } from './StatisticsCard';

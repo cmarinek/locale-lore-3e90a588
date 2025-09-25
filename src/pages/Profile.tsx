@@ -120,6 +120,7 @@ export const Profile: React.FC = () => {
               <TabsList className="w-full overflow-x-auto">
                 <TabsTrigger value="profile">{t('editProfile', { defaultValue: 'Edit Profile' })}</TabsTrigger>
                 <TabsTrigger value="locations">{t('savedLocations', { defaultValue: 'Saved Locations' })}</TabsTrigger>
+                <TabsTrigger value="favorites">{t('favoriteCities', { defaultValue: 'Favorite Cities' })}</TabsTrigger>
                 {isContributor && (
                   <TabsTrigger value="contributions">{t('contributions', { defaultValue: 'My Contributions' })}</TabsTrigger>
                 )}
@@ -145,6 +146,12 @@ export const Profile: React.FC = () => {
                 </ErrorBoundary>
               </TabsContent>
 
+              <TabsContent value="favorites">
+                <ErrorBoundary>
+                  <FavoriteCitiesManager />
+                </ErrorBoundary>
+              </TabsContent>
+
               {isContributor && (
                 <TabsContent value="contributions">
                   <ErrorBoundary>
@@ -167,14 +174,11 @@ export const Profile: React.FC = () => {
 
               <TabsContent value="settings">
                 <ErrorBoundary>
-                  <div className="space-y-6">
-                    <SettingsPanel
-                      settings={settings}
-                      onUpdate={updateSettings}
-                      loading={loading}
-                    />
-                    <FavoriteCitiesManager />
-                  </div>
+                  <SettingsPanel
+                    settings={settings}
+                    onUpdate={updateSettings}
+                    loading={loading}
+                  />
                 </ErrorBoundary>
               </TabsContent>
 
