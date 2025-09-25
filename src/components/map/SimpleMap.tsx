@@ -31,14 +31,17 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
 
       try {
         setIsLoading(true);
+        console.log('🗺️ SimpleMap: Starting initialization...');
         
         // Get Mapbox token
         const token = await mapboxService.getToken();
+        console.log('🗺️ SimpleMap: Token received:', !!token);
         if (!token) {
           throw new Error('Mapbox token not available');
         }
 
         mapboxgl.accessToken = token;
+        console.log('🗺️ SimpleMap: Creating map instance...');
 
         // Create map with performance optimizations
         const mapInstance = new mapboxgl.Map({
@@ -69,6 +72,8 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
 
         mapInstance.on('load', () => {
           if (!mounted) return;
+          
+          console.log('🗺️ SimpleMap: Map loaded successfully');
           
           // Add sample data source for clustering
           mapInstance.addSource('facts', {
@@ -174,17 +179,18 @@ export const SimpleMap: React.FC<SimpleMapProps> = ({
             mapInstance.getCanvas().style.cursor = '';
           });
 
+          console.log('🗺️ SimpleMap: All layers added successfully');
           setIsLoading(false);
         });
 
         mapInstance.on('error', (e) => {
-          console.error('Map error:', e);
+          console.error('🗺️ SimpleMap: Map error:', e);
           setError('Failed to load map');
           setIsLoading(false);
         });
 
       } catch (error) {
-        console.error('Failed to initialize map:', error);
+        console.error('🗺️ SimpleMap: Failed to initialize map:', error);
         setError(error instanceof Error ? error.message : 'Unknown error');
         setIsLoading(false);
       }
