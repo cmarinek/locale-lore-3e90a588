@@ -81,10 +81,11 @@ export default defineConfig(({ mode }) => ({
       "i18next",
       "react-i18next",
       "framer-motion",
-      "lucide-react"
+      "lucide-react",
+      "mapbox-gl"
     ],
+    // Remove mapbox-gl from exclusions - it needs to be optimized
     exclude: [
-      "mapbox-gl", // Large library, load on demand
       "@capacitor/core" // Mobile-specific
     ],
     force: true,
