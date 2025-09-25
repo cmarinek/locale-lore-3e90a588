@@ -183,7 +183,8 @@ export function useRequestOptimization(config: ConnectionPoolConfig = {
     bounds: { north: number; south: number; east: number; west: number },
     zoom: number
   ) => {
-    const cacheKey = `clusters-${bounds.north}-${bounds.south}-${bounds.east}-${bounds.west}-${zoom}`;
+    // Use rounded coordinates for better cache hits
+    const cacheKey = `clusters-${bounds.north.toFixed(3)}-${bounds.south.toFixed(3)}-${bounds.east.toFixed(3)}-${bounds.west.toFixed(3)}-${zoom}`;
     
     return cachedRequest(
       cacheKey,
@@ -194,13 +195,13 @@ export function useRequestOptimization(config: ConnectionPoolConfig = {
           p_east: bounds.east,
           p_west: bounds.west,
           p_zoom: zoom,
-          p_limit: 1000
+          p_limit: 500 // Reduced for better performance
         });
 
         if (error) throw error;
         return data;
       }),
-      zoom > 10 ? 60000 : 300000 // Higher zoom = shorter cache
+      15000 // Shorter cache TTL for more dynamic data
     );
   }, [cachedRequest, retryRequest]);
 

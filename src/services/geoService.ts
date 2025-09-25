@@ -38,12 +38,67 @@ class GeoService {
 
   private cache = new Map<string, { data: any; timestamp: number }>();
   private readonly CACHE_TTL = 15000; // Shorter cache for dynamic clustering
+  
+  // Reference data caches
+  private categoriesCache = new Map<string, { slug: string; icon?: string; color?: string }>();
+  private profilesCache = new Map<string, { username: string; avatar_url?: string }>();
+  private lastCacheUpdate = 0;
+  private readonly REFERENCE_CACHE_TTL = 300000; // 5 minutes for reference data
 
   static getInstance(): GeoService {
     if (!GeoService.instance) {
       GeoService.instance = new GeoService();
     }
     return GeoService.instance;
+  }
+
+  // Load and cache reference data for performance
+  private async ensureReferenceDataCached(): Promise<void> {
+    const now = Date.now();
+    if (now - this.lastCacheUpdate < this.REFERENCE_CACHE_TTL) {
+      return; // Cache is still fresh
+    }
+
+    console.log('🔄 Refreshing reference data cache');
+    
+    try {
+      // Load categories
+      const { data: categories } = await supabase
+        .from('categories')
+        .select('id, slug, icon, color');
+      
+      if (categories) {
+        this.categoriesCache.clear();
+        categories.forEach(cat => {
+          this.categoriesCache.set(cat.id, {
+            slug: cat.slug,
+            icon: cat.icon,
+            color: cat.color
+          });
+        });
+      }
+
+      // Load profiles (just recent active ones)
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, username, avatar_url')
+        .limit(1000); // Limit to most recent active users
+      
+      if (profiles) {
+        this.profilesCache.clear();
+        profiles.forEach(profile => {
+          this.profilesCache.set(profile.id, {
+            username: profile.username || 'Anonymous',
+            avatar_url: profile.avatar_url
+          });
+        });
+      }
+
+      this.lastCacheUpdate = now;
+      console.log(`✅ Cached ${this.categoriesCache.size} categories and ${this.profilesCache.size} profiles`);
+    } catch (error) {
+      console.error('❌ Failed to cache reference data:', error);
+    }
   }
 
   private getCacheKey(bounds: ViewportBounds, zoom: number): string {
@@ -103,6 +158,9 @@ class GeoService {
     console.log(`🔄 Cache miss - fetching fresh data for zoom ${zoom}`);
 
     try {
+      // Ensure reference data is cached
+      await this.ensureReferenceDataCached();
+      
       // Progressive transition: mix clusters and individual facts based on zoom
       if (zoom < this.config.maxZoomForClustering) {
         console.log(`🎯 Using clustering for zoom ${zoom} (< ${this.config.maxZoomForClustering})`);
@@ -149,6 +207,7 @@ class GeoService {
   private async getIndividualFacts(bounds: ViewportBounds): Promise<FactMarker[]> {
     console.log('📍 Fetching individual facts from DB, bounds:', bounds);
     
+    // Optimize query by removing expensive joins and fetching minimal data
     const { data: facts, error } = await supabase
       .from('facts')
       .select(`
@@ -160,15 +219,8 @@ class GeoService {
         status,
         vote_count_up,
         vote_count_down,
-        categories!facts_category_id_fkey(
-          slug,
-          icon,
-          color
-        ),
-        profiles!facts_author_id_fkey(
-          username,
-          avatar_url
-        )
+        category_id,
+        author_id
       `)
       .gte('latitude', bounds.south)
       .lte('latitude', bounds.north)
@@ -209,15 +261,19 @@ class GeoService {
         const lat = typeof fact.latitude === 'string' ? parseFloat(fact.latitude) : fact.latitude;
         const [sanitizedLng, sanitizedLat] = sanitizeCoordinate(lng, lat);
         
+        // Enrich with cached reference data
+        const category = this.categoriesCache.get(fact.category_id);
+        const profile = this.profilesCache.get(fact.author_id);
+        
         return {
           id: fact.id,
           title: fact.title,
           latitude: sanitizedLat,
           longitude: sanitizedLng,
-          category: fact.categories?.slug || 'default',
+          category: category?.slug || 'default',
           verified: fact.status === 'verified',
           voteScore: (fact.vote_count_up || 0) - (fact.vote_count_down || 0),
-          authorName: fact.profiles?.username || 'Anonymous'
+          authorName: profile?.username || 'Anonymous'
         };
       });
 
