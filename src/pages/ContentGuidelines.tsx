@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -383,7 +384,7 @@ export const ContentGuidelines = () => {
                     📧 <strong>Email:</strong> community@localelore.com
                   </p>
                   <p className="text-sm">
-                    💬 <strong>Support Center:</strong> <a href="/support" className="text-primary hover:underline">Submit a ticket</a>
+                    💬 <strong>Support Center:</strong> <Link to="/support" className="text-primary hover:underline">Submit a ticket</Link>
                   </p>
                   <p className="text-sm">
                     🔄 <strong>Updates:</strong> These guidelines are reviewed regularly and may be updated

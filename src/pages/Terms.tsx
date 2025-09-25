@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -110,7 +111,7 @@ export const Terms = () => {
             <CardContent>
               <p className="text-muted-foreground">
                 Your privacy is important to us. Please review our{' '}
-                <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>{' '}
+                <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>{' '}
                 to understand how we collect, use, and protect your information.
               </p>
             </CardContent>

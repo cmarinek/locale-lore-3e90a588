@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -296,10 +297,10 @@ export const ProductionReadiness = () => {
                       </Button>
 
                       <Button variant="outline" asChild className="w-full justify-start">
-                        <a href="/admin" className="flex items-center">
+                        <Link to="/admin" className="flex items-center">
                           <Monitor className="h-4 w-4 mr-2" />
                           Open Admin Dashboard
-                        </a>
+                        </Link>
                       </Button>
                     </div>
 
