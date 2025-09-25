@@ -3,6 +3,12 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { FactMarker } from '@/types/map';
+import { mapboxService } from '@/services/mapboxService';
+import { MapTokenMissing } from './MapTokenMissing';
+import { EnhancedMapControls } from './EnhancedMapControls';
+import { useFavoriteCities } from '@/hooks/useFavoriteCities';
+import { Button } from '@/components/ui/button';
+import { Heart } from 'lucide-react';
 
 interface UltimateMapProps {
   onFactClick?: (fact: FactMarker) => void;
@@ -10,6 +16,8 @@ interface UltimateMapProps {
   center?: [number, number];
   zoom?: number;
 }
+
+type MapStyle = 'light' | 'dark' | 'satellite';
 
 // Ultra-simple cache with localStorage persistence
 const CACHE_KEY = 'map-facts-cache';
@@ -90,30 +98,48 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
   const markers = useRef<mapboxgl.Marker[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [facts, setFacts] = useState<FactMarker[]>([]);
+  const [mapboxToken, setMapboxToken] = useState<string | null>(null);
+  const [tokenLoading, setTokenLoading] = useState(true);
+  const [mapStyle, setMapStyle] = useState<MapStyle>('light');
+  const { favoriteCities, loading: citiesLoading } = useFavoriteCities();
 
-  // Initialize map immediately with skeleton
+  // Load Mapbox token first
   useEffect(() => {
-    if (!mapContainer.current) return;
+    const loadToken = async () => {
+      try {
+        const token = await mapboxService.getToken();
+        if (token) {
+          setMapboxToken(token);
+        }
+      } catch (error) {
+        console.error('Failed to load Mapbox token:', error);
+      } finally {
+        setTokenLoading(false);
+      }
+    };
 
-    const token = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
-    
-    if (!token) {
-      console.error('Mapbox token not found');
-      return;
-    }
+    loadToken();
+  }, []);
 
-    mapboxgl.accessToken = token;
+  // Initialize map with proper token
+  useEffect(() => {
+    if (!mapContainer.current || !mapboxToken) return;
+
+    mapboxgl.accessToken = mapboxToken;
 
     // Create map with minimal options for fastest load
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
+      style: getMapStyleUrl(mapStyle),
       center: center,
       zoom: zoom,
       antialias: false,
       attributionControl: false,
       logoPosition: 'bottom-right'
     });
+
+    // Add navigation control
+    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
     // Load immediately
     map.current.on('load', () => {
@@ -124,7 +150,7 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
       markers.current.forEach(marker => marker.remove());
       map.current?.remove();
     };
-  }, [center, zoom]);
+  }, [center, zoom, mapboxToken, mapStyle]);
 
   // Load facts progressively after map is ready
   useEffect(() => {
@@ -179,9 +205,125 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
     };
   }, [facts, isLoaded, onFactClick]);
 
+  // Map control handlers
+  const handleZoomIn = useCallback(() => {
+    if (map.current) {
+      map.current.zoomIn();
+    }
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    if (map.current) {
+      map.current.zoomOut();
+    }
+  }, []);
+
+  const handleRecenter = useCallback(() => {
+    if (map.current) {
+      map.current.flyTo({ center: center, zoom: zoom });
+    }
+  }, [center, zoom]);
+
+  const handleMyLocation = useCallback(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        if (map.current) {
+          map.current.flyTo({
+            center: [position.coords.longitude, position.coords.latitude],
+            zoom: 14
+          });
+        }
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+      }
+    );
+  }, []);
+
+  const handleStyleChange = useCallback(() => {
+    const styles: MapStyle[] = ['light', 'dark', 'satellite'];
+    const currentIndex = styles.indexOf(mapStyle);
+    const nextStyle = styles[(currentIndex + 1) % styles.length];
+    setMapStyle(nextStyle);
+    
+    if (map.current) {
+      map.current.setStyle(getMapStyleUrl(nextStyle));
+    }
+  }, [mapStyle]);
+
+  const handleCityClick = useCallback((city: any) => {
+    if (map.current) {
+      map.current.flyTo({
+        center: [city.lng, city.lat],
+        zoom: 12
+      });
+    }
+  }, []);
+
+  // Show token missing component if no token
+  if (tokenLoading) {
+    return (
+      <div className={className}>
+        <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center">
+          <div className="text-sm text-muted-foreground">Loading map...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!mapboxToken) {
+    return (
+      <div className={className}>
+        <MapTokenMissing />
+      </div>
+    );
+  }
+
   return (
-    <div className={className}>
+    <div className={`relative ${className}`}>
       <div ref={mapContainer} className="w-full h-full rounded-lg" />
+      
+      {/* Map Controls */}
+      {isLoaded && (
+        <EnhancedMapControls
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onRecenter={handleRecenter}
+          onMyLocation={handleMyLocation}
+          onStyleChange={handleStyleChange}
+          onResetView={handleRecenter}
+          position="right"
+          className="absolute top-4 right-4 z-10"
+        />
+      )}
+
+      {/* Favorite Cities */}
+      {isLoaded && !citiesLoading && favoriteCities.length > 0 && (
+        <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+          <div className="bg-background/90 backdrop-blur-sm rounded-lg p-2 shadow-lg border">
+            <div className="flex items-center gap-2 mb-2">
+              <Heart className="w-4 h-4 text-primary" />
+              <span className="text-xs font-medium">Favorites</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              {favoriteCities.slice(0, 3).map((city, index) => (
+                <Button
+                  key={index}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleCityClick(city)}
+                  className="h-8 px-2 justify-start text-xs"
+                >
+                  <span className="mr-1">{city.emoji}</span>
+                  {city.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading overlay */}
       {!isLoaded && (
         <div className="absolute inset-0 bg-muted rounded-lg flex items-center justify-center">
           <div className="text-sm text-muted-foreground">Loading map...</div>
@@ -189,6 +331,20 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
       )}
     </div>
   );
+};
+
+// Helper function to get map style URL
+const getMapStyleUrl = (style: MapStyle): string => {
+  switch (style) {
+    case 'light':
+      return 'mapbox://styles/mapbox/light-v11';
+    case 'dark':
+      return 'mapbox://styles/mapbox/dark-v11';
+    case 'satellite':
+      return 'mapbox://styles/mapbox/satellite-v9';
+    default:
+      return 'mapbox://styles/mapbox/light-v11';
+  }
 };
 
 export default UltimateMap;
