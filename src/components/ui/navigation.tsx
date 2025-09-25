@@ -2,17 +2,18 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useTranslation } from 'react-i18next';
-import { User } from 'lucide-react';
+import { User, LogOut, Settings, UserCog } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigationConfig } from '@/hooks/useNavigationItems';
 import type { UserRole } from '@/types/navigation';
 
 export const Navigation: React.FC = () => {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { t } = useTranslation('auth');
 
@@ -77,6 +78,45 @@ export const Navigation: React.FC = () => {
           </Link>
         );
       })}
+      
+      {/* User Dropdown Menu for logged-in users */}
+      {user && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="relative">
+              <UserCog className="w-4 h-4 mr-2" />
+              Account
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem asChild>
+              <Link to={`/profile/${user.id}`} className="flex items-center">
+                <User className="w-4 h-4 mr-2" />
+                Profile
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/settings" className="flex items-center">
+                <Settings className="w-4 h-4 mr-2" />
+                Settings
+              </Link>
+            </DropdownMenuItem>
+            {isAdmin && (
+              <DropdownMenuItem asChild>
+                <Link to="/admin" className="flex items-center">
+                  <UserCog className="w-4 h-4 mr-2" />
+                  Admin
+                </Link>
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={signOut} className="flex items-center text-destructive focus:text-destructive">
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </nav>
   );
 };

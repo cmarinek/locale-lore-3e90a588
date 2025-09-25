@@ -17,11 +17,14 @@ import {
   Shield,
   Moon,
   Sun,
-  Monitor
+  Monitor,
+  LogOut,
+  UserX
 } from 'lucide-react';
 import { useProfile, UserSettings } from '@/hooks/useProfile';
 import { useTheme } from '@/contexts/ThemeProvider';
 import { useLanguage } from '@/contexts/LanguageProvider';
+import { useAuth } from '@/contexts/AuthProvider';
 
 const languages = [
   { value: 'en', label: 'English' },
@@ -46,6 +49,7 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
   const [localSettings, setLocalSettings] = useState(settings);
   const { setTheme } = useTheme();
   const { setLanguage } = useLanguage();
+  const { signOut, user } = useAuth();
 
   const themes = [
     { value: 'light', label: 'Light', icon: Sun },
@@ -299,6 +303,48 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
               onCheckedChange={(checked) => updateSetting('data_processing_consent', checked)}
               disabled={loading}
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Account Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <UserX className="h-5 w-5" />
+            Account Management
+          </CardTitle>
+          <CardDescription>
+            Manage your account and session
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Current Account</Label>
+                <p className="text-sm text-muted-foreground">
+                  {user?.email}
+                </p>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            <div className="flex flex-col gap-3">
+              <Button 
+                variant="destructive" 
+                onClick={signOut}
+                className="w-full flex items-center gap-2"
+                disabled={loading}
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                You'll be redirected to the login page
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
