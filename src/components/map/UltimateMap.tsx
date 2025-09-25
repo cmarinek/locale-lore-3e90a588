@@ -247,9 +247,41 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
     setMapStyle(nextStyle);
     
     if (map.current) {
+      // Store current markers before style change
+      const currentMarkers = [...markers.current];
+      
       map.current.setStyle(getMapStyleUrl(nextStyle));
+      
+      // Re-add markers after style loads
+      map.current.once('styledata', () => {
+        // Clear any existing markers first
+        markers.current.forEach(marker => marker.remove());
+        markers.current = [];
+        
+        // Re-add all markers
+        currentMarkers.forEach(marker => {
+          const fact = facts.find(f => 
+            f.latitude === marker.getLngLat().lat && 
+            f.longitude === marker.getLngLat().lng
+          );
+          
+          if (fact) {
+            const el = document.createElement('div');
+            el.className = 'w-3 h-3 bg-primary rounded-full border border-white cursor-pointer hover:scale-125 transition-transform';
+            el.addEventListener('click', () => {
+              if (onFactClick) onFactClick(fact);
+            });
+
+            const newMarker = new mapboxgl.Marker(el)
+              .setLngLat([fact.longitude, fact.latitude])
+              .addTo(map.current!);
+            
+            markers.current.push(newMarker);
+          }
+        });
+      });
     }
-  }, [mapStyle]);
+  }, [mapStyle, facts, onFactClick]);
 
   const handleCityClick = useCallback((city: any) => {
     if (map.current) {
@@ -283,7 +315,7 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
     <div className={`relative ${className}`}>
       <div ref={mapContainer} className="w-full h-full rounded-lg" />
       
-      {/* Map Controls */}
+      {/* Map Controls - Responsive positioning */}
       {isLoaded && (
         <EnhancedMapControls
           onZoomIn={handleZoomIn}
@@ -293,16 +325,16 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
           onStyleChange={handleStyleChange}
           onResetView={handleRecenter}
           position="right"
-          className="absolute top-4 right-4 z-10"
+          className="absolute top-2 right-2 md:top-4 md:right-4 z-10"
         />
       )}
 
-      {/* Favorite Cities */}
+      {/* Favorite Cities - Responsive positioning */}
       {isLoaded && !citiesLoading && favoriteCities.length > 0 && (
-        <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-          <div className="bg-background/90 backdrop-blur-sm rounded-lg p-2 shadow-lg border">
+        <div className="absolute top-2 left-2 md:top-4 md:left-4 z-10 flex flex-col gap-2">
+          <div className="bg-background/90 backdrop-blur-sm rounded-lg p-2 shadow-lg border max-w-[200px] md:max-w-none">
             <div className="flex items-center gap-2 mb-2">
-              <Heart className="w-4 h-4 text-primary" />
+              <Heart className="w-3 h-3 md:w-4 md:h-4 text-primary" />
               <span className="text-xs font-medium">Favorites</span>
             </div>
             <div className="flex flex-col gap-1">
@@ -312,10 +344,10 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => handleCityClick(city)}
-                  className="h-8 px-2 justify-start text-xs"
+                  className="h-6 md:h-8 px-1 md:px-2 justify-start text-xs"
                 >
-                  <span className="mr-1">{city.emoji}</span>
-                  {city.name}
+                  <span className="mr-1 text-xs">{city.emoji}</span>
+                  <span className="truncate">{city.name}</span>
                 </Button>
               ))}
             </div>
