@@ -85,4 +85,8 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 }
 
+// Export as both named and default export for compatibility
 export default ErrorBoundary;
+
+// Alias for compatibility if anything is looking for DiagnosticErrorBoundary
+export { ErrorBoundary as DiagnosticErrorBoundary };
