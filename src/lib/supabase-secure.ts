@@ -7,8 +7,10 @@ export const initializeSecurityMonitoring = () => {
   console.log('[SECURITY] Initializing security monitoring...');
   
   try {
-    // Run initial RLS audit
-    auditRLSStatus();
+    // Delay the initial audit to ensure everything is initialized
+    setTimeout(() => {
+      auditRLSStatus();
+    }, 1000);
     
     // Set up periodic security checks (every hour)
     setInterval(() => {
