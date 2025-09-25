@@ -130,7 +130,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
         </div>
       </div>
 
-      {showDropdown && (cities.length > 0 || error) && (
+      {showDropdown && (cities.length > 0 || error || loading) && (
         <Card 
           ref={dropdownRef}
           className="absolute z-50 w-full mt-1 max-h-60 overflow-auto shadow-lg border bg-background"
@@ -138,6 +138,15 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
           {error ? (
             <div className="p-3 text-sm text-destructive">
               {error}
+            </div>
+          ) : loading ? (
+            <div className="p-3 text-sm text-muted-foreground flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Searching cities...
+            </div>
+          ) : cities.length === 0 ? (
+            <div className="p-3 text-sm text-muted-foreground">
+              No cities found. Try a different search term.
             </div>
           ) : (
             <div className="py-1">

@@ -27,20 +27,17 @@ export const useCitySearch = () => {
       setError(null);
 
       // Using OpenStreetMap Nominatim API for city search
+      console.log('Searching for cities with query:', query);
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?` +
         new URLSearchParams({
           q: query,
           format: 'json',
-          limit: '10',
+          limit: '15',
           addressdetails: '1',
-          extratags: '1',
-          namedetails: '1',
           'accept-language': 'en',
-          featuretype: 'city',
-          // Filter for cities, towns, villages
-          'class': 'place',
-          'type': 'city,town,village,hamlet'
+          // Focus on populated places
+          featuretype: 'settlement'
         }).toString(),
         {
           headers: {
@@ -54,29 +51,59 @@ export const useCitySearch = () => {
       }
 
       const data = await response.json();
+      console.log('Raw API response:', data?.length, 'results');
       
-      // Filter and format results to prioritize actual cities
+      // Better filtering and prioritization for cities
       const filteredCities = data
-        .filter((item: any) => 
-          item.address?.city || 
-          item.address?.town || 
-          item.address?.village ||
-          item.type === 'city' ||
-          item.type === 'town' ||
-          item.type === 'village'
-        )
-        .map((item: any) => ({
-          display_name: item.display_name,
-          name: item.address?.city || item.address?.town || item.address?.village || item.name,
-          country: item.address?.country || '',
-          state: item.address?.state || item.address?.province || '',
-          lat: item.lat,
-          lon: item.lon,
-          place_id: item.place_id
-        }))
+        .filter((item: any) => {
+          // Include places that are cities, towns, villages, or administrative areas with population
+          const hasSettlement = item.class === 'place' && 
+            ['city', 'town', 'village', 'hamlet', 'suburb', 'neighbourhood'].includes(item.type);
+          const hasAdminCity = item.address && (
+            item.address.city || 
+            item.address.town || 
+            item.address.village ||
+            item.address.municipality
+          );
+          const isNotCountryOrState = item.type !== 'country' && item.type !== 'state';
+          
+          return (hasSettlement || hasAdminCity) && isNotCountryOrState;
+        })
+        // Sort by importance (cities first, then towns, then villages)
+        .sort((a: any, b: any) => {
+          const getImportance = (item: any) => {
+            if (item.type === 'city' || item.address?.city) return 3;
+            if (item.type === 'town' || item.address?.town) return 2;
+            if (item.type === 'village' || item.address?.village) return 1;
+            return 0;
+          };
+          return getImportance(b) - getImportance(a);
+        })
+        .map((item: any) => {
+          const cityName = item.address?.city || 
+                          item.address?.town || 
+                          item.address?.village || 
+                          item.address?.municipality ||
+                          item.name;
+          
+          return {
+            display_name: item.display_name,
+            name: cityName,
+            country: item.address?.country || '',
+            state: item.address?.state || item.address?.province || item.address?.region || '',
+            lat: item.lat,
+            lon: item.lon,
+            place_id: item.place_id
+          };
+        })
         .slice(0, 8); // Limit to 8 results for better UX
 
+      console.log('Filtered cities:', filteredCities);
       setCities(filteredCities);
+      
+      if (filteredCities.length === 0 && data.length > 0) {
+        setError('No cities found. Try a different search term.');
+      }
     } catch (err) {
       console.error('City search error:', err);
       setError('Failed to search cities. Please try again.');
