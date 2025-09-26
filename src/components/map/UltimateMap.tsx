@@ -178,7 +178,9 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
         // Create simple marker element
         const el = document.createElement('div');
         el.className = 'w-3 h-3 bg-primary rounded-full border border-white cursor-pointer hover:scale-125 transition-transform';
-        el.addEventListener('click', () => {
+        el.title = fact.title; // Add tooltip with fact title
+        el.addEventListener('click', (e) => {
+          e.stopPropagation(); // Prevent event bubbling to map
           if (onFactClick) onFactClick(fact);
         });
 
@@ -269,7 +271,9 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
         facts.forEach(fact => {
           const el = document.createElement('div');
           el.className = 'w-3 h-3 bg-primary rounded-full border border-white cursor-pointer hover:scale-125 transition-transform';
-          el.addEventListener('click', () => {
+          el.title = fact.title; // Add tooltip with fact title
+          el.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event bubbling to map
             if (onFactClick) onFactClick(fact);
           });
 
