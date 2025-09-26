@@ -26,7 +26,7 @@ import { useLocationSorting } from '@/hooks/useLocationSorting';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Import ultimate optimized map component
-import UltimateMap from '@/components/map/UltimateMap';
+import { ScalableMap } from '@/components/map/ScalableMap';
 
 // Import error boundary
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
@@ -187,31 +187,31 @@ export const Hybrid: React.FC = () => {
     setSelectedFact(enhancedFact);
   };
 
-  const handleMapFactClick = (fact: FactMarker) => {
-    // Convert FactMarker to EnhancedFact for compatibility
+  const handleMapFactClick = (fact: any) => {
+    // Convert ScalableFact to EnhancedFact for compatibility
     const enhancedFact = {
       id: fact.id,
       title: fact.title,
-      description: '', // Will be loaded when modal opens
+      description: fact.properties?.description || '',
       latitude: fact.latitude,
       longitude: fact.longitude,
       category: fact.category,
-      verified: fact.verified,
-      vote_count_up: fact.voteScore > 0 ? fact.voteScore : 0,
-      vote_count_down: fact.voteScore < 0 ? Math.abs(fact.voteScore) : 0,
-      author_id: '',
-      category_id: '',
-      status: fact.verified ? 'verified' as const : 'pending' as const,
-      location_name: '',
-      media_urls: [],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      profiles: {
+      verified: fact.properties?.status === 'verified',
+      vote_count_up: fact.vote_count_up || 0,
+      vote_count_down: fact.properties?.vote_count_down || 0,
+      author_id: fact.properties?.author_id || '',
+      category_id: fact.properties?.category_id || '',
+      status: fact.properties?.status || 'pending' as const,
+      location_name: fact.properties?.location_name || '',
+      media_urls: fact.properties?.media_urls || [],
+      created_at: fact.properties?.created_at || new Date().toISOString(),
+      updated_at: fact.properties?.updated_at || new Date().toISOString(),
+      profiles: fact.properties?.profiles || {
         id: '',
-        username: fact.authorName || 'Anonymous',
+        username: 'Anonymous',
         avatar_url: null
       },
-      categories: {
+      categories: fact.properties?.categories || {
         slug: fact.category,
         icon: '📍',
         color: '#3B82F6',
@@ -424,12 +424,21 @@ export const Hybrid: React.FC = () => {
                   <TabsContent value="map" forceMount className="h-full data-[state=inactive]:hidden">
                     <div className="relative h-full">
                        <ErrorBoundary>
-                            <UltimateMap
-                              onFactClick={handleMapFactClick} 
-                              className="h-full w-full"
-                              center={[centerLocation.lng, centerLocation.lat]} 
-                              zoom={isMobile ? 12 : 10}
-                            />
+                             <ScalableMap
+                               facts={displayedFacts.map(fact => ({
+                                 id: fact.id,
+                                 title: fact.title,
+                                 latitude: fact.latitude,
+                                 longitude: fact.longitude,
+                                 category: fact.categories?.slug || fact.category || 'unknown',
+                                 vote_count_up: fact.vote_count_up || 0,
+                                 properties: fact
+                               }))}
+                               onFactClick={handleMapFactClick}
+                               center={[centerLocation.lng, centerLocation.lat]} 
+                               zoom={isMobile ? 12 : 10}
+                               style="light"
+                             />
                          </ErrorBoundary>
 
                         {/* Map Overlay Controls - only show when map tab is active */}
@@ -553,11 +562,20 @@ export const Hybrid: React.FC = () => {
 
             {/* Map - Desktop: Right main area */}
             <div className="flex-1 relative">
-              <UltimateMap 
-                onFactClick={handleMapFactClick} 
-                className="h-full w-full" 
+              <ScalableMap 
+                facts={displayedFacts.map(fact => ({
+                  id: fact.id,
+                  title: fact.title,
+                  latitude: fact.latitude,
+                  longitude: fact.longitude,
+                  category: fact.categories?.slug || fact.category || 'unknown',
+                  vote_count_up: fact.vote_count_up || 0,
+                  properties: fact
+                }))}
+                onFactClick={handleMapFactClick}
                 center={[centerLocation.lng, centerLocation.lat]} 
                 zoom={isMobile ? 12 : 10}
+                style="light"
               />
             </div>
           </div>

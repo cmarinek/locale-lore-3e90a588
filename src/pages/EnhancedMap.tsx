@@ -1,30 +1,39 @@
-import React, { useEffect } from 'react';
+/**
+ * Enhanced map page using scalable fact service
+ * Replaces the original Map page with viewport-based loading
+ */
+
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { ModernSearchBar } from '@/components/ui/modern-search-bar';
-import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { ScalableMap } from '@/components/map/ScalableMap';
-import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
-import { FactMarker } from '@/types/map';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { useScalableFacts } from '@/hooks/useScalableFacts';
+import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { MapPin, Layers, Clock } from 'lucide-react';
 
-export const Map: React.FC = () => {
-  const navigate = useNavigate();
+export const EnhancedMap: React.FC = () => {
+  const [selectedFactId, setSelectedFactId] = useState<string | null>(null);
+  const { selectedFact, setSelectedFact, filters, setFilters } = useDiscoveryStore();
   
   const {
-    facts,
-    selectedFact,
-    setSelectedFact,
-    filters,
-    setFilters,
-    searchFacts,
-    syncSelectedFact,
-    setSyncSelectedFact,
-    fetchFactById,
-    initializeData
-  } = useDiscoveryStore();
+    viewportFacts,
+    loading,
+    error,
+    metrics,
+    loadFactsForViewport,
+    handleBoundsChange,
+    refreshViewport,
+    searchInViewport
+  } = useScalableFacts({
+    autoLoad: false, // We'll load when map bounds are set
+    defaultZoom: 2
+  });
 
   const handleFactClick = (fact: any) => {
     // Convert fact to enhanced format for modal compatibility
@@ -59,35 +68,33 @@ export const Map: React.FC = () => {
       }
     };
     setSelectedFact(enhancedFact);
+    setSelectedFactId(fact.id);
   };
 
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     setFilters({ search: query });
-    searchFacts(query);
+    if (query.trim()) {
+      await searchInViewport(query);
+    } else {
+      refreshViewport();
+    }
   };
 
   const handleCloseModal = () => {
     setSelectedFact(null);
-    setSyncSelectedFact(null);
+    setSelectedFactId(null);
   };
 
-  // Initialize data when component mounts
-  useEffect(() => {
-    initializeData();
-  }, [initializeData]);
-
-  // Handle syncSelectedFact when component mounts or changes
-  useEffect(() => {
-    if (syncSelectedFact) {
-      const loadFact = async () => {
-        const fact = await fetchFactById(syncSelectedFact);
-        if (fact) {
-          setSelectedFact(fact);
-        }
-      };
-      loadFact();
-    }
-  }, [syncSelectedFact, setSelectedFact, fetchFactById]);
+  // Convert facts to ScalableFact format
+  const scalableFacts = viewportFacts.map(fact => ({
+    id: fact.id,
+    title: fact.title,
+    latitude: fact.latitude,
+    longitude: fact.longitude,
+    category: fact.categories?.slug || 'unknown',
+    vote_count_up: fact.vote_count_up || 0,
+    properties: fact
+  }));
 
   return (
     <ErrorBoundary
@@ -110,49 +117,87 @@ export const Map: React.FC = () => {
       <MainLayout>
         <Helmet>
           <title>Explore Map - Discover Stories Around You</title>
-          <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
+          <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area with intelligent viewport loading." />
           <link rel="canonical" href="/map" />
         </Helmet>
 
         <div className="h-screen w-full relative">
-          {/* Improved Map with Context - Better error handling and architecture */}
+          {/* Scalable Map with Performance Monitoring */}
           <ErrorBoundary 
             fallback={
               <div className="h-full w-full flex items-center justify-center bg-muted">
                 <div className="text-center space-y-4">
                   <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
                   <p className="text-muted-foreground">Loading interactive map...</p>
-                  <p className="text-sm text-muted-foreground/70">This may take a moment</p>
+                  <p className="text-sm text-muted-foreground/70">Optimized for millions of facts</p>
                 </div>
               </div>
             }
           >
             <ScalableMap
-              facts={facts.map(fact => ({
-                id: fact.id,
-                title: fact.title,
-                latitude: fact.latitude,
-                longitude: fact.longitude,
-                category: fact.categories?.slug || 'unknown',
-                vote_count_up: fact.vote_count_up || 0,
-                properties: fact
-              }))}
+              facts={scalableFacts}
               onFactClick={handleFactClick}
+              onBoundsChange={handleBoundsChange}
               center={[0, 20]}
               zoom={2}
               style="light"
+              clusterRadius={50}
             />
           </ErrorBoundary>
 
-          {/* Mobile-optimized Search Bar - fixed spacing to prevent overlaps */}
+          {/* Search Bar */}
           <div className="absolute top-4 left-4 right-16 z-20 max-w-md mx-auto sm:max-w-none sm:left-32 sm:right-56">
-            <ModernSearchBar onSearch={handleSearch} placeholder="Search stories on map..." showLocationButton={true} />
+            <ModernSearchBar 
+              onSearch={handleSearch} 
+              placeholder="Search stories on map..." 
+              showLocationButton={true}
+            />
           </div>
 
-          {/* View Mode Toggle - positioned to avoid overlaps */}
+          {/* View Mode Toggle */}
           <div className="absolute top-4 right-4 z-20">
             <ViewModeToggle variant="glass" />
           </div>
+
+          {/* Performance Metrics */}
+          <Card className="absolute bottom-4 left-4 p-3 bg-background/90 backdrop-blur z-20">
+            <div className="flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                <span>{metrics.totalFacts} facts</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                <span>{metrics.loadTime}ms</span>
+              </div>
+              {metrics.cacheHit && (
+                <Badge variant="secondary" className="text-xs px-1">
+                  Cached
+                </Badge>
+              )}
+              {loading && (
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                  <span>Loading...</span>
+                </div>
+              )}
+            </div>
+          </Card>
+
+          {/* Error Display */}
+          {error && (
+            <Card className="absolute top-16 left-4 right-4 p-3 bg-destructive/10 border-destructive/20 z-20">
+              <div className="text-destructive text-sm">
+                Error loading facts: {error}
+                <button 
+                  onClick={refreshViewport}
+                  className="ml-2 underline hover:no-underline"
+                >
+                  Retry
+                </button>
+              </div>
+            </Card>
+          )}
 
           {/* Fact Preview Modal */}
           {selectedFact && (
@@ -162,11 +207,10 @@ export const Map: React.FC = () => {
               onClose={handleCloseModal}
             />
           )}
-
         </div>
       </MainLayout>
     </ErrorBoundary>
   );
 };
 
-export default Map;
+export default EnhancedMap;
