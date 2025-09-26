@@ -9,9 +9,12 @@ import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { useFavoriteCities } from '@/hooks/useFavoriteCities';
+import { Button } from '@/components/ui/button';
 
 export const Map: React.FC = () => {
   const navigate = useNavigate();
+  const { favoriteCities, loading: citiesLoading } = useFavoriteCities();
   
   const {
     facts,
@@ -64,6 +67,11 @@ export const Map: React.FC = () => {
   const handleSearch = (query: string) => {
     setFilters({ search: query });
     searchFacts(query);
+  };
+
+  const handleCityClick = (city: any) => {
+    // This would integrate with the map to fly to the city
+    console.log('Flying to city:', city);
   };
 
   const handleCloseModal = () => {
@@ -155,6 +163,28 @@ export const Map: React.FC = () => {
           <div className="absolute top-3 right-3 z-20 sm:top-4 sm:right-4">
             <ViewModeToggle variant="glass" />
           </div>
+
+          {/* Favorite Cities */}
+          {!citiesLoading && favoriteCities.length > 0 && (
+            <div className="absolute top-20 left-3 z-20 sm:left-4 sm:top-24">
+              <div className="bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg p-2">
+                <div className="flex flex-col gap-1">
+                  {favoriteCities.slice(0, 3).map((city, index) => (
+                    <Button
+                      key={index}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleCityClick(city)}
+                      className="h-6 md:h-8 px-1 md:px-2 justify-start text-xs"
+                    >
+                      <span className="mr-1 text-xs">{city.emoji}</span>
+                      <span className="truncate">{city.name}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Fact Preview Modal */}
           {selectedFact && (
