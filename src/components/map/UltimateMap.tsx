@@ -145,8 +145,7 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
       logoPosition: 'bottom-right'
     });
 
-    // Add navigation control
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    // Custom controls only - no native Mapbox controls
 
     // Load immediately
     map.current.on('load', () => {
