@@ -144,13 +144,15 @@ export const Map: React.FC = () => {
             />
           </ErrorBoundary>
 
-          {/* Mobile-optimized Search Bar - fixed spacing to prevent overlaps */}
-          <div className="absolute top-4 left-4 right-16 z-20 max-w-md mx-auto sm:max-w-none sm:left-32 sm:right-56">
-            <ModernSearchBar onSearch={handleSearch} placeholder="Search stories on map..." showLocationButton={true} />
+          {/* Mobile-optimized Search Bar - better positioning for mobile */}
+          <div className="absolute top-3 left-3 right-20 z-20 sm:left-4 sm:right-72 sm:top-4">
+            <div className="max-w-md mx-auto sm:mx-0">
+              <ModernSearchBar onSearch={handleSearch} placeholder="Search stories..." showLocationButton={true} />
+            </div>
           </div>
 
-          {/* View Mode Toggle - positioned to avoid overlaps */}
-          <div className="absolute top-4 right-4 z-20">
+          {/* View Mode Toggle - mobile-friendly positioning */}
+          <div className="absolute top-3 right-3 z-20 sm:top-4 sm:right-4">
             <ViewModeToggle variant="glass" />
           </div>
 
