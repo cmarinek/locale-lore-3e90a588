@@ -889,6 +889,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fact_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fact_comments_fact_id_fkey"
             columns: ["fact_id"]
             isOneToOne: false
