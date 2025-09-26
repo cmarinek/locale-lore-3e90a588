@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/ios-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/ios-badge';
-import AdvancedMap from '@/components/ui/AdvancedMap';
+import { UnifiedMap } from '@/components/map/UnifiedMap';
 import { MapPin, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -114,16 +114,18 @@ export const StepLocation: React.FC<StepLocationProps> = ({
             <div className="space-y-2">
               <Label className="text-foreground">Interactive Map</Label>
               <div className="aspect-square rounded-lg overflow-hidden border border-border">
-                <AdvancedMap
+                <UnifiedMap
                   className="w-full h-full"
-                  initialCenter={
+                  center={
                     data.latitude && data.longitude
                       ? [data.longitude, data.latitude]
                       : [-74.0060, 40.7128] // Default to NYC
                   }
-                  initialZoom={data.latitude && data.longitude ? 15 : 10}
+                  zoom={data.latitude && data.longitude ? 15 : 10}
                   onFactClick={handleMapClick}
                   showHeatmap={false}
+                  enableClustering={false}
+                  useScalableLoading={false}
                 />
               </div>
             </div>

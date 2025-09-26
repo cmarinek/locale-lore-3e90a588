@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import { ScalableMap } from '@/components/map/ScalableMap';
+import { UnifiedMap } from '@/components/map/UnifiedMap';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
@@ -127,20 +127,15 @@ export const Map: React.FC = () => {
               </div>
             }
           >
-            <ScalableMap
-              facts={facts.map(fact => ({
-                id: fact.id,
-                title: fact.title,
-                latitude: fact.latitude,
-                longitude: fact.longitude,
-                category: fact.categories?.slug || 'unknown',
-                vote_count_up: fact.vote_count_up || 0,
-                properties: fact
-              }))}
-              onFactClick={handleFactClick}
+            <UnifiedMap
+              facts={facts}
+              useScalableLoading={false}
+              enableClustering={true}
+              enablePerformanceMetrics={true}
               center={[0, 20]}
               zoom={2}
               style="light"
+              onFactClick={handleFactClick}
             />
           </ErrorBoundary>
 

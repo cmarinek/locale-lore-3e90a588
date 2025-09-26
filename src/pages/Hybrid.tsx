@@ -26,7 +26,7 @@ import { useLocationSorting } from '@/hooks/useLocationSorting';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Import ultimate optimized map component
-import { ScalableMap } from '@/components/map/ScalableMap';
+import { UnifiedMap } from '@/components/map/UnifiedMap';
 
 // Import error boundary
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
@@ -424,16 +424,10 @@ export const Hybrid: React.FC = () => {
                   <TabsContent value="map" forceMount className="h-full data-[state=inactive]:hidden">
                     <div className="relative h-full">
                        <ErrorBoundary>
-                             <ScalableMap
-                               facts={displayedFacts.map(fact => ({
-                                 id: fact.id,
-                                 title: fact.title,
-                                 latitude: fact.latitude,
-                                 longitude: fact.longitude,
-                                 category: fact.categories?.slug || fact.category || 'unknown',
-                                 vote_count_up: fact.vote_count_up || 0,
-                                 properties: fact
-                               }))}
+                              <UnifiedMap
+                                facts={displayedFacts}
+                                useScalableLoading={false}
+                                enableClustering={true}
                                onFactClick={handleMapFactClick}
                                center={[centerLocation.lng, centerLocation.lat]} 
                                zoom={isMobile ? 12 : 10}
@@ -562,16 +556,10 @@ export const Hybrid: React.FC = () => {
 
             {/* Map - Desktop: Right main area */}
             <div className="flex-1 relative">
-              <ScalableMap 
-                facts={displayedFacts.map(fact => ({
-                  id: fact.id,
-                  title: fact.title,
-                  latitude: fact.latitude,
-                  longitude: fact.longitude,
-                  category: fact.categories?.slug || fact.category || 'unknown',
-                  vote_count_up: fact.vote_count_up || 0,
-                  properties: fact
-                }))}
+              <UnifiedMap 
+                facts={displayedFacts}
+                useScalableLoading={false}
+                enableClustering={true}
                 onFactClick={handleMapFactClick}
                 center={[centerLocation.lng, centerLocation.lat]} 
                 zoom={isMobile ? 12 : 10}

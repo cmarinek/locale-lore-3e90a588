@@ -8,7 +8,7 @@ import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import { ScalableMap } from '@/components/map/ScalableMap';
+import { UnifiedMap } from '@/components/map/UnifiedMap';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { useScalableFacts } from '@/hooks/useScalableFacts';
@@ -134,14 +134,17 @@ export const EnhancedMap: React.FC = () => {
               </div>
             }
           >
-            <ScalableMap
-              facts={scalableFacts}
-              onFactClick={handleFactClick}
-              onBoundsChange={handleBoundsChange}
+            <UnifiedMap
+              useScalableLoading={true}
+              enableClustering={true}
+              enableViewportLoading={true}
+              enablePerformanceMetrics={true}
               center={[0, 20]}
               zoom={2}
               style="light"
               clusterRadius={50}
+              onFactClick={handleFactClick}
+              onBoundsChange={handleBoundsChange}
             />
           </ErrorBoundary>
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/ios-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/ios-badge';
-import AdvancedMap from '@/components/ui/AdvancedMap';
+import { UnifiedMap } from '@/components/map/UnifiedMap';
 import { FactMarker } from '@/types/map';
 import { 
   Map as MapIcon, 
@@ -111,12 +111,14 @@ const MapShowcase = () => {
           
           {/* Map Container */}
           <div className="h-[500px] w-full rounded-xl overflow-hidden border">
-            <AdvancedMap
+            <UnifiedMap
               className="w-full h-full"
-              initialCenter={[-74.0060, 40.7128]}
-              initialZoom={10}
+              center={[-74.0060, 40.7128]}
+              zoom={10}
               onFactClick={handleFactClick}
               showHeatmap={showHeatmap}
+              enableClustering={true}
+              useScalableLoading={false}
             />
           </div>
 
