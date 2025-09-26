@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavigationItem, NavigationConfig, UserRole } from '@/types/navigation';
-import { useUserRole } from '@/hooks/useUserRole';
 import { 
   Home, 
   Compass, 
@@ -193,7 +192,6 @@ export function useNavigationItems() {
         label: t('profile'),
         path: '/profile',
         icon: User,
-        requiresAuth: true,
         category: 'primary'
       }
     ];
@@ -291,29 +289,4 @@ export function isNavigationItemVisible(
 export function useMobileNavigationItems(userRole: UserRole, isAdmin: boolean = false): NavigationItem[] {
   const config = useNavigationConfig(userRole, isAdmin);
   return config.mobile.filter(item => isNavigationItemVisible(item, userRole, isAdmin));
-}
-
-// Enhanced hook that uses current user role
-export function useNavigationWithRole() {
-  const { role, isAdmin, loading } = useUserRole();
-  const { t } = useTranslation('navigation');
-
-  const navigationConfig = useNavigationConfig(role, isAdmin);
-  const mobileItems = useMobileNavigationItems(role, isAdmin);
-
-  const isItemVisible = useMemo(() => {
-    return (item: NavigationItem) => {
-      if (loading) return false;
-      return isNavigationItemVisible(item, role, isAdmin);
-    };
-  }, [role, isAdmin, loading]);
-
-  return {
-    ...navigationConfig,
-    mobileItems,
-    isItemVisible,
-    userRole: role,
-    isAdmin,
-    loading
-  };
 }

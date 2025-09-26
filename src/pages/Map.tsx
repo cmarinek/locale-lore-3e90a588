@@ -9,12 +9,9 @@ import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { useFavoriteCities } from '@/hooks/useFavoriteCities';
-import { Button } from '@/components/ui/button';
 
 export const Map: React.FC = () => {
   const navigate = useNavigate();
-  const { favoriteCities, loading: citiesLoading } = useFavoriteCities();
   
   const {
     facts,
@@ -67,11 +64,6 @@ export const Map: React.FC = () => {
   const handleSearch = (query: string) => {
     setFilters({ search: query });
     searchFacts(query);
-  };
-
-  const handleCityClick = (city: any) => {
-    // This would integrate with the map to fly to the city
-    console.log('Flying to city:', city);
   };
 
   const handleCloseModal = () => {
@@ -152,39 +144,15 @@ export const Map: React.FC = () => {
             />
           </ErrorBoundary>
 
-          {/* Mobile-optimized Search Bar - better positioning for mobile */}
-          <div className="absolute top-3 left-3 right-20 z-20 sm:left-4 sm:right-72 sm:top-4">
-            <div className="max-w-md mx-auto sm:mx-0">
-              <ModernSearchBar onSearch={handleSearch} placeholder="Search stories..." showLocationButton={true} />
-            </div>
+          {/* Mobile-optimized Search Bar - fixed spacing to prevent overlaps */}
+          <div className="absolute top-4 left-4 right-16 z-20 max-w-md mx-auto sm:max-w-none sm:left-32 sm:right-56">
+            <ModernSearchBar onSearch={handleSearch} placeholder="Search stories on map..." showLocationButton={true} />
           </div>
 
-          {/* View Mode Toggle - mobile-friendly positioning */}
-          <div className="absolute top-3 right-3 z-20 sm:top-4 sm:right-4">
+          {/* View Mode Toggle - positioned to avoid overlaps */}
+          <div className="absolute top-4 right-4 z-20">
             <ViewModeToggle variant="glass" />
           </div>
-
-          {/* Favorite Cities */}
-          {!citiesLoading && favoriteCities.length > 0 && (
-            <div className="absolute top-20 left-3 z-20 sm:left-4 sm:top-24">
-              <div className="bg-background/90 backdrop-blur-sm rounded-lg border shadow-lg p-2">
-                <div className="flex flex-col gap-1">
-                  {favoriteCities.slice(0, 3).map((city, index) => (
-                    <Button
-                      key={index}
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleCityClick(city)}
-                      className="h-6 md:h-8 px-1 md:px-2 justify-start text-xs"
-                    >
-                      <span className="mr-1 text-xs">{city.emoji}</span>
-                      <span className="truncate">{city.name}</span>
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Fact Preview Modal */}
           {selectedFact && (

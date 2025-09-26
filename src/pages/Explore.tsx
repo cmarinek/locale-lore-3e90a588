@@ -78,8 +78,8 @@ export const Explore: React.FC = () => {
 
   const getUserLocation = async () => {
     try {
-      const { simplifiedInitializer } = await import('@/utils/simplified-initialization');
-      const result = await simplifiedInitializer.safeGetLocation();
+      const { initManager } = await import('@/utils/initialization-manager');
+      const result = await initManager.safeGetLocation();
       
       if (result) {
         setUserLocation([result.longitude, result.latitude]);

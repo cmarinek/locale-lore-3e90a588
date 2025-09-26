@@ -2,7 +2,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { simplifiedInitializer } from './utils/simplified-initialization';
+import { appInitializer } from './utils/app-initialization';
+import { viteChunkOptimizer } from './utils/vite-chunk-optimizer';
 
 // Ensure React is properly loaded before proceeding
 if (!React || typeof React !== 'object' || !React.createElement) {
@@ -11,106 +12,87 @@ if (!React || typeof React !== 'object' || !React.createElement) {
   throw new Error('React not available');
 }
 
-// Create a minimal loading indicator that doesn't interfere with React
+// Create a loading indicator
 const showLoadingIndicator = () => {
-  console.log('📺 Creating minimal loading indicator...');
-  // Don't replace entire body - just add a minimal loader that React can replace
-  const existingRoot = document.getElementById('root');
-  if (existingRoot) {
-    existingRoot.innerHTML = `
-      <div style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        background: hsl(var(--background));
-        color: hsl(var(--foreground));
-        font-family: Inter, system-ui, sans-serif;
-        z-index: 9999;
-      ">
-        <div style="text-align: center;">
-          <div style="
-            width: 40px; 
-            height: 40px; 
-            border: 3px solid hsl(var(--muted)); 
-            border-top: 3px solid hsl(var(--primary)); 
-            border-radius: 50%; 
-            animation: spin 1s linear infinite; 
-            margin: 0 auto 1rem;
-          "></div>
-          <h2 style="margin: 0 0 0.5rem; font-size: 1.25rem; font-weight: 600;">Initializing GeoCache Lore</h2>
-          <p style="margin: 0; color: hsl(var(--muted-foreground)); font-size: 0.875rem;">Setting up your experience...</p>
-        </div>
-        <style>
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        </style>
+  const loadingHTML = `
+    <div style="
+      min-height: 100vh; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      background: hsl(var(--background));
+      color: hsl(var(--foreground));
+      font-family: Inter, system-ui, sans-serif;
+    ">
+      <div style="text-align: center; max-width: 400px; padding: 2rem;">
+        <div style="
+          width: 40px; 
+          height: 40px; 
+          border: 3px solid hsl(var(--muted)); 
+          border-top: 3px solid hsl(var(--primary)); 
+          border-radius: 50%; 
+          animation: spin 1s linear infinite; 
+          margin: 0 auto 1rem;
+        "></div>
+        <h2 style="margin: 0 0 0.5rem; font-size: 1.25rem; font-weight: 600;">Initializing GeoCache Lore</h2>
+        <p style="margin: 0; color: hsl(var(--muted-foreground)); font-size: 0.875rem;">Setting up your experience...</p>
       </div>
-    `;
-  }
+      <style>
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      </style>
+    </div>
+  `;
+  document.body.innerHTML = loadingHTML;
 };
 
-// Initialize app with clean single initialization flow
+// Initialize chunk optimizer for better Vite bundling
+console.log('🔧 Vite chunk optimizer initialized');
+
+// Initialize app with proper loading states
 const initializeApp = async () => {
-  console.log('🚀 Starting app initialization...');
-  
   try {
-    // Ensure root element exists FIRST
-    console.log('🔍 Looking for root element...');
+    // Show loading indicator
+    showLoadingIndicator();
+    
+    // Ensure root element exists
     let rootElement = document.getElementById("root");
     if (!rootElement) {
-      console.log('⚠️ Root element not found, creating one...');
       rootElement = document.createElement('div');
       rootElement.id = 'root';
       document.body.appendChild(rootElement);
-      console.log('✅ Root element created');
-    } else {
-      console.log('✅ Root element found');
+      console.warn('Root element was missing and has been created');
     }
 
-    // Show loading indicator in root element
-    console.log('📺 Showing loading indicator...');
-    showLoadingIndicator();
-    console.log('✅ Loading indicator shown');
+    // Initialize app systems with timeout protection
+    const initPromise = appInitializer.initialize();
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Initialization timeout')), 15000);
+    });
 
-    // Use simplified initialization system
-    console.log('🔧 Starting simplified initialization...');
-    const result = await simplifiedInitializer.initialize();
-    console.log('📊 Initialization result:', result);
+    const result = await Promise.race([initPromise, timeoutPromise]);
     
     if (!result.success) {
-      console.warn('⚠️ App initialization had issues:', result.issues);
+      console.warn('App initialization had issues:', result.issues);
       // Continue anyway - non-critical failures shouldn't block startup
-    } else {
-      console.log('✅ Simplified initialization completed successfully');
     }
 
-    console.log('🎨 Preparing to render React app...');
+    console.log('✅ Initialization complete, rendering React app');
 
-    // Create root container and render React
-    console.log('🧹 Clearing root element...');
-    rootElement.innerHTML = '';
-    
-    console.log('🎨 Creating React root...');
-    const root = createRoot(rootElement);
+    // Clear loading indicator and render React
+    document.body.innerHTML = '<div id="root"></div>';
+    const root = createRoot(document.getElementById("root")!);
 
-    console.log('🚀 Rendering React app...');
     root.render(
       <React.StrictMode>
         <App />
       </React.StrictMode>
     );
-    
-    console.log('🎉 React app rendered successfully!');
 
   } catch (error) {
-    console.error('💥 Critical initialization error:', error);
+    console.error('❌ Critical initialization error:', error);
     
     // Render fallback app even if initialization fails
     document.body.innerHTML = `
@@ -126,7 +108,7 @@ const initializeApp = async () => {
         <div style="text-align: center; max-width: 500px;">
           <h1 style="color: #dc3545; margin-bottom: 1rem;">Initialization Failed</h1>
           <p style="color: #6c757d; margin-bottom: 2rem;">
-            The app failed to initialize properly. Check the console for details.
+            The app failed to initialize properly. This might be due to network issues or browser compatibility.
           </p>
           <button onclick="window.location.reload()" style="
             background: #007bff; 
@@ -139,12 +121,6 @@ const initializeApp = async () => {
           ">
             Retry Loading
           </button>
-          <details style="margin-top: 1rem; text-align: left;">
-            <summary style="cursor: pointer; margin-bottom: 0.5rem;">Error Details</summary>
-            <pre style="background: #f1f3f4; padding: 1rem; border-radius: 0.375rem; overflow: auto; font-size: 0.75rem;">
-${error instanceof Error ? error.stack : String(error)}
-            </pre>
-          </details>
         </div>
       </div>
     `;
@@ -152,5 +128,4 @@ ${error instanceof Error ? error.stack : String(error)}
 };
 
 // Start initialization
-console.log('🏁 Starting application...');
 initializeApp();

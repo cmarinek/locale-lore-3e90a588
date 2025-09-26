@@ -8,7 +8,6 @@ import mapboxgl from 'mapbox-gl';
 import Supercluster from 'supercluster';
 import { throttle, debounce } from 'lodash';
 import { Card } from '@/components/ui/card';
-import MapControls from './MapControls';
 import { Button } from '@/components/ui/button';
 import { MapPin, Layers, ZoomIn } from 'lucide-react';
 
@@ -373,9 +372,6 @@ export const ScalableMap: React.FC<ScalableMapProps> = ({
     <div className="relative w-full h-full">
       <div ref={mapContainer} className="absolute inset-0" />
       
-      {/* Map Controls */}
-      <MapControls isVisible={isLoaded} />
-
       {/* Performance overlay */}
       <Card className="absolute top-4 right-4 p-3 bg-background/90 backdrop-blur">
         <div className="text-xs space-y-1">

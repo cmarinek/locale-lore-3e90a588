@@ -25,7 +25,7 @@ export const BottomNavigation: React.FC = () => {
   } = useAppStore();
 
   // Determine user role
-  const userRole: UserRole = user ? 'free' : 'guest';
+  const userRole: UserRole = user ? 'user' : 'guest';
   
   // Get mobile navigation items based on user role and admin status
   const navigationItems = useMobileNavigationItems(userRole, isAdmin);

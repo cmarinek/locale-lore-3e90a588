@@ -20,7 +20,7 @@ export interface NavigationGroup {
   defaultOpen?: boolean;
 }
 
-export type UserRole = 'guest' | 'free' | 'contributor' | 'admin';
+export type UserRole = 'guest' | 'user' | 'admin';
 
 export interface NavigationConfig {
   primary: NavigationItem[];

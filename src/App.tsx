@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AppProviders } from '@/components/app/AppProviders';
+import { AppInitialization } from '@/components/app/AppInitialization';
 import { AppLayout } from '@/components/app/AppLayout';
 import { AppRoutes } from '@/components/app/AppRoutes';
 import { ChunkErrorBoundary } from '@/components/common/ChunkErrorBoundary';
@@ -16,9 +17,11 @@ function App() {
     <ChunkErrorBoundary>
       <Router>
         <AppProviders>
-          <AppLayout>
-            <AppRoutes />
-          </AppLayout>
+          <AppInitialization>
+            <AppLayout>
+              <AppRoutes />
+            </AppLayout>
+          </AppInitialization>
         </AppProviders>
       </Router>
     </ChunkErrorBoundary>

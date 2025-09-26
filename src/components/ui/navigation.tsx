@@ -18,7 +18,7 @@ export const Navigation: React.FC = () => {
   const { t } = useTranslation('auth');
 
   // Determine user role
-  const userRole: UserRole = user ? 'free' : 'guest';
+  const userRole: UserRole = user ? 'user' : 'guest';
   
   // Get navigation configuration
   const navigationConfig = useNavigationConfig(userRole, isAdmin);
