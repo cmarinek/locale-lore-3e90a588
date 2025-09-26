@@ -8,6 +8,7 @@ import { ClusterPoint } from '@/types/clustering';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { mapboxService } from '@/services/mapboxService';
 import { ErrorBoundary } from 'react-error-boundary';
 import { EnhancedMapControls } from './EnhancedMapControls';
 import { MapLoadingState } from './MapLoadingState';
@@ -96,11 +97,11 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
     if (!mapContainer.current || isInitializedRef.current) return;
 
     try {
-      // Get Mapbox token from Supabase secrets
-      const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+      // Use centralized mapbox service
+      const token = await mapboxService.getToken();
       
-      if (error || !data?.token) {
-        console.error('Failed to get Mapbox token:', error);
+      if (!token) {
+        console.error('Failed to get Mapbox token');
         toast({
           title: "Map Error",
           description: "Failed to load map. Please check your Mapbox configuration.",
@@ -109,7 +110,7 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
         return;
       }
 
-      mapboxgl.accessToken = data.token;
+      mapboxgl.accessToken = token;
       isInitializedRef.current = true;
 
       // Initialize Supercluster with optimized configuration

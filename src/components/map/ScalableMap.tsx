@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Layers, ZoomIn } from 'lucide-react';
 import { EnhancedMapControls } from '@/components/map/EnhancedMapControls';
 import { useFavoriteCities } from '@/hooks/useFavoriteCities';
+import { mapboxService } from '@/services/mapboxService';
 
 // Types for scalable facts
 interface ScalableFact {
@@ -113,11 +114,10 @@ export const ScalableMap: React.FC<ScalableMapProps> = ({
     return cluster;
   }, [facts, clusterRadius, maxZoom]);
 
-  // Load Mapbox token
+  // Load Mapbox token using centralized service
   useEffect(() => {
-    fetch('/functions/v1/get-mapbox-token', { method: 'POST' })
-      .then(res => res.json())
-      .then(data => setMapboxToken(data.token))
+    mapboxService.getToken()
+      .then(token => setMapboxToken(token || ''))
       .catch(console.error);
   }, []);
 

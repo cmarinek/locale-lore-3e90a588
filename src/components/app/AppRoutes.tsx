@@ -124,8 +124,6 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/content-guidelines" element={<ContentGuidelines />} />
         <Route path="/translation-test" element={<TranslationTest />} />
         <Route path="/showcase" element={<ComponentShowcase />} />
-        {/* Legacy redirects */}
-        <Route path="/lore/submit" element={<Submit />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

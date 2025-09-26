@@ -24,6 +24,7 @@ import { Fact, FactMarker } from '@/types/map';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { EnhancedMapControls } from '@/components/map/EnhancedMapControls';
 import { useFavoriteCities } from '@/hooks/useFavoriteCities';
+import { mapboxService } from '@/services/mapboxService';
 
 // Get theme-aware border color
 const getThemeBorderColor = () => {
@@ -82,12 +83,10 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Fetch Mapbox token securely from Edge Function
+  // Use centralized mapbox service instead of direct supabase calls
   const fetchMapboxToken = useCallback(async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('get-mapbox-token');
-      if (error) throw error;
-      return data.token;
+      return await mapboxService.getToken();
     } catch (error) {
       console.error('Error fetching Mapbox token:', error);
       return null;
