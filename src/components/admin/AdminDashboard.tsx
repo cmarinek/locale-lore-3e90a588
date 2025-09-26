@@ -12,6 +12,7 @@ import { PaymentDashboard } from '@/components/admin/PaymentDashboard';
 import { PromoCodeManager } from '@/components/admin/PromoCodeManager';
 import FactAcquisitionManager from './FactAcquisitionManager';
 import { MobileAppBuilder } from './MobileAppBuilder';
+import MediaManagement from '@/pages/MediaManagement';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -68,6 +69,8 @@ export const AdminDashboard: React.FC = () => {
         return <FactAcquisitionManager />;
       case 'mobile':
         return <MobileAppBuilder />;
+      case 'media':
+        return <MediaManagement />;
       default:
         return <AnalyticsDashboard />;
     }

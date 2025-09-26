@@ -14,7 +14,7 @@ const AuthCallback = lazy(() => import('@/pages/AuthCallback'));
 const AuthConfirm = lazy(() => import('@/pages/AuthConfirm'));
 const AuthResetPassword = lazy(() => import('@/pages/AuthResetPassword'));
 const Explore = lazy(() => import('@/pages/Explore').then(m => ({ default: m.Explore })));
-const Hybrid = lazy(() => import('@/pages/Hybrid').then(m => ({ default: m.Hybrid })));
+
 const Search = lazy(() => import('@/pages/Search').then(m => ({ default: m.Search })));
 const Submit = lazy(() => import('@/pages/Submit').then(m => ({ default: m.Submit })));
 const Profile = lazy(() => import('@/pages/Profile').then(m => ({ default: m.Profile })));
@@ -34,6 +34,7 @@ const Support = lazy(() => import('@/pages/Support').then(m => ({ default: m.Sup
 const ContentGuidelines = lazy(() => import('@/pages/ContentGuidelines').then(m => ({ default: m.ContentGuidelines })));
 const TranslationTest = lazy(() => import('@/pages/TranslationTest'));
 const LazyMap = lazy(() => import('@/pages/Map'));
+const Help = lazy(() => import('@/pages/Help'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -72,7 +73,6 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/auth/confirm" element={<AuthConfirm />} />
         <Route path="/auth/reset-password" element={<AuthResetPassword />} />
         <Route path="/explore" element={<Explore />} />
-        <Route path="/hybrid" element={<Hybrid />} />
         <Route path="/map" element={<LazyMap />} />
         <Route path="/search" element={<Search />} />
         <Route path="/submit" element={
@@ -89,11 +89,6 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/gamification" element={
           <ProtectedRoute requiresAuth feature="challenges and rewards" showPreview>
             <Gamification />
-          </ProtectedRoute>
-        } />
-        <Route path="/media" element={
-          <ProtectedRoute adminOnly feature="media management" graceful={false}>
-            <MediaManagement />
           </ProtectedRoute>
         } />
         <Route path="/billing" element={
@@ -117,13 +112,18 @@ export const AppRoutes: React.FC = React.memo(() => {
             <Admin />
           </ProtectedRoute>
         } />
+        <Route path="/help" element={<Help />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
-        <Route path="/production-readiness" element={<ProductionReadiness />} />
         <Route path="/support" element={<Support />} />
         <Route path="/content-guidelines" element={<ContentGuidelines />} />
-        <Route path="/translation-test" element={<TranslationTest />} />
-        <Route path="/showcase" element={<ComponentShowcase />} />
+        {process.env.NODE_ENV === 'development' && (
+          <>
+            <Route path="/production-readiness" element={<ProductionReadiness />} />
+            <Route path="/translation-test" element={<TranslationTest />} />
+            <Route path="/showcase" element={<ComponentShowcase />} />
+          </>
+        )}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

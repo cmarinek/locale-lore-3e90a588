@@ -40,6 +40,7 @@ const adminItems = [
     group: 'Content',
     items: [
       { title: 'Moderation', value: 'moderation', icon: Shield },
+      { title: 'Media Management', value: 'media', icon: FileText },
       { title: 'Fact Acquisition', value: 'acquisition', icon: Database },
     ]
   },
