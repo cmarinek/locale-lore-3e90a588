@@ -126,11 +126,7 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({
       setComments(nested);
     } catch (error) {
       console.error('Error fetching comments:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load comments",
-        variant: "destructive"
-      });
+      // Don't show toast for comment loading errors - it's expected when there are no comments
     } finally {
       setLoading(false);
     }
