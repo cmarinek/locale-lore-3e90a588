@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from 'react';
 
 export type Theme = 'light' | 'dark' | 'auto';
 
@@ -47,11 +47,11 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     return () => mediaQuery.removeEventListener('change', updateActualTheme);
   }, [theme]);
 
-  const value: ThemeContextType = {
+  const value: ThemeContextType = useMemo(() => ({
     theme,
     setTheme: updateTheme,
     actualTheme,
-  };
+  }), [theme, actualTheme]);
 
   return (
     <ThemeContext.Provider value={value}>

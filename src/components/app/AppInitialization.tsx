@@ -1,13 +1,24 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { SessionManager } from '@/utils/security';
-import { appInitializer } from '@/utils/app-initialization';
+import { simplifiedInitializer } from '@/utils/simplified-initialization';
 
 interface AppInitializationProps {
   children: React.ReactNode;
 }
 
 export const AppInitialization: React.FC<AppInitializationProps> = ({ children }) => {
+  const initializedRef = useRef(false);
+
   useEffect(() => {
+    // Prevent multiple initializations
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
+    // Single initialization call
+    simplifiedInitializer.initialize().catch(error => {
+      console.error('App initialization failed:', error);
+    });
+
     // Initialize session management
     const sessionManager = SessionManager.getInstance();
     const handleActivity = () => sessionManager.updateActivity();
@@ -22,16 +33,6 @@ export const AppInitialization: React.FC<AppInitializationProps> = ({ children }
       window.removeEventListener('keypress', handleActivity);
       window.removeEventListener('scroll', handleActivity);
     };
-  }, []);
-
-  // Minimal cache clearing in development only when needed
-  useEffect(() => {
-    if (import.meta.env.DEV && import.meta.hot) {
-      // Only clear on hot reload, not on every mount
-      import.meta.hot?.on('vite:beforeUpdate', () => {
-        console.log('🔄 DEV: Hot reload detected');
-      });
-    }
   }, []);
 
   return <>{children}</>;

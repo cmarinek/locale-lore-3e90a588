@@ -1,16 +1,15 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useMemo } from 'react';
 import { ContextErrorBoundary } from './ContextErrorBoundary';
-import { initMonitor } from '@/utils/initialization-monitor';
 
-// Create loading fallback for context providers
-const ContextLoadingFallback = ({ name }: { name: string }) => (
+// Optimized loading fallback for context providers
+const ContextLoadingFallback = React.memo(({ name }: { name: string }) => (
   <div className="min-h-screen flex items-center justify-center bg-background">
     <div className="text-center space-y-4">
       <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
       <p className="text-muted-foreground text-sm">Loading {name}...</p>
     </div>
   </div>
-);
+));
 
 // Lazy load providers for better code splitting
 const HelmetProvider = lazy(() => 
@@ -41,27 +40,25 @@ interface ProviderChainProps {
   children: React.ReactNode;
 }
 
-export const ProviderChain: React.FC<ProviderChainProps> = ({ children }) => {
-  React.useEffect(() => {
-    initMonitor.startPhase('provider-chain');
-    
-    return () => {
-      initMonitor.endPhase('provider-chain', true);
-    };
-  }, []);
+export const ProviderChain: React.FC<ProviderChainProps> = React.memo(({ children }) => {
+  // Memoize loading fallbacks to prevent re-renders
+  const helmetFallback = useMemo(() => <ContextLoadingFallback name="Helmet" />, []);
+  const authFallback = useMemo(() => <ContextLoadingFallback name="Authentication" />, []);
+  const themeFallback = useMemo(() => <ContextLoadingFallback name="Theme" />, []);
+  const langFallback = useMemo(() => <ContextLoadingFallback name="Language" />, []);
 
   return (
     <ContextErrorBoundary contextName="HelmetProvider">
-      <Suspense fallback={<ContextLoadingFallback name="Helmet" />}>
+      <Suspense fallback={helmetFallback}>
         <HelmetProvider>
           <ContextErrorBoundary contextName="AuthProvider">
-            <Suspense fallback={<ContextLoadingFallback name="Authentication" />}>
+            <Suspense fallback={authFallback}>
               <AuthProvider>
                 <ContextErrorBoundary contextName="ThemeProvider">
-                  <Suspense fallback={<ContextLoadingFallback name="Theme" />}>
+                  <Suspense fallback={themeFallback}>
                     <ThemeProvider>
                       <ContextErrorBoundary contextName="LanguageProvider">
-                        <Suspense fallback={<ContextLoadingFallback name="Language" />}>
+                        <Suspense fallback={langFallback}>
                           <LanguageProvider>
                             {children}
                           </LanguageProvider>
@@ -77,4 +74,4 @@ export const ProviderChain: React.FC<ProviderChainProps> = ({ children }) => {
       </Suspense>
     </ContextErrorBoundary>
   );
-};
+});

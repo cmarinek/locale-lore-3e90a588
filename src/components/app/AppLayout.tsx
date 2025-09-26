@@ -8,7 +8,7 @@ interface AppLayoutProps {
   children: React.ReactNode;
 }
 
-export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ children }) => {
   const { isAdmin } = useAdmin();
 
   return (
@@ -19,4 +19,4 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {isAdmin && <PerformanceMonitor />}
     </div>
   );
-};
+});

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState } from 'react';
+import React, { Suspense, lazy, useState, useMemo } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthProvider';
 import { LoadingIntroduction } from '@/components/ui/loading-introduction';
@@ -40,7 +40,7 @@ const LoadingFallback = () => (
   </div>
 );
 
-export const AppRoutes: React.FC = () => {
+export const AppRoutes: React.FC = React.memo(() => {
   const { loading: authLoading } = useAuth();
   const [showLoading, setShowLoading] = useState(true);
   const location = useLocation();
@@ -49,8 +49,8 @@ export const AppRoutes: React.FC = () => {
     setShowLoading(false);
   };
 
-  // Only show loading on home page
-  const isHomePage = location.pathname === '/';
+  // Only show loading on home page - memoized to prevent re-renders
+  const isHomePage = useMemo(() => location.pathname === '/', [location.pathname]);
   const shouldShowLoading = isHomePage && showLoading;
 
   if (shouldShowLoading) {
@@ -97,4 +97,4 @@ export const AppRoutes: React.FC = () => {
       </Routes>
     </Suspense>
   );
-};
+});

@@ -16,12 +16,7 @@ const AppLoadingFallback = () => (
 );
 
 // Simplified component without useEffect to avoid React null errors
-export const PerformanceOptimizedApp: React.FC<PerformanceOptimizedAppProps> = ({ children }) => {
-  // Simple performance log without useEffect
-  if (typeof window !== 'undefined' && console && console.log) {
-    console.log('🚀 App rendered at:', new Date().toISOString());
-  }
-
+export const PerformanceOptimizedApp: React.FC<PerformanceOptimizedAppProps> = React.memo(({ children }) => {
   return (
     <ErrorBoundary>
       <React.Suspense fallback={<AppLoadingFallback />}>
@@ -29,4 +24,4 @@ export const PerformanceOptimizedApp: React.FC<PerformanceOptimizedAppProps> = (
       </React.Suspense>
     </ErrorBoundary>
   );
-};
+});
