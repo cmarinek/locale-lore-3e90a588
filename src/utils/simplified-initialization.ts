@@ -16,14 +16,19 @@ class SimplifiedInitializer {
   private initStartTime = 0;
 
   async initialize(): Promise<InitResult> {
+    console.log('🔧 SimplifiedInitializer: Starting initialization...');
+    
     if (this.isReady) {
+      console.log('✅ SimplifiedInitializer: Already initialized');
       return { success: true, issues: [], duration: 0 };
     }
 
     if (this.isInitializing) {
+      console.log('⏳ SimplifiedInitializer: Already initializing, waiting...');
       // Wait for current initialization to complete
       return new Promise((resolve) => {
         this.onReady(() => {
+          console.log('✅ SimplifiedInitializer: Waited initialization completed');
           resolve({ success: true, issues: [], duration: 0 });
         });
       });
@@ -34,31 +39,42 @@ class SimplifiedInitializer {
     const issues: string[] = [];
 
     try {
-      // Essential initialization checks only
+      console.log('🔍 SimplifiedInitializer: Checking DOM ready...');
       await this.checkDOMReady();
+      console.log('✅ SimplifiedInitializer: DOM ready');
+
+      console.log('🔍 SimplifiedInitializer: Validating environment...');
       await this.validateEnvironment();
+      console.log('✅ SimplifiedInitializer: Environment validated');
+
+      console.log('🔍 SimplifiedInitializer: Setting up browser APIs...');
       await this.setupBrowserAPIs();
+      console.log('✅ SimplifiedInitializer: Browser APIs setup');
 
       this.isReady = true;
       this.isInitializing = false;
 
       // Execute ready callbacks
-      this.readyCallbacks.forEach(callback => {
+      console.log(`🎯 SimplifiedInitializer: Executing ${this.readyCallbacks.length} ready callbacks...`);
+      this.readyCallbacks.forEach((callback, index) => {
         try {
+          console.log(`🎯 SimplifiedInitializer: Executing callback ${index + 1}`);
           callback();
         } catch (error) {
-          console.warn('Ready callback failed:', error);
+          console.warn(`⚠️ SimplifiedInitializer: Ready callback ${index + 1} failed:`, error);
         }
       });
       this.readyCallbacks = [];
 
       const duration = performance.now() - this.initStartTime;
+      console.log(`🎉 SimplifiedInitializer: Initialization completed successfully in ${duration.toFixed(2)}ms`);
       return { success: true, issues, duration };
 
     } catch (error) {
       this.isInitializing = false;
       issues.push(String(error));
       const duration = performance.now() - this.initStartTime;
+      console.error(`💥 SimplifiedInitializer: Initialization failed after ${duration.toFixed(2)}ms:`, error);
       return { success: false, issues, duration };
     }
   }
