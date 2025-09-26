@@ -185,6 +185,7 @@ function getMobilePrimaryNavigation(): NavigationItem[] {
     label: 'Profile',
     path: '/profile',
     icon: User,
+    requiresAuth: true,
     category: 'primary'
   }
   ];
