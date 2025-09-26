@@ -2,8 +2,6 @@
  * Context Preloader - Ensures React contexts are properly bundled and initialized
  */
 
-import { initMonitor } from './initialization-monitor';
-
 interface ContextModule {
   name: string;
   loader: () => Promise<any>;
@@ -58,8 +56,6 @@ class ContextPreloader {
     const startTime = Date.now();
     const errors: string[] = [];
     let loadedCount = 0;
-
-    initMonitor.startPhase('context-preload');
 
     console.log('🔄 Preloading React contexts for optimal bundling...');
 
@@ -123,8 +119,6 @@ class ContextPreloader {
 
     const duration = Date.now() - startTime;
     const success = errors.length === 0; // Only required context failures count as errors
-
-    initMonitor.endPhase('context-preload', success, errors.length > 0 ? errors.join(', ') : undefined);
 
     console.log(`📊 Context preloading complete: ${loadedCount}/${this.contextModules.length} loaded in ${duration}ms`);
 

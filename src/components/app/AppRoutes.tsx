@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useState, useMemo } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthProvider';
 import { LoadingIntroduction } from '@/components/ui/loading-introduction';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 // Eager load critical pages
 import Index from '@/pages/Index';
@@ -74,16 +75,48 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/hybrid" element={<Hybrid />} />
         <Route path="/map" element={<LazyMap />} />
         <Route path="/search" element={<Search />} />
-        <Route path="/submit" element={<Submit />} />
-        <Route path="/profile/:id?" element={<Profile />} />
+        <Route path="/submit" element={
+          <ProtectedRoute requiresAuth feature="content submission" showPreview>
+            <Submit />
+          </ProtectedRoute>
+        } />
+        <Route path="/profile/:id?" element={
+          <ProtectedRoute requiresAuth feature="user profile" graceful={false}>
+            <Profile />
+          </ProtectedRoute>
+        } />
         <Route path="/fact/:id" element={<Fact />} />
-        <Route path="/gamification" element={<Gamification />} />
-        <Route path="/media" element={<MediaManagement />} />
-        <Route path="/billing" element={<Billing />} />
-        <Route path="/social" element={<Social />} />
+        <Route path="/gamification" element={
+          <ProtectedRoute requiresAuth feature="challenges and rewards" showPreview>
+            <Gamification />
+          </ProtectedRoute>
+        } />
+        <Route path="/media" element={
+          <ProtectedRoute adminOnly feature="media management" graceful={false}>
+            <MediaManagement />
+          </ProtectedRoute>
+        } />
+        <Route path="/billing" element={
+          <ProtectedRoute requiresAuth feature="billing and subscriptions" graceful={false}>
+            <Billing />
+          </ProtectedRoute>
+        } />
+        <Route path="/social" element={
+          <ProtectedRoute requiresAuth feature="social features" showPreview>
+            <Social />
+          </ProtectedRoute>
+        } />
         <Route path="/stories" element={<Stories />} />
-        <Route path="/contributor" element={<ContributorEconomy />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/contributor" element={
+          <ProtectedRoute requiresAuth feature="contributor program" showPreview>
+            <ContributorEconomy />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute adminOnly feature="admin dashboard" graceful={false}>
+            <Admin />
+          </ProtectedRoute>
+        } />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/production-readiness" element={<ProductionReadiness />} />
