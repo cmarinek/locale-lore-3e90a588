@@ -103,6 +103,9 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
   const [tokenLoading, setTokenLoading] = useState(true);
   const [mapStyle, setMapStyle] = useState<MapStyle>('light');
   const { favoriteCities, loading: citiesLoading } = useFavoriteCities();
+  
+  // Store current view state to prevent resets
+  const currentViewRef = useRef({ center, zoom });
 
   // Load Mapbox token first
   useEffect(() => {
@@ -122,9 +125,12 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
     loadToken();
   }, []);
 
-  // Initialize map with proper token
+  // Track if map is initialized to prevent resets
+  const isInitializedRef = useRef(false);
+
+  // Initialize map with proper token (only once)
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken) return;
+    if (!mapContainer.current || !mapboxToken || isInitializedRef.current) return;
 
     mapboxgl.accessToken = mapboxToken;
 
@@ -147,11 +153,32 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
       setIsLoaded(true);
     });
 
+    // Store current view state on move
+    map.current.on('moveend', () => {
+      if (map.current) {
+        currentViewRef.current = {
+          center: [map.current.getCenter().lng, map.current.getCenter().lat] as [number, number],
+          zoom: map.current.getZoom()
+        };
+      }
+    });
+
+    // Mark as initialized
+    isInitializedRef.current = true;
+
     return () => {
       markers.current.forEach(marker => marker.remove());
       map.current?.remove();
+      isInitializedRef.current = false;
     };
-  }, [center, zoom, mapboxToken, mapStyle]);
+  }, [mapboxToken]);
+
+  // Handle map style changes separately without resetting position
+  useEffect(() => {
+    if (!map.current || !isLoaded) return;
+    
+    map.current.setStyle(getMapStyleUrl(mapStyle));
+  }, [mapStyle, isLoaded]);
 
   // Load facts progressively after map is ready
   useEffect(() => {
@@ -236,9 +263,12 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
 
   const handleRecenter = useCallback(() => {
     if (map.current) {
-      map.current.flyTo({ center: center, zoom: zoom });
+      // Use stored view state if available, otherwise use initial props
+      const targetCenter = currentViewRef.current.center;
+      const targetZoom = currentViewRef.current.zoom;
+      map.current.flyTo({ center: targetCenter, zoom: targetZoom });
     }
-  }, [center, zoom]);
+  }, []);
 
   const handleMyLocation = useCallback(() => {
     navigator.geolocation.getCurrentPosition(
