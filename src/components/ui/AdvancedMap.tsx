@@ -22,6 +22,8 @@ import {
 import { cn } from '@/lib/utils';
 import { Fact, FactMarker } from '@/types/map';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { EnhancedMapControls } from '@/components/map/EnhancedMapControls';
+import { useFavoriteCities } from '@/hooks/useFavoriteCities';
 
 // Get theme-aware border color
 const getThemeBorderColor = () => {
@@ -69,6 +71,7 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
   
   // Get mapCenter and syncSelectedFact from discovery store
   const { mapCenter, setMapCenter, syncSelectedFact } = useDiscoveryStore();
+  const { favoriteCities } = useFavoriteCities();
   
   const [mapStyle, setMapStyle] = useState<keyof typeof mapStyles>('light');
   const [isLoading, setIsLoading] = useState(true);
@@ -681,6 +684,77 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
     }
   }, [userLocation]);
 
+  // Map control handlers
+  const handleZoomIn = useCallback(() => {
+    if (map.current) {
+      map.current.zoomIn();
+    }
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    if (map.current) {
+      map.current.zoomOut();
+    }
+  }, []);
+
+  const handleRecenter = useCallback(() => {
+    if (map.current) {
+      map.current.easeTo({ 
+        center: initialCenter, 
+        zoom: initialZoom,
+        duration: 1000 
+      });
+    }
+  }, [initialCenter, initialZoom]);
+
+  const handleMyLocation = useCallback(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userPos: [number, number] = [position.coords.longitude, position.coords.latitude];
+          setUserLocation(userPos);
+          if (map.current) {
+            map.current.easeTo({ 
+              center: userPos, 
+              zoom: 14,
+              duration: 1000 
+            });
+          }
+        },
+        (error) => console.warn('Location access denied:', error)
+      );
+    }
+  }, []);
+
+  const handleStyleChange = useCallback(() => {
+    const styles = Object.keys(mapStyles) as (keyof typeof mapStyles)[];
+    const currentIndex = styles.indexOf(mapStyle);
+    const nextIndex = (currentIndex + 1) % styles.length;
+    setMapStyle(styles[nextIndex]);
+  }, [mapStyle]);
+
+  const handleResetView = useCallback(() => {
+    if (map.current) {
+      map.current.setBearing(0);
+      map.current.setPitch(0);
+      map.current.easeTo({ 
+        center: initialCenter, 
+        zoom: initialZoom,
+        duration: 1000 
+      });
+    }
+  }, [initialCenter, initialZoom]);
+
+  const handleCityClick = useCallback((city: any) => {
+    if (map.current) {
+      map.current.easeTo({
+        center: [city.longitude, city.latitude],
+        zoom: city.zoom || 12,
+        duration: 1500
+      });
+    }
+  }, []);
+
   return (
     <div className={cn("relative w-full h-full rounded-xl overflow-hidden", className)}>
       {/* Map Container */}
@@ -712,102 +786,33 @@ const AdvancedMap: React.FC<AdvancedMapProps> = ({
         </Card>
       )}
 
-      {/* Map Style Controls - using emoji icons as requested */}
-      {showControls && (
-        <div className="absolute top-1/2 -translate-y-1/2 left-4 z-10">
-          <TooltipProvider>
-            <div className="flex flex-col gap-1 bg-card/95 backdrop-blur border border-border rounded-lg">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={mapStyle === 'light' ? 'ios' : 'ghost'}
-                    size="sm"
-                    onClick={() => setMapStyle('light')}
-                    className="haptic-feedback p-2"
-                  >
-                    <span className="text-lg">☀️</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Light mode</TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={mapStyle === 'dark' ? 'ios' : 'ghost'}
-                    size="sm"
-                    onClick={() => setMapStyle('dark')}
-                    className="haptic-feedback p-2"
-                  >
-                    <span className="text-lg">🌙</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Dark mode</TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={mapStyle === 'satellite' ? 'ios' : 'ghost'}
-                    size="sm"
-                    onClick={() => setMapStyle('satellite')}
-                    className="haptic-feedback p-2"
-                  >
-                    <span className="text-lg">🛰️</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Satellite view</TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={mapStyle === 'terrain' ? 'ios' : 'ghost'}
-                    size="sm"
-                    onClick={() => setMapStyle('terrain')}
-                    className="haptic-feedback p-2"
-                  >
-                    <span className="text-lg">🏔️</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Terrain view</TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      if (navigator.share) {
-                        navigator.share({
-                          title: "Check out this location on LocaleLore",
-                          url: window.location.href
-                        });
-                      }
-                    }}
-                    className="haptic-feedback p-2"
-                  >
-                    <Share className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Share location</TooltipContent>
-              </Tooltip>
-            </div>
-          </TooltipProvider>
-        </div>
+      {/* Enhanced Map Controls */}
+      {!isLoading && (
+        <EnhancedMapControls
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onRecenter={handleRecenter}
+          onMyLocation={handleMyLocation}
+          onStyleChange={handleStyleChange}
+          onResetView={handleResetView}
+          position="right"
+        />
       )}
 
-      {/* User Location Button */}
-      {userLocation && (
-        <Button
-          variant="floating"
-          size="icon-lg"
-          onClick={flyToUserLocation}
-          className="absolute bottom-20 right-4 z-10"
-        >
-          <Locate className="w-6 h-6" />
-        </Button>
+      {/* Favorite Cities */}
+      {!isLoading && favoriteCities.length > 0 && (
+        <div className="absolute top-4 right-20 flex flex-col space-y-2 z-20">
+          {favoriteCities.slice(0, 3).map((city, index) => (
+            <button
+              key={index}
+              onClick={() => handleCityClick(city)}
+              className="px-3 py-2 bg-background/90 backdrop-blur-sm border border-border rounded-lg text-sm font-medium hover:bg-accent transition-all shadow-md"
+              title={`Fly to ${city.name}`}
+            >
+              {city.name}
+            </button>
+          ))}
+        </div>
       )}
 
       {/* Add custom CSS for enhanced animations */}

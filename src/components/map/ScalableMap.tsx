@@ -10,6 +10,8 @@ import { throttle, debounce } from 'lodash';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MapPin, Layers, ZoomIn } from 'lucide-react';
+import { EnhancedMapControls } from '@/components/map/EnhancedMapControls';
+import { useFavoriteCities } from '@/hooks/useFavoriteCities';
 
 // Types for scalable facts
 interface ScalableFact {
@@ -66,6 +68,10 @@ export const ScalableMap: React.FC<ScalableMapProps> = ({
   const [currentZoom, setCurrentZoom] = useState(zoom);
   const [viewportFacts, setViewportFacts] = useState<ScalableFact[]>([]);
   const [loadingViewport, setLoadingViewport] = useState(false);
+  const [mapStyle, setMapStyle] = useState(style);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  
+  const { favoriteCities } = useFavoriteCities();
 
   // Performance tracking
   const [renderMetrics, setRenderMetrics] = useState({
@@ -73,6 +79,13 @@ export const ScalableMap: React.FC<ScalableMapProps> = ({
     visibleClusters: 0,
     renderTime: 0
   });
+
+  // Update map style when changed
+  useEffect(() => {
+    if (map.current && isLoaded) {
+      map.current.setStyle(getMapStyleUrl(mapStyle));
+    }
+  }, [mapStyle, isLoaded]);
 
   // Initialize supercluster for efficient clustering
   const supercluster = useMemo(() => {
@@ -368,6 +381,77 @@ export const ScalableMap: React.FC<ScalableMapProps> = ({
     }
   }, [facts, isLoaded]);
 
+  // Map control handlers
+  const handleZoomIn = useCallback(() => {
+    if (map.current) {
+      map.current.zoomIn();
+    }
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    if (map.current) {
+      map.current.zoomOut();
+    }
+  }, []);
+
+  const handleRecenter = useCallback(() => {
+    if (map.current) {
+      map.current.easeTo({ 
+        center: center, 
+        zoom: zoom,
+        duration: 1000 
+      });
+    }
+  }, [center, zoom]);
+
+  const handleMyLocation = useCallback(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userPos: [number, number] = [position.coords.longitude, position.coords.latitude];
+          setUserLocation(userPos);
+          if (map.current) {
+            map.current.easeTo({ 
+              center: userPos, 
+              zoom: 14,
+              duration: 1000 
+            });
+          }
+        },
+        (error) => console.warn('Location access denied:', error)
+      );
+    }
+  }, []);
+
+  const handleStyleChange = useCallback(() => {
+    const styles = ['light', 'dark', 'satellite'] as const;
+    const currentIndex = styles.indexOf(mapStyle as any);
+    const nextIndex = (currentIndex + 1) % styles.length;
+    setMapStyle(styles[nextIndex]);
+  }, [mapStyle]);
+
+  const handleResetView = useCallback(() => {
+    if (map.current) {
+      map.current.setBearing(0);
+      map.current.setPitch(0);
+      map.current.easeTo({ 
+        center: center, 
+        zoom: zoom,
+        duration: 1000 
+      });
+    }
+  }, [center, zoom]);
+
+  const handleCityClick = useCallback((city: any) => {
+    if (map.current) {
+      map.current.easeTo({
+        center: [city.longitude, city.latitude],
+        zoom: city.zoom || 12,
+        duration: 1500
+      });
+    }
+  }, []);
+
   return (
     <div className="relative w-full h-full">
       <div ref={mapContainer} className="absolute inset-0" />
@@ -395,6 +479,35 @@ export const ScalableMap: React.FC<ScalableMapProps> = ({
           )}
         </div>
       </Card>
+
+      {/* Enhanced Map Controls */}
+      {isLoaded && (
+        <EnhancedMapControls
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onRecenter={handleRecenter}
+          onMyLocation={handleMyLocation}
+          onStyleChange={handleStyleChange}
+          onResetView={handleResetView}
+          position="left"
+        />
+      )}
+
+      {/* Favorite Cities */}
+      {isLoaded && favoriteCities.length > 0 && (
+        <div className="absolute top-4 left-4 flex flex-col space-y-2 z-20">
+          {favoriteCities.slice(0, 3).map((city, index) => (
+            <button
+              key={index}
+              onClick={() => handleCityClick(city)}
+              className="px-3 py-2 bg-background/90 backdrop-blur-sm border border-border rounded-lg text-sm font-medium hover:bg-accent transition-all shadow-md"
+              title={`Fly to ${city.name}`}
+            >
+              {city.name}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -7,6 +7,8 @@ import { mapboxService } from '@/services/mapboxService';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactMarker } from '@/types/map';
 import { MapMarkerClustering } from '@/components/map/marker-clustering';
+import { EnhancedMapControls } from '@/components/map/EnhancedMapControls';
+import { useFavoriteCities } from '@/hooks/useFavoriteCities';
 
 interface OptimizedMapProps {
   className?: string;
@@ -52,6 +54,7 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
   const maxRetries = 3;
   
   const { mapCenter, setMapCenter, syncSelectedFact } = useDiscoveryStore();
+  const { favoriteCities } = useFavoriteCities();
   
   // Refs for preventing infinite loops
   const lastMapCenterRef = useRef<[number, number] | null>(null);
@@ -386,6 +389,77 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
     }
   }, [mapCenter]);
 
+  // Map control handlers
+  const handleZoomIn = useCallback(() => {
+    if (map.current) {
+      map.current.zoomIn();
+    }
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    if (map.current) {
+      map.current.zoomOut();
+    }
+  }, []);
+
+  const handleRecenter = useCallback(() => {
+    if (map.current) {
+      map.current.easeTo({ 
+        center: initialCenter, 
+        zoom: initialZoom,
+        duration: 1000 
+      });
+    }
+  }, [initialCenter, initialZoom]);
+
+  const handleMyLocation = useCallback(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userPos: [number, number] = [position.coords.longitude, position.coords.latitude];
+          setUserLocation(userPos);
+          if (map.current) {
+            map.current.easeTo({ 
+              center: userPos, 
+              zoom: 14,
+              duration: 1000 
+            });
+          }
+        },
+        (error) => console.warn('Location access denied:', error)
+      );
+    }
+  }, []);
+
+  const handleStyleChange = useCallback(() => {
+    const styles = Object.keys(mapStyles) as (keyof typeof mapStyles)[];
+    const currentIndex = styles.indexOf(mapStyle);
+    const nextIndex = (currentIndex + 1) % styles.length;
+    setMapStyle(styles[nextIndex]);
+  }, [mapStyle]);
+
+  const handleResetView = useCallback(() => {
+    if (map.current) {
+      map.current.setBearing(0);
+      map.current.setPitch(0);
+      map.current.easeTo({ 
+        center: initialCenter, 
+        zoom: initialZoom,
+        duration: 1000 
+      });
+    }
+  }, [initialCenter, initialZoom]);
+
+  const handleCityClick = useCallback((city: any) => {
+    if (map.current) {
+      map.current.easeTo({
+        center: [city.longitude, city.latitude],
+        zoom: city.zoom || 12,
+        duration: 1500
+      });
+    }
+  }, []);
+
   return (
     <div className={`relative w-full h-full min-h-[400px] ${className}`}>
       <div 
@@ -467,24 +541,30 @@ export const OptimizedMap: React.FC<OptimizedMapProps> = ({
         </div>
       )}
 
-      {/* Map style controls */}
+      {/* Enhanced Map Controls */}
       {loadingState === 'ready' && (
-        <div className="absolute top-4 left-4 flex flex-col space-y-2 z-10">
-          {Object.entries(mapStyles).map(([style, _]) => (
+        <EnhancedMapControls
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onRecenter={handleRecenter}
+          onMyLocation={handleMyLocation}
+          onStyleChange={handleStyleChange}
+          onResetView={handleResetView}
+          position="right"
+        />
+      )}
+
+      {/* Favorite Cities */}
+      {loadingState === 'ready' && favoriteCities.length > 0 && (
+        <div className="absolute top-4 left-4 flex flex-col space-y-2 z-20">
+          {favoriteCities.slice(0, 3).map((city, index) => (
             <button
-              key={style}
-              onClick={() => setMapStyle(style as keyof typeof mapStyles)}
-              className={`w-10 h-10 rounded-lg border-2 flex items-center justify-center text-sm font-medium transition-all ${
-                mapStyle === style 
-                  ? 'bg-primary text-primary-foreground border-primary shadow-lg' 
-                  : 'bg-background/90 text-foreground border-border hover:bg-accent hover:border-accent-foreground'
-              }`}
-              title={`Switch to ${style} style`}
+              key={index}
+              onClick={() => handleCityClick(city)}
+              className="px-3 py-2 bg-background/90 backdrop-blur-sm border border-border rounded-lg text-sm font-medium hover:bg-accent transition-all shadow-md"
+              title={`Fly to ${city.name}`}
             >
-              {style === 'light' && '☀️'}
-              {style === 'dark' && '🌙'}
-              {style === 'satellite' && '🛰️'}
-              {style === 'terrain' && '🏔️'}
+              {city.name}
             </button>
           ))}
         </div>
