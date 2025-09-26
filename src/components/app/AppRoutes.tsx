@@ -1,6 +1,7 @@
-import React, { Suspense, lazy } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { Suspense, lazy, useState, useMemo } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthProvider';
+import { LoadingIntroduction } from '@/components/ui/loading-introduction';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 // Eager load critical pages
@@ -42,6 +43,25 @@ const LoadingFallback = () => (
 
 export const AppRoutes: React.FC = React.memo(() => {
   const { loading: authLoading } = useAuth();
+  const [showLoading, setShowLoading] = useState(true);
+  const location = useLocation();
+
+  const handleLoadingComplete = () => {
+    setShowLoading(false);
+  };
+
+  // Only show loading on home page - memoized to prevent re-renders
+  const isHomePage = useMemo(() => location.pathname === '/', [location.pathname]);
+  const shouldShowLoading = isHomePage && showLoading;
+
+  if (shouldShowLoading) {
+    return (
+      <LoadingIntroduction 
+        onComplete={handleLoadingComplete}
+        minDisplayTime={2500}
+      />
+    );
+  }
 
   return (
     <Suspense fallback={<LoadingFallback />}>
