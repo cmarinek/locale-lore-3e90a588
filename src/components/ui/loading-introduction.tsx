@@ -211,7 +211,7 @@ export const LoadingIntroduction: React.FC<LoadingIntroductionProps> = ({
                   animate={{ width: "100%" }}
                   transition={{
                     duration: 1.8,
-                    delay: 2.4,
+                    delay: 2.8,
                     ease: "easeInOut"
                   }}
                 />
