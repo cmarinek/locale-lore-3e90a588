@@ -6,6 +6,7 @@
 import { SecurityUtils } from './security';
 import { seoManager, optimizeCriticalResources } from './seo';
 import { initMonitor } from './initialization-monitor';
+import { contextPreloader } from './context-preloader';
 
 interface InitializationResult {
   success: boolean;
@@ -72,6 +73,20 @@ class AppInitializer {
       } catch (error) {
         issues.push('SEO initialization had issues - non-critical');
         initMonitor.endPhase('seo', false, String(error));
+      }
+
+      // Phase 4.5: Preload React contexts for optimal bundling
+      initMonitor.startPhase('context-preload');
+      try {
+        const contextResult = await contextPreloader.preloadContexts();
+        if (!contextResult.success) {
+          issues.push(`Context preloading had issues: ${contextResult.errors.join(', ')}`);
+          initMonitor.logWarning(`Context preloading had ${contextResult.errors.length} errors`);
+        }
+        initMonitor.endPhase('context-preload', contextResult.success);
+      } catch (error) {
+        issues.push('Context preloading failed - non-critical');
+        initMonitor.endPhase('context-preload', false, String(error));
       }
 
       // Phase 4: Additional safety checks

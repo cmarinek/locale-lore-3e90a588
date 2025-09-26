@@ -21,8 +21,10 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    // Avoid duplicate React instances across chunks and deps
-    dedupe: ["react", "react-dom"],
+    // Optimize React context resolution
+    dedupe: ["react", "react-dom", "react/jsx-runtime"],
+    // Ensure contexts are resolved consistently
+    conditions: ['import', 'module', 'browser', 'default'],
   },
   build: {
     target: "esnext",
@@ -34,11 +36,11 @@ export default defineConfig(({ mode }) => ({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // Optimized code splitting
+        // Optimized code splitting for contexts
         manualChunks: (id) => {
           // Vendor chunks
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react/jsx-runtime')) {
               return 'react-vendor';
             }
             if (id.includes('@radix-ui') || id.includes('framer-motion')) {
@@ -53,6 +55,11 @@ export default defineConfig(({ mode }) => ({
             return 'vendor';
           }
           
+          // Context and provider chunks (keep together for better context resolution)
+          if (id.includes('/contexts/') || id.includes('/providers/')) {
+            return 'contexts';
+          }
+          
           // Feature chunks
           if (id.includes('/pages/Admin') || id.includes('/components/admin/')) {
             return 'admin';
@@ -60,7 +67,7 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('/pages/Map') || id.includes('/components/map/')) {
             return 'map';
           }
-          if (id.includes('/components/auth/') || id.includes('/pages/Auth')) {
+          if (id.includes('/pages/Auth') || id.includes('/components/auth/')) {
             return 'auth';
           }
         }
@@ -74,6 +81,7 @@ export default defineConfig(({ mode }) => ({
     include: [
       "react", 
       "react-dom", 
+      "react/jsx-runtime",
       "react-router-dom", 
       "clsx",
       "tailwind-merge",
@@ -82,7 +90,10 @@ export default defineConfig(({ mode }) => ({
       "react-i18next",
       "framer-motion",
       "lucide-react",
-      "mapbox-gl"
+      "mapbox-gl",
+      // Context-related dependencies
+      "react-helmet-async",
+      "next-themes"
     ],
     exclude: [
       "@capacitor/core" // Mobile-specific
@@ -93,6 +104,10 @@ export default defineConfig(({ mode }) => ({
       loader: {
         '.js': 'jsx',
       },
+      // Optimize React context creation
+      define: {
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+      }
     }
   },
   ssr: {

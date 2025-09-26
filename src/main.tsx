@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { appInitializer } from './utils/app-initialization';
+import { viteChunkOptimizer } from './utils/vite-chunk-optimizer';
 
 // Ensure React is properly loaded before proceeding
 if (!React || typeof React !== 'object' || !React.createElement) {
@@ -46,6 +47,9 @@ const showLoadingIndicator = () => {
   `;
   document.body.innerHTML = loadingHTML;
 };
+
+// Initialize chunk optimizer for better Vite bundling
+console.log('🔧 Vite chunk optimizer initialized');
 
 // Initialize app with proper loading states
 const initializeApp = async () => {
