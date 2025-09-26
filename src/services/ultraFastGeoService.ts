@@ -27,6 +27,7 @@ class UltraFastGeoService {
         .select(`
           id, title, latitude, longitude, 
           vote_count_up, vote_count_down,
+          media_urls, image_url,
           categories!inner(slug)
         `)
         .eq('status', 'verified')
@@ -42,7 +43,8 @@ class UltraFastGeoService {
         category: fact.categories?.slug || 'general',
         verified: true,
         voteScore: fact.vote_count_up - fact.vote_count_down,
-        authorName: 'Community'
+        authorName: 'Community',
+        imageUrl: fact.image_url || (fact.media_urls && fact.media_urls.length > 0 ? fact.media_urls[0] : null)
       }));
 
       this.cacheTimestamp = Date.now();

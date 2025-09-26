@@ -63,4 +63,5 @@ export interface FactMarker {
   verified: boolean;
   voteScore: number;
   authorName?: string;
+  imageUrl?: string | null;
 }

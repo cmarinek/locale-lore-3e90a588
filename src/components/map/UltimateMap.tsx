@@ -175,10 +175,21 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
       for (let i = startIndex; i < endIndex; i++) {
         const fact = facts[i];
         
-        // Create simple marker element
+        // Create marker element with image preview
         const el = document.createElement('div');
-        el.className = 'w-3 h-3 bg-primary rounded-full border border-white cursor-pointer hover:scale-125 transition-transform';
+        el.className = 'w-8 h-8 rounded-full border-2 border-white shadow-lg cursor-pointer hover:scale-110 transition-transform overflow-hidden bg-primary';
         el.title = fact.title; // Add tooltip with fact title
+        
+        if (fact.imageUrl) {
+          const img = document.createElement('img');
+          img.src = fact.imageUrl;
+          img.className = 'w-full h-full object-cover';
+          img.alt = fact.title;
+          el.appendChild(img);
+        } else {
+          // Fallback icon for facts without images
+          el.innerHTML = `<div class="w-full h-full flex items-center justify-center text-white text-xs">📍</div>`;
+        }
         el.addEventListener('click', (e) => {
           e.stopPropagation(); // Prevent event bubbling to map
           if (onFactClick) onFactClick(fact);
@@ -270,8 +281,19 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
         // Re-add all markers
         facts.forEach(fact => {
           const el = document.createElement('div');
-          el.className = 'w-3 h-3 bg-primary rounded-full border border-white cursor-pointer hover:scale-125 transition-transform';
+          el.className = 'w-8 h-8 rounded-full border-2 border-white shadow-lg cursor-pointer hover:scale-110 transition-transform overflow-hidden bg-primary';
           el.title = fact.title; // Add tooltip with fact title
+          
+          if (fact.imageUrl) {
+            const img = document.createElement('img');
+            img.src = fact.imageUrl;
+            img.className = 'w-full h-full object-cover';
+            img.alt = fact.title;
+            el.appendChild(img);
+          } else {
+            // Fallback icon for facts without images
+            el.innerHTML = `<div class="w-full h-full flex items-center justify-center text-white text-xs">📍</div>`;
+          }
           el.addEventListener('click', (e) => {
             e.stopPropagation(); // Prevent event bubbling to map
             if (onFactClick) onFactClick(fact);
