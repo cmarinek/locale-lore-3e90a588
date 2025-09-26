@@ -55,9 +55,9 @@ export const FactCard: React.FC<FactCardProps> = ({
     isHighlighted && "ring-2 ring-primary shadow-lg shadow-primary/20 bg-primary/5 dark:bg-primary/10", className)} onClick={handleQuickView}>
         <CardContent className="p-0">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-2 sm:p-3 py-0 px-0">
-            {/* Media Preview - Only show if image exists */}
-            {fact.media_urls && fact.media_urls.length > 0 && <div className="relative w-full sm:w-24 md:w-32 h-32 sm:h-16 md:h-20 shrink-0 overflow-hidden rounded-lg">
-                <img src={fact.media_urls[0]} alt={fact.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onError={e => {
+            {/* Media Preview - Show if image_url or media_urls exists */}
+            {(fact.image_url || (fact.media_urls && fact.media_urls.length > 0)) && <div className="relative w-full sm:w-24 md:w-32 h-32 sm:h-16 md:h-20 shrink-0 overflow-hidden rounded-lg">
+                <img src={fact.image_url || fact.media_urls?.[0]} alt={fact.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onError={e => {
               e.currentTarget.style.display = 'none';
             }} />
                 {/* Mobile overlay for category */}
@@ -172,9 +172,9 @@ export const FactCard: React.FC<FactCardProps> = ({
   // Responsive max width with auto centering
   isHighlighted && "ring-2 ring-primary shadow-lg shadow-primary/20 bg-primary/5 dark:bg-primary/10 scale-[1.02]", className)} onClick={handleQuickView}>
       <CardContent className="p-0">
-        {/* Media Preview - Only show if image exists */}
-        {fact.media_urls && fact.media_urls.length > 0 && <div className="relative h-44 sm:h-48 md:h-52 overflow-hidden">
-            <img src={fact.media_urls[0]} alt={fact.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onError={e => {
+        {/* Media Preview - Show if image_url or media_urls exists */}
+        {(fact.image_url || (fact.media_urls && fact.media_urls.length > 0)) && <div className="relative h-44 sm:h-48 md:h-52 overflow-hidden">
+            <img src={fact.image_url || fact.media_urls?.[0]} alt={fact.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onError={e => {
           e.currentTarget.style.display = 'none';
         }} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10" />
@@ -213,7 +213,7 @@ export const FactCard: React.FC<FactCardProps> = ({
         {/* Content */}
         <div className="p-3 space-y-2.5">
           {/* Save Button - Show when no image */}
-          {(!fact.media_urls || fact.media_urls.length === 0) && <div className="flex justify-end mb-2">
+          {(!fact.image_url && (!fact.media_urls || fact.media_urls.length === 0)) && <div className="flex justify-end mb-2">
               <Button variant="ghost" size="sm" onClick={handleSaveToggle} className="h-8 w-8 p-0">
                 {isSaved ? <BookmarkCheck className="h-4 w-4 text-yellow-600" /> : <Bookmark className="h-4 w-4" />}
               </Button>

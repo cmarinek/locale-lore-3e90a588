@@ -154,6 +154,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
               created_at,
               updated_at,
               media_urls,
+              image_url,
               categories!facts_category_id_fkey(
                 slug,
                 icon,
@@ -310,6 +311,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
               created_at,
               updated_at,
               media_urls,
+              image_url,
               categories!facts_category_id_fkey(
                 slug,
                 icon,
@@ -379,6 +381,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
               created_at,
               updated_at,
               media_urls,
+              image_url,
               categories!facts_category_id_fkey(
                 slug,
                 icon,
@@ -449,6 +452,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
               created_at,
               updated_at,
               media_urls,
+              image_url,
               categories!facts_category_id_fkey(
                 slug,
                 icon,

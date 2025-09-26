@@ -11,6 +11,7 @@ export interface Fact {
   longitude: number;
   location_name: string;
   media_urls?: string[];
+  image_url?: string;
   created_at: string;
   updated_at: string;
   verified_by?: string;
