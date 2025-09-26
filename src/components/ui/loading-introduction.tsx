@@ -1,19 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-
-// Safe motion import with fallback
-let motion: any = null;
-let AnimatePresence: any = null;
-
-try {
-  if (React && React.createContext) {
-    const framerMotion = require('framer-motion');
-    motion = framerMotion.motion;
-    AnimatePresence = framerMotion.AnimatePresence;
-  }
-} catch (error) {
-  console.warn('Framer Motion not available, using fallback');
-}
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface LoadingIntroductionProps {
   className?: string;
@@ -39,45 +26,6 @@ export const LoadingIntroduction: React.FC<LoadingIntroductionProps> = ({
 
     return () => clearTimeout(timer);
   }, [minDisplayTime, onComplete]);
-
-  // If framer-motion is not available, render simple fallback
-  if (!motion || !AnimatePresence) {
-    return (
-      <div className={cn(
-        "fixed inset-0 z-50 min-h-screen bg-background flex items-center justify-center overflow-hidden",
-        className
-      )}>
-        <div className="text-center max-w-4xl mx-auto px-4">
-          <h1 className="text-6xl md:text-8xl font-bold leading-none mb-8">
-            <span className="text-primary">Locale</span>
-            <span className="text-secondary ml-2">Lore</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground font-light">
-            learn what&apos;s around
-          </p>
-          
-          {/* Progress line for fallback */}
-          <div className="mt-12 flex justify-center">
-            <div className="w-32 h-0.5 bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full animate-[slide-in-right_2s_ease-in-out]" />
-            </div>
-          </div>
-          
-          <div className="mt-6 flex justify-center">
-            <div className="flex space-x-2">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="w-3 h-3 bg-primary rounded-full animate-pulse"
-                  style={{ animationDelay: `${i * 0.2}s` }}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <AnimatePresence>
