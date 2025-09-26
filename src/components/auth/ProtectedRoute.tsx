@@ -1,8 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useUserRole } from '@/hooks/useUserRole';
-import { Card, CardContent } from '@/components/ui/card';
-import { Shield, Lock, AlertTriangle } from 'lucide-react';
+import { GracefulFallback } from './GracefulFallback';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,6 +9,9 @@ interface ProtectedRouteProps {
   adminOnly?: boolean;
   contributorOnly?: boolean;
   fallbackPath?: string;
+  feature?: string;
+  showPreview?: boolean;
+  graceful?: boolean;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
@@ -17,9 +19,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiresAuth = false,
   adminOnly = false,
   contributorOnly = false,
-  fallbackPath = '/auth'
+  fallbackPath = '/auth',
+  feature = "feature",
+  showPreview = true,
+  graceful = true
 }) => {
-  const { role, isAdmin, isContributor, isAuthenticated, loading } = useUserRole();
+  const { loading } = useUserRole();
   const location = useLocation();
 
   // Show loading state
@@ -34,47 +39,24 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // Check authentication requirement
-  if (requiresAuth && !isAuthenticated) {
+  // Use graceful fallback by default, hard redirect as fallback
+  if (graceful) {
+    return (
+      <GracefulFallback
+        requiresAuth={requiresAuth}
+        adminOnly={adminOnly}
+        contributorOnly={contributorOnly}
+        feature={feature}
+        previewMode={showPreview}
+      >
+        {children}
+      </GracefulFallback>
+    );
+  }
+
+  // Legacy hard redirect for specific cases
+  if (requiresAuth) {
     return <Navigate to={fallbackPath} state={{ from: location }} replace />;
-  }
-
-  // Check admin requirement
-  if (adminOnly && !isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <Shield className="w-12 h-12 text-destructive mx-auto" />
-              <h2 className="text-2xl font-bold">Admin Access Required</h2>
-              <p className="text-muted-foreground">
-                This page requires administrator privileges. Contact an admin if you believe this is an error.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Check contributor requirement
-  if (contributorOnly && !isContributor) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <Lock className="w-12 h-12 text-yellow-600 mx-auto" />
-              <h2 className="text-2xl font-bold">Contributor Access Required</h2>
-              <p className="text-muted-foreground">
-                This feature is available to contributors. Upgrade your account to access premium features.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
   }
 
   return <>{children}</>;
