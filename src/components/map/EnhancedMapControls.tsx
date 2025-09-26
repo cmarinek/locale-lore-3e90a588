@@ -68,11 +68,11 @@ export const EnhancedMapControls: React.FC<EnhancedMapControlsProps> = ({
   return (
     <motion.div
       className={`
-        fixed ${position === 'right' ? 'right-4' : 'left-4'} top-[50vh] -translate-y-1/2 z-30
-        flex flex-col gap-1 p-1.5 
+        fixed ${position === 'right' ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 z-30
+        flex flex-col gap-0.5 p-1 
         bg-background/95 backdrop-blur-xl
         border border-border/50
-        rounded-2xl shadow-2xl
+        rounded-xl shadow-lg
         ${className}
       `}
       variants={containerVariants}
@@ -86,9 +86,9 @@ export const EnhancedMapControls: React.FC<EnhancedMapControlsProps> = ({
             size="icon"
             onClick={control.action}
             className={`
-              h-12 w-12 rounded-xl
-              shadow-lg hover:shadow-xl
-              transition-all duration-300
+              h-10 w-10 rounded-lg
+              shadow-md hover:shadow-lg
+              transition-all duration-200
               hover:scale-105 active:scale-95
               backdrop-blur-sm
               ${control.variant === 'default' ? 'bg-primary hover:bg-primary/90' : ''}
@@ -97,18 +97,18 @@ export const EnhancedMapControls: React.FC<EnhancedMapControlsProps> = ({
             `}
             aria-label={control.label}
           >
-            <control.icon className="h-5 w-5" />
+            <control.icon className="h-4 w-4" />
           </Button>
         </motion.div>
       ))}
       
       {/* Compass indicator */}
       <motion.div 
-        className="mt-2 flex justify-center"
+        className="mt-1 flex justify-center"
         variants={itemVariants}
       >
-        <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-          <Compass className="h-4 w-4 text-muted-foreground" />
+        <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center">
+          <Compass className="h-3 w-3 text-muted-foreground" />
         </div>
       </motion.div>
     </motion.div>

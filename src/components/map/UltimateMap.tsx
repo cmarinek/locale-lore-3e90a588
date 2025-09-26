@@ -353,8 +353,7 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
           onMyLocation={handleMyLocation}
           onStyleChange={handleStyleChange}
           onResetView={handleRecenter}
-          position="right"
-          className="absolute top-2 right-2 md:top-4 md:right-4 z-10"
+          position="left"
         />
       )}
 

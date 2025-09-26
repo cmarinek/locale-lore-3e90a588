@@ -776,7 +776,7 @@ export const ClusteredMap: React.FC<ClusteredMapProps> = React.memo(({ onFactCli
         onMyLocation={handleMyLocation}
         onStyleChange={handleStyleChange}
         onResetView={handleResetView}
-        position="right"
+        position="left"
       />
 
       {/* Loading States */}
