@@ -4,6 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { FactMarker } from '@/types/map';
 import { mapboxService } from '@/services/mapboxService';
+import { ultraFastGeoService } from '@/services/ultraFastGeoService';
 import { MapTokenMissing } from './MapTokenMissing';
 import { EnhancedMapControls } from './EnhancedMapControls';
 import { useFavoriteCities } from '@/hooks/useFavoriteCities';
@@ -155,7 +156,9 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
   // Load facts progressively after map is ready
   useEffect(() => {
     if (!isLoaded) return;
-
+    
+    // Clear cache to get fresh data with images
+    ultraFastGeoService.clearCache();
     fetchFacts().then(setFacts);
   }, [isLoaded]);
 
