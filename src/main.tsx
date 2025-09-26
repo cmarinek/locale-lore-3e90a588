@@ -2,8 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { appInitializer } from './utils/app-initialization';
-import { viteChunkOptimizer } from './utils/vite-chunk-optimizer';
+import { simplifiedInitializer } from './utils/simplified-initialization';
 
 // Ensure React is properly loaded before proceeding
 if (!React || typeof React !== 'object' || !React.createElement) {
@@ -48,10 +47,7 @@ const showLoadingIndicator = () => {
   document.body.innerHTML = loadingHTML;
 };
 
-// Initialize chunk optimizer for better Vite bundling
-console.log('🔧 Vite chunk optimizer initialized');
-
-// Initialize app with proper loading states
+// Initialize app with clean single initialization flow
 const initializeApp = async () => {
   try {
     // Show loading indicator
@@ -66,13 +62,8 @@ const initializeApp = async () => {
       console.warn('Root element was missing and has been created');
     }
 
-    // Initialize app systems with timeout protection
-    const initPromise = appInitializer.initialize();
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Initialization timeout')), 15000);
-    });
-
-    const result = await Promise.race([initPromise, timeoutPromise]);
+    // Use simplified initialization system
+    const result = await simplifiedInitializer.initialize();
     
     if (!result.success) {
       console.warn('App initialization had issues:', result.issues);
@@ -81,9 +72,9 @@ const initializeApp = async () => {
 
     console.log('✅ Initialization complete, rendering React app');
 
-    // Clear loading indicator and render React
-    document.body.innerHTML = '<div id="root"></div>';
-    const root = createRoot(document.getElementById("root")!);
+    // Create root container and render React
+    rootElement.innerHTML = '';
+    const root = createRoot(rootElement);
 
     root.render(
       <React.StrictMode>
