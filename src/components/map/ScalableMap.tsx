@@ -8,6 +8,7 @@ import mapboxgl from 'mapbox-gl';
 import Supercluster from 'supercluster';
 import { throttle, debounce } from 'lodash';
 import { Card } from '@/components/ui/card';
+import MapControls from './MapControls';
 import { Button } from '@/components/ui/button';
 import { MapPin, Layers, ZoomIn } from 'lucide-react';
 
@@ -372,33 +373,32 @@ export const ScalableMap: React.FC<ScalableMapProps> = ({
     <div className="relative w-full h-full">
       <div ref={mapContainer} className="absolute inset-0" />
       
-      {/* Mobile-optimized controls - hide performance metrics on mobile */}
-      <div className="absolute bottom-4 left-4 hidden md:block">
-        <Card className="p-2 bg-background/90 backdrop-blur">
-          <div className="text-xs space-y-1">
-            <div className="flex items-center gap-2">
-              <Layers className="w-3 h-3" />
-              <span>{renderMetrics.totalFacts.toLocaleString()} facts</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <ZoomIn className="w-3 h-3" />
-              <span>Zoom: {currentZoom.toFixed(1)}</span>
-            </div>
-            {loadingViewport && (
-              <div className="text-xs text-primary">Loading...</div>
-            )}
-          </div>
-        </Card>
-      </div>
+      {/* Map Controls */}
+      <MapControls isVisible={isLoaded} />
 
-      {/* Mobile loading indicator */}
-      {loadingViewport && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:hidden">
-          <div className="bg-background/90 backdrop-blur rounded-full p-3">
-            <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+      {/* Performance overlay */}
+      <Card className="absolute top-4 right-4 p-3 bg-background/90 backdrop-blur">
+        <div className="text-xs space-y-1">
+          <div className="flex items-center gap-2">
+            <Layers className="w-3 h-3" />
+            <span>{renderMetrics.totalFacts.toLocaleString()} total facts</span>
           </div>
+          <div className="flex items-center gap-2">
+            <MapPin className="w-3 h-3" />
+            <span>{renderMetrics.visibleClusters} visible clusters</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ZoomIn className="w-3 h-3" />
+            <span>Zoom: {currentZoom.toFixed(1)}</span>
+          </div>
+          <div className="text-muted-foreground">
+            Render: {renderMetrics.renderTime}ms
+          </div>
+          {loadingViewport && (
+            <div className="text-xs text-blue-500">Loading viewport...</div>
+          )}
         </div>
-      )}
+      </Card>
     </div>
   );
 };
