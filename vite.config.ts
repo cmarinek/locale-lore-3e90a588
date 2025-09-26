@@ -84,14 +84,15 @@ export default defineConfig(({ mode }) => ({
       "lucide-react",
       "mapbox-gl"
     ],
-    // Remove mapbox-gl from exclusions - it needs to be optimized
     exclude: [
       "@capacitor/core" // Mobile-specific
     ],
-    force: true,
     esbuildOptions: {
       mainFields: ['module', 'main'],
-      target: 'esnext'
+      target: 'esnext',
+      loader: {
+        '.js': 'jsx',
+      },
     }
   },
   ssr: {

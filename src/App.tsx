@@ -4,6 +4,7 @@ import { AppProviders } from '@/components/app/AppProviders';
 import { AppInitialization } from '@/components/app/AppInitialization';
 import { AppLayout } from '@/components/app/AppLayout';
 import { AppRoutes } from '@/components/app/AppRoutes';
+import { ChunkErrorBoundary } from '@/components/common/ChunkErrorBoundary';
 
 function App() {
   // Ensure React hooks are available before rendering
@@ -13,15 +14,17 @@ function App() {
   }
 
   return (
-    <Router>
-      <AppProviders>
-        <AppInitialization>
-          <AppLayout>
-            <AppRoutes />
-          </AppLayout>
-        </AppInitialization>
-      </AppProviders>
-    </Router>
+    <ChunkErrorBoundary>
+      <Router>
+        <AppProviders>
+          <AppInitialization>
+            <AppLayout>
+              <AppRoutes />
+            </AppLayout>
+          </AppInitialization>
+        </AppProviders>
+      </Router>
+    </ChunkErrorBoundary>
   );
 }
 

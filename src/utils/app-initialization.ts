@@ -5,6 +5,7 @@
 
 import { SecurityUtils } from './security';
 import { seoManager, optimizeCriticalResources } from './seo';
+import { initMonitor } from './initialization-monitor';
 
 interface InitializationResult {
   success: boolean;
@@ -31,18 +32,35 @@ class AppInitializer {
     const issues: string[] = [];
 
     try {
-      // Phase 1: Critical DOM checks
+      console.log('🚀 Starting app initialization...');
+      initMonitor.startPhase('total');
+
+      // Phase 1: Critical DOM checks with timeout
+      initMonitor.startPhase('dom');
       if (!this.isDOMReady()) {
+        console.log('⏳ Waiting for DOM...');
         await this.waitForDOM();
       }
+      initMonitor.endPhase('dom', true);
 
-      // Phase 2: Environment validation (without aggressive failures)
-      const envValid = SecurityUtils.validateEnvironment();
-      if (!envValid) {
-        issues.push('Environment validation failed - continuing with degraded functionality');
+      // Phase 2: Environment validation (non-blocking)
+      initMonitor.startPhase('environment');
+      try {
+        const envValid = SecurityUtils.validateEnvironment();
+        if (!envValid) {
+          issues.push('Environment validation failed - continuing with degraded functionality');
+          initMonitor.logWarning('Environment validation failed, continuing anyway');
+          initMonitor.endPhase('environment', false, 'Validation failed');
+        } else {
+          initMonitor.endPhase('environment', true);
+        }
+      } catch (error) {
+        issues.push('Environment check error - non-critical');
+        initMonitor.endPhase('environment', false, String(error));
       }
 
-      // Phase 3: SEO and performance optimization
+      // Phase 3: SEO and performance optimization (non-blocking)
+      initMonitor.startPhase('seo');
       try {
         seoManager.preloadCriticalResources();
         optimizeCriticalResources();
@@ -50,30 +68,66 @@ class AppInitializer {
           title: 'GeoCache Lore - Discover Hidden Stories Around the World',
           description: 'Explore fascinating facts and hidden stories about locations worldwide.',
         });
+        initMonitor.endPhase('seo', true);
       } catch (error) {
         issues.push('SEO initialization had issues - non-critical');
+        initMonitor.endPhase('seo', false, String(error));
       }
 
-      // Phase 4: Mark as ready
+      // Phase 4: Additional safety checks
+      initMonitor.startPhase('safety');
+      try {
+        // Ensure critical browser APIs are available
+        if (typeof window !== 'undefined') {
+          // Check for essential APIs
+          const criticalAPIs = ['localStorage', 'sessionStorage', 'fetch', 'URL'];
+          const missingAPIs = criticalAPIs.filter(api => !(api in window));
+          
+          if (missingAPIs.length > 0) {
+            issues.push(`Missing browser APIs: ${missingAPIs.join(', ')}`);
+            initMonitor.logWarning(`Missing browser APIs: ${missingAPIs.join(', ')}`);
+            initMonitor.endPhase('safety', false, 'Missing APIs');
+          } else {
+            initMonitor.endPhase('safety', true);
+          }
+        } else {
+          initMonitor.endPhase('safety', true);
+        }
+      } catch (error) {
+        issues.push('Browser API check failed - non-critical');
+        initMonitor.endPhase('safety', false, String(error));
+      }
+
+      // Phase 5: Mark as ready
+      initMonitor.startPhase('callbacks');
       this.isInitialized = true;
       this.isInitializing = false;
 
-      // Trigger callbacks
-      this.callbacks.forEach(callback => {
+      // Trigger callbacks with error protection
+      this.callbacks.forEach((callback, index) => {
         try {
           callback();
         } catch (error) {
-          console.warn('Initialization callback error:', error);
+          initMonitor.logError(`Callback ${index} failed: ${error}`, 'callbacks');
+          issues.push(`Callback ${index} failed`);
         }
       });
+      initMonitor.endPhase('callbacks', true);
 
+      initMonitor.endPhase('total', true);
       const duration = Date.now() - startTime;
-      console.log(`✅ App initialized successfully in ${duration}ms`, { issues });
+      
+      // Print detailed report
+      initMonitor.printReport();
+      initMonitor.storeReport();
 
       return { success: true, issues, duration };
     } catch (error) {
       this.isInitializing = false;
-      console.error('❌ App initialization failed:', error);
+      initMonitor.logError(`Critical initialization error: ${error}`);
+      initMonitor.endPhase('total', false, String(error));
+      initMonitor.printReport();
+      initMonitor.storeReport();
       
       return { 
         success: false, 
