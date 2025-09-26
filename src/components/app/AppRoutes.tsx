@@ -21,6 +21,7 @@ const Profile = lazy(() => import('@/pages/Profile').then(m => ({ default: m.Pro
 const Fact = lazy(() => import('@/pages/Fact').then(m => ({ default: m.Fact })));
 const ComponentShowcase = lazy(() => import('@/pages/ComponentShowcase'));
 const Gamification = lazy(() => import('@/pages/Gamification').then(m => ({ default: m.Gamification })));
+const Hybrid = lazy(() => import('@/pages/Hybrid').then(m => ({ default: m.Hybrid })));
 const MediaManagement = lazy(() => import('@/pages/MediaManagement'));
 const Billing = lazy(() => import('@/pages/Billing').then(m => ({ default: m.Billing })));
 const Social = lazy(() => import('@/pages/Social').then(m => ({ default: m.Social })));
@@ -73,6 +74,7 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/auth/confirm" element={<AuthConfirm />} />
         <Route path="/auth/reset-password" element={<AuthResetPassword />} />
         <Route path="/explore" element={<Explore />} />
+        <Route path="/hybrid" element={<Hybrid />} />
         <Route path="/map" element={<LazyMap />} />
         <Route path="/search" element={<Search />} />
         <Route path="/submit" element={
