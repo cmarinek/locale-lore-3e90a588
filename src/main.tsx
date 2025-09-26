@@ -4,9 +4,11 @@ import App from './App.tsx';
 import './index.css';
 import { appInitializer } from './utils/app-initialization';
 
-// Simplified React checks without aggressive reloads
-if (!React || typeof React !== 'object') {
-  console.error('React not loaded - continuing with degraded functionality');
+// Ensure React is properly loaded before proceeding
+if (!React || typeof React !== 'object' || !React.createElement) {
+  console.error('React not properly loaded - critical error');
+  document.body.innerHTML = '<div style="padding: 20px; text-align: center;">Loading React...</div>';
+  throw new Error('React not available');
 }
 
 // Initialize app systems

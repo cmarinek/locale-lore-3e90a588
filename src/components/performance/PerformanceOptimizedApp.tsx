@@ -1,4 +1,3 @@
-// Simplified performance-optimized app wrapper - no complex monitoring causing React errors
 import React, { Suspense, useEffect } from 'react';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
