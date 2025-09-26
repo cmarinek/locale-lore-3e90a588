@@ -17,6 +17,18 @@ const AppLoadingFallback = () => (
 );
 
 export const PerformanceOptimizedApp: React.FC<PerformanceOptimizedAppProps> = ({ children }) => {
+  // Ensure React and hooks are available before using them
+  if (!React || !React.useEffect) {
+    console.error('React or useEffect not available in PerformanceOptimizedApp');
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <p className="text-muted-foreground">Loading React...</p>
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     // Simple performance tracking without complex monitoring
     console.log('🚀 App initialized at:', new Date().toISOString());
