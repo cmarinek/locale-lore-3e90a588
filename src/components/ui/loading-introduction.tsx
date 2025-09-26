@@ -28,16 +28,21 @@ export const LoadingIntroduction: React.FC<LoadingIntroductionProps> = ({
   }, [minDisplayTime, onComplete]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait" onExitComplete={() => {
+      // Ensure complete cleanup after animation
+      const bodyStyle = document.body.style;
+      bodyStyle.removeProperty('overflow');
+      bodyStyle.removeProperty('height');
+    }}>
       {!shouldFadeOut && (
         <motion.div 
           className={cn(
-            "fixed inset-0 z-50 min-h-screen bg-background flex items-center justify-center overflow-hidden",
+            "fixed inset-0 z-50 bg-background flex items-center justify-center overflow-hidden",
             className
           )}
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
         >
           {/* Background gradient animation */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />

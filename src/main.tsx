@@ -11,40 +11,41 @@ if (!React || typeof React !== 'object' || !React.createElement) {
   throw new Error('React not available');
 }
 
-// Create a loading indicator
+// Create a minimal loading indicator that doesn't interfere with layout
 const showLoadingIndicator = () => {
-  const loadingHTML = `
-    <div style="
-      min-height: 100vh; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      background: hsl(var(--background));
-      color: hsl(var(--foreground));
-      font-family: Inter, system-ui, sans-serif;
-    ">
-      <div style="text-align: center; max-width: 400px; padding: 2rem;">
-        <div style="
-          width: 40px; 
-          height: 40px; 
-          border: 3px solid hsl(var(--muted)); 
-          border-top: 3px solid hsl(var(--primary)); 
-          border-radius: 50%; 
-          animation: spin 1s linear infinite; 
-          margin: 0 auto 1rem;
-        "></div>
-        <h2 style="margin: 0 0 0.5rem; font-size: 1.25rem; font-weight: 600;">Initializing GeoCache Lore</h2>
-        <p style="margin: 0; color: hsl(var(--muted-foreground)); font-size: 0.875rem;">Setting up your experience...</p>
+  const existingRoot = document.getElementById("root");
+  if (existingRoot) {
+    existingRoot.innerHTML = `
+      <div style="
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        padding: 2rem;
+        background: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-family: Inter, system-ui, sans-serif;
+      ">
+        <div style="text-align: center;">
+          <div style="
+            width: 32px; 
+            height: 32px; 
+            border: 2px solid hsl(var(--muted)); 
+            border-top: 2px solid hsl(var(--primary)); 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+            margin: 0 auto 1rem;
+          "></div>
+          <p style="margin: 0; color: hsl(var(--muted-foreground)); font-size: 0.875rem;">Loading...</p>
+        </div>
+        <style>
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
       </div>
-      <style>
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      </style>
-    </div>
-  `;
-  document.body.innerHTML = loadingHTML;
+    `;
+  }
 };
 
 // Initialize app with clean single initialization flow

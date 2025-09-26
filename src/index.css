@@ -70,15 +70,10 @@
     position: relative;
   }
   
-  /* Ensure root visibility */
+  /* Ensure root visibility without forcing height */
   #root {
-    min-height: 100vh;
     position: relative;
   }
-  
-  /* Force visibility for debugging */
-  .min-h-screen {
-    min-height: 100vh !important;
 }
 
 /* Mobile-First Touch Optimizations */
@@ -183,7 +178,6 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
 }
 
 /* RTL Support */
