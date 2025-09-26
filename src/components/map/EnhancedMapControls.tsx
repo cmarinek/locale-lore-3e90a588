@@ -68,8 +68,8 @@ export const EnhancedMapControls: React.FC<EnhancedMapControlsProps> = ({
   return (
     <motion.div
       className={`
-        fixed ${position === 'right' ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 z-30
-        flex flex-col gap-2 p-3 
+        fixed ${position === 'right' ? 'right-4' : 'left-4'} top-[50vh] -translate-y-1/2 z-30
+        flex flex-col gap-1 p-1.5 
         bg-background/95 backdrop-blur-xl
         border border-border/50
         rounded-2xl shadow-2xl
