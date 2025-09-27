@@ -171,20 +171,47 @@ export const useDiscoveryStore = create<DiscoveryState>()(
         set({ isLoading: true, error: null });
         
         try {
-          const { data, error } = await supabase.functions.invoke('intelligent-search', {
-            body: { 
-              query,
-              page: 0,
-              limit: get().factsPerPage,
-              sort: 'relevance'
-            }
-          });
+          // Simple text search instead of edge function for now
+          const { data, error } = await supabase
+            .from('facts')
+            .select(`
+              *,
+              categories:category_id (
+                slug,
+                icon,
+                color,
+                category_translations (
+                  name,
+                  language_code
+                )
+              ),
+              profiles:author_id (
+                username,
+                avatar_url
+              )
+            `)
+            .eq('status', 'verified')
+            .ilike('title', `%${query}%`)
+            .order('created_at', { ascending: false })
+            .limit(get().factsPerPage);
 
           if (error) throw error;
           
-          const facts = data.results as EnhancedFact[];
-          get().setFacts(facts);
-          set({ hasMore: data.hasMore });
+          const enhancedFacts = (data || []).map(fact => ({
+            ...fact,
+            vote_count_up: fact.vote_count_up || 0,
+            vote_count_down: fact.vote_count_down || 0,
+            profiles: fact.profiles || { id: '', username: 'Anonymous', avatar_url: null },
+            categories: fact.categories || { 
+              slug: 'unknown', 
+              icon: '📍', 
+              color: '#666666',
+              category_translations: [{ name: 'Unknown', language_code: 'en' }] 
+            }
+          })) as EnhancedFact[];
+          
+          get().setFacts(enhancedFacts);
+          set({ hasMore: enhancedFacts.length === get().factsPerPage });
         } catch (error) {
           console.error('Error searching facts:', error);
           set({ error: error instanceof Error ? error.message : 'Search failed' });

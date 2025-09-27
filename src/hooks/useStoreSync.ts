@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useMapStore } from '@/stores/mapStore';
 import { useSearchStore } from '@/stores/searchStore';
 import { useUserStore } from '@/stores/userStore';
+import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useAuth } from '@/contexts/AuthProvider';
 
 /**
@@ -78,11 +79,18 @@ export const useFactSync = () => {
 };
 
 /**
- * Master hook that enables all synchronization
+ * Master hook that enables all synchronization and initializes the app
  */
 export const useStoreSync = () => {
+  const { initializeData } = useDiscoveryStore();
+  
   useAuthSync();
   useMapSearchSync();
   useLocationSync();
   useFactSync();
+  
+  // Initialize app data on first mount
+  useEffect(() => {
+    initializeData();
+  }, [initializeData]);
 };

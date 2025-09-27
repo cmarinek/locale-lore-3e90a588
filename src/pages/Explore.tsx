@@ -78,29 +78,19 @@ export const Explore: React.FC = () => {
               </p>
             </div>
             
-            <div className="relative">
-              <input
-                type="text"
-                placeholder={t('lore:searchPlaceholder', 'Search for stories, places, or legends...')}
-                className="w-full px-4 py-3 rounded-lg border bg-background"
-                onChange={(e) => handleSearch(e.target.value)}
-                defaultValue={query}
-              />
-            </div>
+            <CleanSearchBar 
+              onQueryChange={handleSearch}
+              placeholder={t('lore:searchPlaceholder', 'Search for stories, places, or legends...')}
+            />
           </div>
         </div>
 
         {/* Facts List */}
         <div className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto pb-safe p-4 space-y-4">
-            {facts.map((fact) => (
-              <div key={fact.id} className="bg-card p-4 rounded-lg border">
-                <h3 className="font-semibold">{fact.title}</h3>
-                <p className="text-muted-foreground text-sm">{fact.description}</p>
-              </div>
-            ))}
-            {isLoading && <div className="text-center py-4">Loading...</div>}
-          </div>
+          <InfiniteFactList
+            className="h-full overflow-y-auto pb-safe"
+            viewMode="list"
+          />
         </div>
 
         {/* Fact Preview Modal */}
