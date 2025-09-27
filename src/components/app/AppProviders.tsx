@@ -1,6 +1,6 @@
 import React from 'react';
 import { PerformanceOptimizedApp } from '@/components/performance/PerformanceOptimizedApp';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { ProviderChain } from '@/components/providers/ProviderChain';
 
 interface AppProvidersProps {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
 
 interface PerformanceOptimizedAppProps {
   children: React.ReactNode;

@@ -10,7 +10,7 @@ import { useCommunityStats } from '@/hooks/useCommunityStats';
 import { WelcomeOnboarding } from '@/components/onboarding/WelcomeOnboarding';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useAuth } from '@/contexts/AuthProvider';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
 
 const Index: React.FC = React.memo(() => {
   const location = useLocation();

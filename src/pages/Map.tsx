@@ -8,7 +8,7 @@ import { UnifiedMap } from '@/components/map/UnifiedMap';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { FactMarker } from '@/types/map';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
 
 export const Map: React.FC = () => {
   const navigate = useNavigate();
