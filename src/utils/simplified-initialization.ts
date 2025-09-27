@@ -34,6 +34,8 @@ class SimplifiedInitializer {
     const issues: string[] = [];
 
     try {
+      console.log('🚀 Starting app initialization...');
+      
       // Essential initialization checks only
       await this.checkDOMReady();
       await this.validateEnvironment();
@@ -53,12 +55,14 @@ class SimplifiedInitializer {
       this.readyCallbacks = [];
 
       const duration = performance.now() - this.initStartTime;
+      console.log(`✅ Initialization completed in ${duration.toFixed(2)}ms`);
       return { success: true, issues, duration };
 
     } catch (error) {
       this.isInitializing = false;
       issues.push(String(error));
       const duration = performance.now() - this.initStartTime;
+      console.error(`❌ Initialization failed after ${duration.toFixed(2)}ms:`, error);
       return { success: false, issues, duration };
     }
   }
