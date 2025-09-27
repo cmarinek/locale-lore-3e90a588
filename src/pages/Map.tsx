@@ -1,30 +1,22 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 import { useNavigate } from 'react-router-dom';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { UnifiedMap } from '@/components/map/UnifiedMap';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { useSearchStore } from '@/stores/searchStore';
+import { useMapStore } from '@/stores/mapStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
-import { FactMarker } from '@/types/map';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 
 export const Map: React.FC = () => {
   const navigate = useNavigate();
   
-  const {
-    facts,
-    selectedFact,
-    setSelectedFact,
-    filters,
-    setFilters,
-    searchFacts,
-    syncSelectedFact,
-    setSyncSelectedFact,
-    fetchFactById,
-    initializeData
-  } = useDiscoveryStore();
+  const { facts, selectedFact, setSelectedFact, fetchFactById, initializeData } = useDiscoveryStore();
+  const { filters, setFilters } = useSearchStore();
+  const { selectedMarkerId, setSelectedMarkerId } = useMapStore();
 
   const handleFactClick = (fact: any) => {
     // Convert fact to enhanced format for modal compatibility
@@ -59,16 +51,16 @@ export const Map: React.FC = () => {
       }
     };
     setSelectedFact(enhancedFact);
+    setSelectedMarkerId(fact.id);
   };
 
   const handleSearch = (query: string) => {
     setFilters({ search: query });
-    searchFacts(query);
   };
 
   const handleCloseModal = () => {
     setSelectedFact(null);
-    setSyncSelectedFact(null);
+    setSelectedMarkerId(null);
   };
 
   // Initialize data when component mounts
@@ -76,18 +68,18 @@ export const Map: React.FC = () => {
     initializeData();
   }, [initializeData]);
 
-  // Handle syncSelectedFact when component mounts or changes
+  // Handle selectedMarkerId when component mounts or changes
   useEffect(() => {
-    if (syncSelectedFact) {
+    if (selectedMarkerId) {
       const loadFact = async () => {
-        const fact = await fetchFactById(syncSelectedFact);
+        const fact = await fetchFactById(selectedMarkerId);
         if (fact) {
           setSelectedFact(fact);
         }
       };
       loadFact();
     }
-  }, [syncSelectedFact, setSelectedFact, fetchFactById]);
+  }, [selectedMarkerId, setSelectedFact, fetchFactById]);
 
   return (
     <ErrorBoundary

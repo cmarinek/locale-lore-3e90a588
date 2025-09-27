@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/ios-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LocationNavigationButton } from '@/components/ui/LocationNavigationButton';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { useUserStore } from '@/stores/userStore';
 import { EnhancedFact } from '@/types/fact';
 import { cn } from '@/lib/utils';
 interface FactCardProps {
@@ -18,15 +19,10 @@ export const FactCard: React.FC<FactCardProps> = ({
   className,
   viewMode = 'grid'
 }) => {
-  const {
-    savedFacts,
-    toggleSavedFact,
-    setSelectedFact,
-    setModalOpen,
-    syncSelectedFact
-  } = useDiscoveryStore();
+  const { setSelectedFact } = useDiscoveryStore();
+  const { savedFacts, toggleSavedFact } = useUserStore();
   const isSaved = savedFacts.includes(fact.id);
-  const isHighlighted = syncSelectedFact === fact.id;
+  const isHighlighted = false; // Remove sync functionality for now
   const voteScore = fact.vote_count_up - fact.vote_count_down;
   const categoryName = fact.categories?.category_translations?.find(t => t.language_code === 'en')?.name || fact.categories?.slug || 'Unknown';
   const handleSaveToggle = (e: React.MouseEvent) => {
@@ -36,7 +32,7 @@ export const FactCard: React.FC<FactCardProps> = ({
   const handleQuickView = (e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedFact(fact);
-    setModalOpen(true);
+    // Remove modal functionality for now - will use router navigation
   };
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

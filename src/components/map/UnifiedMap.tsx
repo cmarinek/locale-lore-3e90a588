@@ -21,6 +21,8 @@ import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { mapboxService } from '@/services/mapboxService';
 import { scalableFactService } from '@/services/scalableFactService';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { useSearchStore } from '@/stores/searchStore';
+import { useMapStore } from '@/stores/mapStore';
 
 // Types
 interface Fact {
@@ -98,7 +100,9 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   // Hooks
   const { startRenderMeasurement, endRenderMeasurement } = usePerformanceMonitor(enablePerformanceMetrics);
   const { favoriteCities } = useFavoriteCities();
-  const { filters, syncSelectedFact } = useDiscoveryStore();
+  const { selectedFact, setSelectedFact } = useDiscoveryStore();
+  const { filters } = useSearchStore();
+  const { selectedMarkerId, setSelectedMarkerId } = useMapStore();
 
   // State
   const [mapboxToken, setMapboxToken] = useState<string>('');
@@ -468,12 +472,12 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         ],
         'circle-stroke-width': [
           'case',
-          ['==', ['get', 'id'], syncSelectedFact || ''],
+          ['==', ['get', 'id'], selectedMarkerId || ''],
           4, 2
         ],
         'circle-stroke-color': [
           'case',
-          ['==', ['get', 'id'], syncSelectedFact || ''],
+          ['==', ['get', 'id'], selectedMarkerId || ''],
           '#FFD700', '#fff'
         ]
       }
@@ -504,7 +508,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         if (fact) onFactClick(fact);
       }
     });
-  }, [isLoaded, processedFacts, maxZoom, clusterRadius, syncSelectedFact, onFactClick]);
+  }, [isLoaded, processedFacts, maxZoom, clusterRadius, selectedMarkerId, onFactClick]);
 
   // Setup marker-based map
   const setupMarkerMap = useCallback(() => {

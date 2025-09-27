@@ -9,6 +9,7 @@ import { LocationNavigationButton } from '@/components/ui/LocationNavigationButt
 import { DiscussionThread } from '@/components/verification/DiscussionThread';
 import { SocialSharing } from '@/components/social/SocialSharing';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { useUserStore } from '@/stores/userStore';
 import { EnhancedFact } from '@/types/fact';
 
 interface FactPreviewModalProps {
@@ -22,7 +23,7 @@ export const FactPreviewModal: React.FC<FactPreviewModalProps> = ({
   open,
   onClose
 }) => {
-  const { toggleSavedFact, savedFacts } = useDiscoveryStore();
+  const { toggleSavedFact, savedFacts } = useUserStore();
 
   if (!fact) return null;
 

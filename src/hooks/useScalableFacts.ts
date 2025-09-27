@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { scalableFactService, type Bounds, type ScalableFactQuery } from '@/services/scalableFactService';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { useSearchStore } from '@/stores/searchStore';
 
 interface UseScalableFactsOptions {
   autoLoad?: boolean;
@@ -28,8 +29,8 @@ export const useScalableFacts = (options: UseScalableFactsOptions = {}) => {
   const currentBoundsRef = useRef<Bounds | null>(null);
   const currentZoomRef = useRef<number>(defaultZoom);
   
-  // Get global filters from discovery store
-  const { filters } = useDiscoveryStore();
+  const { facts, isLoading, loadMoreFacts } = useDiscoveryStore();
+  const { filters } = useSearchStore();
 
   /**
    * Load facts for a specific viewport

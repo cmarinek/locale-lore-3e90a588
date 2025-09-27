@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Target, Navigation } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { useMapStore } from '@/stores/mapStore';
 import { toast } from 'sonner';
 
 interface LocationNavigationButtonProps {
@@ -26,7 +27,8 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setMapCenter, setSyncSelectedFact } = useDiscoveryStore();
+  const { setSelectedFact } = useDiscoveryStore();
+  const { setCenter, setSelectedMarkerId } = useMapStore();
 
   const handleLocationClick = (e: React.MouseEvent) => {
     // Critical: Stop event propagation to prevent card click
@@ -39,12 +41,9 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
     
     // Set the map center coordinates
     console.log('Setting map center to:', [longitude, latitude]);
-    setMapCenter([longitude, latitude]);
-    
-    // Set the selected fact for highlighting
-    if (factId) {
-      setSyncSelectedFact(factId);
-    }
+    setCenter([longitude, latitude]);
+    setSelectedFact(null); // Clear any selected fact when navigating
+    setSelectedMarkerId(null); // Clear map selection
     
     if (currentPath === '/hybrid') {
       // If on hybrid page, just center the map and switch to map tab
@@ -54,7 +53,6 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
       window.dispatchEvent(new CustomEvent('switch-to-map-tab'));
       
       toast.success(`Centered map on ${locationName || 'location'}`);
-    } else if (currentPath === '/map') {
       // If already on map page, just center the map
       console.log('Already on map page, centering map');
       toast.success(`Centered map on ${locationName || 'location'}`);

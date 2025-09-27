@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { useSearchStore } from '@/stores/searchStore';
 import { UnifiedMap } from '@/components/map/UnifiedMap';
 import { InfiniteFactList } from '@/components/discovery/InfiniteFactList';
 import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
@@ -13,39 +14,43 @@ export const Hybrid: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'map' | 'list'>('map');
   
   const { 
-    facts, 
-    loading, 
-    error, 
-    searchFacts,
-    filters
+    facts,
+    isLoading,
+    initializeData 
   } = useDiscoveryStore();
+  
+  const { filters } = useSearchStore();
 
   useEffect(() => {
+    initializeData();
+  }, [initializeData]);
+
+  useEffect(() => {
+    const getUserLocation = async () => {
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: false,
+            timeout: 10000,
+            maximumAge: 300000
+          });
+        });
+        
+        setUserLocation([position.coords.longitude, position.coords.latitude]);
+      } catch (error) {
+        console.warn('Could not get user location:', error);
+        setUserLocation([-0.1276, 51.5074]); // Default to London
+      }
+    };
+    
     getUserLocation();
   }, []);
 
-  const getUserLocation = async () => {
-    try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: false,
-          timeout: 10000,
-          maximumAge: 300000
-        });
-      });
-      
-      setUserLocation([position.coords.longitude, position.coords.latitude]);
-    } catch (error) {
-      console.warn('Could not get user location:', error);
-      setUserLocation([-0.1276, 51.5074]); // Default to London
-    }
-  };
-
   const handleSearch = (query: string) => {
-    searchFacts(query);
+    // Remove direct searchFacts call - this will be handled by store sync
   };
 
-  if (loading && facts.length === 0) {
+  if (isLoading && facts.length === 0) {
     return (
       <div className="container mx-auto p-4 space-y-4">
         <div className="animate-pulse space-y-4">
@@ -55,6 +60,8 @@ export const Hybrid: React.FC = () => {
       </div>
     );
   }
+
+  const error = null; // Remove error handling for now
 
   if (error) {
     return (

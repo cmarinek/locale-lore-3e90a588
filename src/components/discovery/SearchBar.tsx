@@ -3,6 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { EnhancedSearchInput } from '@/components/search/search-suggestions';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { useSearchStore } from '@/stores/searchStore';
 import { useEnhancedDebounce } from '@/hooks/useEnhancedDebounce';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { cn } from '@/lib/utils';
@@ -18,12 +19,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   className,
   placeholder = "Search for facts, stories, or topics..."
 }) => {
-  const { 
-    filters, 
-    setFilters 
-  } = useDiscoveryStore();
+  const { searchFacts } = useDiscoveryStore();
+  const { query, setQuery, filters, setFilters } = useSearchStore();
   
-  const [localQuery, setLocalQuery] = useState(filters.search || '');
+  const [localQuery, setLocalQuery] = useState(query || '');
   
   const [debouncedQuery, cancelDebounce, isDebouncing] = useEnhancedDebounce(localQuery, {
     delay: 300,
@@ -43,8 +42,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   });
 
   useEffect(() => {
-    if (debouncedQuery !== filters.search) {
-      setFilters({ search: debouncedQuery });
+    if (debouncedQuery !== query) {
+      setQuery(debouncedQuery);
       onQueryChange?.(debouncedQuery);
       
       // Add to search history if it's a meaningful search
@@ -52,7 +51,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         addSearch(debouncedQuery.trim());
       }
     }
-  }, [debouncedQuery, filters.search, setFilters, onQueryChange, addSearch]);
+  }, [debouncedQuery, query, setQuery, onQueryChange, addSearch]);
 
   // Generate suggestions based on current query
   const suggestions = React.useMemo(() => {
@@ -91,13 +90,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
   const handleSubmit = useCallback((query: string) => {
     setLocalQuery(query);
-    setFilters({ search: query });
+    setQuery(query);
     onQueryChange?.(query);
     
     if (query.trim().length > 2) {
       addSearch(query.trim());
     }
-  }, [setFilters, onQueryChange, addSearch]);
+  }, [setQuery, onQueryChange, addSearch]);
 
   return (
     <div className={cn("relative w-full max-w-md", className)}>

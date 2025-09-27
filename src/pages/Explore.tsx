@@ -1,50 +1,29 @@
-import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Swipeable } from '@/components/ui/swipeable';
-import { PullToRefresh } from '@/components/ui/pull-to-refresh';
-import { useAppStore } from '@/stores/appStore';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Filter, 
-  List, 
-  Map as MapIcon, 
-  Locate,
-  MapPin,
-  Search as SearchIcon,
-  Grid3X3,
-  LayoutList,
-  Layers
-} from 'lucide-react';
-import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
-import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
+import { useAppStore } from '@/stores/appStore';
 import { InfiniteFactList } from '@/components/discovery/InfiniteFactList';
-import { FilterPanel } from '@/components/discovery/FilterPanel';
-import { TrendingSection } from '@/components/search/TrendingSection';
 import { CleanSearchBar } from '@/components/ui/clean-search-bar';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { useSearchStore } from '@/stores/searchStore';
 import { useStoreSync } from '@/hooks/useStoreSync';
-import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
-
-type ViewMode = 'grid' | 'list';
 
 export const Explore: React.FC = () => {
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
-  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    const saved = localStorage.getItem('explore-view-mode');
-    return (saved as ViewMode) || 'grid';
-  });
+  const { 
+    facts,
+    selectedFact,
+    setSelectedFact,
+    isLoading,
+    error,
+    loadMoreFacts,
+    initializeData
+  } = useDiscoveryStore();
   
+  const { query, setQuery } = useSearchStore();
   const { triggerHapticFeedback, handleTouchInteraction } = useAppStore();
   const navigate = useNavigate();
   const { t } = useTranslation('lore');
@@ -52,179 +31,92 @@ export const Explore: React.FC = () => {
   // Initialize store synchronization
   useStoreSync();
 
-  // Discovery integration
-  const { 
-    facts, 
-    loading, 
-    error, 
-    filters,
-    selectedFact,
-    modalOpen,
-    setModalOpen,
-    loadCategories,
-    loadSavedFacts,
-    searchFacts,
-    initializeData,
-    setFilters
-  } = useDiscoveryStore();
+  const [showModal, setShowModal] = useState(false);
 
-  // Initialize discovery data
+  // Initialize data when component mounts
   useEffect(() => {
     initializeData();
   }, [initializeData]);
 
-  // Get user location on load with delay to prevent TDZ
-  useEffect(() => {
-    // Delay location request to ensure all APIs are loaded
-    const timer = setTimeout(getUserLocation, 500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const getUserLocation = async () => {
-    try {
-      const { simplifiedInitializer } = await import('@/utils/simplified-initialization');
-      const result = await simplifiedInitializer.safeGetLocation();
-      
-      if (result) {
-        setUserLocation([result.longitude, result.latitude]);
-        console.log(`Location found: ${result.latitude}, ${result.longitude}`);
-        toast.success('Using your current location');
-      } else {
-        setUserLocation([-0.1276, 51.5074]); // London fallback
-        toast.info('Using fallback location');
-      }
-    } catch (error) {
-      console.error('Failed to get location:', error);
-      setUserLocation([-0.1276, 51.5074]); // London fallback
-      toast.error('Could not detect location, using default');
-    }
+  // Handle search
+  const handleSearch = (searchQuery: string) => {
+    setQuery(searchQuery);
   };
 
-
+  // Handle refresh
   const handleRefresh = async () => {
     triggerHapticFeedback('medium');
     handleTouchInteraction();
     
-    // Refresh both map and discovery data
-    await Promise.all([
-      loadSavedFacts(),
-      searchFacts(filters.search || '')
-    ]);
-    toast.success('Content refreshed!');
+    // Refresh discovery data
+    await initializeData();
   };
 
-  const handleSwipeLeft = () => {
-    triggerHapticFeedback('light');
-    navigate('/search');
-  };
-
-  const handleSwipeRight = () => {
-    triggerHapticFeedback('light');
-    navigate('/profile');
-  };
-
-  const handleSearch = async (query: string) => {
-    setFilters({ search: query });
-    await searchFacts(query);
-  };
-
-  const handleCloseModal = () => {
-    setModalOpen(false);
-  };
-
-  const handleViewModeChange = (mode: ViewMode) => {
-    setViewMode(mode);
-    localStorage.setItem('explore-view-mode', mode);
-    triggerHapticFeedback('light');
-  };
+  // Show modal when fact is selected
+  useEffect(() => {
+    setShowModal(!!selectedFact);
+  }, [selectedFact]);
 
   return (
-    <Swipeable
-      onSwipeLeft={handleSwipeLeft}
-      onSwipeRight={handleSwipeRight}
-      className="min-h-screen"
-    >
-      <MainLayout>
-        <Helmet>
-          <title>Explore - Local Stories & Lore</title>
-          <meta name="description" content="Discover fascinating stories and local lore on an interactive map or browse through our curated collection." />
-        </Helmet>
-        
-        <PullToRefresh onRefresh={handleRefresh}>
-          {/* ViewModeToggle - consistent positioning */}
-          <div className="absolute top-4 right-4 z-20">
-            <ViewModeToggle variant="glass" />
-          </div>
+    <MainLayout>
+      <Helmet>
+        <title>Explore Local Lore - Discover Stories Around You</title>
+        <meta name="description" content="Discover fascinating local stories, legends, and historical facts. Explore user-submitted lore from around the world and contribute your own knowledge." />
+        <link rel="canonical" href="/explore" />
+      </Helmet>
 
-          {/* Discovery List View - Always show list */}
-          <div className="min-h-screen bg-background">
-            <div className="container mx-auto px-4 py-6">
-              {/* Header with glass effect */}
-              <div className="glass rounded-lg p-4 mb-6 mt-16">
-                <div className="flex items-center justify-between mb-4">
-                  <h1 className="text-2xl font-bold">Discover Stories</h1>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => setShowFilters(!showFilters)}
-                      className="glass border-0 shadow-lg bg-background/80 backdrop-blur-sm"
-                    >
-                      <Filter className="w-4 h-4 mr-2" />
-                      <span className="hidden sm:inline">Filters</span>
-                    </Button>
-                    
-                    {/* View Mode Toggle with glass effect */}
-                    <div className="flex rounded-lg border-0 glass bg-background/80 backdrop-blur-sm p-1 shadow-lg">
-                      <Button
-                        variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                        size="sm"
-                        onClick={() => handleViewModeChange('grid')}
-                        className="h-8 px-3"
-                      >
-                        <Grid3X3 className="w-4 h-4" />
-                        <span className="sr-only">Grid view</span>
-                      </Button>
-                      <Button
-                        variant={viewMode === 'list' ? 'default' : 'ghost'}
-                        size="sm"
-                        onClick={() => handleViewModeChange('list')}
-                        className="h-8 px-3"
-                      >
-                        <LayoutList className="w-4 h-4" />
-                        <span className="sr-only">List view</span>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Search Bar - clean version matching homepage style */}
-                <CleanSearchBar onQueryChange={handleSearch} />
-              </div>
-
-               {/* Filters */}
-               <FilterPanel 
-                 isOpen={filterPanelOpen} 
-                 onClose={() => setFilterPanelOpen(false)} 
-               />
-
-              {/* Loading/Error States */}
-              {loading && <p className="text-center py-8">Loading stories...</p>}
-              {error && <p className="text-center py-8 text-destructive">Error: {error}</p>}
-
-              {/* Facts List */}
-              <InfiniteFactList viewMode={viewMode} />
-
-              {/* Fact Preview Modal */}
-              <FactPreviewModal 
-                fact={selectedFact}
-                open={modalOpen}
-                onClose={handleCloseModal}
+      <div className="h-screen w-full bg-gradient-to-br from-background to-muted flex flex-col">
+        {/* Enhanced Search Header */}
+        <div className="flex-shrink-0 px-4 py-6 bg-background/80 backdrop-blur-sm border-b">
+          <div className="max-w-4xl mx-auto space-y-4">
+            <div className="text-center space-y-2">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                {t('lore:title', 'Explore Local Lore')}
+              </h1>
+              <p className="text-muted-foreground">
+                {t('lore:subtitle', 'Discover fascinating stories and legends from around the world')}
+              </p>
+            </div>
+            
+            <div className="relative">
+              <input
+                type="text"
+                placeholder={t('lore:searchPlaceholder', 'Search for stories, places, or legends...')}
+                className="w-full px-4 py-3 rounded-lg border bg-background"
+                onChange={(e) => handleSearch(e.target.value)}
+                defaultValue={query}
               />
             </div>
           </div>
-        </PullToRefresh>
-      </MainLayout>
-    </Swipeable>
+        </div>
+
+        {/* Facts List */}
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto pb-safe p-4 space-y-4">
+            {facts.map((fact) => (
+              <div key={fact.id} className="bg-card p-4 rounded-lg border">
+                <h3 className="font-semibold">{fact.title}</h3>
+                <p className="text-muted-foreground text-sm">{fact.description}</p>
+              </div>
+            ))}
+            {isLoading && <div className="text-center py-4">Loading...</div>}
+          </div>
+        </div>
+
+        {/* Fact Preview Modal */}
+        {showModal && selectedFact && (
+          <FactPreviewModal 
+            fact={selectedFact}
+            open={showModal}
+            onClose={() => {
+              setSelectedFact(null);
+              setShowModal(false);
+            }} 
+          />
+        )}
+      </div>
+    </MainLayout>
   );
 };
+
+export default Explore;
