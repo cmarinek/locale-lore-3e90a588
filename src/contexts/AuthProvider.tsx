@@ -17,15 +17,9 @@ interface AuthProviderProps {
 }
 
 function AuthProviderComponent({ children }: AuthProviderProps) {
-  // Ensure React hooks are available before using them
-  if (!React.useState || !React.useEffect || !React.useContext || !React) {
-    console.error('React hooks not available in AuthProvider');
-    return React.createElement('div', {}, 'Loading auth...');
-  }
-
-  const [user, setUser] = React.useState<User | null>(null);
-  const [session, setSession] = React.useState<Session | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const signOut = async () => {
     try {
@@ -41,7 +35,7 @@ function AuthProviderComponent({ children }: AuthProviderProps) {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Set a timeout to prevent infinite loading
     const loadingTimeout = setTimeout(() => {
       console.warn('Auth loading timeout - proceeding without authentication');
@@ -92,7 +86,7 @@ export const AuthProvider = AuthProviderComponent;
 
 // Export hooks
 export const useAuth = () => {
-  const context = React.useContext(AuthContext);
+  const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
@@ -100,5 +94,5 @@ export const useAuth = () => {
 };
 
 export const useAuthSafe = () => {
-  return React.useContext(AuthContext);
+  return useContext(AuthContext);
 };
