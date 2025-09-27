@@ -3,6 +3,8 @@ import { useMapStore } from '@/stores/mapStore';
 import { useSearchStore } from '@/stores/searchStore';
 import { useUserStore } from '@/stores/userStore';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { useSettingsStore } from '@/stores/settingsStore';
+import { useCacheStore } from '@/stores/cacheStore';
 import { useAuth } from '@/contexts/AuthProvider';
 
 /**
@@ -79,6 +81,39 @@ export const useFactSync = () => {
 };
 
 /**
+ * Hook to synchronize settings across the app
+ */
+export const useSettingsSync = () => {
+  const { theme, language } = useSettingsStore();
+  
+  useEffect(() => {
+    // Apply theme
+    const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.classList.toggle('dark', isDark);
+  }, [theme]);
+
+  useEffect(() => {
+    // Apply language direction
+    const isRTL = ['ar', 'he', 'fa'].includes(language);
+    document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+    document.documentElement.lang = language;
+  }, [language]);
+};
+
+/**
+ * Hook to manage cache cleanup
+ */
+export const useCacheSync = () => {
+  const { clearExpired } = useCacheStore();
+  
+  useEffect(() => {
+    // Clear expired cache entries every 5 minutes
+    const interval = setInterval(clearExpired, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [clearExpired]);
+};
+
+/**
  * Master hook that enables all synchronization and initializes the app
  */
 export const useStoreSync = () => {
@@ -88,6 +123,8 @@ export const useStoreSync = () => {
   useMapSearchSync();
   useLocationSync();
   useFactSync();
+  useSettingsSync();
+  useCacheSync();
   
   // Initialize app data on first mount
   useEffect(() => {
