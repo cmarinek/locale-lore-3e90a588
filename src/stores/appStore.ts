@@ -51,33 +51,6 @@ export const mobileUtils = {
   },
 };
 
-interface User {
-  id: string;
-  email: string;
-  profile?: {
-    display_name?: string;
-    avatar_url?: string;
-    bio?: string;
-  };
-}
-
-interface SearchState {
-  query: string;
-  location?: { lat: number; lng: number; name?: string };
-  category?: string;
-  verified?: boolean;
-  timeRange?: string;
-  sortBy: 'relevance' | 'date' | 'popularity';
-  searchHistory: string[];
-  savedSearches: Array<{
-    id: string;
-    name: string;
-    query: string;
-    filters: any;
-    createdAt: string;
-  }>;
-}
-
 interface MobileState {
   // Touch and gesture state
   isScrolling: boolean;
@@ -97,61 +70,31 @@ interface MobileState {
 }
 
 interface AppState {
-  // User data
-  user: User | null;
-  setUser: (user: User | null) => void;
-  
-  // Search state
-  search: SearchState;
-  setSearchQuery: (query: string) => void;
-  setSearchLocation: (location: { lat: number; lng: number; name?: string } | undefined) => void;
-  setSearchCategory: (category: string | undefined) => void;
-  setSearchVerified: (verified: boolean | undefined) => void;
-  setSearchTimeRange: (timeRange: string | undefined) => void;
-  setSearchSortBy: (sortBy: 'relevance' | 'date' | 'popularity') => void;
-  addToSearchHistory: (query: string) => void;
-  clearSearchHistory: () => void;
-  addSavedSearch: (name: string, query: string, filters: any) => void;
-  removeSavedSearch: (id: string) => void;
-  clearSearchFilters: () => void;
-  
-  // Mobile-specific state
+  // Mobile-specific state - REMOVED user and search state (now in dedicated stores)
   mobile: MobileState;
-  setScrolling: (isScrolling: boolean) => void;
-  setSwipeDirection: (direction: 'up' | 'down' | 'left' | 'right' | null) => void;
-  setKeyboardVisible: (visible: boolean) => void;
-  setSafeAreaInsets: (insets: { top: number; bottom: number; left: number; right: number }) => void;
-  setDeviceOrientation: (orientation: 'portrait' | 'landscape') => void;
-  setOnlineStatus: (isOnline: boolean) => void;
-  toggleReduceAnimations: () => void;
-  setImageQuality: (quality: 'low' | 'medium' | 'high') => void;
   
-  // UI state
-  isMobileMenuOpen: boolean;
+  // UI state - ONLY app-level UI state
+  mobileMenuOpen: boolean;
+  activeTab: string;
+  
+  // Actions - ONLY app-level actions
   setMobileMenuOpen: (open: boolean) => void;
-  activeTab: 'discover' | 'explore' | 'search' | 'submit' | 'profile';
-  setActiveTab: (tab: 'discover' | 'explore' | 'search' | 'submit' | 'profile') => void;
-  
-  // Mobile actions with haptic feedback
+  setActiveTab: (tab: string) => void;
+  setScrolling: (scrolling: boolean) => void;
+  setKeyboardVisible: (visible: boolean) => void;
+  setDeviceOrientation: (orientation: 'portrait' | 'landscape') => void;
+  setOnlineStatus: (online: boolean) => void;
+  updateSafeAreaInsets: () => void;
+  setSafeAreaInsets: (insets: { top: number; bottom: number; left: number; right: number }) => void;
+  setPerformanceSettings: (settings: Partial<Pick<MobileState, 'reduceAnimations' | 'imageQuality' | 'prefetchEnabled'>>) => void;
   triggerHapticFeedback: (type: 'light' | 'medium' | 'heavy' | 'selection') => void;
-  handleTouchInteraction: (type: 'tap' | 'swipe' | 'longPress') => void;
+  handleTouchInteraction: () => void;
 }
 
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
-      // Initial state
-      user: null,
-      search: {
-        query: '',
-        location: undefined,
-        category: undefined,
-        verified: undefined,
-        timeRange: undefined,
-        sortBy: 'relevance',
-        searchHistory: [],
-        savedSearches: [],
-      },
+      // Mobile state
       mobile: {
         isScrolling: false,
         lastTouchTime: 0,
@@ -164,191 +107,69 @@ export const useAppStore = create<AppState>()(
         imageQuality: 'medium',
         prefetchEnabled: true,
       },
-      isMobileMenuOpen: false,
-      activeTab: 'discover' as 'discover' | 'explore' | 'search' | 'submit' | 'profile',
-
-      // User actions
-      setUser: (user) => set({ user }),
-
-      // Search actions
-      setSearchQuery: (query) =>
-        set((state) => ({
-          search: { ...state.search, query },
-        })),
-
-      setSearchLocation: (location) =>
-        set((state) => ({
-          search: { ...state.search, location },
-        })),
-
-      setSearchCategory: (category) =>
-        set((state) => ({
-          search: { ...state.search, category },
-        })),
-
-      setSearchVerified: (verified) =>
-        set((state) => ({
-          search: { ...state.search, verified },
-        })),
-
-      setSearchTimeRange: (timeRange) =>
-        set((state) => ({
-          search: { ...state.search, timeRange },
-        })),
-
-      setSearchSortBy: (sortBy) =>
-        set((state) => ({
-          search: { ...state.search, sortBy },
-        })),
-
-      addToSearchHistory: (query) =>
-        set((state) => {
-          const history = [
-            query,
-            ...state.search.searchHistory.filter((item) => item !== query),
-          ].slice(0, 10);
-          return {
-            search: { ...state.search, searchHistory: history },
-          };
-        }),
-
-      clearSearchHistory: () =>
-        set((state) => ({
-          search: { ...state.search, searchHistory: [] },
-        })),
-
-      addSavedSearch: (name, query, filters) =>
-        set((state) => {
-          const savedSearch = {
-            id: Date.now().toString(),
-            name,
-            query,
-            filters,
-            createdAt: new Date().toISOString(),
-          };
-          return {
-            search: {
-              ...state.search,
-              savedSearches: [...state.search.savedSearches, savedSearch],
-            },
-          };
-        }),
-
-      removeSavedSearch: (id) =>
-        set((state) => ({
-          search: {
-            ...state.search,
-            savedSearches: state.search.savedSearches.filter((s) => s.id !== id),
-          },
-        })),
-
-      clearSearchFilters: () =>
-        set((state) => ({
-          search: {
-            ...state.search,
-            location: undefined,
-            category: undefined,
-            verified: undefined,
-            timeRange: undefined,
-            sortBy: 'relevance',
-          },
-        })),
-
-      // Mobile-specific actions
-      setScrolling: (isScrolling) =>
-        set((state) => ({
-          mobile: { ...state.mobile, isScrolling },
-        })),
-
-      setSwipeDirection: (swipeDirection) =>
-        set((state) => ({
-          mobile: { ...state.mobile, swipeDirection },
-        })),
-
-      setKeyboardVisible: (keyboardVisible) =>
-        set((state) => ({
-          mobile: { ...state.mobile, keyboardVisible },
-        })),
-
-      setSafeAreaInsets: (safeAreaInsets) =>
-        set((state) => ({
-          mobile: { ...state.mobile, safeAreaInsets },
-        })),
-
-      setDeviceOrientation: (deviceOrientation) =>
-        set((state) => ({
-          mobile: { ...state.mobile, deviceOrientation },
-        })),
-
-      setOnlineStatus: (isOnline) =>
-        set((state) => ({
-          mobile: { ...state.mobile, isOnline },
-        })),
-
-      toggleReduceAnimations: () =>
-        set((state) => ({
-          mobile: { ...state.mobile, reduceAnimations: !state.mobile.reduceAnimations },
-        })),
-
-      setImageQuality: (imageQuality) =>
-        set((state) => ({
-          mobile: { ...state.mobile, imageQuality },
-        })),
-
-      // UI actions
-      setMobileMenuOpen: (isMobileMenuOpen) => set({ isMobileMenuOpen }),
-      setActiveTab: (activeTab) => set({ activeTab }),
-
-      // Mobile interaction actions with haptic feedback
+      
+      // UI state - SIMPLIFIED to only app-level state
+      mobileMenuOpen: false,
+      activeTab: 'explore',
+      
+      // Actions - SIMPLIFIED to only app-level actions
+      setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
+      setActiveTab: (tab) => set({ activeTab: tab }),
+      
+      setScrolling: (scrolling) => set(state => ({
+        mobile: { ...state.mobile, isScrolling: scrolling, lastTouchTime: Date.now() }
+      })),
+      
+      setKeyboardVisible: (visible) => set(state => ({
+        mobile: { ...state.mobile, keyboardVisible: visible }
+      })),
+      
+      setDeviceOrientation: (orientation) => set(state => ({
+        mobile: { ...state.mobile, deviceOrientation: orientation }
+      })),
+      
+      setOnlineStatus: (online) => set(state => ({
+        mobile: { ...state.mobile, isOnline: online }
+      })),
+      
+      updateSafeAreaInsets: () => {
+        const insets = mobileUtils.getSafeAreaInsets();
+        set(state => ({
+          mobile: { ...state.mobile, safeAreaInsets: insets }
+        }));
+      },
+      
+      setSafeAreaInsets: (insets) => set(state => ({
+        mobile: { ...state.mobile, safeAreaInsets: insets }
+      })),
+      
+      setPerformanceSettings: (settings) => set(state => ({
+        mobile: { ...state.mobile, ...settings }
+      })),
+      
       triggerHapticFeedback: (type) => {
         try {
-          switch (type) {
-            case 'light':
-              mobileUtils.hapticFeedback.light();
-              break;
-            case 'medium':
-              mobileUtils.hapticFeedback.medium();
-              break;
-            case 'heavy':
-              mobileUtils.hapticFeedback.heavy();
-              break;
-            case 'selection':
-              mobileUtils.hapticFeedback.selection();
-              break;
-          }
+          mobileUtils.hapticFeedback[type]();
         } catch (error) {
-          // Fallback for web or when haptics are not available
-          console.log('Haptic feedback not available');
+          console.warn('Haptic feedback not available:', error);
         }
       },
-
-      handleTouchInteraction: (type) => {
-        const { triggerHapticFeedback } = get();
-        switch (type) {
-          case 'tap':
-            triggerHapticFeedback('light');
-            break;
-          case 'swipe':
-            triggerHapticFeedback('medium');
-            break;
-          case 'longPress':
-            triggerHapticFeedback('heavy');
-            break;
-        }
+      
+      handleTouchInteraction: () => {
+        set(state => ({
+          mobile: { ...state.mobile, lastTouchTime: Date.now() }
+        }));
       },
     }),
     {
       name: 'app-store',
       partialize: (state) => ({
-        search: {
-          searchHistory: state.search.searchHistory,
-          savedSearches: state.search.savedSearches,
-        },
         mobile: {
           reduceAnimations: state.mobile.reduceAnimations,
           imageQuality: state.mobile.imageQuality,
           prefetchEnabled: state.mobile.prefetchEnabled,
         },
+        activeTab: state.activeTab,
       }),
     }
   )

@@ -30,6 +30,7 @@ import { TrendingSection } from '@/components/search/TrendingSection';
 import { CleanSearchBar } from '@/components/ui/clean-search-bar';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { useStoreSync } from '@/hooks/useStoreSync';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 
@@ -47,6 +48,9 @@ export const Explore: React.FC = () => {
   const { triggerHapticFeedback, handleTouchInteraction } = useAppStore();
   const navigate = useNavigate();
   const { t } = useTranslation('lore');
+  
+  // Initialize store synchronization
+  useStoreSync();
 
   // Discovery integration
   const { 
@@ -99,7 +103,7 @@ export const Explore: React.FC = () => {
 
   const handleRefresh = async () => {
     triggerHapticFeedback('medium');
-    handleTouchInteraction('tap');
+    handleTouchInteraction();
     
     // Refresh both map and discovery data
     await Promise.all([

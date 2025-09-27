@@ -29,7 +29,7 @@ export const InteractiveButton: React.FC<InteractiveButtonProps> = ({
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!disabled) {
       triggerHapticFeedback(haptic);
-      handleTouchInteraction('tap');
+      handleTouchInteraction();
       onClick?.(e);
     }
   };

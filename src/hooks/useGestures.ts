@@ -39,11 +39,11 @@ export const useGestures = (handlers: GestureHandlers) => {
       if (offset.x > 0) {
         handlers.onSwipeRight?.();
         triggerHapticFeedback('light');
-        handleTouchInteraction('swipe');
+        handleTouchInteraction();
       } else {
         handlers.onSwipeLeft?.();
         triggerHapticFeedback('light');
-        handleTouchInteraction('swipe');
+        handleTouchInteraction();
       }
     } else {
       // Vertical swipe
@@ -56,11 +56,11 @@ export const useGestures = (handlers: GestureHandlers) => {
           handlers.onSwipeDown?.();
           triggerHapticFeedback('light');
         }
-        handleTouchInteraction('swipe');
+        handleTouchInteraction();
       } else {
         handlers.onSwipeUp?.();
         triggerHapticFeedback('light');
-        handleTouchInteraction('swipe');
+        handleTouchInteraction();
       }
     }
   }, [handlers, triggerHapticFeedback, handleTouchInteraction]);

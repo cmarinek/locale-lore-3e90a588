@@ -58,7 +58,7 @@ export const BottomNavigation: React.FC = () => {
   };
 
   const handleTabClick = () => {
-    handleTouchInteraction('tap');
+    handleTouchInteraction();
   };
 
   // Handle safe area insets for iPhone X+ devices

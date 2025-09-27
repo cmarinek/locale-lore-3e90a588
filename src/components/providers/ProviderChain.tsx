@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from '@/contexts/AuthProvider';
 import { ThemeProvider } from '@/contexts/ThemeProvider';
 import { LanguageProvider } from '@/contexts/LanguageProvider';
+import { StoreProvider } from './StoreProvider';
 
 interface ProviderChainProps {
   children: React.ReactNode;
@@ -19,7 +20,11 @@ export const ProviderChain: React.FC<ProviderChainProps> = ({ children }) => {
               <ThemeProvider>
                 <ContextErrorBoundary contextName="LanguageProvider">
                   <LanguageProvider>
-                    {children}
+                    <ContextErrorBoundary contextName="StoreProvider">
+                      <StoreProvider>
+                        {children}
+                      </StoreProvider>
+                    </ContextErrorBoundary>
                   </LanguageProvider>
                 </ContextErrorBoundary>
               </ThemeProvider>
