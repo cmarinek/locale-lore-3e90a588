@@ -2,6 +2,7 @@
  * Simplified initialization system to replace multiple overlapping systems
  * This consolidates app-initialization, initialization-manager, and initialization-monitor
  */
+import { initI18n } from '@/utils/i18n';
 
 interface InitResult {
   success: boolean;
@@ -40,6 +41,7 @@ class SimplifiedInitializer {
       await this.checkDOMReady();
       await this.validateEnvironment();
       await this.setupBrowserAPIs();
+      await this.initializeI18n();
 
       this.isReady = true;
       this.isInitializing = false;
@@ -90,6 +92,16 @@ class SimplifiedInitializer {
     // Setup safe browser API access without throwing
     if (!navigator.geolocation) {
       console.warn('Geolocation API not available');
+    }
+  }
+
+  private async initializeI18n(): Promise<void> {
+    try {
+      await initI18n();
+      console.log('✅ i18n initialized successfully');
+    } catch (error) {
+      console.warn('⚠️ i18n initialization failed, continuing with fallback:', error);
+      // Don't throw - this is not critical for app startup
     }
   }
 
