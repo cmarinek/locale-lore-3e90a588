@@ -59,14 +59,13 @@ export function MapProvider({ children }: MapProviderProps) {
         antialias: false,
         maxTileCacheSize: 50,
         preserveDrawingBuffer: true,
+        // Disable native controls (using custom EnhancedMapControls instead)
+        attributionControl: false,
+        logoPosition: 'bottom-right',
         ...options
       };
 
       map.current = new mapboxgl.Map(defaultOptions);
-
-      // Add controls
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-      map.current.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
 
       // Wait for map to load
       map.current.on('load', () => {

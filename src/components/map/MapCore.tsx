@@ -37,6 +37,9 @@ const MapCore = memo(({ onFactClick, facts, isLoading, isVisible }: MapCoreProps
         // Performance optimizations
         antialias: false,
         maxTileCacheSize: 50,
+        // Disable native controls (using custom EnhancedMapControls instead)
+        attributionControl: false,
+        logoPosition: 'bottom-right',
         transformRequest: (url, resourceType) => {
           // Optimize tile requests
           if (resourceType === 'Tile' && url.includes('mapbox://')) {
@@ -47,9 +50,6 @@ const MapCore = memo(({ onFactClick, facts, isLoading, isVisible }: MapCoreProps
           }
         }
       });
-
-      // Add navigation controls
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
       // Performance event listeners
       map.current.on('load', () => {
