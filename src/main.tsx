@@ -65,6 +65,11 @@ const initializeApp = async () => {
       console.warn('Root element was missing and has been created');
     }
 
+    // Double-check React is still available before proceeding
+    if (!React || !React.useState || !React.useEffect) {
+      throw new Error('React hooks became unavailable during initialization');
+    }
+
     // Use simplified initialization system
     const result = await simplifiedInitializer.initialize();
     

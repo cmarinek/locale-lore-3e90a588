@@ -17,6 +17,12 @@ interface AuthProviderProps {
 }
 
 function AuthProviderComponent({ children }: AuthProviderProps) {
+  // Ensure React hooks are available before proceeding
+  if (!React || !React.useState || !React.useEffect) {
+    console.error('React hooks not available in AuthProvider');
+    return <div>Loading authentication...</div>;
+  }
+
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
