@@ -50,9 +50,11 @@ const showLoadingIndicator = () => {
 
 // Initialize app with clean single initialization flow
 const initializeApp = async () => {
+  console.log('🚀 Starting app initialization...');
   try {
     // Show loading indicator
     showLoadingIndicator();
+    console.log('📱 Loading indicator shown');
     
     // Ensure root element exists
     let rootElement = document.getElementById("root");
