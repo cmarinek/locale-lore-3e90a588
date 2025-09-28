@@ -17,75 +17,85 @@ interface AuthProviderProps {
 }
 
 function AuthProviderComponent({ children }: AuthProviderProps) {
-  // Ensure React hooks are available before proceeding
-  if (!React || !React.useState || !React.useEffect) {
-    console.error('React hooks not available in AuthProvider');
-    return <div>Loading authentication...</div>;
+  // Critical: Ensure React and hooks are available before proceeding
+  if (typeof React === 'undefined' || React === null) {
+    console.error('React is null/undefined in AuthProvider');
+    return <div>React not available</div>;
+  }
+  
+  if (typeof useState === 'undefined' || useState === null) {
+    console.error('useState hook is null/undefined in AuthProvider');
+    return <div>React hooks not available</div>;
   }
 
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  try {
+    const [user, setUser] = useState<User | null>(null);
+    const [session, setSession] = useState<Session | null>(null);
+    const [loading, setLoading] = useState(true);
 
-  const signOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      window.location.href = '/auth';
-    } catch (error) {
-      console.error('Error signing out:', error);
-      toast({
-        title: "Sign out failed",
-        description: "There was an error signing out. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+    const signOut = async () => {
+      try {
+        await supabase.auth.signOut();
+        window.location.href = '/auth';
+      } catch (error) {
+        console.error('Error signing out:', error);
+        toast({
+          title: "Sign out failed",
+          description: "There was an error signing out. Please try again.",
+          variant: "destructive",
+        });
+      }
+    };
 
-  useEffect(() => {
-    // Set a timeout to prevent infinite loading
-    const loadingTimeout = setTimeout(() => {
-      console.warn('Auth loading timeout - proceeding without authentication');
-      setLoading(false);
-    }, 5000);
+    useEffect(() => {
+      // Set a timeout to prevent infinite loading
+      const loadingTimeout = setTimeout(() => {
+        console.warn('Auth loading timeout - proceeding without authentication');
+        setLoading(false);
+      }, 5000);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          clearTimeout(loadingTimeout);
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      );
+
+      supabase.auth.getSession().then(({ data: { session } }) => {
         clearTimeout(loadingTimeout);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-      }
-    );
+      }).catch((error) => {
+        console.error('Error getting session:', error);
+        clearTimeout(loadingTimeout);
+        setLoading(false);
+      });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      clearTimeout(loadingTimeout);
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    }).catch((error) => {
-      console.error('Error getting session:', error);
-      clearTimeout(loadingTimeout);
-      setLoading(false);
-    });
+      return () => {
+        clearTimeout(loadingTimeout);
+        subscription.unsubscribe();
+      };
+    }, []);
 
-    return () => {
-      clearTimeout(loadingTimeout);
-      subscription.unsubscribe();
+    const value: AuthContextType = {
+      user,
+      session,
+      loading,
+      signOut,
     };
-  }, []);
 
-  const value: AuthContextType = {
-    user,
-    session,
-    loading,
-    signOut,
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+    return (
+      <AuthContext.Provider value={value}>
+        {children}
+      </AuthContext.Provider>
+    );
+  } catch (error) {
+    console.error('Error in AuthProvider:', error);
+    return <div>Authentication error occurred</div>;
+  }
 }
 
 export const AuthProvider = AuthProviderComponent;
