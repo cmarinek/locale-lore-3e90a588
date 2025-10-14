@@ -11,7 +11,8 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Layers, ZoomIn, AlertTriangle } from 'lucide-react';
+import { MapPin, Layers, ZoomIn, AlertTriangle } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 
 import { EnhancedMapControls } from './EnhancedMapControls';
