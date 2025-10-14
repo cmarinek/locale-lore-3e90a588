@@ -11,8 +11,9 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Layers, ZoomIn } from 'lucide-react';
+import { MapPin, Layers, ZoomIn, AlertTriangle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 import { EnhancedMapControls } from './EnhancedMapControls';
 import { MapLoadingState } from './MapLoadingState';
@@ -23,6 +24,7 @@ import { scalableFactService } from '@/services/scalableFactService';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useSearchStore } from '@/stores/searchStore';
 import { useMapStore } from '@/stores/mapStore';
+import { MapTokenMissing } from './MapTokenMissing';
 
 // Types
 interface Fact {
@@ -106,6 +108,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // State
   const [mapboxToken, setMapboxToken] = useState<string>('');
+  const [tokenStatus, setTokenStatus] = useState<'idle' | 'loading' | 'ready' | 'missing' | 'error'>('idle');
+  const [tokenError, setTokenError] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentZoom, setCurrentZoom] = useState(zoom);
   const [mapStyle, setMapStyle] = useState(style);
@@ -122,12 +126,55 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     loadTime: 0
   });
 
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const fetchMapboxToken = useCallback(async () => {
+    setTokenStatus('loading');
+    setTokenError(null);
+
+    try {
+      const token = await mapboxService.getToken();
+
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      if (token) {
+        setMapboxToken(token);
+        setTokenStatus('ready');
+      } else {
+        setMapboxToken('');
+        setTokenStatus('missing');
+        setTokenError('A Mapbox public token is required to display the interactive map.');
+      }
+    } catch (error) {
+      console.error('Failed to load Mapbox token', error);
+
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      setMapboxToken('');
+      setTokenStatus('error');
+      setTokenError(error instanceof Error ? error.message : 'Unknown error while fetching Mapbox token.');
+    }
+  }, []);
+
   // Load Mapbox token
   useEffect(() => {
-    mapboxService.getToken()
-      .then(token => setMapboxToken(token || ''))
-      .catch(console.error);
-  }, []);
+    fetchMapboxToken();
+  }, [fetchMapboxToken]);
+
+  const handleRetryTokenFetch = useCallback(() => {
+    mapboxService.clearToken();
+    fetchMapboxToken();
+  }, [fetchMapboxToken]);
 
   // Get map style URL
   const getMapStyleUrl = useCallback((styleType: string) => {
@@ -625,6 +672,50 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   }, [mapStyle, isLoaded, getMapStyleUrl, enableClustering, setupClusteredMap, setupMarkerMap]);
 
   if (!isVisible) return null;
+
+  if (tokenStatus === 'loading' || tokenStatus === 'idle') {
+    return (
+      <div className={`relative w-full h-full ${className}`}>
+        <MapLoadingState message="Preparing interactive map experience..." />
+      </div>
+    );
+  }
+
+  if (tokenStatus === 'missing') {
+    return (
+      <div className={`relative w-full h-full ${className}`}>
+        <MapTokenMissing />
+      </div>
+    );
+  }
+
+  if (tokenStatus === 'error') {
+    return (
+      <div className={`relative w-full h-full ${className}`}>
+        <div className="flex min-h-[320px] w-full items-center justify-center p-6">
+          <Card className="max-w-md w-full border-destructive/40 bg-destructive/5">
+            <div className="flex flex-col gap-4 p-6 text-destructive">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5" />
+                <h3 className="text-lg font-semibold">We couldn't reach Mapbox</h3>
+              </div>
+              <p className="text-sm text-destructive/80">
+                {tokenError || 'The Mapbox API token could not be retrieved. Please check your network connection and try again.'}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={handleRetryTokenFetch} variant="destructive">
+                  Try again
+                </Button>
+                <Button onClick={() => window.location.reload()} variant="outline">
+                  Refresh page
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`relative w-full h-full ${className}`}>
