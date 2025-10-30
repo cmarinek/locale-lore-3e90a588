@@ -43,7 +43,7 @@ export const SponsoredPartnershipsManager: React.FC = () => {
 
         if (error) throw error;
 
-        const normalized = (data ?? []).map((record: any) => ({
+        const normalized = (data ?? []).map((record) => ({
           ...record,
           budget: Number(record.budget ?? 0),
           requirements: Array.isArray(record.requirements) ? record.requirements : [],

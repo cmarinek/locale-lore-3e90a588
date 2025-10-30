@@ -92,11 +92,11 @@ export const CreatorAnalyticsDashboard: React.FC = () => {
 
         const premiumSales = (premiumResult.data ?? []).reduce(
           (sum, item) => sum + Number(item.purchase_count ?? 0),
-          0
+          0,
         );
         const premiumRevenue = (premiumResult.data ?? []).reduce(
           (sum, item) => sum + Number(item.price ?? 0) * Number(item.purchase_count ?? 0),
-          0
+          0,
         );
 
         const trendingMap = new Map<string, TrendingFactRecord>();
