@@ -68,7 +68,7 @@ export const PremiumContentManager: React.FC = () => {
 
       if (error) throw error;
 
-      const normalized = (data ?? []).map((content: any) => ({
+      const normalized = (data ?? []).map((content) => ({
         ...content,
         price: Number(content.price),
         purchase_count: content.purchase_count ?? 0,
