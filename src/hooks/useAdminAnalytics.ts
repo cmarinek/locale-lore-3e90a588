@@ -191,7 +191,7 @@ export const useAdminAnalytics = (timeRange: string = '30d') => {
 
       const factsCreatedDuringPeriod = factsByStatusData.length;
       const previousFactsData = previousFactsResult.data || [];
-      const previousStatusCounts = previousFactsData.reduce((acc: any, fact: any) => {
+      const previousStatusCounts = previousFactsData.reduce((acc: Record<string, number>, fact: { status: string }) => {
         acc[fact.status] = (acc[fact.status] || 0) + 1;
         return acc;
       }, {});
