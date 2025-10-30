@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -12,18 +12,51 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { toast } from '@/hooks/use-toast';
 import { UserProfile as UserProfileType } from '@/types/social';
 import { motion } from 'framer-motion';
-import { 
-  MapPin, 
-  Calendar, 
-  Users, 
-  Star, 
+import {
+  MapPin,
+  Calendar,
+  Users,
+  Star,
   MessageCircle,
   Shield,
   MoreHorizontal,
   Settings,
-  Share2
+  Share2,
+  Activity,
+  ShieldCheck,
+  LogIn,
+  LogOut,
+  MessageSquare,
+  ThumbsUp,
+  Gift,
+  Eye
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { cn } from '@/lib/utils';
+
+interface ActivityLogEntry {
+  id: string;
+  activity_type: string;
+  activity_data: Record<string, any> | null;
+  created_at: string;
+  ip_address?: string | null;
+  user_agent?: string | null;
+}
+
+interface UserAchievementRecord {
+  id: string;
+  earned_at: string;
+  achievements?: {
+    id: string;
+    name: string;
+    description: string;
+    icon?: string | null;
+    badge_color?: string | null;
+    category?: string | null;
+    requirement_type?: string | null;
+    requirement_value?: number | null;
+  } | null;
+}
 
 interface UserProfileProps {
   userId: string;
@@ -36,6 +69,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onMessageClick
   const [userFacts, setUserFacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [activityLog, setActivityLog] = useState<ActivityLogEntry[]>([]);
+  const [achievements, setAchievements] = useState<UserAchievementRecord[]>([]);
 
   const isOwnProfile = user?.id === userId;
 
@@ -57,20 +92,53 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onMessageClick
       if (error) throw error;
       setProfile(profileData);
 
-      // Load user's facts
-      const { data: factsData } = await supabase
-        .from('facts')
-        .select(`
-          *,
-          profiles!facts_author_id_fkey(username, avatar_url)
-        `)
-        .eq('author_id', userId)
-        .eq('status', 'verified')
-        .order('created_at', { ascending: false })
-        .limit(10);
+      const [factsResult, activityResult, achievementResult] = await Promise.all([
+        supabase
+          .from('facts')
+          .select(`
+            *,
+            profiles!facts_author_id_fkey(username, avatar_url)
+          `)
+          .eq('author_id', userId)
+          .eq('status', 'verified')
+          .order('created_at', { ascending: false })
+          .limit(10),
+        supabase
+          .from('user_activity_log')
+          .select('id, activity_type, activity_data, created_at, ip_address, user_agent')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(25),
+        supabase
+          .from('user_achievements')
+          .select(`
+            id,
+            earned_at,
+            achievements:achievements (
+              id,
+              name,
+              description,
+              icon,
+              badge_color,
+              category,
+              requirement_type,
+              requirement_value
+            )
+          `)
+          .eq('user_id', userId)
+          .order('earned_at', { ascending: false })
+      ]);
 
-      if (factsData) {
-        setUserFacts(factsData);
+      if (factsResult.data) {
+        setUserFacts(factsResult.data);
+      }
+
+      if (activityResult.data) {
+        setActivityLog(activityResult.data as ActivityLogEntry[]);
+      }
+
+      if (achievementResult.data) {
+        setAchievements(achievementResult.data as UserAchievementRecord[]);
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -81,6 +149,67 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onMessageClick
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const activityIconMap = useMemo(
+    () => ({
+      login: LogIn,
+      logout: LogOut,
+      fact_submitted: MapPin,
+      fact_verified: ShieldCheck,
+      comment_created: MessageSquare,
+      vote_cast: ThumbsUp,
+      tip_sent: Gift,
+      profile_view: Eye,
+      system_table_access: ShieldCheck,
+    }),
+    []
+  );
+
+  const getActivityIcon = (activityType: string) => {
+    const Icon = activityIconMap[activityType as keyof typeof activityIconMap] ?? Activity;
+    return <Icon className="h-4 w-4 text-primary" />;
+  };
+
+  const describeActivity = (activity: ActivityLogEntry) => {
+    const metadata = activity.activity_data || {};
+    const factTitle = metadata.fact_title || metadata.factName;
+    const locationName = metadata.location_name || metadata.locationName;
+
+    switch (activity.activity_type) {
+      case 'login':
+        return `Signed in${metadata.ip_address ? ` from ${metadata.ip_address}` : ''}`;
+      case 'logout':
+        return 'Signed out';
+      case 'fact_submitted':
+        return factTitle ? `Submitted "${factTitle}"` : 'Submitted a new discovery';
+      case 'fact_verified':
+        return factTitle ? `Verified "${factTitle}"` : 'Verified a discovery';
+      case 'comment_created':
+        return metadata.comment_excerpt
+          ? `Commented: "${metadata.comment_excerpt}"`
+          : 'Added a comment';
+      case 'vote_cast':
+        return factTitle ? `Voted on "${factTitle}"` : 'Cast a vote';
+      case 'tip_sent':
+        return metadata.amount
+          ? `Sent a tip of ${metadata.amount / 100} ${metadata.currency || 'credits'}`
+          : 'Sent a tip';
+      case 'profile_view':
+        return metadata.viewer
+          ? `Profile viewed by ${metadata.viewer}`
+          : 'Profile viewed';
+      case 'system_table_access':
+        return metadata.warning || 'System table access logged';
+      default:
+        if (metadata.description) {
+          return metadata.description;
+        }
+        if (locationName) {
+          return `Activity at ${locationName}`;
+        }
+        return 'Activity recorded';
     }
   };
 
@@ -281,21 +410,128 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onMessageClick
         </TabsContent>
 
         <TabsContent value="activity" className="space-y-4">
-          <Card>
-            <CardContent className="py-8 text-center">
-              <MessageCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-muted-foreground">Activity feed coming soon</p>
-            </CardContent>
-          </Card>
+          {activityLog.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <MessageCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-muted-foreground">No activity recorded yet</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {activityLog.map((entry) => (
+                <Card key={entry.id} className="border-border/60">
+                  <CardContent className="py-4">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 rounded-full bg-primary/10">
+                        {getActivityIcon(entry.activity_type)}
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between gap-4">
+                          <p className="font-medium break-words">{describeActivity(entry)}</p>
+                          <span className="text-xs text-muted-foreground shrink-0">
+                            {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
+                          </span>
+                        </div>
+                        {(entry.activity_data?.location ||
+                          entry.activity_data?.city ||
+                          entry.activity_data?.coordinates ||
+                          entry.activity_data?.location_name) && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <MapPin className="h-3 w-3" />
+                            <span>
+                              {entry.activity_data?.location_name ||
+                                entry.activity_data?.city ||
+                                entry.activity_data?.location ||
+                                (Array.isArray(entry.activity_data?.coordinates)
+                                  ? entry.activity_data?.coordinates.join(', ')
+                                  : null)}
+                            </span>
+                          </div>
+                        )}
+                        {entry.activity_data?.device && (
+                          <p className="text-xs text-muted-foreground">
+                            Device: {entry.activity_data.device}
+                          </p>
+                        )}
+                        {entry.activity_data?.ip_address && (
+                          <p className="text-xs text-muted-foreground">
+                            IP: {entry.activity_data.ip_address}
+                          </p>
+                        )}
+                        {entry.user_agent && (
+                          <p className="text-xs text-muted-foreground truncate">UA: {entry.user_agent}</p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="achievements" className="space-y-4">
-          <Card>
-            <CardContent className="py-8 text-center">
-              <Star className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-muted-foreground">Achievements coming soon</p>
-            </CardContent>
-          </Card>
+          {achievements.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <Star className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-muted-foreground">No achievements earned yet</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {achievements.map((record) => {
+                const badgeColor = record.achievements?.badge_color || '#6366F1';
+                const icon = record.achievements?.icon || '✨';
+                return (
+                  <Card key={record.id} className="border-border/60">
+                    <CardContent className="py-5">
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={cn(
+                            'flex h-12 w-12 items-center justify-center rounded-full border-2 text-xl bg-background',
+                          )}
+                          style={{ borderColor: badgeColor }}
+                          aria-hidden
+                        >
+                          {icon}
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold leading-none">
+                              {record.achievements?.name || 'Achievement'}
+                            </h3>
+                            {record.achievements?.category && (
+                              <Badge variant="outline" className="capitalize">
+                                {record.achievements.category}
+                              </Badge>
+                            )}
+                          </div>
+                          {record.achievements?.description && (
+                            <p className="text-sm text-muted-foreground">
+                              {record.achievements.description}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                            <span>
+                              Earned {formatDistanceToNow(new Date(record.earned_at), { addSuffix: true })}
+                            </span>
+                            {record.achievements?.requirement_type && (
+                              <span>
+                                Requirement: {record.achievements.requirement_value || 0}{' '}
+                                {record.achievements.requirement_type.replace(/_/g, ' ')}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
         </TabsContent>
 
         {isOwnProfile && (
