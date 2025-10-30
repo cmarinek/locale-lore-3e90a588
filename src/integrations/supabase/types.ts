@@ -2352,6 +2352,373 @@ export type Database = {
         }
         Relationships: []
       }
+      direct_message_participants: {
+        Row: {
+          created_at: string
+          id: string
+          last_read_at: string | null
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_message_participants_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "direct_message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      direct_message_threads: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      direct_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          message_type: string
+          read_at: string | null
+          recipient_id: string | null
+          sender_id: string
+          thread_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          message_type?: string
+          read_at?: string | null
+          recipient_id?: string | null
+          sender_id: string
+          thread_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          message_type?: string
+          read_at?: string | null
+          recipient_id?: string | null
+          sender_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "direct_message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expert_badges: {
+        Row: {
+          badge_level: number
+          badge_type: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          issued_by: string
+          location_area: string | null
+          requirements_met: string[]
+          specialization: string | null
+          user_id: string
+          verification_date: string
+        }
+        Insert: {
+          badge_level?: number
+          badge_type: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          issued_by: string
+          location_area?: string | null
+          requirements_met?: string[]
+          specialization?: string | null
+          user_id: string
+          verification_date?: string
+        }
+        Update: {
+          badge_level?: number
+          badge_type?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          issued_by?: string
+          location_area?: string | null
+          requirements_met?: string[]
+          specialization?: string | null
+          user_id?: string
+          verification_date?: string
+        }
+        Relationships: []
+      }
+      location_claims: {
+        Row: {
+          benefits_enabled: Json
+          business_name: string | null
+          business_type: string | null
+          claim_status: string
+          claimed_at: string
+          id: string
+          latitude: number
+          location_name: string
+          longitude: number
+          user_id: string
+          verified_at: string | null
+          verified_by: string | null
+          verification_documents: string[]
+        }
+        Insert: {
+          benefits_enabled?: Json
+          business_name?: string | null
+          business_type?: string | null
+          claim_status?: string
+          claimed_at?: string
+          id?: string
+          latitude: number
+          location_name: string
+          longitude: number
+          user_id: string
+          verified_at?: string | null
+          verified_by?: string | null
+          verification_documents?: string[]
+        }
+        Update: {
+          benefits_enabled?: Json
+          business_name?: string | null
+          business_type?: string | null
+          claim_status?: string
+          claimed_at?: string
+          id?: string
+          latitude?: number
+          location_name?: string
+          longitude?: number
+          user_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
+          verification_documents?: string[]
+        }
+        Relationships: []
+      }
+      premium_content: {
+        Row: {
+          content_type: string
+          content_url: string
+          created_at: string
+          creator_id: string
+          currency: string
+          description: string | null
+          discovery_id: string
+          id: string
+          preview_content: string | null
+          price: number
+          purchase_count: number
+          rating: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content_type: string
+          content_url: string
+          created_at?: string
+          creator_id: string
+          currency?: string
+          description?: string | null
+          discovery_id: string
+          id?: string
+          preview_content?: string | null
+          price: number
+          purchase_count?: number
+          rating?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content_type?: string
+          content_url?: string
+          created_at?: string
+          creator_id?: string
+          currency?: string
+          description?: string | null
+          discovery_id?: string
+          id?: string
+          preview_content?: string | null
+          price?: number
+          purchase_count?: number
+          rating?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sponsored_partnerships: {
+        Row: {
+          brand_id: string
+          budget: number
+          campaign_type: string
+          created_at: string
+          creator_id: string
+          currency: string
+          deliverables: string[]
+          description: string | null
+          end_date: string
+          id: string
+          requirements: string[]
+          start_date: string
+          status: string
+          title: string
+        }
+        Insert: {
+          brand_id: string
+          budget: number
+          campaign_type: string
+          created_at?: string
+          creator_id: string
+          currency?: string
+          deliverables?: string[]
+          description?: string | null
+          end_date: string
+          id?: string
+          requirements?: string[]
+          start_date: string
+          status?: string
+          title: string
+        }
+        Update: {
+          brand_id?: string
+          budget?: number
+          campaign_type?: string
+          created_at?: string
+          creator_id?: string
+          currency?: string
+          deliverables?: string[]
+          description?: string | null
+          end_date?: string
+          id?: string
+          requirements?: string[]
+          start_date?: string
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      tip_jars: {
+        Row: {
+          created_at: string
+          custom_message: string | null
+          description: string | null
+          display_name: string
+          id: string
+          is_enabled: boolean
+          suggested_amounts: number[]
+          tip_count: number
+          total_received: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_message?: string | null
+          description?: string | null
+          display_name: string
+          id?: string
+          is_enabled?: boolean
+          suggested_amounts?: number[]
+          tip_count?: number
+          total_received?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_message?: string | null
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_enabled?: boolean
+          suggested_amounts?: number[]
+          tip_count?: number
+          total_received?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tips: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          discovery_id: string | null
+          id: string
+          message: string | null
+          processed_at: string | null
+          recipient_id: string
+          sender_id: string
+          status: string
+          stripe_payment_intent_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          discovery_id?: string | null
+          id?: string
+          message?: string | null
+          processed_at?: string | null
+          recipient_id: string
+          sender_id: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          discovery_id?: string | null
+          id?: string
+          message?: string | null
+          processed_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_id: string
@@ -3646,6 +4013,28 @@ export type Database = {
         Args: { "": string }
         Returns: unknown
       }
+      get_direct_message_threads: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          thread_id: string
+          updated_at: string
+          participant_id: string
+          participant_username: string
+          participant_avatar_url: string | null
+          participant_bio: string | null
+          participant_created_at: string
+          participant_updated_at: string
+          participant_followers: number
+          participant_following: number
+          participant_reputation: number
+          last_message_id: string | null
+          last_message_content: string | null
+          last_message_sender: string | null
+          last_message_type: string | null
+          last_message_at: string | null
+          unread_count: number
+        }[]
+      }
       get_fact_clusters: {
         Args:
           | {
@@ -3707,6 +4096,10 @@ export type Database = {
           cluster_longitude: number
           sample_facts: Json
         }[]
+      }
+      get_or_create_direct_message_thread: {
+        Args: { target_user: string }
+        Returns: string
       }
       get_proj4_from_srid: {
         Args: { "": number }

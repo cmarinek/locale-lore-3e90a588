@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
 import { 
   LineChart, 
   Line, 
@@ -292,11 +293,41 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ classNam
             <CardContent>
               {loading ? (
                 <Skeleton className="h-64 w-full" />
+              ) : data?.topLocations && data.topLocations.length > 0 ? (
+                <div className="space-y-4">
+                  {data.topLocations.map((location, index) => {
+                    const percentage = data.totalFacts
+                      ? Math.round((location.facts / data.totalFacts) * 100)
+                      : 0;
+                    return (
+                      <div
+                        key={`${location.location}-${index}`}
+                        className="flex items-center justify-between rounded-lg border border-border/60 p-4"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Badge variant="outline" className="w-8 justify-center">
+                            #{index + 1}
+                          </Badge>
+                          <div>
+                            <p className="font-medium">{location.location}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {location.facts} verified facts contributed
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Progress value={Math.min(100, percentage)} className="w-24 h-2" />
+                          <span className="text-sm font-medium text-muted-foreground">{percentage}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               ) : (
-                <div className="text-center py-12">
-                  <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Geographic analytics coming soon</p>
-                  <p className="text-sm text-muted-foreground">We're working on detailed location-based insights</p>
+                <div className="text-center py-12 text-muted-foreground">
+                  <MapPin className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>No geographic insights available yet.</p>
+                  <p className="text-sm">Tag discoveries with locations to populate this view.</p>
                 </div>
               )}
             </CardContent>
