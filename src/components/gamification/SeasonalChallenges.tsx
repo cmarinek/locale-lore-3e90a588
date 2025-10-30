@@ -246,6 +246,8 @@ export const SeasonalChallenges: React.FC<SeasonalChallengesProps> = ({ classNam
         } else if (isUpcoming) {
           acc.upcoming.push(challenge);
         } else {
+          // A challenge that is not active, completed, or upcoming falls here.
+          // It might be better to filter these out or assign to a different category.
           acc.upcoming.push(challenge);
         }
 
