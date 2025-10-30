@@ -93,74 +93,92 @@ export const Gamification: React.FC = () => {
   const fetchUserData = async () => {
     try {
       setLoading(true);
-      
-      // Fetch user level
-      const { data: levelData } = await supabase
-        .from('user_levels')
-        .select('*')
-        .eq('user_id', user!.id)
-        .single();
-      
-      if (levelData) {
-        setUserLevel(levelData);
+
+      const [
+        levelResult,
+        statsResult,
+        profileResult,
+        achievementsResult,
+        earnedResult,
+        challengeProgressResult,
+        challengesResult,
+      ] = await Promise.all([
+        supabase
+          .from('user_levels')
+          .select('*')
+          .eq('user_id', user!.id)
+          .single(),
+        supabase
+          .from('user_statistics')
+          .select('*')
+          .eq('user_id', user!.id)
+          .single(),
+        supabase
+          .from('profiles')
+          .select('reputation_score')
+          .eq('id', user!.id)
+          .single(),
+        supabase
+          .from('achievements')
+          .select('*')
+          .order('category'),
+        supabase
+          .from('user_achievements')
+          .select(`
+            *,
+            achievements (*)
+          `)
+          .eq('user_id', user!.id),
+        supabase
+          .from('user_challenge_progress')
+          .select('*')
+          .eq('user_id', user!.id),
+        supabase
+          .from('challenges')
+          .select('*')
+          .eq('is_active', true)
+          .gte('end_date', new Date().toISOString()),
+      ]);
+
+      if (!levelResult.error && levelResult.data) {
+        setUserLevel(levelResult.data as UserLevel);
       }
 
-      // Fetch user statistics
-      const { data: statsData } = await supabase
-        .from('user_statistics')
-        .select('*')
-        .eq('user_id', user!.id)
-        .single();
-      
-      if (statsData) {
+      if (!statsResult.error && statsResult.data) {
         setUserStats({
-          reputation_score: 0, // This field doesn't exist in the database yet
-          facts_submitted: statsData.facts_submitted || 0,
-          votes_cast: statsData.votes_cast || 0,
-          comments_made: statsData.comments_made || 0,
-          current_streak: statsData.current_streak || 0,
-          total_points: statsData.total_points || 0
+          reputation_score: profileResult.data?.reputation_score ?? 0,
+          facts_submitted: statsResult.data.facts_submitted || 0,
+          votes_cast: statsResult.data.votes_cast || 0,
+          comments_made: statsResult.data.comments_made || 0,
+          current_streak: statsResult.data.current_streak || 0,
+          total_points: statsResult.data.total_points || 0,
         });
       }
 
-      // Fetch all achievements
-      const { data: achievementsData } = await supabase
-        .from('achievements')
-        .select('*')
-        .order('category');
-      
-      if (achievementsData) {
-        setAchievements(achievementsData);
+      if (!achievementsResult.error && achievementsResult.data) {
+        setAchievements(achievementsResult.data as Achievement[]);
       }
 
-      // Fetch earned achievements
-      const { data: earnedData } = await supabase
-        .from('user_achievements')
-        .select(`
-          *,
-          achievements (*)
-        `)
-        .eq('user_id', user!.id);
-      
-      if (earnedData) {
-        setEarnedAchievements(earnedData.map(ua => ({
-          ...ua.achievements,
-          earned_at: ua.earned_at
-        })));
+      if (!earnedResult.error && earnedResult.data) {
+        setEarnedAchievements(
+          earnedResult.data.map((ua: any) => ({
+            ...ua.achievements,
+            earned_at: ua.earned_at,
+          }))
+        );
       }
 
-      // Fetch active challenges
-      const { data: challengesData } = await supabase
-        .from('challenges')
-        .select('*')
-        .eq('is_active', true)
-        .gte('end_date', new Date().toISOString());
-      
-      if (challengesData) {
-        setChallenges(challengesData.map(challenge => ({
-          ...challenge,
-          current_progress: Math.floor(Math.random() * challenge.target_value) // Mock progress
-        })));
+      const progressMap = new Map(
+        (challengeProgressResult.data ?? []).map((progress: any) => [progress.challenge_id, progress])
+      );
+
+      if (!challengesResult.error && challengesResult.data) {
+        setChallenges(
+          challengesResult.data.map((challenge: any) => ({
+            ...challenge,
+            current_progress: progressMap.get(challenge.id)?.current_progress ?? 0,
+          }))
+        );
       }
 
     } catch (error) {

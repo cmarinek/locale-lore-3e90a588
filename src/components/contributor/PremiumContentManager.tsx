@@ -52,11 +52,37 @@ export const PremiumContentManager: React.FC = () => {
   }, [user]);
 
   const fetchPremiumContent = async () => {
-    try {
-      // Mock data for now until types are updated
+    setLoading(true);
+    if (!user) {
       setPremiumContent([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('premium_content')
+        .select('*')
+        .eq('creator_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const normalized = (data ?? []).map((content) => ({
+        ...content,
+        price: Number(content.price),
+        purchase_count: content.purchase_count ?? 0,
+        rating: Number(content.rating ?? 0),
+      }));
+
+      setPremiumContent(normalized as PremiumContent[]);
     } catch (error) {
       console.error('Error fetching premium content:', error);
+      toast({
+        title: 'Unable to load premium content',
+        description: 'Please try again later.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }

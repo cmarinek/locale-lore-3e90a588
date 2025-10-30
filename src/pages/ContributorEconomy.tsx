@@ -4,6 +4,9 @@ import { MainLayout } from '@/components/templates/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExpertBadgeManager } from '@/components/contributor/ExpertBadgeManager';
 import { PremiumContentManager } from '@/components/contributor/PremiumContentManager';
+import { SponsoredPartnershipsManager } from '@/components/contributor/SponsoredPartnershipsManager';
+import { LocationClaimsManager } from '@/components/contributor/LocationClaimsManager';
+import { CreatorAnalyticsDashboard } from '@/components/contributor/CreatorAnalyticsDashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,11 +23,8 @@ import {
   Gift
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useAuth } from '@/contexts/AuthProvider';
 
 export const ContributorEconomy: React.FC = () => {
-  const { user } = useAuth();
-
   return (
     <MainLayout>
       <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
@@ -164,7 +164,7 @@ export const ContributorEconomy: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="partnerships" className="space-y-6">
-              <SponsoredPartnerships />
+              <SponsoredPartnershipsManager />
             </TabsContent>
 
             <TabsContent value="locations" className="space-y-6">
@@ -180,81 +180,5 @@ export const ContributorEconomy: React.FC = () => {
     </MainLayout>
   );
 };
-
-// Placeholder components for the remaining tabs
-const SponsoredPartnerships: React.FC = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle className="flex items-center gap-2">
-        <Gift className="w-5 h-5" />
-        Sponsored Partnerships
-      </CardTitle>
-      <CardDescription>
-        Collaborate with brands and local businesses for sponsored content
-      </CardDescription>
-    </CardHeader>
-    <CardContent className="py-8 text-center">
-      <Gift className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-      <h3 className="text-lg font-semibold mb-2">Partnership Opportunities</h3>
-      <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-        Connect with brands looking for authentic local voices. Earn money by featuring locations and experiences.
-      </p>
-      <Button>
-        <Star className="w-4 h-4 mr-2" />
-        Apply for Partnerships
-      </Button>
-    </CardContent>
-  </Card>
-);
-
-const LocationClaimsManager: React.FC = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle className="flex items-center gap-2">
-        <MapPin className="w-5 h-5" />
-        Story Sharing
-      </CardTitle>
-      <CardDescription>
-        Share your local stories and connect with your community
-      </CardDescription>
-    </CardHeader>
-    <CardContent className="py-8 text-center">
-      <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-      <h3 className="text-lg font-semibold mb-2">Share Your Local Story</h3>
-      <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-        Become a storyteller for your favorite places. Share experiences, memories, and insider knowledge that brings locations to life.
-      </p>
-      <Button>
-        <MapPin className="w-4 h-4 mr-2" />
-        Share a Story
-      </Button>
-    </CardContent>
-  </Card>
-);
-
-const CreatorAnalyticsDashboard: React.FC = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle className="flex items-center gap-2">
-        <BarChart3 className="w-5 h-5" />
-        Creator Analytics
-      </CardTitle>
-      <CardDescription>
-        Track your performance and optimize your content strategy
-      </CardDescription>
-    </CardHeader>
-    <CardContent className="py-8 text-center">
-      <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-      <h3 className="text-lg font-semibold mb-2">Comprehensive Analytics</h3>
-      <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-        Monitor your earnings, audience growth, and content performance with detailed insights and recommendations.
-      </p>
-      <Button>
-        <TrendingUp className="w-4 h-4 mr-2" />
-        View Full Analytics
-      </Button>
-    </CardContent>
-  </Card>
-);
 
 export default ContributorEconomy;
