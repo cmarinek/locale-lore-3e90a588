@@ -58,50 +58,84 @@ export const useAdminAnalytics = (timeRange: string = '30d') => {
       setError(null);
       
       const startDate = getTimeRangeFilter();
-      
-      // Parallel data fetching
+      const currentRangeStart = new Date(startDate);
+      const currentRangeEnd = new Date();
+      const rangeDurationMs = Math.max(currentRangeEnd.getTime() - currentRangeStart.getTime(), 1);
+      const previousRangeStart = new Date(currentRangeStart.getTime() - rangeDurationMs);
+      const previousStartISO = previousRangeStart.toISOString();
+      const previousEndISO = currentRangeStart.toISOString();
+
       const [
         usersResult,
         factsResult,
         paymentsResult,
         storiesResult,
         userGrowthResult,
-        revenueDataResult
+        revenueDataResult,
+        activityLogResult,
+        commentCountResult,
+        voteCountResult
       ] = await Promise.all([
-        // Total and active users
         Promise.all([
           supabase.from('profiles').select('id', { count: 'exact', head: true }),
           supabase.from('profiles').select('id', { count: 'exact', head: true }).gte('updated_at', startDate)
         ]),
-        
-        // Facts data
         Promise.all([
           supabase.from('facts').select('id', { count: 'exact', head: true }),
           supabase.from('facts').select('id', { count: 'exact', head: true }).eq('status', 'verified'),
           supabase.from('facts').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-          supabase.from('facts').select('status', { count: 'exact' }).gte('created_at', startDate)
+          supabase.from('facts').select('status').gte('created_at', startDate)
         ]),
-        
-        // Payments data
         Promise.all([
           supabase.from('payments').select('amount', { count: 'exact' }),
           supabase.from('subscribers').select('id', { count: 'exact', head: true }).eq('subscribed', true)
         ]),
-        
-        // Stories data
         supabase.from('stories').select('id', { count: 'exact', head: true }).eq('is_active', true),
-        
-        // User growth over time
-        supabase.from('profiles')
+        supabase
+          .from('profiles')
           .select('created_at')
           .gte('created_at', startDate)
           .order('created_at', { ascending: true }),
-        
-        // Revenue data over time  
-        supabase.from('payments')
+        supabase
+          .from('payments')
           .select('amount, created_at, currency')
           .gte('created_at', startDate)
-          .order('created_at', { ascending: true })
+          .order('created_at', { ascending: true }),
+        supabase
+          .from('user_activity_log')
+          .select('created_at, user_id, activity_type')
+          .gte('created_at', startDate)
+          .order('created_at', { ascending: true }),
+        supabase.from('fact_comments').select('id', { count: 'exact', head: true }).gte('created_at', startDate),
+        supabase.from('votes').select('id', { count: 'exact', head: true }).gte('created_at', startDate)
+      ]);
+
+      const [
+        previousFactsResult,
+        previousCommentCountResult,
+        previousVoteCountResult,
+        previousActivityResult
+      ] = await Promise.all([
+        supabase
+          .from('facts')
+          .select('status')
+          .gte('created_at', previousStartISO)
+          .lt('created_at', previousEndISO),
+        supabase
+          .from('fact_comments')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', previousStartISO)
+          .lt('created_at', previousEndISO),
+        supabase
+          .from('votes')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', previousStartISO)
+          .lt('created_at', previousEndISO),
+        supabase
+          .from('user_activity_log')
+          .select('created_at, user_id')
+          .gte('created_at', previousStartISO)
+          .lt('created_at', previousEndISO)
       ]);
 
       // Process total users
@@ -119,7 +153,7 @@ export const useAdminAnalytics = (timeRange: string = '30d') => {
         acc[fact.status] = (acc[fact.status] || 0) + 1;
         return acc;
       }, {});
-      
+
       const factsByStatus = [
         { status: 'Verified', count: statusCounts.verified || 0, color: '#22c55e' },
         { status: 'Pending', count: statusCounts.pending || 0, color: '#f59e0b' },
@@ -145,15 +179,76 @@ export const useAdminAnalytics = (timeRange: string = '30d') => {
       // Process revenue data
       const revenueDataRaw = revenueDataResult.data || [];
       const revenueData = processRevenueData(revenueDataRaw, timeRange);
-      
-      // Generate mock data for remaining metrics (these would need specific tracking)
-      const userActivity = generateUserActivityData();
+
+      const activityLogData = activityLogResult.data || [];
+      const previousActivityData = previousActivityResult.data || [];
+      const userActivity = processUserActivityData(activityLogData, timeRange);
+
+      const commentsCount = commentCountResult.count || 0;
+      const votesCount = voteCountResult.count || 0;
+      const previousCommentsCount = previousCommentCountResult.count || 0;
+      const previousVotesCount = previousVoteCountResult.count || 0;
+
+      const factsCreatedDuringPeriod = factsByStatusData.length;
+      const previousFactsData = previousFactsResult.data || [];
+      const previousStatusCounts = previousFactsData.reduce((acc: any, fact: any) => {
+        acc[fact.status] = (acc[fact.status] || 0) + 1;
+        return acc;
+      }, {});
+
+      const verificationRate = factsCreatedDuringPeriod
+        ? (statusCounts.verified || 0) / factsCreatedDuringPeriod
+        : 0;
+      const previousVerificationRate = previousFactsData.length
+        ? (previousStatusCounts.verified || 0) / previousFactsData.length
+        : 0;
+
+      const commentsPerFact = factsCreatedDuringPeriod
+        ? commentsCount / factsCreatedDuringPeriod
+        : 0;
+      const previousCommentsPerFact = previousFactsData.length
+        ? previousCommentsCount / previousFactsData.length
+        : 0;
+
+      const votesPerFact = factsCreatedDuringPeriod
+        ? votesCount / factsCreatedDuringPeriod
+        : 0;
+      const previousVotesPerFact = previousFactsData.length
+        ? previousVotesCount / previousFactsData.length
+        : 0;
+
+      const uniqueActiveUsers = new Set((activityLogData || []).map((entry: any) => entry.user_id)).size;
+      const previousUniqueActiveUsers = new Set(
+        (previousActivityData || []).map((entry: any) => entry.user_id)
+      ).size;
+      const activeContributorRate = totalUsers ? (uniqueActiveUsers / totalUsers) * 100 : 0;
+      const previousActiveContributorRate = totalUsers
+        ? (previousUniqueActiveUsers / totalUsers) * 100
+        : 0;
+
       const topLocations = await getTopLocations();
+
       const engagementMetrics = [
-        { metric: 'Avg. Session Time', value: 8.5, change: 12 },
-        { metric: 'Bounce Rate', value: 42, change: -8 },
-        { metric: 'Page Views/Session', value: 4.2, change: 15 },
-        { metric: 'User Retention', value: 68, change: 5 }
+        {
+          metric: 'Verification Rate',
+          value: Number((verificationRate * 100).toFixed(1)),
+          change: Number(((verificationRate - previousVerificationRate) * 100).toFixed(1)),
+        },
+        {
+          metric: 'Avg Comments per Fact',
+          value: Number(commentsPerFact.toFixed(2)),
+          change: Number((commentsPerFact - previousCommentsPerFact).toFixed(2)),
+        },
+        {
+          metric: 'Avg Votes per Fact',
+          value: Number(votesPerFact.toFixed(2)),
+          change: Number((votesPerFact - previousVotesPerFact).toFixed(2)),
+        },
+        {
+          metric: 'Active Contributor Rate',
+          value: Number(activeContributorRate.toFixed(1)),
+          change: Number((activeContributorRate - previousActiveContributorRate).toFixed(1)),
+        },
       ];
 
       setData({
@@ -232,14 +327,36 @@ export const useAdminAnalytics = (timeRange: string = '30d') => {
     })).slice(-12); // Last 12 months
   };
 
-  const generateUserActivityData = () => {
-    // This would come from actual user session tracking
-    const hours = Array.from({ length: 24 }, (_, i) => {
-      const hour = i.toString().padStart(2, '0') + ':00';
-      const active = Math.floor(Math.random() * 100) + 20; // Mock data
-      return { hour, active };
+  const processUserActivityData = (data: any[], range: string) => {
+    const grouped: Record<string, number> = {};
+
+    data.forEach((entry: any) => {
+      const date = new Date(entry.created_at);
+      let key: string;
+
+      if (range === '24h') {
+        key = date.toISOString().slice(0, 13) + ':00';
+      } else if (range === '7d') {
+        key = date.toISOString().slice(0, 10);
+      } else {
+        const weekStart = new Date(date);
+        weekStart.setDate(date.getDate() - date.getDay());
+        key = weekStart.toISOString().slice(0, 10);
+      }
+
+      grouped[key] = (grouped[key] || 0) + 1;
     });
-    return hours;
+
+    return Object.entries(grouped)
+      .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+      .map(([date, active]) => ({
+        hour:
+          range === '24h'
+            ? new Date(date).toLocaleTimeString([], { hour: '2-digit' })
+            : new Date(date).toLocaleDateString([], { month: 'short', day: 'numeric' }),
+        active,
+      }))
+      .slice(-24);
   };
 
   const getTopLocations = async () => {

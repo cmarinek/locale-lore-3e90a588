@@ -36,32 +36,74 @@ export const ExpertBadgeManager: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      fetchBadges();
-      fetchUserStats();
+      const loadData = async () => {
+        setLoading(true);
+        await Promise.all([fetchBadges(), fetchUserStats()]);
+        setLoading(false);
+      };
+
+      loadData();
+    } else {
+      setBadges([]);
+      setUserStats(null);
+      setLoading(false);
     }
   }, [user]);
 
   const fetchBadges = async () => {
+    if (!user) return;
+
     try {
-      // Mock data for now until types are updated
-      setBadges([]);
+      const { data, error } = await supabase
+        .from('expert_badges')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setBadges((data as ExpertBadge[]) ?? []);
     } catch (error) {
       console.error('Error fetching badges:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchUserStats = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('user_statistics')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
+    if (!user) return;
 
-      if (error) throw error;
-      setUserStats(data);
+    try {
+      const [statsResult, profileResult, premiumContentResult] = await Promise.all([
+        supabase
+          .from('user_statistics')
+          .select('*')
+          .eq('user_id', user.id)
+          .single(),
+        supabase
+          .from('profiles')
+          .select('followers_count, reputation_score')
+          .eq('id', user.id)
+          .single(),
+        supabase
+          .from('premium_content')
+          .select('id')
+          .eq('creator_id', user.id),
+      ]);
+
+      if (statsResult.error) throw statsResult.error;
+      if (profileResult.error) console.error('Error loading profile totals', profileResult.error);
+      if (premiumContentResult.error) console.error('Error loading premium content count', premiumContentResult.error);
+
+      const engagementRate = statsResult.data
+        ? ((statsResult.data.comments_made || 0) + (statsResult.data.votes_cast || 0)) /
+            Math.max(statsResult.data.facts_submitted || 1, 1)
+        : 0;
+
+      setUserStats({
+        ...statsResult.data,
+        followers_count: profileResult.data?.followers_count ?? 0,
+        reputation_score: profileResult.data?.reputation_score ?? 0,
+        premium_content_count: premiumContentResult.data?.length ?? 0,
+        engagement_rate: Number(engagementRate.toFixed(2)),
+      });
     } catch (error) {
       console.error('Error fetching user stats:', error);
     }
@@ -135,9 +177,9 @@ export const ExpertBadgeManager: React.FC = () => {
         { name: 'Active streak', current: userStats.current_streak || 0, target: 30 },
       ],
       content_creator: [
-        { name: 'Premium content', current: 0, target: 5 },
+        { name: 'Premium content', current: userStats.premium_content_count || 0, target: 5 },
         { name: 'Followers', current: userStats.followers_count || 0, target: 100 },
-        { name: 'Engagement rate', current: 0, target: 5 },
+        { name: 'Engagement rate', current: userStats.engagement_rate || 0, target: 5 },
       ],
     };
 

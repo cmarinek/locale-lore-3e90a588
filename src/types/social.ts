@@ -37,8 +37,9 @@ export interface ActivityFeedItem {
 
 export interface DirectMessage {
   id: string;
+  thread_id: string;
   sender_id: string;
-  recipient_id: string;
+  recipient_id?: string;
   content: string;
   message_type: 'text' | 'image' | 'location';
   read_at?: string;
@@ -48,8 +49,8 @@ export interface DirectMessage {
 }
 
 export interface MessageThread {
-  id: string;
-  participants: UserProfile[];
+  thread_id: string;
+  participant: UserProfile;
   last_message?: DirectMessage;
   unread_count: number;
   updated_at: string;
