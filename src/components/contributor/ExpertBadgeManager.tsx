@@ -89,8 +89,8 @@ export const ExpertBadgeManager: React.FC = () => {
       ]);
 
       if (statsResult.error) throw statsResult.error;
-      if (profileResult.error) console.error('Error loading profile totals', profileResult.error);
-      if (premiumContentResult.error) console.error('Error loading premium content count', premiumContentResult.error);
+      if (profileResult.error) throw profileResult.error;
+      if (premiumContentResult.error) throw premiumContentResult.error;
 
       const engagementRate = statsResult.data
         ? ((statsResult.data.comments_made || 0) + (statsResult.data.votes_cast || 0)) /
