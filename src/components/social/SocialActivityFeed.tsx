@@ -36,6 +36,18 @@ export const SocialActivityFeed: React.FC<SocialActivityFeedProps> = ({
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  const mapProfile = (profile: any) => ({
+    id: profile.id,
+    username: profile.username,
+    avatar_url: profile.avatar_url ?? undefined,
+    bio: profile.bio ?? undefined,
+    followers_count: profile.followers_count ?? 0,
+    following_count: profile.following_count ?? 0,
+    reputation_score: profile.reputation_score ?? 0,
+    created_at: profile.created_at ?? new Date().toISOString(),
+    updated_at: profile.updated_at ?? new Date().toISOString(),
+  });
+
   useEffect(() => {
     if (user) {
       loadActivityFeed();
@@ -47,20 +59,186 @@ export const SocialActivityFeed: React.FC<SocialActivityFeedProps> = ({
 
     try {
       setLoading(true);
-      
-      const { data, error } = await supabase
-        .from('activity_feed')
-        .select(`
-          *,
-          profiles!activity_feed_user_id_fkey(username, avatar_url),
-          facts!activity_feed_related_fact_id_fkey(title, location_name)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(20);
+      let items: ActivityFeedItem[] = [];
 
-      if (error) throw error;
+      if (feedType === 'following') {
+        const { data: followingData, error: followingError } = await supabase
+          .from('user_follows')
+          .select('following_id')
+          .eq('follower_id', user.id);
 
-      setActivities(data as ActivityFeedItem[] || []);
+        if (followingError) throw followingError;
+
+        const followingIds = (followingData ?? []).map((row) => row.following_id);
+        if (followingIds.length === 0) {
+          setActivities([]);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('activity_feed')
+          .select(`
+            *,
+            profiles:profiles!activity_feed_user_id_fkey(
+              id,
+              username,
+              avatar_url,
+              bio,
+              followers_count,
+              following_count,
+              reputation_score,
+              created_at,
+              updated_at
+            ),
+            facts:facts!activity_feed_related_fact_id_fkey(
+              id,
+              title,
+              location_name
+            )
+          `)
+          .in('user_id', followingIds)
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        if (error) throw error;
+
+        items = (data ?? []).map((activity: any) => ({
+          id: activity.id,
+          user_id: activity.user_id,
+          activity_type: activity.activity_type,
+          related_fact_id: activity.related_fact_id,
+          related_user_id: activity.related_user_id,
+          metadata: activity.metadata ?? {},
+          created_at: activity.created_at,
+          profiles: activity.profiles ? mapProfile(activity.profiles) : undefined,
+          facts: activity.facts
+            ? {
+                title: activity.facts.title,
+                location_name: activity.facts.location_name,
+              }
+            : undefined,
+        }));
+      } else if (feedType === 'trending') {
+        const { data, error } = await supabase
+          .from('trending_facts')
+          .select(`
+            fact_id,
+            score,
+            comment_count,
+            view_count,
+            period_end,
+            facts:facts!inner (
+              id,
+              title,
+              location_name,
+              author_id,
+              created_at,
+              profiles:profiles!facts_author_id_fkey(
+                id,
+                username,
+                avatar_url,
+                bio,
+                followers_count,
+                following_count,
+                reputation_score,
+                created_at,
+                updated_at
+              )
+            )
+          `)
+          .order('score', { ascending: false })
+          .limit(20);
+
+        if (error) throw error;
+
+        items = (data ?? []).map((entry: any) => {
+          const fact = entry.facts;
+          const profile = fact?.profiles ? mapProfile(fact.profiles) : undefined;
+
+          return {
+            id: `${entry.fact_id}-trending`,
+            user_id: fact?.author_id ?? '',
+            activity_type: 'fact_created',
+            related_fact_id: fact?.id,
+            metadata: {
+              context: 'trending',
+              trend_score: entry.score,
+              view_count: entry.view_count,
+              comment_count: entry.comment_count,
+            },
+            created_at: fact?.created_at ?? entry.period_end,
+            profiles: profile,
+            facts: fact
+              ? {
+                  title: fact.title,
+                  location_name: fact.location_name,
+                }
+              : undefined,
+          } satisfies ActivityFeedItem;
+        });
+      } else if (feedType === 'nearby') {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('favorite_cities')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') throw profileError;
+
+        const favoriteCities = Array.isArray(profileData?.favorite_cities)
+          ? profileData.favorite_cities.filter((city: any) => typeof city === 'string')
+          : [];
+
+        let factsQuery = supabase
+          .from('facts')
+          .select(`
+            id,
+            title,
+            location_name,
+            author_id,
+            created_at,
+            profiles:profiles!facts_author_id_fkey(
+              id,
+              username,
+              avatar_url,
+              bio,
+              followers_count,
+              following_count,
+              reputation_score,
+              created_at,
+              updated_at
+            )
+          `)
+          .eq('status', 'verified')
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        if (favoriteCities.length > 0) {
+          factsQuery = factsQuery.in('location_name', favoriteCities);
+        }
+
+        const { data, error } = await factsQuery;
+        if (error) throw error;
+
+        items = (data ?? []).map((fact: any) => ({
+          id: `${fact.id}-nearby`,
+          user_id: fact.author_id ?? '',
+          activity_type: 'fact_created',
+          related_fact_id: fact.id,
+          metadata: {
+            context: favoriteCities.length > 0 ? 'nearby' : 'featured',
+            favorite_cities: favoriteCities,
+          },
+          created_at: fact.created_at,
+          profiles: fact.profiles ? mapProfile(fact.profiles) : undefined,
+          facts: {
+            title: fact.title,
+            location_name: fact.location_name,
+          },
+        }));
+      }
+
+      setActivities(items);
     } catch (error) {
       console.error('Error loading activity feed:', error);
     } finally {
@@ -239,7 +417,40 @@ export const SocialActivityFeed: React.FC<SocialActivityFeedProps> = ({
                       <span>{activity.facts.location_name}</span>
                     </div>
                   )}
-                  
+
+                  {activity.metadata?.context === 'trending' && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3" />
+                        Trending
+                      </Badge>
+                      {typeof activity.metadata?.trend_score === 'number' && (
+                        <span>Score {Math.round(activity.metadata.trend_score)}</span>
+                      )}
+                      {typeof activity.metadata?.view_count === 'number' && (
+                        <span>{activity.metadata.view_count} views</span>
+                      )}
+                    </div>
+                  )}
+
+                  {activity.metadata?.context === 'nearby' && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        Nearby
+                      </Badge>
+                      {Array.isArray(activity.metadata?.favorite_cities) &&
+                        activity.metadata.favorite_cities.length > 0 && (
+                          <span>
+                            {activity.metadata.favorite_cities
+                              .slice(0, 2)
+                              .join(', ')}
+                            {activity.metadata.favorite_cities.length > 2 ? '…' : ''}
+                          </span>
+                        )}
+                    </div>
+                  )}
+
                   <p className="text-xs text-muted-foreground">
                     {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                   </p>
