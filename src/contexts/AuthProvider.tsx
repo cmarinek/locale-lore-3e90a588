@@ -21,10 +21,6 @@ function AuthProviderComponent({ children }: AuthProviderProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    console.log('[AuthProvider] Initializing...');
-  }, []);
-
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
