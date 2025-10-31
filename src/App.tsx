@@ -6,12 +6,6 @@ import { AppRoutes } from '@/components/app/AppRoutes';
 import { ChunkErrorBoundary } from '@/components/common/ChunkErrorBoundary';
 
 function App() {
-  // Ensure React hooks are available before rendering
-  if (!React.useRef || !React.useState || !React.useEffect) {
-    console.error('React hooks not available');
-    return <div>Loading...</div>;
-  }
-
   return (
     <ChunkErrorBoundary>
       <Router>

@@ -3,35 +3,14 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-console.log('[Main] Starting application...');
+const rootElement = document.getElementById("root");
 
-// Wait for DOM to be ready
-const waitForDOM = () => {
-  return new Promise<void>((resolve) => {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => resolve(), { once: true });
-    } else {
-      resolve();
-    }
-  });
-};
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
 
-// Initialize and render app
-waitForDOM().then(() => {
-  const rootElement = document.getElementById("root");
-  
-  if (!rootElement) {
-    console.error('Root element not found');
-    return;
-  }
-
-  const root = createRoot(rootElement);
-  
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
-  
-  console.log('✅ App rendered successfully');
-});
+createRoot(rootElement).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
