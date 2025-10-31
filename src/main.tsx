@@ -4,12 +4,7 @@ import App from './App.tsx';
 import './index.css';
 import { simplifiedInitializer } from './utils/simplified-initialization';
 
-// Ensure React is properly loaded before proceeding
-if (!React || typeof React !== 'object' || !React.createElement) {
-  console.error('React not properly loaded - critical error');
-  document.body.innerHTML = '<div style="padding: 20px; text-align: center;">Loading React...</div>';
-  throw new Error('React not available');
-}
+console.log('[Main] Starting application initialization...');
 
 // Create a minimal loading indicator that doesn't interfere with layout
 const showLoadingIndicator = () => {
@@ -63,11 +58,6 @@ const initializeApp = async () => {
       rootElement.id = 'root';
       document.body.appendChild(rootElement);
       console.warn('Root element was missing and has been created');
-    }
-
-    // Double-check React is still available before proceeding
-    if (!React || !React.useState || !React.useEffect) {
-      throw new Error('React hooks became unavailable during initialization');
     }
 
     // Use simplified initialization system

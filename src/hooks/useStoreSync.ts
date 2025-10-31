@@ -5,20 +5,23 @@ import { useUserStore } from '@/stores/userStore';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useCacheStore } from '@/stores/cacheStore';
-import { useAuth } from '@/contexts/AuthProvider';
+import { useAuthSafe } from '@/contexts/AuthProvider';
 
 /**
  * Hook to synchronize auth state with user store
  */
 export const useAuthSync = () => {
-  const { user, session, loading } = useAuth();
+  const authContext = useAuthSafe();
   const { setUser, setSession, setLoading } = useUserStore();
 
   useEffect(() => {
-    setUser(user);
-    setSession(session);
-    setLoading(loading);
-  }, [user, session, loading, setUser, setSession, setLoading]);
+    // Only sync if auth context is available
+    if (authContext) {
+      setUser(authContext.user);
+      setSession(authContext.session);
+      setLoading(authContext.loading);
+    }
+  }, [authContext, setUser, setSession, setLoading]);
 };
 
 /**

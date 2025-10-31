@@ -17,85 +17,84 @@ interface AuthProviderProps {
 }
 
 function AuthProviderComponent({ children }: AuthProviderProps) {
-  // Critical: Ensure React and hooks are available before proceeding
-  if (typeof React === 'undefined' || React === null) {
-    console.error('React is null/undefined in AuthProvider');
-    return <div>React not available</div>;
-  }
-  
-  if (typeof useState === 'undefined' || useState === null) {
-    console.error('useState hook is null/undefined in AuthProvider');
-    return <div>React hooks not available</div>;
-  }
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  try {
-    const [user, setUser] = useState<User | null>(null);
-    const [session, setSession] = useState<Session | null>(null);
-    const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    console.log('[AuthProvider] Initializing...');
+  }, []);
 
-    const signOut = async () => {
-      try {
-        await supabase.auth.signOut();
-        window.location.href = '/auth';
-      } catch (error) {
-        console.error('Error signing out:', error);
-        toast({
-          title: "Sign out failed",
-          description: "There was an error signing out. Please try again.",
-          variant: "destructive",
-        });
-      }
-    };
+  const signOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      window.location.href = '/auth';
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: "Sign out failed",
+        description: "There was an error signing out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
-    useEffect(() => {
-      // Set a timeout to prevent infinite loading
-      const loadingTimeout = setTimeout(() => {
-        console.warn('Auth loading timeout - proceeding without authentication');
+  useEffect(() => {
+    let mounted = true;
+    const loadingTimeout = setTimeout(() => {
+      if (mounted) {
+        console.warn('[AuthProvider] Loading timeout - proceeding without authentication');
         setLoading(false);
-      }, 5000);
+      }
+    }, 5000);
 
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (mounted) {
           clearTimeout(loadingTimeout);
+          console.log('[AuthProvider] Auth state changed:', event);
           setSession(session);
           setUser(session?.user ?? null);
           setLoading(false);
         }
-      );
+      }
+    );
 
-      supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted) {
         clearTimeout(loadingTimeout);
+        console.log('[AuthProvider] Session loaded');
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-      }).catch((error) => {
-        console.error('Error getting session:', error);
+      }
+    }).catch((error) => {
+      if (mounted) {
+        console.error('[AuthProvider] Error getting session:', error);
         clearTimeout(loadingTimeout);
         setLoading(false);
-      });
+      }
+    });
 
-      return () => {
-        clearTimeout(loadingTimeout);
-        subscription.unsubscribe();
-      };
-    }, []);
-
-    const value: AuthContextType = {
-      user,
-      session,
-      loading,
-      signOut,
+    return () => {
+      mounted = false;
+      clearTimeout(loadingTimeout);
+      subscription.unsubscribe();
     };
+  }, []);
 
-    return (
-      <AuthContext.Provider value={value}>
-        {children}
-      </AuthContext.Provider>
-    );
-  } catch (error) {
-    console.error('Error in AuthProvider:', error);
-    return <div>Authentication error occurred</div>;
-  }
+  const value: AuthContextType = {
+    user,
+    session,
+    loading,
+    signOut,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export const AuthProvider = AuthProviderComponent;
