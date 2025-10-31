@@ -42,6 +42,13 @@ const normalizeProfile = (profile: Partial<SocialUserProfile> & { id: string; us
   updated_at: profile.updated_at ?? new Date().toISOString(),
 });
 
+const safeNormalizeProfile = (profile: any): SocialUserProfile | undefined => {
+  if (!profile || typeof profile !== 'object' || !profile.id || !profile.username) {
+    return undefined;
+  }
+  return normalizeProfile(profile as Partial<SocialUserProfile> & { id: string; username: string });
+};
+
 export const DirectMessaging: React.FC<DirectMessagingProps> = ({ recipientId, onClose }) => {
   const { user } = useAuth();
   const [threads, setThreads] = useState<MessageThread[]>([]);
@@ -310,8 +317,8 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({ recipientId, o
         message_type: message.message_type as DirectMessage['message_type'],
         created_at: message.created_at,
         read_at: message.read_at ?? undefined,
-        sender: message.sender ? normalizeProfile(message.sender) : undefined,
-        recipient: message.recipient ? normalizeProfile(message.recipient) : undefined,
+        sender: safeNormalizeProfile(message.sender),
+        recipient: safeNormalizeProfile(message.recipient),
       }));
 
       setMessages(normalized);
@@ -479,8 +486,8 @@ export const DirectMessaging: React.FC<DirectMessagingProps> = ({ recipientId, o
         message_type: data.message_type as DirectMessage['message_type'],
         created_at: data.created_at,
         read_at: data.read_at ?? undefined,
-        sender: data.sender ? normalizeProfile(data.sender) : undefined,
-        recipient: data.recipient ? normalizeProfile(data.recipient) : undefined,
+        sender: safeNormalizeProfile(data.sender),
+        recipient: safeNormalizeProfile(data.recipient),
       };
 
       setMessages((previous) => [...previous, message]);

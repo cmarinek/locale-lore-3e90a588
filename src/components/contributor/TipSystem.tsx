@@ -207,6 +207,7 @@ const TipJarWidget: React.FC<{ recipientId: string; recipientName: string }> = (
   recipientId,
   recipientName,
 }) => {
+  const suggestedAmounts = [1, 3, 5, 10, 25];
   const [tipJarData, setTipJarData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
