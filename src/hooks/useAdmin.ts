@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthProvider';
 
 export interface AdminUser {
   id: string;
@@ -36,35 +37,58 @@ export interface SystemMetric {
 export const useAdmin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    checkAdminStatus();
-  }, []);
+    let cancelled = false;
 
-  const checkAdminStatus = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setIsAdmin(false);
-        setLoading(false);
+    const checkAdminStatus = async () => {
+      if (authLoading) {
         return;
       }
 
-      // Check if user has admin role
-      const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id);
+      if (!user) {
+        if (!cancelled) {
+          setIsAdmin(false);
+          setLoading(false);
+        }
+        return;
+      }
 
-      const hasAdminRole = userRoles?.some(r => r.role === 'admin');
-      setIsAdmin(hasAdminRole || false);
-    } catch (error) {
-      console.error('Error checking admin status:', error);
-      setIsAdmin(false);
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        setLoading(true);
+        const { data: userRoles, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
+
+        if (error) {
+          throw error;
+        }
+
+        const hasAdminRole = userRoles?.some((r) => r.role === 'admin') ?? false;
+
+        if (!cancelled) {
+          setIsAdmin(hasAdminRole);
+        }
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+        if (!cancelled) {
+          setIsAdmin(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    checkAdminStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, authLoading]);
 
   const getUsers = async (page = 0, limit = 20) => {
     const { data, error, count } = await supabase
@@ -81,7 +105,7 @@ export const useAdmin = () => {
   };
 
   const updateUserRole = async (userId: string, role: string) => {
-    if (!['admin', 'moderator', 'user'].includes(role)) {
+    if (!['admin', 'moderator', 'user', 'contributor', 'free'].includes(role)) {
       throw new Error(`Invalid role: ${role}`);
     }
 
@@ -91,8 +115,13 @@ export const useAdmin = () => {
       .delete()
       .eq('user_id', userId);
 
-    // Then add the new role (map 'user' to 'free' as per schema)
-    const mappedRole = role === 'user' ? 'free' : role;
+    // Then add the new role with enum-safe mapping
+    const mappedRole =
+      role === 'user'
+        ? 'free'
+        : role === 'moderator'
+          ? 'contributor'
+          : (role as 'admin' | 'contributor' | 'free');
     const { error } = await supabase
       .from('user_roles')
       .insert({ user_id: userId, role: mappedRole as 'admin' | 'contributor' | 'free' });
