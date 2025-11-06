@@ -6,6 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Cookie, Shield, BarChart3, Settings, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { analytics } from '@/utils/analytics';
 
 interface CookiePreferences {
   essential: boolean;
@@ -29,6 +30,10 @@ export const CookieConsent = () => {
     } else {
       const savedPreferences = JSON.parse(consent);
       setPreferences(savedPreferences);
+      analytics.setConsent(savedPreferences.analytics);
+      if (savedPreferences.analytics) {
+        analytics.initialize();
+      }
     }
   }, []);
 
@@ -36,7 +41,11 @@ export const CookieConsent = () => {
     localStorage.setItem('cookie-consent', JSON.stringify(prefs));
     localStorage.setItem('cookie-consent-date', new Date().toISOString());
     
-    // Set analytics consent for privacy analytics
+    analytics.setConsent(prefs.analytics);
+    if (prefs.analytics) {
+      analytics.initialize();
+    }
+
     if ((window as any).gtag) {
       (window as any).gtag('consent', 'update', {
         analytics_storage: prefs.analytics ? 'granted' : 'denied',
