@@ -9,6 +9,11 @@
     "build:dev": "vite build --mode development",
     "build:production": "cross-env NODE_ENV=production vite build --mode production",
     "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:unit": "jest --runInBand --testPathIgnorePatterns=src/__tests__/integration",
+    "test:integration": "jest --runInBand --testPathPatterns src/__tests__/integration",
+    "test:e2e": "playwright test",
     "preview": "vite preview",
     "deploy:production": "bash scripts/production-deploy.sh",
     "monitor:production": "node scripts/monitoring/run-production-monitoring.mjs"
