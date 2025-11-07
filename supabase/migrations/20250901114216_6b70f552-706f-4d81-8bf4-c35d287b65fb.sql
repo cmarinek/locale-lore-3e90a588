@@ -49,7 +49,8 @@ CREATE TABLE IF NOT EXISTS trending_facts (
   share_count INTEGER DEFAULT 0,
   period_start TIMESTAMP WITH TIME ZONE NOT NULL,
   period_end TIMESTAMP WITH TIME ZONE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  CONSTRAINT trending_facts_fact_period_unique UNIQUE (fact_id, period_start)
 );
 
 -- Trending locations table
@@ -63,8 +64,54 @@ CREATE TABLE IF NOT EXISTS trending_locations (
   score NUMERIC NOT NULL DEFAULT 0,
   period_start TIMESTAMP WITH TIME ZONE NOT NULL,
   period_end TIMESTAMP WITH TIME ZONE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  CONSTRAINT trending_locations_name_period_unique UNIQUE (location_name, period_start)
 );
+
+-- Remove duplicate trending fact entries prior to adding unique constraints
+WITH fact_duplicates AS (
+  SELECT id, ROW_NUMBER() OVER (PARTITION BY fact_id, period_start ORDER BY created_at DESC, id DESC) AS rn
+  FROM trending_facts
+)
+DELETE FROM trending_facts tf
+USING fact_duplicates fd
+WHERE tf.id = fd.id
+  AND fd.rn > 1;
+
+-- Remove duplicate trending location entries prior to adding unique constraints
+WITH location_duplicates AS (
+  SELECT id, ROW_NUMBER() OVER (PARTITION BY location_name, period_start ORDER BY created_at DESC, id DESC) AS rn
+  FROM trending_locations
+)
+DELETE FROM trending_locations tl
+USING location_duplicates ld
+WHERE tl.id = ld.id
+  AND ld.rn > 1;
+
+-- Ensure unique constraints exist if tables were created previously without them
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'trending_facts_fact_period_unique'
+      AND conrelid = 'public.trending_facts'::regclass
+  ) THEN
+    ALTER TABLE trending_facts
+    ADD CONSTRAINT trending_facts_fact_period_unique UNIQUE (fact_id, period_start);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'trending_locations_name_period_unique'
+      AND conrelid = 'public.trending_locations'::regclass
+  ) THEN
+    ALTER TABLE trending_locations
+    ADD CONSTRAINT trending_locations_name_period_unique UNIQUE (location_name, period_start);
+  END IF;
+END $$;
 
 -- User recommendations table
 CREATE TABLE IF NOT EXISTS user_recommendations (
@@ -143,9 +190,9 @@ RETURNS void AS $$
 BEGIN
   -- Update trending facts for the last 24 hours
   INSERT INTO trending_facts (fact_id, score, view_count, vote_count, comment_count, period_start, period_end)
-  SELECT 
+  SELECT
     f.id,
-    (COALESCE(f.vote_count_up, 0) * 3 + COALESCE(comment_count, 0) * 2 + 1) * 
+    (COALESCE(f.vote_count_up, 0) * 3 + COALESCE(comment_count, 0) * 2 + 1) *
     EXTRACT(EPOCH FROM (now() - f.created_at)) / 86400 as score,
     1 as view_count,
     (COALESCE(f.vote_count_up, 0) + COALESCE(f.vote_count_down, 0)) as vote_count,
@@ -155,11 +202,16 @@ BEGIN
   FROM facts f
   WHERE f.created_at >= now() - INTERVAL '24 hours'
     AND f.status = 'verified'
-  ON CONFLICT DO NOTHING;
+  ON CONFLICT (fact_id, period_start) DO UPDATE SET
+    score = EXCLUDED.score,
+    view_count = EXCLUDED.view_count,
+    vote_count = EXCLUDED.vote_count,
+    comment_count = EXCLUDED.comment_count,
+    period_end = EXCLUDED.period_end;
 
   -- Update trending locations
   INSERT INTO trending_locations (location_name, latitude, longitude, fact_count, score, period_start, period_end)
-  SELECT 
+  SELECT
     location_name,
     latitude,
     longitude,
@@ -167,12 +219,17 @@ BEGIN
     COUNT(*) * 2 + SUM(vote_count_up) as score,
     date_trunc('hour', now()) as period_start,
     date_trunc('hour', now()) + INTERVAL '1 hour' as period_end
-  FROM facts 
+  FROM facts
   WHERE created_at >= now() - INTERVAL '24 hours'
     AND status = 'verified'
   GROUP BY location_name, latitude, longitude
   HAVING COUNT(*) > 1
-  ON CONFLICT DO NOTHING;
+  ON CONFLICT (location_name, period_start) DO UPDATE SET
+    latitude = EXCLUDED.latitude,
+    longitude = EXCLUDED.longitude,
+    fact_count = EXCLUDED.fact_count,
+    score = EXCLUDED.score,
+    period_end = EXCLUDED.period_end;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
