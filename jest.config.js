@@ -2,13 +2,11 @@
 export default {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      useESM: true,
-    }],
+    '^.+\\.(ts|tsx)$': ['<rootDir>/jest.transformer.cjs'],
   },
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   collectCoverageFrom: [
