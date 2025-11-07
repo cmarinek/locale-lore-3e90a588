@@ -46,7 +46,7 @@ interface SettingsState {
   importSettings: (settings: string) => void;
 }
 
-const defaultAccessibility: AccessibilitySettings = {
+const createDefaultAccessibility = (): AccessibilitySettings => ({
   fontSize: 'medium',
   contrast: 'normal',
   reduceMotion: false,
@@ -55,9 +55,9 @@ const defaultAccessibility: AccessibilitySettings = {
   focusIndicators: true,
   textToSpeech: false,
   voiceControl: false,
-};
+});
 
-const defaultPreferences: AppPreferences = {
+const createDefaultPreferences = (): AppPreferences => ({
   showOnboarding: true,
   pwaDismissed: false,
   pwaInstalled: false,
@@ -65,15 +65,15 @@ const defaultPreferences: AppPreferences = {
   autoSave: true,
   notifications: true,
   compactMode: false,
-};
+});
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set, get) => ({
       theme: 'auto',
       language: 'en',
-      accessibility: defaultAccessibility,
-      preferences: defaultPreferences,
+      accessibility: createDefaultAccessibility(),
+      preferences: createDefaultPreferences(),
 
       setTheme: (theme) => {
         set({ theme });
@@ -99,11 +99,11 @@ export const useSettingsStore = create<SettingsState>()(
       },
 
       resetAccessibility: () => {
-        set({ accessibility: defaultAccessibility });
+        set({ accessibility: createDefaultAccessibility() });
       },
 
       resetPreferences: () => {
-        set({ preferences: defaultPreferences });
+        set({ preferences: createDefaultPreferences() });
       },
 
       exportSettings: () => {
@@ -122,8 +122,8 @@ export const useSettingsStore = create<SettingsState>()(
           set({
             theme: settings.theme || 'auto',
             language: settings.language || 'en',
-            accessibility: { ...defaultAccessibility, ...settings.accessibility },
-            preferences: { ...defaultPreferences, ...settings.preferences },
+            accessibility: { ...createDefaultAccessibility(), ...settings.accessibility },
+            preferences: { ...createDefaultPreferences(), ...settings.preferences },
           });
         } catch (error) {
           console.error('Failed to import settings:', error);
