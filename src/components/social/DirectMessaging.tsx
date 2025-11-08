@@ -78,27 +78,31 @@ export const DirectMessaging: React.FC = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('direct_messages')
-        .select(`
-          id,
-          sender_id,
-          recipient_id,
-          content,
-          created_at,
-          read_at,
-          sender_profile:profiles!sender_id(username, avatar_url),
-          recipient_profile:profiles!recipient_id(username, avatar_url)
-        `)
+        .select('id, sender_id, recipient_id, content, created_at, read_at')
         .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
+      // Get unique partner IDs
+      const partnerIds = [...new Set(data?.map(msg => 
+        msg.sender_id === user.id ? msg.recipient_id : msg.sender_id
+      ))];
+
+      // Fetch profiles for all partners
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, username, avatar_url')
+        .in('id', partnerIds);
+
+      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+
       // Group messages by conversation partner
       const conversationMap = new Map<string, Conversation>();
       
-      data?.forEach((msg: any) => {
+      data?.forEach((msg) => {
         const partnerId = msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
-        const partnerProfile = msg.sender_id === user.id ? msg.recipient_profile : msg.sender_profile;
+        const partnerProfile = profilesMap.get(partnerId);
         
         if (!conversationMap.has(partnerId)) {
           const isUnread = msg.recipient_id === user.id && !msg.read_at;
@@ -138,17 +142,28 @@ export const DirectMessaging: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('direct_messages')
-        .select(`
-          *,
-          sender_profile:profiles!sender_id(username, avatar_url),
-          recipient_profile:profiles!recipient_id(username, avatar_url)
-        `)
+        .select('*')
         .or(`and(sender_id.eq.${user.id},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${user.id})`)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      setMessages((data as Message[]) || []);
+      // Fetch sender profiles
+      const senderIds = [...new Set(data?.map(m => m.sender_id) || [])];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, username, avatar_url')
+        .in('id', senderIds);
+
+      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+
+      const formattedMessages: Message[] = (data || []).map(msg => ({
+        ...msg,
+        sender_profile: profilesMap.get(msg.sender_id) || { username: 'Unknown', avatar_url: null },
+        recipient_profile: msg.recipient_id ? (profilesMap.get(msg.recipient_id) || { username: 'Unknown', avatar_url: null }) : undefined
+      }));
+
+      setMessages(formattedMessages);
     } catch (error: any) {
       log.error('Failed to fetch messages', error, { component: 'DirectMessaging', userId: user?.id, partnerId });
       toast({
@@ -188,11 +203,13 @@ export const DirectMessaging: React.FC = () => {
     try {
       const { error } = await supabase
         .from('direct_messages')
-        .insert({
+        .insert([{
           sender_id: user.id,
           recipient_id: selectedConversation,
+          thread_id: selectedConversation,
           content: newMessage.trim(),
-        });
+          message_type: 'text',
+        }]);
 
       if (error) throw error;
 

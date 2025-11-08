@@ -704,6 +704,39 @@ export type Database = {
         }
         Relationships: []
       }
+      direct_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          message_type: string
+          read_at: string | null
+          recipient_id: string | null
+          sender_id: string
+          thread_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          message_type?: string
+          read_at?: string | null
+          recipient_id?: string | null
+          sender_id: string
+          thread_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          message_type?: string
+          read_at?: string | null
+          recipient_id?: string | null
+          sender_id?: string
+          thread_id?: string
+        }
+        Relationships: []
+      }
       discovery_of_the_day: {
         Row: {
           ai_summary: string
@@ -838,6 +871,45 @@ export type Database = {
           updated_at?: string
           user_id?: string
           view_duration_seconds?: number | null
+        }
+        Relationships: []
+      }
+      expert_badges: {
+        Row: {
+          badge_level: number
+          badge_type: string
+          expires_at: string | null
+          id: string
+          issued_by: string
+          location_area: string | null
+          requirements_met: string[]
+          specialization: string | null
+          user_id: string
+          verification_date: string
+        }
+        Insert: {
+          badge_level?: number
+          badge_type: string
+          expires_at?: string | null
+          id?: string
+          issued_by: string
+          location_area?: string | null
+          requirements_met?: string[]
+          specialization?: string | null
+          user_id: string
+          verification_date?: string
+        }
+        Update: {
+          badge_level?: number
+          badge_type?: string
+          expires_at?: string | null
+          id?: string
+          issued_by?: string
+          location_area?: string | null
+          requirements_met?: string[]
+          specialization?: string | null
+          user_id?: string
+          verification_date?: string
         }
         Relationships: []
       }
@@ -1208,6 +1280,54 @@ export type Database = {
           score?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      location_claims: {
+        Row: {
+          benefits_enabled: Json | null
+          business_name: string | null
+          business_type: string | null
+          claim_status: string
+          claimed_at: string
+          id: string
+          latitude: number
+          location_name: string
+          longitude: number
+          user_id: string
+          verification_documents: string[] | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          benefits_enabled?: Json | null
+          business_name?: string | null
+          business_type?: string | null
+          claim_status?: string
+          claimed_at?: string
+          id?: string
+          latitude: number
+          location_name: string
+          longitude: number
+          user_id: string
+          verification_documents?: string[] | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          benefits_enabled?: Json | null
+          business_name?: string | null
+          business_type?: string | null
+          claim_status?: string
+          claimed_at?: string
+          id?: string
+          latitude?: number
+          location_name?: string
+          longitude?: number
+          user_id?: string
+          verification_documents?: string[] | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: []
       }
@@ -1619,6 +1739,65 @@ export type Database = {
         }
         Relationships: []
       }
+      premium_content: {
+        Row: {
+          content_type: string
+          content_url: string
+          created_at: string
+          creator_id: string
+          currency: string
+          description: string
+          discovery_id: string
+          id: string
+          preview_content: string | null
+          price: number
+          purchase_count: number
+          rating: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content_type: string
+          content_url: string
+          created_at?: string
+          creator_id: string
+          currency?: string
+          description: string
+          discovery_id: string
+          id?: string
+          preview_content?: string | null
+          price: number
+          purchase_count?: number
+          rating?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content_type?: string
+          content_url?: string
+          created_at?: string
+          creator_id?: string
+          currency?: string
+          description?: string
+          discovery_id?: string
+          id?: string
+          preview_content?: string | null
+          price?: number
+          purchase_count?: number
+          rating?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "premium_content_discovery_id_fkey"
+            columns: ["discovery_id"]
+            isOneToOne: false
+            referencedRelation: "facts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1897,6 +2076,57 @@ export type Database = {
           proj4text?: string | null
           srid?: number
           srtext?: string | null
+        }
+        Relationships: []
+      }
+      sponsored_partnerships: {
+        Row: {
+          brand_id: string
+          budget: number
+          campaign_type: string
+          created_at: string
+          creator_id: string
+          currency: string
+          deliverables: string[] | null
+          description: string
+          end_date: string
+          id: string
+          requirements: string[] | null
+          start_date: string
+          status: string
+          title: string
+        }
+        Insert: {
+          brand_id: string
+          budget: number
+          campaign_type: string
+          created_at?: string
+          creator_id: string
+          currency?: string
+          deliverables?: string[] | null
+          description: string
+          end_date: string
+          id?: string
+          requirements?: string[] | null
+          start_date: string
+          status?: string
+          title: string
+        }
+        Update: {
+          brand_id?: string
+          budget?: number
+          campaign_type?: string
+          created_at?: string
+          creator_id?: string
+          currency?: string
+          deliverables?: string[] | null
+          description?: string
+          end_date?: string
+          id?: string
+          requirements?: string[] | null
+          start_date?: string
+          status?: string
+          title?: string
         }
         Relationships: []
       }
@@ -2273,6 +2503,95 @@ export type Database = {
           recorded_at?: string
         }
         Relationships: []
+      }
+      tip_jars: {
+        Row: {
+          created_at: string
+          custom_message: string | null
+          description: string | null
+          display_name: string
+          id: string
+          is_enabled: boolean
+          suggested_amounts: number[] | null
+          tip_count: number
+          total_received: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_message?: string | null
+          description?: string | null
+          display_name: string
+          id?: string
+          is_enabled?: boolean
+          suggested_amounts?: number[] | null
+          tip_count?: number
+          total_received?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_message?: string | null
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_enabled?: boolean
+          suggested_amounts?: number[] | null
+          tip_count?: number
+          total_received?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tips: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          discovery_id: string | null
+          id: string
+          message: string | null
+          processed_at: string | null
+          recipient_id: string
+          sender_id: string
+          status: string
+          stripe_payment_intent_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          discovery_id?: string | null
+          id?: string
+          message?: string | null
+          processed_at?: string | null
+          recipient_id: string
+          sender_id: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          discovery_id?: string | null
+          id?: string
+          message?: string | null
+          processed_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tips_discovery_id_fkey"
+            columns: ["discovery_id"]
+            isOneToOne: false
+            referencedRelation: "facts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       trending_facts: {
         Row: {
