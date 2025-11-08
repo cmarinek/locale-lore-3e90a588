@@ -34,6 +34,7 @@ const ProductionReadiness = lazy(() => import('@/pages/ProductionReadiness').the
 const Support = lazy(() => import('@/pages/Support').then(m => ({ default: m.Support })));
 const ContentGuidelines = lazy(() => import('@/pages/ContentGuidelines').then(m => ({ default: m.ContentGuidelines })));
 const TranslationTest = lazy(() => import('@/pages/TranslationTest'));
+const Monitoring = lazy(() => import('@/pages/Monitoring'));
 const LazyMap = lazy(() => import('@/pages/Map'));
 const Help = lazy(() => import('@/pages/Help'));
 
@@ -112,6 +113,11 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/admin" element={
           <ProtectedRoute adminOnly feature="admin dashboard" graceful={false}>
             <Admin />
+          </ProtectedRoute>
+        } />
+        <Route path="/monitoring" element={
+          <ProtectedRoute adminOnly feature="monitoring dashboard" graceful={false}>
+            <Monitoring />
           </ProtectedRoute>
         } />
         <Route path="/help" element={<Help />} />
