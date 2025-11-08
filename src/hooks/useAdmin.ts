@@ -259,7 +259,6 @@ export const useAdmin = () => {
   return {
     isAdmin,
     loading,
-    checkAdminStatus,
     getUsers,
     updateUserRole,
     getContentReports,

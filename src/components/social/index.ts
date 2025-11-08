@@ -1,6 +1,6 @@
 
 export { ActivityFeed } from './ActivityFeed';
-export { DirectMessaging } from './DirectMessaging';
+// DirectMessaging temporarily disabled - missing database tables
 export { FactCard } from './FactCard';
 export { FollowButton } from './FollowButton';
 export { SocialActivityFeed } from './SocialActivityFeed';

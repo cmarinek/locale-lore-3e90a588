@@ -58,9 +58,8 @@ export const CreatorAnalyticsDashboard: React.FC = () => {
 
         const factIds = (factsData ?? []).map((fact) => fact.id);
 
-        const [tipsResult, premiumResult, sharesResult, profileResult, trendingResult] = await Promise.all([
-          supabase.from('tips').select('amount,status').eq('recipient_id', user.id),
-          supabase.from('premium_content').select('id,title,price,purchase_count').eq('creator_id', user.id),
+        const [sharesResult, profileResult, trendingResult] = await Promise.all([
+          // Tips and premium content features temporarily disabled - tables not yet created
           factIds.length > 0
             ? supabase.from('fact_shares').select('fact_id').in('fact_id', factIds)
             : Promise.resolve({ data: [], error: null }),
@@ -73,8 +72,6 @@ export const CreatorAnalyticsDashboard: React.FC = () => {
             : Promise.resolve({ data: [], error: null }),
         ]);
 
-        if (tipsResult.error) throw tipsResult.error;
-        if (premiumResult.error) throw premiumResult.error;
         if (sharesResult.error) throw sharesResult.error;
         if (profileResult.error) throw profileResult.error;
         if (trendingResult.error) throw trendingResult.error;
@@ -86,18 +83,11 @@ export const CreatorAnalyticsDashboard: React.FC = () => {
           created_at: fact.created_at,
         }));
 
-        const completedTips = (tipsResult.data ?? []).filter((tip) => tip.status === 'completed');
-        const tipsReceived = completedTips.length;
-        const tipsAmount = completedTips.reduce((sum, tip) => sum + Number(tip.amount ?? 0), 0);
-
-        const premiumSales = (premiumResult.data ?? []).reduce(
-          (sum, item) => sum + Number(item.purchase_count ?? 0),
-          0,
-        );
-        const premiumRevenue = (premiumResult.data ?? []).reduce(
-          (sum, item) => sum + Number(item.price ?? 0) * Number(item.purchase_count ?? 0),
-          0,
-        );
+        // Temporarily disabled features
+        const tipsReceived = 0;
+        const tipsAmount = 0;
+        const premiumSales = 0;
+        const premiumRevenue = 0;
 
         const trendingMap = new Map<string, TrendingFactRecord>();
         (trendingResult.data ?? []).forEach((entry: any) => {

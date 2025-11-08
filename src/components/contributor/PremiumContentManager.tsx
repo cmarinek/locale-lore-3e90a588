@@ -60,22 +60,8 @@ export const PremiumContentManager: React.FC = () => {
     }
 
     try {
-      const { data, error } = await supabase
-        .from('premium_content')
-        .select('*')
-        .eq('creator_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const normalized = (data ?? []).map((content) => ({
-        ...content,
-        price: Number(content.price),
-        purchase_count: content.purchase_count ?? 0,
-        rating: Number(content.rating ?? 0),
-      }));
-
-      setPremiumContent(normalized as PremiumContent[]);
+      // Temporarily disabled - premium_content table not yet created
+      setPremiumContent([]); // Empty until feature is enabled
     } catch (error) {
       console.error('Error fetching premium content:', error);
       toast({

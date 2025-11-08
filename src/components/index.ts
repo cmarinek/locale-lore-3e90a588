@@ -28,7 +28,7 @@ export { SocialActivityFeed } from './social/SocialActivityFeed';
 export { SocialSharing } from './social/SocialSharing';
 export { UserProfile } from './social/UserProfile';
 export { ActivityFeed } from './social/ActivityFeed';
-export { DirectMessaging } from './social/DirectMessaging';
+// DirectMessaging temporarily disabled - missing database tables
 
 // Real-time components
 export * from './realtime';

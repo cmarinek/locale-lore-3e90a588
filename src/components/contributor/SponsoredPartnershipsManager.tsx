@@ -35,22 +35,8 @@ export const SponsoredPartnershipsManager: React.FC = () => {
 
       try {
         setLoading(true);
-        const { data, error } = await supabase
-          .from('sponsored_partnerships')
-          .select('*')
-          .or(`creator_id.eq.${user.id},brand_id.eq.${user.id}`)
-          .order('start_date', { ascending: false });
-
-        if (error) throw error;
-
-        const normalized = (data ?? []).map((record) => ({
-          ...record,
-          budget: Number(record.budget ?? 0),
-          requirements: Array.isArray(record.requirements) ? record.requirements : [],
-          deliverables: Array.isArray(record.deliverables) ? record.deliverables : [],
-        }));
-
-        setPartnerships(normalized as SponsoredPartnership[]);
+        // Temporarily disabled - sponsored_partnerships table not yet created
+        setPartnerships([]); // Empty until feature is enabled
       } catch (error) {
         console.error('Error loading partnerships:', error);
       } finally {

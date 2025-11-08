@@ -54,14 +54,15 @@ export const ExpertBadgeManager: React.FC = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from('expert_badges')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      setBadges((data as ExpertBadge[]) ?? []);
+      // Temporarily disabled - expert_badges table not yet created
+      // const { data, error } = await supabase
+      //   .from('expert_badges')
+      //   .select('*')
+      //   .eq('user_id', user.id);
+      // if (error) throw error;
+      // setBadges((data as ExpertBadge[]) ?? []);
+      
+      setBadges([]); // Empty until feature is enabled
     } catch (error) {
       console.error('Error fetching badges:', error);
     }
@@ -71,7 +72,7 @@ export const ExpertBadgeManager: React.FC = () => {
     if (!user) return;
 
     try {
-      const [statsResult, profileResult, premiumContentResult] = await Promise.all([
+      const [statsResult, profileResult] = await Promise.all([
         supabase
           .from('user_statistics')
           .select('*')
@@ -82,16 +83,14 @@ export const ExpertBadgeManager: React.FC = () => {
           .select('followers_count, reputation_score')
           .eq('id', user.id)
           .single(),
-        supabase
-          .from('premium_content')
-          .select('id')
-          .eq('creator_id', user.id),
+        // Premium content temporarily disabled
+        // supabase.from('premium_content').select('id').eq('creator_id', user.id),
       ]);
 
       if (statsResult.error) throw statsResult.error;
       if (profileResult.error) console.error('Error loading profile totals', profileResult.error);
-      if (premiumContentResult.error) console.error('Error loading premium content count', premiumContentResult.error);
-
+      
+      const premiumContentCount = 0; // Temporarily disabled
       const engagementRate = statsResult.data
         ? ((statsResult.data.comments_made || 0) + (statsResult.data.votes_cast || 0)) /
             Math.max(statsResult.data.facts_submitted || 1, 1)
@@ -101,7 +100,7 @@ export const ExpertBadgeManager: React.FC = () => {
         ...statsResult.data,
         followers_count: profileResult.data?.followers_count ?? 0,
         reputation_score: profileResult.data?.reputation_score ?? 0,
-        premium_content_count: premiumContentResult.data?.length ?? 0,
+        premium_content_count: premiumContentCount,
         engagement_rate: Number(engagementRate.toFixed(2)),
       });
     } catch (error) {

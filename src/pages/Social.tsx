@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { SocialActivityFeed } from '@/components/social/SocialActivityFeed';
-import { DirectMessaging } from '@/components/social/DirectMessaging';
+// DirectMessaging temporarily disabled - missing database tables
 import { UserProfile } from '@/components/social/UserProfile';
 import { FollowButton } from '@/components/social/FollowButton';
 import { motion } from 'framer-motion';
@@ -97,7 +97,8 @@ export const Social: React.FC = () => {
           )
           .order('score', { ascending: false })
           .limit(5),
-        user ? supabase.rpc('get_direct_message_threads') : Promise.resolve({ data: [], error: null }),
+        user ? Promise.resolve({ data: [], error: null }) : Promise.resolve({ data: [], error: null }),
+        // Direct messaging temporarily disabled - database functions not yet created
       ]);
 
       if (followingResult.error) console.error('Failed to load following list', followingResult.error);
@@ -265,10 +266,16 @@ export const Social: React.FC = () => {
                 </Button>
               </div>
               
-              <DirectMessaging 
-                recipientId={selectedUserId || undefined}
-                onClose={() => setShowMessaging(false)}
-              />
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Direct messaging feature temporarily unavailable</p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowMessaging(false)}
+                  className="mt-4"
+                >
+                  Back to Social
+                </Button>
+              </div>
             </motion.div>
           ) : selectedUserId ? (
             <motion.div

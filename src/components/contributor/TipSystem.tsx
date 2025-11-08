@@ -217,23 +217,8 @@ const TipJarWidget: React.FC<{ recipientId: string; recipientName: string }> = (
 
   const fetchTipJarData = async () => {
     try {
-      const { data, error } = await supabase
-        .from('tip_jars')
-        .select('*')
-        .eq('user_id', recipientId)
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-
-      if (data) {
-        setTipJarData({
-          ...data,
-          total_received: Number(data.total_received ?? 0),
-          suggested_amounts: data.suggested_amounts ?? suggestedAmounts,
-        });
-      } else {
-        setTipJarData(null);
-      }
+      // Temporarily disabled - tip_jars table not yet created
+      setTipJarData(null);
     } catch (error) {
       console.error('Error fetching tip jar:', error);
     } finally {
