@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { setUserContext, clearUserContext } from '@/utils/monitoring';
+import { logger } from '@/utils/logger';
 
 interface AuthContextType {
   user: User | null;
@@ -48,10 +50,17 @@ function AuthProviderComponent({ children }: AuthProviderProps) {
       (event, session) => {
         if (mounted) {
           clearTimeout(loadingTimeout);
-          console.log('[AuthProvider] Auth state changed:', event);
+          logger.info('Auth state changed', { component: 'AuthProvider', event });
           setSession(session);
           setUser(session?.user ?? null);
           setLoading(false);
+          
+          // Update Sentry user context
+          if (session?.user) {
+            setUserContext(session.user.id, session.user.email);
+          } else {
+            clearUserContext();
+          }
         }
       }
     );
