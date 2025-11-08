@@ -26,6 +26,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { ExpertBadge } from '@/types/contributor';
 import { toast } from '@/hooks/use-toast';
+import { log } from '@/utils/logger';
 
 export const ExpertBadgeManager: React.FC = () => {
   const { user } = useAuth();
@@ -64,7 +65,7 @@ export const ExpertBadgeManager: React.FC = () => {
 
       setBadges((data as ExpertBadge[]) || []);
     } catch (error: any) {
-      console.error('Error fetching badges:', error);
+      log.error('Failed to fetch expert badges', error, { component: 'ExpertBadgeManager', userId: user?.id });
       toast({
         title: 'Unable to load badges',
         description: error.message || 'Please try again later.',
@@ -96,7 +97,9 @@ export const ExpertBadgeManager: React.FC = () => {
       ]);
 
       if (statsResult.error) throw statsResult.error;
-      if (profileResult.error) console.error('Error loading profile totals', profileResult.error);
+      if (profileResult.error) {
+        log.warn('Failed to load profile totals', { component: 'ExpertBadgeManager', error: profileResult.error });
+      }
       
       const premiumContentCount = (await supabase
         .from('premium_content')
@@ -115,7 +118,7 @@ export const ExpertBadgeManager: React.FC = () => {
         engagement_rate: Number(engagementRate.toFixed(2)),
       });
     } catch (error) {
-      console.error('Error fetching user stats:', error);
+      log.error('Failed to fetch user statistics', error, { component: 'ExpertBadgeManager', userId: user?.id });
     }
   };
 

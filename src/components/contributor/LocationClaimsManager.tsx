@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { LocationClaim } from '@/types/contributor';
 import { Loader2, MapPin, ShieldCheck, AlertTriangle, Compass } from 'lucide-react';
+import { log } from '@/utils/logger';
 
 const statusBadgeClasses: Record<string, string> = {
   pending: 'bg-amber-100 text-amber-800 border border-amber-200',
@@ -75,7 +76,7 @@ export const LocationClaimsManager: React.FC = () => {
         const normalized = (data || []).map(normalizeClaim);
         setClaims(normalized);
       } catch (error: any) {
-        console.error('Error loading location claims:', error);
+        log.error('Failed to load location claims', error, { component: 'LocationClaimsManager', userId: user?.id });
         setClaims([]);
       } finally {
         setLoading(false);

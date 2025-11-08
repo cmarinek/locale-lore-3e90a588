@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { SponsoredPartnership } from '@/types/contributor';
 import { Loader2, ExternalLink } from 'lucide-react';
+import { log } from '@/utils/logger';
 
 const formatLabel = (value: string) =>
   value
@@ -45,7 +46,7 @@ export const SponsoredPartnershipsManager: React.FC = () => {
 
         setPartnerships((data as SponsoredPartnership[]) || []);
       } catch (error: any) {
-        console.error('Error loading partnerships:', error);
+        log.error('Failed to load sponsored partnerships', error, { component: 'SponsoredPartnershipsManager', userId: user?.id });
         setPartnerships([]);
       } finally {
         setLoading(false);

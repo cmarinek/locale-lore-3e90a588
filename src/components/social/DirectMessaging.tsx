@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
+import { log } from '@/utils/logger';
 
 interface Message {
   id: string;
@@ -120,7 +121,7 @@ export const DirectMessaging: React.FC = () => {
 
       setConversations(Array.from(conversationMap.values()));
     } catch (error: any) {
-      console.error('Error fetching conversations:', error);
+      log.error('Failed to fetch conversations', error, { component: 'DirectMessaging', userId: user?.id });
       toast({
         title: 'Unable to load conversations',
         description: error.message || 'Please try again later.',
@@ -149,7 +150,7 @@ export const DirectMessaging: React.FC = () => {
 
       setMessages((data as Message[]) || []);
     } catch (error: any) {
-      console.error('Error fetching messages:', error);
+      log.error('Failed to fetch messages', error, { component: 'DirectMessaging', userId: user?.id, partnerId });
       toast({
         title: 'Unable to load messages',
         description: error.message || 'Please try again later.',
@@ -176,7 +177,7 @@ export const DirectMessaging: React.FC = () => {
         )
       );
     } catch (error) {
-      console.error('Error marking messages as read:', error);
+      log.error('Failed to mark messages as read', error, { component: 'DirectMessaging', partnerId });
     }
   };
 
@@ -199,7 +200,7 @@ export const DirectMessaging: React.FC = () => {
       await fetchMessages(selectedConversation);
       await fetchConversations();
     } catch (error: any) {
-      console.error('Error sending message:', error);
+      log.error('Failed to send message', error, { component: 'DirectMessaging', recipientId: selectedConversation });
       toast({
         title: 'Failed to send message',
         description: error.message || 'Please try again.',

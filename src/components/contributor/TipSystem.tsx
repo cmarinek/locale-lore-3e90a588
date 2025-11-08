@@ -22,6 +22,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { toast } from '@/hooks/use-toast';
+import { log } from '@/utils/logger';
 
 interface TipSystemProps {
   discoveryId?: string;
@@ -226,7 +227,7 @@ const TipJarWidget: React.FC<{ recipientId: string; recipientName: string }> = (
 
       if (error) {
         if (error.code !== 'PGRST116') { // Not found is ok
-          throw error;
+          log.error('Failed to fetch tip jar', error, { component: 'TipSystem', recipientId });
         }
         setTipJarData(null);
       } else {

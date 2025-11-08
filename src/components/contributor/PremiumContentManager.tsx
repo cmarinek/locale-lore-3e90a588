@@ -28,6 +28,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { PremiumContent } from '@/types/contributor';
 import { toast } from '@/hooks/use-toast';
+import { log } from '@/utils/logger';
 
 const getContentIcon = (type: string) => {
   switch (type) {
@@ -70,7 +71,7 @@ export const PremiumContentManager: React.FC = () => {
 
       setPremiumContent((data as PremiumContent[]) || []);
     } catch (error: any) {
-      console.error('Error fetching premium content:', error);
+      log.error('Failed to fetch premium content', error, { component: 'PremiumContentManager', userId: user?.id });
       toast({
         title: 'Unable to load premium content',
         description: error.message || 'Please try again later.',
