@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, AlertTriangle, CheckCircle, XCircle, RefreshCw, Download, Lock, Database, Code, Globe, Bell } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, XCircle, RefreshCw, Download, Lock, Database, Code, Globe, Bell, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AlertConfiguration } from '@/components/security/AlertConfiguration';
 import { AlertHistory } from '@/components/security/AlertHistory';
 import { useSecurityAlerts } from '@/hooks/useSecurityAlerts';
+import { SecurityTrends } from '@/components/security/SecurityTrends';
 
 interface SecurityFinding {
   id: string;
@@ -366,27 +367,31 @@ const SecurityAudit = () => {
           </div>
 
           <Tabs defaultValue="all" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="all">
-                All Issues ({auditResults.findings.length})
-              </TabsTrigger>
-              <TabsTrigger value="rls">
-                <Database className="h-4 w-4 mr-2" />
-                RLS ({auditResults.categories.rls})
-              </TabsTrigger>
-              <TabsTrigger value="xss">
-                <Code className="h-4 w-4 mr-2" />
-                XSS ({auditResults.categories.xss})
-              </TabsTrigger>
-              <TabsTrigger value="owasp">
-                <Globe className="h-4 w-4 mr-2" />
-                OWASP ({auditResults.categories.owasp})
-              </TabsTrigger>
-              <TabsTrigger value="alerts">
-                <Bell className="h-4 w-4 mr-2" />
-                Alerts
-              </TabsTrigger>
-            </TabsList>
+          <TabsList>
+            <TabsTrigger value="all">
+              All Issues ({auditResults.findings.length})
+            </TabsTrigger>
+            <TabsTrigger value="rls">
+              <Database className="h-4 w-4 mr-2" />
+              RLS ({auditResults.categories.rls})
+            </TabsTrigger>
+            <TabsTrigger value="xss">
+              <Code className="h-4 w-4 mr-2" />
+              XSS ({auditResults.categories.xss})
+            </TabsTrigger>
+            <TabsTrigger value="owasp">
+              <Globe className="h-4 w-4 mr-2" />
+              OWASP ({auditResults.categories.owasp})
+            </TabsTrigger>
+            <TabsTrigger value="trends">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Trends
+            </TabsTrigger>
+            <TabsTrigger value="alerts">
+              <Bell className="h-4 w-4 mr-2" />
+              Alerts
+            </TabsTrigger>
+          </TabsList>
 
             <TabsContent value="all" className="space-y-4">
               {auditResults.findings.map((finding) => (
@@ -505,6 +510,10 @@ const SecurityAudit = () => {
                     </CardHeader>
                   </Card>
                 ))}
+            </TabsContent>
+
+            <TabsContent value="trends" className="space-y-6">
+              <SecurityTrends />
             </TabsContent>
 
             <TabsContent value="alerts" className="space-y-6">

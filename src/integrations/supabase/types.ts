@@ -2055,6 +2055,51 @@ export type Database = {
         }
         Relationships: []
       }
+      security_scan_history: {
+        Row: {
+          categories: Json
+          created_at: string
+          critical_count: number
+          findings: Json
+          high_count: number
+          id: string
+          low_count: number
+          medium_count: number
+          scan_date: string
+          scan_duration_ms: number | null
+          security_score: number
+          total_findings: number
+        }
+        Insert: {
+          categories?: Json
+          created_at?: string
+          critical_count?: number
+          findings?: Json
+          high_count?: number
+          id?: string
+          low_count?: number
+          medium_count?: number
+          scan_date?: string
+          scan_duration_ms?: number | null
+          security_score: number
+          total_findings?: number
+        }
+        Update: {
+          categories?: Json
+          created_at?: string
+          critical_count?: number
+          findings?: Json
+          high_count?: number
+          id?: string
+          low_count?: number
+          medium_count?: number
+          scan_date?: string
+          scan_duration_ms?: number | null
+          security_score?: number
+          total_findings?: number
+        }
+        Relationships: []
+      }
       spatial_ref_sys: {
         Row: {
           auth_name: string | null
