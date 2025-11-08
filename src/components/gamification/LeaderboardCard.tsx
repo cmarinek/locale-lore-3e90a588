@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
+import { log } from '@/utils/logger';
 
 interface LeaderboardEntry {
   user_id: string;
@@ -73,7 +74,7 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({ className }) =
       setLocalLeaderboard(globalLeaderboard.slice(0, 5));
 
     } catch (error) {
-      console.error('Error fetching leaderboards:', error);
+      log.error('Failed to fetch leaderboards', error, { component: 'LeaderboardCard' });
     } finally {
       setLoading(false);
     }

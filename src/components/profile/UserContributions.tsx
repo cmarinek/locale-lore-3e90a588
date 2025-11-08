@@ -7,6 +7,7 @@ import { FileText, MessageSquare, ThumbsUp, Calendar, MapPin, Eye } from 'lucide
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { motion } from 'framer-motion';
+import { log } from '@/utils/logger';
 
 interface Fact {
   id: string;
@@ -65,7 +66,7 @@ export const UserContributions: React.FC = () => {
         setFacts(factsData || []);
         setComments(commentsData || []);
       } catch (error) {
-        console.error('Error fetching contributions:', error);
+        log.error('Failed to fetch user contributions', error, { component: 'UserContributions' });
       } finally {
         setLoading(false);
       }

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LocationNavigationButton } from '@/components/ui/LocationNavigationButton';
 import { TipSystem } from '@/components/contributor/TipSystem';
+import { log } from '@/utils/logger';
 import { 
   Heart, 
   MessageCircle, 
@@ -80,7 +81,7 @@ export const FactCard: React.FC<FactCardProps> = ({
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.error('Error sharing:', error);
+        log.error('Failed to share fact', error, { component: 'FactCard', factId: fact.id });
       }
     } else {
       // Fallback to clipboard

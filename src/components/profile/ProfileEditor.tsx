@@ -12,6 +12,7 @@ import { Camera, Upload, Loader2, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { log } from '@/utils/logger';
 
 interface ProfileEditorProps {
   profile: any;
@@ -77,7 +78,7 @@ export const ProfileEditor = ({ profile, onUpdate }: ProfileEditorProps) => {
         description: "Your profile picture has been updated successfully.",
       });
     } catch (error: any) {
-      console.error('Error uploading avatar:', error);
+      log.error('Failed to upload avatar', error, { component: 'ProfileEditor' });
       toast({
         title: "Upload failed",
         description: "Failed to upload avatar. Please try again.",
@@ -135,7 +136,7 @@ export const ProfileEditor = ({ profile, onUpdate }: ProfileEditorProps) => {
         description: "Your profile has been updated successfully.",
       });
     } catch (error: any) {
-      console.error('Error updating profile:', error);
+      log.error('Failed to update profile', error, { component: 'ProfileEditor' });
       toast({
         title: "Update failed",
         description: "Failed to update profile. Please try again.",

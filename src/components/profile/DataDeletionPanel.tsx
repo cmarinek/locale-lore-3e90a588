@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { log } from '@/utils/logger';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -54,7 +55,7 @@ export const DataDeletionPanel = ({ onRequestDeletion, loading }: DataDeletionPa
       sessionStorage.clear();
 
     } catch (error) {
-      console.error('Account deletion error:', error);
+      log.error('Account deletion failed', error, { component: 'DataDeletionPanel' });
       toast({
         title: 'Deletion Failed',
         description: 'There was an error processing your request. Please try again.',

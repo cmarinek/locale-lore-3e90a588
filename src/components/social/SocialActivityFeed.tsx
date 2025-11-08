@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { ActivityFeedItem } from '@/types/social';
 import { motion, AnimatePresence } from 'framer-motion';
+import { log } from '@/utils/logger';
 import { 
   Heart, 
   MessageCircle, 
@@ -240,7 +241,7 @@ export const SocialActivityFeed: React.FC<SocialActivityFeedProps> = ({
 
       setActivities(items);
     } catch (error) {
-      console.error('Error loading activity feed:', error);
+      log.error('Failed to load social activity feed', error, { component: 'SocialActivityFeed' });
     } finally {
       setLoading(false);
     }

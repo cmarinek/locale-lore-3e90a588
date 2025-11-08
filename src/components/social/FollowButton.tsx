@@ -5,6 +5,7 @@ import { UserPlus, UserMinus, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { toast } from '@/hooks/use-toast';
+import { log } from '@/utils/logger';
 
 interface FollowButtonProps {
   userId: string;
@@ -45,7 +46,7 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
 
       setIsFollowing(!!data);
     } catch (error) {
-      console.error('Error checking follow status:', error);
+      log.error('Failed to check follow status', error, { component: 'FollowButton', userId });
     } finally {
       setCheckingStatus(false);
     }
@@ -89,7 +90,7 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
         });
       }
     } catch (error: any) {
-      console.error('Error toggling follow:', error);
+      log.error('Failed to toggle follow status', error, { component: 'FollowButton', userId, action: isFollowing ? 'unfollow' : 'follow' });
       toast({
         title: "Error",
         description: error.message || "Failed to update follow status",

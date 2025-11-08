@@ -5,6 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { log } from '@/utils/logger';
 
 interface UserLevel {
   current_level: number;
@@ -105,7 +106,7 @@ export const GamificationHeader: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      log.error('Failed to fetch gamification user data', error, { component: 'GamificationHeader' });
     }
   };
 

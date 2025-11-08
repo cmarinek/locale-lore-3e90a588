@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { log } from '@/utils/logger';
 import { 
   Heart, 
   MessageCircle, 
@@ -84,7 +85,7 @@ export const ActivityFeed: React.FC = () => {
 
       setActivities(data as ActivityItem[] || []);
     } catch (error) {
-      console.error('Error loading activities:', error);
+      log.error('Failed to load activity feed', error, { component: 'ActivityFeed' });
     } finally {
       setLoading(false);
     }

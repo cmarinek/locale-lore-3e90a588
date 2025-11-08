@@ -19,6 +19,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { log } from '@/utils/logger';
 
 export const Profile: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
@@ -26,8 +27,6 @@ export const Profile: React.FC = () => {
   const { t } = useTranslation('profile');
   const [isContributor, setIsContributor] = useState(false);
   const [checkingSubscription, setCheckingSubscription] = useState(true);
-
-  console.log('Profile component rendering:', { id, user: user?.id, isOwnProfile: !id || id === user?.id });
   
   const {
     settings,
@@ -56,7 +55,7 @@ export const Profile: React.FC = () => {
         });
         setIsContributor(data?.subscribed || false);
       } catch (error) {
-        console.error('Error checking subscription:', error);
+        log.error('Failed to check subscription status', error, { component: 'Profile', userId: user.id });
         setIsContributor(false);
       } finally {
         setCheckingSubscription(false);

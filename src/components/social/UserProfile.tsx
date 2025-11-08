@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FollowButton } from '@/components/social/FollowButton';
 import { TipSystem } from '@/components/contributor/TipSystem';
 import { supabase } from '@/integrations/supabase/client';
+import { log } from '@/utils/logger';
 import { useAuth } from '@/contexts/AuthProvider';
 import { toast } from '@/hooks/use-toast';
 import { UserProfile as UserProfileType } from '@/types/social';
@@ -141,7 +142,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onMessageClick
         setAchievements(achievementResult.data as UserAchievementRecord[]);
       }
     } catch (error) {
-      console.error('Error loading profile:', error);
+      log.error('Failed to load user profile', error, { component: 'UserProfile', userId });
       toast({
         title: "Error loading profile",
         description: "Failed to load user profile",
@@ -242,7 +243,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onMessageClick
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.error('Error sharing:', error);
+        log.error('Failed to share profile', error, { component: 'UserProfile', userId });
       }
     } else {
       // Fallback to clipboard

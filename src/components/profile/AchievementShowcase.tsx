@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { log } from '@/utils/logger';
 import { 
   Trophy, 
   Star, 
@@ -54,7 +55,7 @@ export const AchievementShowcase = () => {
       if (error) throw error;
       setAchievements(data || []);
     } catch (error) {
-      console.error('Error fetching achievements:', error);
+      log.error('Failed to fetch achievements', error, { component: 'AchievementShowcase' });
     }
   };
 
@@ -72,7 +73,7 @@ export const AchievementShowcase = () => {
       const earnedIds = new Set(data?.map(ua => ua.achievement_id) || []);
       setUserAchievements(earnedIds);
     } catch (error) {
-      console.error('Error fetching user achievements:', error);
+      log.error('Failed to fetch user achievements', error, { component: 'AchievementShowcase' });
     } finally {
       setLoading(false);
     }

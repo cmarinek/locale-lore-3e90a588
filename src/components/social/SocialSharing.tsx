@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 import { SocialShareOptions } from '@/types/social';
+import { log } from '@/utils/logger';
 import { 
   Share2, 
   Twitter, 
@@ -128,7 +129,7 @@ export const SocialSharing: React.FC<SocialSharingProps> = ({
     } catch (error) {
       // User cancelled - don't show error for that
       if (error.name !== 'AbortError') {
-        console.error('Error sharing:', error);
+        log.error('Failed to share content', error, { component: 'SocialSharing' });
         toast({
           title: "Sharing failed",
           description: "Please try again or use another sharing option.",

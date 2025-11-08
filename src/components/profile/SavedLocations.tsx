@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { motion } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
+import { log } from '@/utils/logger';
 
 interface SavedLocation {
   id: string;
@@ -56,7 +57,7 @@ export const SavedLocations: React.FC = () => {
         if (error) throw error;
         setSavedLocations(data || []);
       } catch (error) {
-        console.error('Error fetching saved locations:', error);
+        log.error('Failed to fetch saved locations', error, { component: 'SavedLocations' });
       } finally {
         setLoading(false);
       }
@@ -83,7 +84,7 @@ export const SavedLocations: React.FC = () => {
         description: "Location has been removed from your saved locations.",
       });
     } catch (error) {
-      console.error('Error removing bookmark:', error);
+      log.error('Failed to remove bookmark', error, { component: 'SavedLocations' });
       toast({
         title: "Error",
         description: "Failed to remove bookmark. Please try again.",

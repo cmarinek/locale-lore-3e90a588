@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { log } from '@/utils/logger';
 import {
   Calendar,
   Clock,
@@ -192,7 +193,7 @@ export const SeasonalChallenges: React.FC<SeasonalChallengesProps> = ({ classNam
 
       setChallenges(formatted);
     } catch (err) {
-      console.error('Failed to load challenges', err);
+      log.error('Failed to load seasonal challenges', err, { component: 'SeasonalChallenges' });
       setError('Failed to load challenge data');
     } finally {
       setLoading(false);

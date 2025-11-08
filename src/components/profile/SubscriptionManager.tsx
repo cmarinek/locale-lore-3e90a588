@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { log } from '@/utils/logger';
 import { 
   Crown, 
   Star, 
@@ -92,7 +93,7 @@ export const SubscriptionManager = ({ subscription, onRefresh, loading }: Subscr
       // Open Stripe checkout in a new tab
       window.open(data.url, '_blank');
     } catch (error: any) {
-      console.error('Error creating checkout:', error);
+      log.error('Failed to create Stripe checkout', error, { component: 'SubscriptionManager' });
       toast({
         title: "Checkout failed",
         description: "Failed to create checkout session. Please try again.",
@@ -113,7 +114,7 @@ export const SubscriptionManager = ({ subscription, onRefresh, loading }: Subscr
       // Open customer portal in a new tab
       window.open(data.url, '_blank');
     } catch (error: any) {
-      console.error('Error opening customer portal:', error);
+      log.error('Failed to open Stripe customer portal', error, { component: 'SubscriptionManager' });
       toast({
         title: "Portal access failed",
         description: "Failed to open customer portal. Please try again.",
