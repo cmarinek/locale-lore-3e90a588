@@ -67,7 +67,7 @@ const defaultLanguageState: MockLanguageState = {
   supportedLanguages: {},
   isLoading: false,
   isRTL: false,
-  setLanguage: jest.fn().mockResolvedValue(),
+  setLanguage: jest.fn().mockResolvedValue(undefined),
 };
 
 const languageState: MockLanguageState = { ...defaultLanguageState };
@@ -81,7 +81,7 @@ const resetMockLanguageState = () => {
   languageState.supportedLanguages = defaultLanguageState.supportedLanguages;
   languageState.isLoading = defaultLanguageState.isLoading;
   languageState.isRTL = defaultLanguageState.isRTL;
-  languageState.setLanguage = jest.fn().mockResolvedValue();
+  languageState.setLanguage = jest.fn().mockResolvedValue(undefined);
 };
 
 jest.mock('@/contexts/LanguageProvider', () => ({
