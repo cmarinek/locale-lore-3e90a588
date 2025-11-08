@@ -1,6 +1,6 @@
 // Validation schemas and rules - Single Source of Truth
 import { z } from 'zod';
-import { LIMITS, SUPPORTED_IMAGE_TYPES, CATEGORIES, PRIVACY_LEVELS } from './app';
+import { LIMITS, SUPPORTED_IMAGE_TYPES, CATEGORIES, PRIVACY_LEVELS } from '@/config';
 import { ERROR_MESSAGES } from './errors';
 
 // Email validation
