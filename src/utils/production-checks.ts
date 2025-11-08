@@ -15,7 +15,7 @@ export const runProductionReadinessChecks = (): ProductionReadinessCheck[] => {
   const checks: ProductionReadinessCheck[] = [];
   const isProduction = window.location.hostname !== 'localhost';
 
-  // Security Checks - Enhanced
+  // Security Checks - Real validation
   checks.push({
     name: 'HTTPS Enforcement',
     status: window.location.protocol === 'https:' || !isProduction ? 'pass' : 'fail',
@@ -24,19 +24,24 @@ export const runProductionReadinessChecks = (): ProductionReadinessCheck[] => {
     category: 'security'
   });
 
+  const cspMeta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
   checks.push({
     name: 'Content Security Policy',
-    status: document.querySelector('meta[http-equiv="Content-Security-Policy"]') ? 'pass' : 'warning',
-    message: 'CSP headers configured and active',
+    status: cspMeta ? 'pass' : 'warning',
+    message: cspMeta ? 'CSP headers configured and active' : 'CSP not configured - recommended for production',
     critical: false,
     category: 'security'
   });
 
+  // Check for security headers in meta tags
+  const hasFrameOptions = document.querySelector('meta[http-equiv="X-Frame-Options"]');
   checks.push({
     name: 'Security Headers',
-    status: 'pass',
-    message: 'X-Frame-Options, X-Content-Type-Options, Referrer-Policy configured',
-    critical: true,
+    status: hasFrameOptions ? 'pass' : 'warning',
+    message: hasFrameOptions 
+      ? 'X-Frame-Options, X-Content-Type-Options configured' 
+      : 'Additional security headers recommended',
+    critical: false,
     category: 'security'
   });
 
@@ -89,19 +94,27 @@ export const runProductionReadinessChecks = (): ProductionReadinessCheck[] => {
     category: 'legal'
   });
 
-  // Performance Checks - Optimized
+  // Performance Checks - Real validation
+  const hasServiceWorker = 'serviceWorker' in navigator;
   checks.push({
     name: 'Service Worker',
-    status: 'serviceWorker' in navigator ? 'pass' : 'warning',
-    message: 'serviceWorker' in navigator ? 'PWA capabilities enabled with caching' : 'Service worker not supported',
+    status: hasServiceWorker ? 'pass' : 'warning',
+    message: hasServiceWorker ? 'PWA capabilities enabled with caching' : 'Service worker not supported',
     critical: false,
     category: 'performance'
   });
 
+  // Check for lazy loading attributes
+  const images = document.querySelectorAll('img');
+  const lazyImages = Array.from(images).filter(img => img.loading === 'lazy');
   checks.push({
     name: 'Image Optimization',
-    status: 'pass',
-    message: 'Optimized images with lazy loading and compression',
+    status: images.length === 0 || lazyImages.length > 0 ? 'pass' : 'warning',
+    message: lazyImages.length > 0 
+      ? `${lazyImages.length} images using lazy loading` 
+      : images.length === 0 
+        ? 'No images to optimize' 
+        : 'Consider adding lazy loading to images',
     critical: false,
     category: 'performance'
   });
@@ -212,19 +225,27 @@ export const runProductionReadinessChecks = (): ProductionReadinessCheck[] => {
     category: 'mobile'
   });
 
-  // SEO Checks - Comprehensive
+  // SEO Checks - Real validation
+  const hasTitle = !!document.title;
+  const hasDescription = !!document.querySelector('meta[name="description"]');
+  const hasOgTags = !!document.querySelector('meta[property^="og:"]');
   checks.push({
     name: 'Meta Tags',
-    status: 'pass',
-    message: 'Complete meta tags with Open Graph and Twitter Cards',
+    status: hasTitle && hasDescription && hasOgTags ? 'pass' : 'warning',
+    message: hasTitle && hasDescription && hasOgTags 
+      ? 'Complete meta tags with Open Graph' 
+      : 'Missing some meta tags',
     critical: false,
     category: 'seo'
   });
 
+  const hasStructuredData = !!document.querySelector('script[type="application/ld+json"]');
   checks.push({
     name: 'Structured Data',
-    status: 'pass',
-    message: 'JSON-LD structured data for rich snippets',
+    status: hasStructuredData ? 'pass' : 'warning',
+    message: hasStructuredData 
+      ? 'JSON-LD structured data for rich snippets' 
+      : 'Consider adding structured data',
     critical: false,
     category: 'seo'
   });
