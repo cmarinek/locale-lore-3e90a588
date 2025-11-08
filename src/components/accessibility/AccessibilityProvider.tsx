@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { log } from '@/utils/logger';
 
 interface AccessibilitySettings {
   fontSize: 'sm' | 'base' | 'lg' | 'xl' | '2xl';
@@ -56,7 +57,7 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
         setSettings({ ...defaultSettings, ...parsed });
       }
     } catch (error) {
-      console.error('Failed to load accessibility settings:', error);
+      log.error('Failed to load accessibility settings', error, { component: 'AccessibilityProvider', action: 'loadSettings' });
     }
 
     // Detect system preferences
@@ -76,7 +77,7 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
     try {
       localStorage.setItem('accessibility-settings', JSON.stringify(settings));
     } catch (error) {
-      console.error('Failed to save accessibility settings:', error);
+      log.error('Failed to save accessibility settings', error, { component: 'AccessibilityProvider', action: 'updateSettings' });
     }
   }, [settings]);
 

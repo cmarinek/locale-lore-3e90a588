@@ -20,6 +20,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { toast } from 'sonner';
+import { log } from '@/utils/logger';
 
 interface ContentReport {
   id: string;
@@ -63,7 +64,7 @@ export const ContentModerationPanel = () => {
       if (error) throw error;
       if (data) setReports(data);
     } catch (error) {
-      console.error('Error loading reports:', error);
+      log.error('Error loading reports', error, { component: 'ContentModerationPanel', action: 'loadReports' });
       toast.error('Failed to load content reports');
     } finally {
       setLoading(false);
@@ -112,7 +113,7 @@ export const ContentModerationPanel = () => {
       toast.success('Report status updated successfully');
       loadReports();
     } catch (error) {
-      console.error('Error updating report:', error);
+      log.error('Error updating report', error, { component: 'ContentModerationPanel', action: 'updateReportStatus', reportId });
       toast.error('Failed to update report status');
     }
   };

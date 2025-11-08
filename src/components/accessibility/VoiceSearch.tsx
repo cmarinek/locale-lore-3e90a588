@@ -3,6 +3,7 @@ import { Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { log } from '@/utils/logger';
 
 interface VoiceSearchProps {
   onTranscript: (text: string) => void;
@@ -115,7 +116,7 @@ export const VoiceSearch: React.FC<VoiceSearchProps> = ({
       };
 
       recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.error('Speech recognition error:', event.error);
+        log.error('Speech recognition error', event.error, { component: 'VoiceSearch', errorType: event.error });
         setIsListening(false);
         
         switch (event.error) {
@@ -181,7 +182,7 @@ export const VoiceSearch: React.FC<VoiceSearchProps> = ({
     try {
       recognitionRef.current.start();
     } catch (error) {
-      console.error('Error starting voice recognition:', error);
+      log.error('Error starting voice recognition', error, { component: 'VoiceSearch', action: 'startListening' });
       toast.error('Failed to start voice search');
     }
   }, [isSupported]);

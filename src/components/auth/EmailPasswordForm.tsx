@@ -9,6 +9,7 @@ import { Mail, Lock, User, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuthActions } from '@/hooks/useAuthActions';
 import { useTranslation } from 'react-i18next';
 import { useValidationSchemas } from '@/hooks/useValidationSchemas';
+import { log } from '@/utils/logger';
 
 
 interface EmailPasswordFormProps {
@@ -57,7 +58,7 @@ export const EmailPasswordForm = ({ mode, onSuccess, onSwitchMode }: EmailPasswo
         }
       }
     } catch (error) {
-      console.error('Auth error:', error);
+      log.error('Authentication error', error, { component: 'EmailPasswordForm', mode });
     }
   };
 

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useAuthActions } from '@/hooks/useAuthActions';
+import { log } from '@/utils/logger';
 
 interface PasswordResetFormProps {
   mode: 'request' | 'update';
@@ -63,7 +64,7 @@ export const PasswordResetForm = ({ mode, onSuccess, onBack }: PasswordResetForm
         }
       }
     } catch (error) {
-      console.error('Password reset error:', error);
+      log.error('Password reset error', error, { component: 'PasswordResetForm', action: mode === 'update' ? 'updatePassword' : 'sendResetEmail' });
     }
   };
 

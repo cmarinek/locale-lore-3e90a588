@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Mail, Loader2, Sparkles } from 'lucide-react';
 import { useAuthActions } from '@/hooks/useAuthActions';
+import { log } from '@/utils/logger';
 
 interface MagicLinkFormProps {
   onSuccess?: () => void;
@@ -38,7 +39,7 @@ export const MagicLinkForm = ({ onSuccess, onBack }: MagicLinkFormProps) => {
         }, 3000);
       }
     } catch (error) {
-      console.error('Magic link error:', error);
+      log.error('Magic link error', error, { component: 'MagicLinkForm', email: values.email });
     }
   };
 

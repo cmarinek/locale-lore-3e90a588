@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { useAuthActions } from '@/hooks/useAuthActions';
 import { Apple, Loader2 } from 'lucide-react';
+import { log } from '@/utils/logger';
 
 interface SocialAuthProps {
   onSuccess?: () => void;
@@ -16,13 +17,13 @@ export const SocialAuth = ({ onSuccess }: SocialAuthProps) => {
         onSuccess?.();
       }
     } catch (error) {
-      console.error('Google sign in error:', error);
+      log.error('Google sign in error', error, { component: 'SocialAuth', action: 'googleSignIn' });
     }
   };
 
   const handleAppleSignIn = async () => {
     // Apple sign in would be implemented here
-    console.log('Apple sign in not implemented yet');
+    log.info('Apple sign in not implemented yet', { component: 'SocialAuth', action: 'appleSignIn' });
   };
 
   return (

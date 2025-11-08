@@ -11,6 +11,7 @@ import { Play, Pause, Square, RefreshCw, Settings, Database, MapPin, Image, Cloc
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { log } from '@/utils/logger';
 
 interface AcquisitionJob {
   id: string;
@@ -71,7 +72,7 @@ const FactAcquisitionManager: React.FC = () => {
 
   const loadJobs = async () => {
     try {
-      console.log('Loading jobs...');
+      log.debug('Loading acquisition jobs', { component: 'FactAcquisitionManager', action: 'loadJobs' });
       const { data, error } = await supabase
         .from('acquisition_jobs')
         .select('*')
@@ -79,13 +80,13 @@ const FactAcquisitionManager: React.FC = () => {
         .limit(20);
 
       if (error) {
-        console.error('Error loading jobs:', error);
+        log.error('Error loading jobs', error, { component: 'FactAcquisitionManager', action: 'loadJobs' });
         throw error;
       }
-      console.log('Loaded jobs:', data?.length || 0, 'jobs');
+      log.debug('Loaded jobs', { component: 'FactAcquisitionManager', count: data?.length || 0 });
       setJobs(data || []);
     } catch (error) {
-      console.error('Failed to load jobs:', error);
+      log.error('Failed to load jobs', error, { component: 'FactAcquisitionManager', action: 'loadJobs' });
       toast({
         title: "Error loading jobs",
         description: "Failed to fetch acquisition jobs",
@@ -106,7 +107,7 @@ const FactAcquisitionManager: React.FC = () => {
       if (error) throw error;
       setImportedFacts(data || []);
     } catch (error) {
-      console.error('Failed to load imported facts:', error);
+      log.error('Failed to load imported facts', error, { component: 'FactAcquisitionManager', action: 'loadImportedFacts' });
       toast({
         title: "Error loading facts",
         description: "Failed to fetch imported facts",
