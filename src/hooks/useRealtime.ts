@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { log } from '@/utils/logger';
 
 interface UseRealtimeOptions {
   enabled?: boolean;
@@ -79,9 +80,9 @@ export const useRealtime = (options: UseRealtimeOptions = {}) => {
         .on('postgres_changes', config as any, callback)
         .subscribe((status) => {
           if (status === 'SUBSCRIBED') {
-            console.log(`✅ Subscribed to ${channelName}`);
+            log.info('Realtime channel subscribed', { component: 'useRealtime', channel: channelName });
           } else if (status === 'CHANNEL_ERROR') {
-            console.error(`❌ Error subscribing to ${channelName}`);
+            log.error('Realtime channel subscription error', new Error(`Failed to subscribe to ${channelName}`), { component: 'useRealtime', channel: channelName });
             onError?.(`Failed to subscribe to ${channelName}`);
           }
         });
@@ -89,7 +90,7 @@ export const useRealtime = (options: UseRealtimeOptions = {}) => {
       channelsRef.current.set(channelName, channel);
       return channel;
     } catch (error) {
-      console.error(`Error creating channel ${channelName}:`, error);
+      log.error('Error creating realtime channel', error, { component: 'useRealtime', channel: channelName });
       onError?.(error);
       return null;
     }
@@ -129,7 +130,7 @@ export const useRealtime = (options: UseRealtimeOptions = {}) => {
       channelsRef.current.set(channelName, channel);
       return channel;
     } catch (error) {
-      console.error(`Error creating presence channel ${channelName}:`, error);
+      log.error('Error creating presence channel', error, { component: 'useRealtime', channel: channelName });
       onError?.(error);
       return null;
     }

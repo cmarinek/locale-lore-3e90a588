@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useRealtime } from './useRealtime';
+import { log } from '@/utils/logger';
 
 interface UserPresence {
   user_id: string;
@@ -36,8 +37,8 @@ export const useRealtimePresence = (
 
   const realtime = useRealtime({
     enabled: !!user,
-    onConnect: () => console.log('👥 Presence connected'),
-    onDisconnect: () => console.log('👥 Presence disconnected'),
+    onConnect: () => log.info('Presence realtime connected', { component: 'useRealtimePresence' }),
+    onDisconnect: () => log.info('Presence realtime disconnected', { component: 'useRealtimePresence' }),
   });
 
   // Handle online/offline status
@@ -69,7 +70,7 @@ export const useRealtimePresence = (
 
   // Handle user join
   const handlePresenceJoin = useCallback((key: string, newPresences: any[]) => {
-    console.log(`👋 User joined: ${key}`, newPresences);
+    log.debug('User joined presence', { component: 'useRealtimePresence', key, count: newPresences.length });
     setPresences(prev => {
       const next = new Map(prev);
       next.set(key, newPresences);
@@ -79,7 +80,7 @@ export const useRealtimePresence = (
 
   // Handle user leave
   const handlePresenceLeave = useCallback((key: string, leftPresences: any[]) => {
-    console.log(`👋 User left: ${key}`, leftPresences);
+    log.debug('User left presence', { component: 'useRealtimePresence', key, count: leftPresences.length });
     setPresences(prev => {
       const next = new Map(prev);
       if (leftPresences.length === 0) {
@@ -117,7 +118,7 @@ export const useRealtimePresence = (
         try {
           await realtime.trackPresence(channelName, presenceData);
         } catch (error) {
-          console.error('Error tracking presence:', error);
+          log.error('Error tracking presence', error, { component: 'useRealtimePresence', channel: channelName });
         }
       };
 
@@ -155,7 +156,9 @@ export const useRealtimePresence = (
       last_seen: new Date().toISOString()
     };
 
-    realtime.trackPresence(channelName, presenceData).catch(console.error);
+    realtime.trackPresence(channelName, presenceData).catch((error) => 
+      log.error('Error updating presence', error, { component: 'useRealtimePresence', channel: channelName })
+    );
   }, [user, realtime, channelName, currentStatus, currentLocation]);
 
   const setStatus = useCallback((status: 'online' | 'away' | 'busy') => {

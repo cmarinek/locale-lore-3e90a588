@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { BrowserSafetyWrapper, isNavigatorAvailable } from '@/utils/browser-safety';
+import { log } from '@/utils/logger';
 
 export interface OfflineAction {
   id?: string;
@@ -83,7 +84,7 @@ export const useOffline = () => {
           await (registration as any).sync.register('background-sync');
         }
       } catch (error) {
-        console.warn('Service worker sync registration failed:', error);
+        log.warn('Service worker sync registration failed', { component: 'useOffline' });
       }
     }
   };
@@ -109,17 +110,17 @@ export const useOffline = () => {
           
           setPendingActions(prev => prev.filter(a => a.id !== action.id));
         } catch (error) {
-          console.error('Failed to sync action:', action, error);
+          log.error('Failed to sync action', error, { component: 'useOffline', actionType: action.type });
         }
       }
     } catch (error) {
-      console.error('Failed to sync pending actions:', error);
+      log.error('Failed to sync pending actions', error, { component: 'useOffline' });
     }
   };
 
   const syncAction = async (action: OfflineAction) => {
     // This would integrate with your actual API calls
-    console.log('Syncing action:', action);
+    log.debug('Syncing offline action', { component: 'useOffline', actionType: action.type });
     
     // Example implementation - replace with actual API calls
     const { type, data } = action;

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useDebouncedCallback } from './useEnhancedDebounce';
+import { log } from '@/utils/logger';
 
 export interface CityResult {
   display_name: string;
@@ -27,7 +28,7 @@ export const useCitySearch = () => {
       setError(null);
 
       // Using OpenStreetMap Nominatim API for city search
-      console.log('Searching for cities with query:', query);
+      log.debug('Searching cities', { component: 'useCitySearch', query });
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?` +
         new URLSearchParams({
@@ -51,7 +52,7 @@ export const useCitySearch = () => {
       }
 
       const data = await response.json();
-      console.log('Raw API response:', data?.length, 'results');
+      log.debug('City search API response', { component: 'useCitySearch', resultsCount: data?.length });
       
       // Better filtering and prioritization for cities
       const filteredCities = data
@@ -98,14 +99,14 @@ export const useCitySearch = () => {
         })
         .slice(0, 8); // Limit to 8 results for better UX
 
-      console.log('Filtered cities:', filteredCities);
+      log.debug('Filtered cities', { component: 'useCitySearch', count: filteredCities.length });
       setCities(filteredCities);
       
       if (filteredCities.length === 0 && data.length > 0) {
         setError('No cities found. Try a different search term.');
       }
     } catch (err) {
-      console.error('City search error:', err);
+      log.error('City search error', err, { component: 'useCitySearch', query });
       setError('Failed to search cities. Please try again.');
       setCities([]);
     } finally {

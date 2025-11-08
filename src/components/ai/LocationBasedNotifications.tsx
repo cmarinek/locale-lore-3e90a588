@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { log } from '@/utils/logger';
 
 interface LocationNotification {
   id: string;
@@ -53,7 +54,7 @@ export const LocationBasedNotifications: React.FC<LocationBasedNotificationsProp
 
       setNotifications((data || []) as LocationNotification[]);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      log.error('Error fetching notifications', error, { component: 'LocationBasedNotifications', action: 'fetchNotifications' });
     }
   };
 
@@ -65,7 +66,7 @@ export const LocationBasedNotifications: React.FC<LocationBasedNotificationsProp
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      console.log('Checking location triggers for:', userLocation);
+      log.debug('Checking location triggers', { component: 'LocationBasedNotifications', action: 'checkLocationTriggers', location: userLocation });
 
       const { data: response, error } = await supabase.functions.invoke('location-triggers', {
         body: {
@@ -88,9 +89,9 @@ export const LocationBasedNotifications: React.FC<LocationBasedNotificationsProp
         await fetchNotifications();
       }
 
-      console.log('Location triggers result:', response);
+      log.info('Location triggers checked', { component: 'LocationBasedNotifications', notificationsSent: response?.notifications_sent });
     } catch (error) {
-      console.error('Error checking location triggers:', error);
+      log.error('Error checking location triggers', error, { component: 'LocationBasedNotifications', action: 'checkLocationTriggers' });
     } finally {
       setCheckingLocation(false);
     }
@@ -109,7 +110,7 @@ export const LocationBasedNotifications: React.FC<LocationBasedNotificationsProp
 
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      log.error('Error marking notification as read', error, { component: 'LocationBasedNotifications', notificationId });
     }
   };
 
@@ -135,7 +136,7 @@ export const LocationBasedNotifications: React.FC<LocationBasedNotificationsProp
         description: "Opening location-based discovery",
       });
     } catch (error) {
-      console.error('Error handling explore action:', error);
+      log.error('Error handling explore action', error, { component: 'LocationBasedNotifications', notificationId: notification.id });
     }
   };
 

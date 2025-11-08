@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { useRealtime } from './useRealtime';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { log } from '@/utils/logger';
 
 interface Notification {
   id: string;
@@ -30,9 +31,9 @@ export const useRealtimeNotifications = (): NotificationHookReturn => {
   const [isLoading, setIsLoading] = useState(true);
   const realtime = useRealtime({
     enabled: !!user,
-    onConnect: () => console.log('🔔 Notifications realtime connected'),
-    onDisconnect: () => console.log('🔔 Notifications realtime disconnected'),
-    onError: (error) => console.error('🔔 Notifications realtime error:', error)
+    onConnect: () => log.info('Notifications realtime connected', { component: 'useRealtimeNotifications' }),
+    onDisconnect: () => log.info('Notifications realtime disconnected', { component: 'useRealtimeNotifications' }),
+    onError: (error) => log.error('Notifications realtime error', error, { component: 'useRealtimeNotifications' })
   });
 
   // Load initial notifications
@@ -51,7 +52,7 @@ export const useRealtimeNotifications = (): NotificationHookReturn => {
       if (error) throw error;
       setNotifications(data || []);
     } catch (error) {
-      console.error('Error loading notifications:', error);
+      log.error('Error loading notifications', error, { component: 'useRealtimeNotifications' });
     } finally {
       setIsLoading(false);
     }
@@ -142,7 +143,7 @@ export const useRealtimeNotifications = (): NotificationHookReturn => {
         prev.map(n => n.id === id ? { ...n, is_read: true } : n)
       );
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      log.error('Error marking notification as read', error, { component: 'useRealtimeNotifications', notificationId: id });
     }
   };
 
@@ -162,7 +163,7 @@ export const useRealtimeNotifications = (): NotificationHookReturn => {
         prev.map(n => ({ ...n, is_read: true }))
       );
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+      log.error('Error marking all notifications as read', error, { component: 'useRealtimeNotifications' });
     }
   };
 
@@ -180,7 +181,7 @@ export const useRealtimeNotifications = (): NotificationHookReturn => {
 
       setNotifications(prev => prev.filter(n => n.id !== id));
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      log.error('Error deleting notification', error, { component: 'useRealtimeNotifications', notificationId: id });
     }
   };
 

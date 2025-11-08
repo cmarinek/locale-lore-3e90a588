@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { scalableFactService, type Bounds, type ScalableFactQuery } from '@/services/scalableFactService';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useSearchStore } from '@/stores/searchStore';
+import { log } from '@/utils/logger';
 
 interface UseScalableFactsOptions {
   autoLoad?: boolean;
@@ -53,7 +54,8 @@ export const useScalableFacts = (options: UseScalableFactsOptions = {}) => {
         status: options.status || 'verified'
       };
 
-      console.log('🌍 Loading facts for viewport:', { 
+      log.debug('Loading facts for viewport', { 
+        component: 'useScalableFacts',
         bounds, 
         zoom: zoom.toFixed(1),
         category: query.category 
@@ -72,10 +74,10 @@ export const useScalableFacts = (options: UseScalableFactsOptions = {}) => {
         cacheHit: loadTime < 50 // Assume cache hit if very fast
       });
 
-      console.log(`✅ Loaded ${facts.length} facts in ${Math.round(loadTime)}ms`);
+      log.info('Viewport facts loaded', { component: 'useScalableFacts', count: facts.length, loadTimeMs: Math.round(loadTime) });
       
     } catch (err) {
-      console.error('Failed to load viewport facts:', err);
+      log.error('Failed to load viewport facts', err, { component: 'useScalableFacts' });
       setError(err instanceof Error ? err.message : 'Failed to load facts');
     } finally {
       setLoading(false);

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { debounce } from 'lodash';
+import { log } from '@/utils/logger';
 
 interface SmartSearchResult {
   id: string;
@@ -43,7 +44,7 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
       try {
         setRecentSearches(JSON.parse(stored).slice(0, 5));
       } catch (e) {
-        console.warn('Failed to parse search history');
+        log.warn('Failed to parse search history', { component: 'SmartSearchBar' });
       }
     }
   }, []);
@@ -58,7 +59,7 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
       setIsSearching(true);
       const { data: { user } } = await supabase.auth.getUser();
 
-      console.log('Performing smart search:', searchQuery);
+      log.debug('Performing smart search', { component: 'SmartSearchBar', query: searchQuery });
 
       const { data: response, error } = await supabase.functions.invoke('smart-search', {
         body: {
@@ -86,7 +87,7 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
         });
       }
     } catch (error) {
-      console.error('Smart search error:', error);
+      log.error('Smart search error', error, { component: 'SmartSearchBar', query: searchQuery });
       
       // Fallback to regular search
       try {
@@ -109,7 +110,7 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
           description: `Found ${fallbackResults?.length || 0} results (basic search)`,
         });
       } catch (fallbackError) {
-        console.error('Fallback search failed:', fallbackError);
+        log.error('Fallback search failed', fallbackError, { component: 'SmartSearchBar', query: searchQuery });
         toast({
           title: "Search Failed",
           description: "Unable to perform search. Please try again.",

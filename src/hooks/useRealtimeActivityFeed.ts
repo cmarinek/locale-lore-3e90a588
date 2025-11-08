@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useRealtime } from './useRealtime';
 import { supabase } from '@/integrations/supabase/client';
+import { log } from '@/utils/logger';
 
 interface ActivityItem {
   id: string;
@@ -38,8 +39,8 @@ export const useRealtimeActivityFeed = (): ActivityFeedReturn => {
 
   const realtime = useRealtime({
     enabled: !!user,
-    onConnect: () => console.log('📰 Activity feed connected'),
-    onDisconnect: () => console.log('📰 Activity feed disconnected'),
+    onConnect: () => log.info('Activity feed realtime connected', { component: 'useRealtimeActivityFeed' }),
+    onDisconnect: () => log.info('Activity feed realtime disconnected', { component: 'useRealtimeActivityFeed' }),
   });
 
   // Load activities from database
@@ -79,7 +80,7 @@ export const useRealtimeActivityFeed = (): ActivityFeedReturn => {
       setHasMore(newActivities.length === limit);
       setPage(currentPage + 1);
     } catch (error) {
-      console.error('Error loading activities:', error);
+      log.error('Error loading activities', error, { component: 'useRealtimeActivityFeed' });
     } finally {
       setIsLoading(false);
     }

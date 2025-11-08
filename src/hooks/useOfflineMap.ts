@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useOffline } from '@/hooks/useOffline';
+import { log } from '@/utils/logger';
 
 interface CachedTile {
   key: string;
@@ -30,10 +31,10 @@ export const useOfflineMap = () => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
         .then(registration => {
-          console.log('SW registered:', registration);
+          log.info('Service worker registered', { component: 'useOfflineMap' });
         })
         .catch(error => {
-          console.log('SW registration failed:', error);
+          log.error('SW registration failed', error, { component: 'useOfflineMap' });
         });
     }
   }, []);
@@ -82,7 +83,7 @@ export const useOfflineMap = () => {
       
       return true;
     } catch (error) {
-      console.error('Failed to cache tile:', error);
+      log.error('Failed to cache tile', error, { component: 'useOfflineMap', tileKey });
       return false;
     }
   }, [openCacheDB]);
@@ -106,7 +107,7 @@ export const useOfflineMap = () => {
       
       return null;
     } catch (error) {
-      console.error('Failed to get cached tile:', error);
+      log.error('Failed to get cached tile', error, { component: 'useOfflineMap', tileKey });
       return null;
     }
   }, [openCacheDB]);
@@ -132,7 +133,7 @@ export const useOfflineMap = () => {
       }));
       
     } catch (error) {
-      console.error('Failed to update cache stats:', error);
+      log.error('Failed to update cache stats', error, { component: 'useOfflineMap' });
     }
   }, [openCacheDB]);
 
@@ -154,7 +155,7 @@ export const useOfflineMap = () => {
       
       return true;
     } catch (error) {
-      console.error('Failed to clear cache:', error);
+      log.error('Failed to clear cache', error, { component: 'useOfflineMap' });
       return false;
     }
   }, [openCacheDB]);
@@ -176,7 +177,7 @@ export const useOfflineMap = () => {
       
       return deleted;
     } catch (error) {
-      console.error('Failed to clean old cache:', error);
+      log.error('Failed to clean old cache', error, { component: 'useOfflineMap' });
       return 0;
     }
   }, [openCacheDB, updateCacheStats]);

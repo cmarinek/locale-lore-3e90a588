@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { log } from '@/utils/logger';
 
 interface CommunityStats {
   storiesShared: number;
@@ -18,16 +19,16 @@ export const useCommunityStats = (): CommunityStats => {
   });
 
   useEffect(() => {
-    console.log('useCommunityStats: useEffect triggered, current loading state:', stats.isLoading);
+    log.debug('Community stats useEffect triggered', { component: 'useCommunityStats', isLoading: stats.isLoading });
     if (!stats.isLoading) {
-      console.log('useCommunityStats: Already loaded, skipping fetch');
+      log.debug('Community stats already loaded, skipping', { component: 'useCommunityStats' });
       return;
     }
-    console.log('useCommunityStats: Starting to fetch stats...');
+    log.debug('Starting to fetch community stats', { component: 'useCommunityStats' });
     const fetchStats = async () => {
       try {
         // Gracefully handle missing tables or permissions
-        console.log('useCommunityStats: Attempting to fetch from facts table...');
+        log.debug('Attempting to fetch from facts table', { component: 'useCommunityStats' });
         
         // Test if table exists first with a simple query
         const { count: storiesCount, error: storiesError } = await supabase
@@ -35,7 +36,7 @@ export const useCommunityStats = (): CommunityStats => {
           .select('*', { count: 'exact', head: true });
 
         if (storiesError) {
-          console.warn('useCommunityStats: Facts table error:', storiesError);
+          log.warn('Facts table error, using fallback data', { component: 'useCommunityStats', error: storiesError.message });
           // Table doesn't exist or no permissions - use mock data
           setStats({
             storiesShared: 1247,
@@ -78,9 +79,9 @@ export const useCommunityStats = (): CommunityStats => {
           locationsCovered: uniqueLocations,
           isLoading: false,
         });
-        console.log('useCommunityStats: Successfully fetched real stats');
+        log.info('Community stats fetched successfully', { component: 'useCommunityStats', storiesCount, uniqueContributors, uniqueLocations });
       } catch (error) {
-        console.error('useCommunityStats: Error fetching stats, using fallback:', error);
+        log.error('Error fetching community stats, using fallback', error, { component: 'useCommunityStats' });
         // Always provide fallback data instead of failing
         setStats({
           storiesShared: 1247,

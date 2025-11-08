@@ -1,6 +1,7 @@
 // Ultra-fast map worker hook for 2025 performance
 import { useRef, useCallback, useEffect } from 'react';
 import { FactMarker } from '@/types/map';
+import { log } from '@/utils/logger';
 
 interface ViewportBounds {
   north: number;
@@ -135,7 +136,7 @@ export const useMapWorker = () => {
           const { id, type, result, error } = e.data;
           
           if (type === 'ready') {
-            console.log('🚀 MapWorker: Ready for ultra-fast processing');
+            log.info('MapWorker ready for processing', { component: 'useMapWorker' });
             return;
           }
           
@@ -152,11 +153,11 @@ export const useMapWorker = () => {
         };
 
         workerRef.current.onerror = (error) => {
-          console.error('MapWorker error:', error);
+          log.error('MapWorker error', error, { component: 'useMapWorker' });
         };
 
       } catch (error) {
-        console.warn('MapWorker not available, falling back to main thread');
+        log.warn('MapWorker not available, falling back to main thread', { component: 'useMapWorker' });
       }
     }
 
