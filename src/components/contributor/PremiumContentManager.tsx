@@ -60,15 +60,23 @@ export const PremiumContentManager: React.FC = () => {
     }
 
     try {
-      // Temporarily disabled - premium_content table not yet created
-      setPremiumContent([]); // Empty until feature is enabled
-    } catch (error) {
+      const { data, error } = await supabase
+        .from('premium_content')
+        .select('*')
+        .eq('creator_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setPremiumContent((data as PremiumContent[]) || []);
+    } catch (error: any) {
       console.error('Error fetching premium content:', error);
       toast({
         title: 'Unable to load premium content',
-        description: 'Please try again later.',
+        description: error.message || 'Please try again later.',
         variant: 'destructive',
       });
+      setPremiumContent([]);
     } finally {
       setLoading(false);
     }

@@ -64,18 +64,19 @@ export const LocationClaimsManager: React.FC = () => {
 
       try {
         setLoading(true);
-        // Temporarily disabled - location_claims table not yet created
-        // const { data, error } = await supabase
-        //   .from('location_claims')
-        //   .select('*')
-        //   .eq('user_id', user.id)
-        //   .order('claimed_at', { ascending: false });
-        // if (error) throw error;
-        // const normalized = (data ?? []).map(normalizeClaim);
-        
-        setClaims([]); // Empty until feature is enabled
-      } catch (error) {
+        const { data, error } = await supabase
+          .from('location_claims')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('claimed_at', { ascending: false });
+
+        if (error) throw error;
+
+        const normalized = (data || []).map(normalizeClaim);
+        setClaims(normalized);
+      } catch (error: any) {
         console.error('Error loading location claims:', error);
+        setClaims([]);
       } finally {
         setLoading(false);
       }

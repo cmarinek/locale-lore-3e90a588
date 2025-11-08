@@ -54,17 +54,23 @@ export const ExpertBadgeManager: React.FC = () => {
     if (!user) return;
 
     try {
-      // Temporarily disabled - expert_badges table not yet created
-      // const { data, error } = await supabase
-      //   .from('expert_badges')
-      //   .select('*')
-      //   .eq('user_id', user.id);
-      // if (error) throw error;
-      // setBadges((data as ExpertBadge[]) ?? []);
-      
-      setBadges([]); // Empty until feature is enabled
-    } catch (error) {
+      const { data, error } = await supabase
+        .from('expert_badges')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('verification_date', { ascending: false });
+
+      if (error) throw error;
+
+      setBadges((data as ExpertBadge[]) || []);
+    } catch (error: any) {
       console.error('Error fetching badges:', error);
+      toast({
+        title: 'Unable to load badges',
+        description: error.message || 'Please try again later.',
+        variant: 'destructive',
+      });
+      setBadges([]);
     }
   };
 
@@ -83,14 +89,19 @@ export const ExpertBadgeManager: React.FC = () => {
           .select('followers_count, reputation_score')
           .eq('id', user.id)
           .single(),
-        // Premium content temporarily disabled
-        // supabase.from('premium_content').select('id').eq('creator_id', user.id),
+        supabase
+          .from('premium_content')
+          .select('id', { count: 'exact' })
+          .eq('creator_id', user.id),
       ]);
 
       if (statsResult.error) throw statsResult.error;
       if (profileResult.error) console.error('Error loading profile totals', profileResult.error);
       
-      const premiumContentCount = 0; // Temporarily disabled
+      const premiumContentCount = (await supabase
+        .from('premium_content')
+        .select('id', { count: 'exact' })
+        .eq('creator_id', user.id)).count || 0;
       const engagementRate = statsResult.data
         ? ((statsResult.data.comments_made || 0) + (statsResult.data.votes_cast || 0)) /
             Math.max(statsResult.data.facts_submitted || 1, 1)

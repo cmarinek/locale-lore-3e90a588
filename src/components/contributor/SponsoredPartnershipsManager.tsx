@@ -35,10 +35,18 @@ export const SponsoredPartnershipsManager: React.FC = () => {
 
       try {
         setLoading(true);
-        // Temporarily disabled - sponsored_partnerships table not yet created
-        setPartnerships([]); // Empty until feature is enabled
-      } catch (error) {
+        const { data, error } = await supabase
+          .from('sponsored_partnerships')
+          .select('*')
+          .eq('creator_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        setPartnerships((data as SponsoredPartnership[]) || []);
+      } catch (error: any) {
         console.error('Error loading partnerships:', error);
+        setPartnerships([]);
       } finally {
         setLoading(false);
       }
