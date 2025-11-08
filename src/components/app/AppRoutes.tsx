@@ -80,49 +80,49 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/map" element={<LazyMap />} />
         <Route path="/search" element={<Search />} />
         <Route path="/submit" element={
-          <ProtectedRoute requiresAuth feature="content submission" showPreview>
+          <ProtectedRoute requiresAuth>
             <Submit />
           </ProtectedRoute>
         } />
         <Route path="/profile/:id?" element={
-          <ProtectedRoute requiresAuth feature="user profile" graceful={false}>
+          <ProtectedRoute requiresAuth>
             <Profile />
           </ProtectedRoute>
         } />
         <Route path="/fact/:id" element={<Fact />} />
         <Route path="/gamification" element={
-          <ProtectedRoute requiresAuth feature="challenges and rewards" showPreview>
+          <ProtectedRoute requiresAuth>
             <Gamification />
           </ProtectedRoute>
         } />
         <Route path="/billing" element={
-          <ProtectedRoute requiresAuth feature="billing and subscriptions" graceful={false}>
+          <ProtectedRoute requiresAuth>
             <Billing />
           </ProtectedRoute>
         } />
         <Route path="/social" element={
-          <ProtectedRoute requiresAuth feature="social features" showPreview>
+          <ProtectedRoute requiresAuth>
             <Social />
           </ProtectedRoute>
         } />
         <Route path="/stories" element={<Stories />} />
         <Route path="/contributor" element={
-          <ProtectedRoute requiresAuth feature="contributor program" showPreview>
+          <ProtectedRoute contributorOnly>
             <ContributorEconomy />
           </ProtectedRoute>
         } />
         <Route path="/admin" element={
-          <ProtectedRoute adminOnly feature="admin dashboard" graceful={false}>
+          <ProtectedRoute adminOnly>
             <Admin />
           </ProtectedRoute>
         } />
         <Route path="/monitoring" element={
-          <ProtectedRoute adminOnly feature="monitoring dashboard" graceful={false}>
+          <ProtectedRoute adminOnly>
             <Monitoring />
           </ProtectedRoute>
         } />
         <Route path="/security-audit" element={
-          <ProtectedRoute adminOnly feature="security audit" graceful={false}>
+          <ProtectedRoute adminOnly>
             <SecurityAudit />
           </ProtectedRoute>
         } />
