@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, AlertTriangle, CheckCircle, XCircle, RefreshCw, Download, Lock, Database, Code, Globe } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, XCircle, RefreshCw, Download, Lock, Database, Code, Globe, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,9 @@ import { toast } from '@/hooks/use-toast';
 import { logger } from '@/utils/logger';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AlertConfiguration } from '@/components/security/AlertConfiguration';
+import { AlertHistory } from '@/components/security/AlertHistory';
+import { useSecurityAlerts } from '@/hooks/useSecurityAlerts';
 
 interface SecurityFinding {
   id: string;
@@ -37,6 +40,7 @@ interface AuditResults {
 const SecurityAudit = () => {
   const navigate = useNavigate();
   const { isAdmin, loading: adminLoading } = useAdmin();
+  const { sendAlert } = useSecurityAlerts();
   const [auditResults, setAuditResults] = useState<AuditResults | null>(null);
   const [loading, setLoading] = useState(false);
   const [remediating, setRemediating] = useState<string | null>(null);
@@ -177,6 +181,19 @@ const SecurityAudit = () => {
         description: `Security Score: ${score}/100 - Found ${totalIssues} issues`,
         variant: score >= 80 ? "default" : "destructive",
       });
+
+      // Send alerts for critical/high severity issues
+      const criticalFindings = findings
+        .filter(f => f.level === 'error')
+        .map(f => ({
+          id: f.id,
+          category: f.category || 'Security',
+          details: f.description,
+        }));
+
+      if (criticalFindings.length > 0) {
+        await sendAlert('critical', criticalFindings);
+      }
     } catch (error) {
       logger.error('security_audit_failed', { error });
       toast({
@@ -365,6 +382,10 @@ const SecurityAudit = () => {
                 <Globe className="h-4 w-4 mr-2" />
                 OWASP ({auditResults.categories.owasp})
               </TabsTrigger>
+              <TabsTrigger value="alerts">
+                <Bell className="h-4 w-4 mr-2" />
+                Alerts
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="all" className="space-y-4">
@@ -484,6 +505,11 @@ const SecurityAudit = () => {
                     </CardHeader>
                   </Card>
                 ))}
+            </TabsContent>
+
+            <TabsContent value="alerts" className="space-y-6">
+              <AlertConfiguration />
+              <AlertHistory />
             </TabsContent>
           </Tabs>
         </>
