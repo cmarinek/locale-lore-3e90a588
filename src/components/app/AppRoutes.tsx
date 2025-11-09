@@ -47,6 +47,7 @@ const BillingSuccess = lazy(() => import('@/pages/BillingSuccess').then(m => ({ 
 const BillingCanceled = lazy(() => import('@/pages/BillingCanceled').then(m => ({ default: m.BillingCanceled })));
 const Settings = lazy(() => import('@/pages/Settings'));
 const TranslationManager = lazy(() => import('@/pages/admin/TranslationManager').then(m => ({ default: m.TranslationManager })));
+const MakeAdmin = lazy(() => import('@/pages/MakeAdmin'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -143,6 +144,11 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/admin/translations" element={
           <ProtectedRoute adminOnly>
             <TranslationManager />
+          </ProtectedRoute>
+        } />
+        <Route path="/make-admin" element={
+          <ProtectedRoute requiresAuth>
+            <MakeAdmin />
           </ProtectedRoute>
         } />
         <Route path="/help" element={<Help />} />
