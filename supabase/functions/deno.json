@@ -1,11 +1,8 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "lib": ["deno.window", "deno.ns", "deno.unstable"],
-    "strict": false,
-    "jsx": "react-jsx",
-    "jsxImportSource": "https://esm.sh/react@18.2.0",
-    "types": ["https://deno.land/x/types/index.d.ts"]
+    "lib": ["deno.window"],
+    "strict": false
   },
   "imports": {
     "std/": "https://deno.land/std@0.190.0/",

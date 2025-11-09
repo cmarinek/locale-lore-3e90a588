@@ -1,26 +1,14 @@
-User-agent: Googlebot
-Allow: /
-Disallow: /admin
-Disallow: /api/
-Disallow: /private/
-
-User-agent: Bingbot
-Allow: /
-Disallow: /admin
-Disallow: /api/
-Disallow: /private/
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# robots.txt for LocaleLore
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /api/
-Disallow: /private/
-Crawl-delay: 1
+Disallow: /admin/
+Disallow: /settings/
+Disallow: /performance/
+Disallow: /production-readiness/
+Disallow: /pre-deployment/
 
+# Sitemap
 Sitemap: https://localelore.app/sitemap.xml
+
+# Crawl delay (optional, 1 second between requests)
+Crawl-delay: 1
