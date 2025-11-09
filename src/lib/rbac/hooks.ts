@@ -3,18 +3,49 @@
  * Hooks for accessing role and permission information
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthProvider';
 import { type Role, type Permission } from '@/config';
-import { getUserRole, hasPermission, hasAnyPermission, hasAllPermissions, isAdmin, isContributor } from './roles';
+import { ROLES, hasPermission, hasAnyPermission, hasAllPermissions, isAdmin, isContributor } from './roles';
 import { canAccessRoute, type RouteGuard } from './guards';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Get current user's role
+ * Get current user's role from database
  */
 export function useUserRole(): Role {
   const { user } = useAuth();
-  return useMemo(() => getUserRole(user), [user]);
+  const [role, setRole] = useState<Role>(ROLES.PUBLIC);
+
+  useEffect(() => {
+    if (!user) {
+      setRole(ROLES.PUBLIC);
+      return;
+    }
+
+    // Fetch role from user_roles table
+    const fetchRole = async () => {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        // Default to authenticated if user exists but no role found
+        setRole(ROLES.AUTHENTICATED);
+        return;
+      }
+
+      // Map the role or default to authenticated
+      setRole((data?.role as Role) || ROLES.AUTHENTICATED);
+    };
+
+    fetchRole();
+  }, [user]);
+
+  return role;
 }
 
 /**
