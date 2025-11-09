@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from '@/contexts/AuthProvider';
 import { ThemeProvider } from '@/contexts/ThemeProvider';
 import { LanguageProvider } from '@/contexts/LanguageProvider';
+import { TranslationDebugProvider } from '@/contexts/TranslationDebugContext';
 import { StoreProvider } from './StoreProvider';
 import { OfflineProvider } from '@/components/offline/OfflineProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -32,13 +33,15 @@ export const ProviderChain: React.FC<ProviderChainProps> = ({ children }) => {
                 <ThemeProvider>
                   <ContextErrorBoundary contextName="LanguageProvider">
                     <LanguageProvider>
-                      <ContextErrorBoundary contextName="StoreProvider">
-                        <OfflineProvider>
-                          <StoreProvider>
-                            {children}
-                          </StoreProvider>
-                        </OfflineProvider>
-                      </ContextErrorBoundary>
+                      <TranslationDebugProvider>
+                        <ContextErrorBoundary contextName="StoreProvider">
+                          <OfflineProvider>
+                            <StoreProvider>
+                              {children}
+                            </StoreProvider>
+                          </OfflineProvider>
+                        </ContextErrorBoundary>
+                      </TranslationDebugProvider>
                     </LanguageProvider>
                   </ContextErrorBoundary>
                 </ThemeProvider>
