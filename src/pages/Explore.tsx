@@ -11,6 +11,9 @@ import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useSearchStore } from '@/stores/searchStore';
 import { useStoreSync } from '@/hooks/useStoreSync';
+import { SmartLink } from '@/components/SmartLink';
+import { Button } from '@/components/ui/button';
+import { Map, Layers } from 'lucide-react';
 
 export const Explore: React.FC = () => {
   const { 
@@ -82,6 +85,22 @@ export const Explore: React.FC = () => {
               onQueryChange={handleSearch}
               placeholder={t('lore:searchPlaceholder', 'Search for stories, places, or legends...')}
             />
+
+            {/* View Mode Links */}
+            <div className="flex gap-2 justify-center">
+              <Button variant="outline" size="sm" asChild>
+                <SmartLink to="/map">
+                  <Map className="w-4 h-4 mr-2" />
+                  Map View
+                </SmartLink>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <SmartLink to="/hybrid">
+                  <Layers className="w-4 h-4 mr-2" />
+                  Hybrid View
+                </SmartLink>
+              </Button>
+            </div>
           </div>
         </div>
 
