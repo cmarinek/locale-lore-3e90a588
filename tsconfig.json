@@ -8,7 +8,6 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    "exclude": ["supabase/functions/**/*"]
     },
     "noImplicitAny": false,
     "noUnusedParameters": false,
@@ -16,5 +15,6 @@
     "allowJs": true,
     "noUnusedLocals": false,
     "strictNullChecks": false
-  }
+  },
+  "exclude": ["supabase/functions/**/*"]
 }
