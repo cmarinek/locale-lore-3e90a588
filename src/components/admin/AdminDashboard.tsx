@@ -6,6 +6,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { ContentModerationPanel } from '@/components/admin/ContentModerationPanel';
 import { UserManagementPanel } from '@/components/admin/UserManagementPanel';
+import { RoleManagementPanel } from '@/components/admin/RoleManagementPanel';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { ReportsPanel } from '@/components/admin/ReportsPanel';
 import { PaymentDashboard } from '@/components/admin/PaymentDashboard';
@@ -68,6 +69,8 @@ export const AdminDashboard: React.FC = () => {
         return <ContentModerationPanel />;
       case 'users':
         return <UserManagementPanel />;
+      case 'roles':
+        return <RoleManagementPanel />;
       case 'reports':
         return <ReportsPanel />;
       case 'acquisition':

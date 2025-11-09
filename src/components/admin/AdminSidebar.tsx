@@ -63,6 +63,7 @@ const adminItems = [
     group: 'System',
     items: [
       { title: 'Users', value: 'users', icon: Users },
+      { title: 'Role Management', value: 'roles', icon: Shield },
       { title: 'Reports', value: 'reports', icon: FileText },
       { title: 'Mobile Builder', value: 'mobile', icon: Smartphone },
     ]
