@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAdmin } from '@/hooks/useAdmin';
 import { AlertTriangle, CheckCircle, Clock, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { debugLog, debugError } from '@/lib/debug';
 
 export const ReportsPanel: React.FC = () => {
   const { getContentReports, updateReportStatus, isAdmin, loading: adminLoading } = useAdmin();
@@ -27,8 +28,8 @@ export const ReportsPanel: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      console.log('Loading reports with filter:', statusFilter);
-      console.log('Admin status:', isAdmin, 'Admin loading:', adminLoading);
+      debugLog('Loading reports with filter:', statusFilter);
+      debugLog('Admin status:', isAdmin, 'Admin loading:', adminLoading);
       
       if (!isAdmin && !adminLoading) {
         setError('You do not have admin privileges to view reports');
@@ -36,10 +37,10 @@ export const ReportsPanel: React.FC = () => {
       }
       
       const data = await getContentReports(statusFilter || undefined);
-      console.log('Reports loaded:', data?.length || 0, 'reports');
+      debugLog('Reports loaded:', data?.length || 0, 'reports');
       setReports(data || []);
     } catch (error) {
-      console.error('Error loading reports:', error);
+      debugError('Error loading reports:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to load reports';
       setError(errorMessage);
       toast.error(errorMessage);
@@ -56,7 +57,7 @@ export const ReportsPanel: React.FC = () => {
       setResolutionNotes('');
       loadReports();
     } catch (error) {
-      console.error('Error updating report status:', error);
+      debugError('Error updating report status:', error);
       toast.error('Failed to update report status');
     }
   };

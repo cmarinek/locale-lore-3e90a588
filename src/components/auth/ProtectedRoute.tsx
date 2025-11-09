@@ -4,6 +4,7 @@ import { useUserRole } from '@/lib/rbac';
 import { canAccessRoute, type RouteGuard } from '@/lib/rbac/guards';
 import { ROLES } from '@/config';
 import type { Permission } from '@/config';
+import { debugWarn } from '@/lib/debug';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -47,7 +48,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { allowed, reason } = canAccessRoute(userRole, routeGuard);
 
   if (!allowed) {
-    console.warn(`Access denied to ${location.pathname}: ${reason}`);
+    debugWarn(`Access denied to ${location.pathname}: ${reason}`);
     return (
       <Navigate
         to={fallbackPath}

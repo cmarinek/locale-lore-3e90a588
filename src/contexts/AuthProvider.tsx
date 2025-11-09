@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { setUserContext, clearUserContext } from '@/utils/monitoring';
 import { logger } from '@/utils/logger';
+import { setDebugMode } from '@/lib/debug';
 
 interface AuthContextType {
   user: User | null;
@@ -58,8 +59,21 @@ function AuthProviderComponent({ children }: AuthProviderProps) {
           // Update Sentry user context
           if (session?.user) {
             setUserContext(session.user.id, session.user.email);
+            
+            // Check if user is admin and enable debug mode
+            setTimeout(() => {
+              supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', session.user.id)
+                .then(({ data }) => {
+                  const isAdmin = data?.some(r => r.role === 'admin') || false;
+                  setDebugMode(isAdmin);
+                });
+            }, 0);
           } else {
             clearUserContext();
+            setDebugMode(false);
           }
         }
       }
