@@ -23,6 +23,9 @@ import { TimelineSlider } from './TimelineSlider';
 import { CollaborativeMarkers } from './CollaborativeMarkers';
 import { DrawingTools } from './DrawingTools';
 import { HistoricalAnimation } from './HistoricalAnimation';
+import { MapStatsOverlay } from './MapStatsOverlay';
+import { MapLegend } from './MapLegend';
+import { MapFilterPanel } from './MapFilterPanel';
 import { useFavoriteCities } from '@/hooks/useFavoriteCities';
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { mapboxService } from '@/services/mapboxService';
@@ -42,8 +45,14 @@ interface Fact {
   status?: string;
   vote_count_up?: number;
   vote_count_down?: number;
+  created_at?: string;
   profiles?: { username?: string };
-  categories?: { slug?: string };
+  categories?: { 
+    slug?: string;
+    icon?: string;
+    color?: string;
+    category_translations?: { name?: string }[];
+  };
 }
 
 interface UnifiedMapProps {
@@ -131,6 +140,12 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const [isHistoricalAnimationPlaying, setIsHistoricalAnimationPlaying] = useState(false);
   const [showHistoricalAnimation, setShowHistoricalAnimation] = useState(false);
   const [loadingDismissed, setLoadingDismissed] = useState(false);
+  
+  // New UI states
+  const [showLegend, setShowLegend] = useState(false);
+  const [filterCategories, setFilterCategories] = useState<string[]>([]);
+  const [filterDateRange, setFilterDateRange] = useState<{ start: Date; end: Date } | null>(null);
+  const [filterPopularity, setFilterPopularity] = useState(0);
 
   // Performance metrics
   const [metrics, setMetrics] = useState({
@@ -208,6 +223,90 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     return useScalableLoading ? viewportFacts : facts;
   }, [externalFacts, useScalableLoading, viewportFacts, facts]);
 
+  // Compute stats and category distribution
+  const { categories } = useDiscoveryStore();
+  
+  const filteredFacts = useMemo(() => {
+    let filtered = processedFacts;
+    
+    // Filter by categories
+    if (filterCategories.length > 0) {
+      filtered = filtered.filter(fact => 
+        fact.categories?.slug && filterCategories.includes(fact.categories.slug)
+      );
+    }
+    
+    // Filter by date range
+    if (filterDateRange) {
+      filtered = filtered.filter(fact => {
+        const factDate = new Date(fact.created_at);
+        return factDate >= filterDateRange.start && factDate <= filterDateRange.end;
+      });
+    }
+    
+    // Filter by popularity
+    if (filterPopularity > 0) {
+      filtered = filtered.filter(fact => 
+        (fact.vote_count_up || 0) >= filterPopularity
+      );
+    }
+    
+    return filtered;
+  }, [processedFacts, filterCategories, filterDateRange, filterPopularity]);
+
+  const categoryDistribution = useMemo(() => {
+    const distribution: Record<string, { count: number; icon: string; color: string }> = {};
+    
+    filteredFacts.forEach(fact => {
+      const categorySlug = fact.categories?.slug || 'unknown';
+      const categoryName = fact.categories?.category_translations?.[0]?.name || 'Unknown';
+      const categoryIcon = fact.categories?.icon || '📍';
+      const categoryColor = fact.categories?.color || '#666666';
+      
+      if (!distribution[categoryName]) {
+        distribution[categoryName] = { count: 0, icon: categoryIcon, color: categoryColor };
+      }
+      distribution[categoryName].count++;
+    });
+    
+    return distribution;
+  }, [filteredFacts]);
+
+  const legendCategories = useMemo(() => {
+    return categories.map(cat => ({
+      id: cat.slug,
+      name: cat.category_translations?.[0]?.name || cat.slug,
+      icon: cat.icon || '📍',
+      color: cat.color || '#666666',
+      count: filteredFacts.filter(f => f.categories?.slug === cat.slug).length
+    }));
+  }, [categories, filteredFacts]);
+
+  const filterPanelCategories = useMemo(() => {
+    return categories.map(cat => ({
+      id: cat.slug,
+      name: cat.category_translations?.[0]?.name || cat.slug,
+      icon: cat.icon || '📍',
+      color: cat.color || '#666666',
+      count: processedFacts.filter(f => f.categories?.slug === cat.slug).length
+    }));
+  }, [categories, processedFacts]);
+
+  // Filter handlers
+  const handleCategoryToggle = useCallback((categoryId: string) => {
+    setFilterCategories(prev => 
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  }, []);
+
+  const handleClearFilters = useCallback(() => {
+    setFilterCategories([]);
+    setFilterDateRange(null);
+    setFilterPopularity(0);
+  }, []);
+
   // Initialize supercluster
   const initializeSupercluster = useCallback(() => {
     if (!enableClustering) return null;
@@ -220,8 +319,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       reduce: (accumulated, props) => { accumulated.sum += props.sum; }
     });
 
-    if (processedFacts.length > 0) {
-      const geoJsonPoints = processedFacts.map(fact => ({
+    if (filteredFacts.length > 0) {
+      const geoJsonPoints = filteredFacts.map(fact => ({
         type: 'Feature' as const,
         properties: { fact },
         geometry: {
@@ -234,7 +333,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     }
 
     return cluster;
-  }, [processedFacts, enableClustering, clusterRadius, maxZoom]);
+  }, [filteredFacts, enableClustering, clusterRadius, maxZoom]);
 
   // Throttled viewport loading
   const loadViewportFacts = useCallback(
@@ -802,6 +901,49 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   return (
     <div className={`relative w-full h-full ${className}`}>
       <div ref={mapContainer} className="absolute inset-0" />
+      
+      {/* Map Stats Overlay */}
+      {isLoaded && (
+        <MapStatsOverlay
+          totalStories={processedFacts.length}
+          storiesInView={filteredFacts.length}
+          categoryDistribution={categoryDistribution}
+        />
+      )}
+
+      {/* Legend Toggle Button */}
+      {isLoaded && (
+        <Button
+          onClick={() => setShowLegend(!showLegend)}
+          variant="outline"
+          size="sm"
+          className="absolute bottom-20 right-16 z-20 backdrop-blur-sm bg-background/90 hover:bg-background shadow-md"
+        >
+          {showLegend ? 'Hide' : 'Show'} Legend
+        </Button>
+      )}
+
+      {/* Map Legend */}
+      {isLoaded && showLegend && (
+        <MapLegend
+          categories={legendCategories}
+          onClose={() => setShowLegend(false)}
+        />
+      )}
+
+      {/* Filter Panel */}
+      {isLoaded && (
+        <MapFilterPanel
+          categories={filterPanelCategories}
+          selectedCategories={filterCategories}
+          onCategoryToggle={handleCategoryToggle}
+          dateRange={filterDateRange}
+          onDateRangeChange={setFilterDateRange}
+          popularityFilter={filterPopularity}
+          onPopularityFilterChange={setFilterPopularity}
+          onClearFilters={handleClearFilters}
+        />
+      )}
       
       {/* Historical Timeline Toggle Button */}
       {isLoaded && (
