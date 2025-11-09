@@ -163,31 +163,51 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   const [retryTrigger, setRetryTrigger] = useState(0);
 
-  // Fetch Mapbox token - simplified
+  // Fetch Mapbox token - with timeout and debug logging
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
 
     const fetchToken = async () => {
+      console.log('🗺️ [UnifiedMap] Starting token fetch, status:', tokenStatus);
       setTokenStatus('loading');
       setTokenError(null);
       setLoadingDismissed(false);
 
+      // Set timeout to prevent infinite loading
+      timeoutId = setTimeout(() => {
+        if (mounted && tokenStatus === 'loading') {
+          console.error('⏱️ [UnifiedMap] Token fetch timeout - forcing dismissal');
+          setLoadingDismissed(true);
+        }
+      }, 8000); // 8 second timeout
+
       try {
         const token = await mapboxService.getToken();
+        clearTimeout(timeoutId);
+
+        console.log('🗺️ [UnifiedMap] Token fetch result:', { 
+          mounted, 
+          hasToken: !!token, 
+          tokenLength: token?.length 
+        });
 
         if (!mounted) return;
 
         if (token && token.length > 0) {
           setMapboxToken(token);
           setTokenStatus('ready');
+          console.log('✅ [UnifiedMap] Token status set to READY');
         } else {
           setTokenStatus('missing');
           setTokenError('A Mapbox public token is required to display the interactive map.');
+          console.log('❌ [UnifiedMap] Token status set to MISSING');
         }
       } catch (error) {
+        clearTimeout(timeoutId);
         if (!mounted) return;
         
-        console.error('Failed to load Mapbox token:', error);
+        console.error('❌ [UnifiedMap] Failed to load Mapbox token:', error);
         setTokenStatus('error');
         setTokenError(error instanceof Error ? error.message : 'Unknown error while fetching Mapbox token.');
       }
@@ -197,6 +217,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
     return () => {
       mounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [retryTrigger]);
 
