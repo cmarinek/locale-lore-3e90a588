@@ -454,6 +454,11 @@
   .animate-shimmer {
     animation: shimmer 2s infinite;
   }
+
+  /* Cluster expansion animations */
+  .cluster-expansion-ring {
+    animation: cluster-expand 0.6s ease-out forwards;
+  }
 }
 
 @keyframes fadeIn {
@@ -475,4 +480,44 @@
     transform: translateX(100%);
   }
 }
+
+@keyframes cluster-expand {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(3);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(5);
+    opacity: 0;
+  }
+}
+
+@keyframes marker-reveal {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Map marker animations */
+.mapboxgl-marker {
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.mapboxgl-marker.marker-revealing {
+  animation: marker-reveal 0.4s ease-out;
+}
+
 

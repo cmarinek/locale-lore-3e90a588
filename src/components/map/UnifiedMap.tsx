@@ -761,7 +761,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       }
     });
 
-    // Individual points
+    // Individual points with animation support
     map.current.addLayer({
       id: 'unclustered-point',
       type: 'circle',
@@ -795,23 +795,107 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
           ['==', ['get', 'id'], selectedMarkerId || ''],
           '#FFD700', '#fff'
         ],
-        'circle-opacity': 0.9
+        'circle-opacity': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          8, 0.7,
+          16, 0.95
+        ]
+      }
+    });
+    
+    // Add symbol layer for marker icons with animation data
+    map.current.addLayer({
+      id: 'unclustered-point-icon',
+      type: 'symbol',
+      source: 'facts',
+      filter: ['!', ['has', 'point_count']],
+      layout: {
+        'icon-image': 'custom-marker',
+        'icon-size': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          8, 0.5,
+          16, 1
+        ],
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': true
       }
     });
 
-    // Click handlers
+    // Click handlers with smooth expansion animation
     map.current.on('click', 'clusters', (e) => {
       const features = map.current!.queryRenderedFeatures(e.point, { layers: ['clusters'] });
       if (features[0]) {
         const clusterId = features[0].properties.cluster_id;
-        (map.current!.getSource('facts') as mapboxgl.GeoJSONSource).getClusterExpansionZoom(
+        const source = map.current!.getSource('facts') as mapboxgl.GeoJSONSource;
+        
+        // Get cluster children for animation
+        source.getClusterLeaves(clusterId, 100, 0, (err, leaves) => {
+          if (err) return;
+          
+          // Temporarily hide cluster markers that will be revealed
+          const childIds = leaves?.map(leaf => leaf.properties.id) || [];
+          
+          // Add animation class to markers that will be revealed
+          if (leaves && leaves.length > 0) {
+            // Create temporary visual effect
+            const tempCircle = document.createElement('div');
+            tempCircle.className = 'cluster-expansion-ring';
+            tempCircle.style.cssText = `
+              position: absolute;
+              width: 60px;
+              height: 60px;
+              border: 3px solid hsl(var(--primary));
+              border-radius: 50%;
+              pointer-events: none;
+              animation: cluster-expand 0.6s ease-out forwards;
+              z-index: 1000;
+            `;
+            
+            const point = map.current!.project((features[0].geometry as any).coordinates);
+            tempCircle.style.left = `${point.x - 30}px`;
+            tempCircle.style.top = `${point.y - 30}px`;
+            
+            map.current!.getContainer().appendChild(tempCircle);
+            setTimeout(() => tempCircle.remove(), 600);
+          }
+        });
+        
+        source.getClusterExpansionZoom(
           clusterId,
           (err, zoom) => {
             if (err) return;
+            
+            // Smooth zoom with longer duration
             map.current!.easeTo({
               center: (features[0].geometry as any).coordinates,
-              zoom: zoom
+              zoom: zoom,
+              duration: 800,
+              easing: (t) => t * (2 - t) // easeOutQuad
             });
+            
+            // After zoom completes, trigger staggered marker reveal
+            setTimeout(() => {
+              // Get newly visible markers
+              const visibleFeatures = map.current!.querySourceFeatures('facts', {
+                sourceLayer: 'facts',
+                filter: ['!', ['has', 'point_count']]
+              });
+              
+              // Trigger staggered animation via CSS
+              visibleFeatures.forEach((feature, index) => {
+                setTimeout(() => {
+                  // Pulse effect on newly revealed markers
+                  const elements = document.querySelectorAll(`[data-fact-id="${feature.properties?.id}"]`);
+                  elements.forEach(el => {
+                    (el as HTMLElement).style.animation = 'marker-reveal 0.4s ease-out';
+                  });
+                }, index * 50); // 50ms stagger between each marker
+              });
+            }, 400); // Start revealing halfway through zoom
           }
         );
       }
