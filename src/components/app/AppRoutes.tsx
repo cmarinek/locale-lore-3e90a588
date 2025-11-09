@@ -38,6 +38,9 @@ const Monitoring = lazy(() => import('@/pages/Monitoring'));
 const SecurityAudit = lazy(() => import('@/pages/SecurityAudit'));
 const LazyMap = lazy(() => import('@/pages/Map'));
 const Help = lazy(() => import('@/pages/Help'));
+const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
+const RefundPolicy = lazy(() => import('@/pages/RefundPolicy'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -129,6 +132,9 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/help" element={<Help />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/support" element={<Support />} />
         <Route path="/content-guidelines" element={<ContentGuidelines />} />
         {process.env.NODE_ENV === 'development' && (
