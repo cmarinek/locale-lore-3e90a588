@@ -167,9 +167,10 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       console.log('🗺️ [UnifiedMap] Token length:', token?.length || 0);
 
       if (token && token.length > 0) {
+        console.log('✅ [UnifiedMap] Setting Mapbox token in state...');
         setMapboxToken(token);
         setTokenStatus('ready');
-        console.log('✅ [UnifiedMap] Mapbox token ready!');
+        console.log('✅ [UnifiedMap] Mapbox token ready! Token first 20 chars:', token.substring(0, 20));
       } else {
         setMapboxToken('');
         setTokenStatus('missing');
@@ -416,16 +417,26 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // Initialize map
   useEffect(() => {
+    console.log('🔄 Map init useEffect triggered:', {
+      hasContainer: !!mapContainer.current,
+      hasToken: !!mapboxToken,
+      tokenLength: mapboxToken?.length || 0,
+      tokenPreview: mapboxToken ? `${mapboxToken.substring(0, 10)}...` : 'null',
+      isInitialized: isInitialized.current,
+      tokenStatus
+    });
+
     if (!mapContainer.current || !mapboxToken || isInitialized.current) {
       console.log('⏭️ Skipping map init:', {
         hasContainer: !!mapContainer.current,
         hasToken: !!mapboxToken,
+        tokenLength: mapboxToken?.length || 0,
         isInitialized: isInitialized.current
       });
       return;
     }
 
-    console.log('🗺️ Initializing Mapbox map...');
+    console.log('🗺️ Initializing Mapbox map with token:', `${mapboxToken.substring(0, 20)}...`);
     mapboxgl.accessToken = mapboxToken;
     isInitialized.current = true;
 
