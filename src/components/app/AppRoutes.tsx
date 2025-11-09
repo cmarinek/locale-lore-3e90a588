@@ -31,6 +31,7 @@ const Admin = lazy(() => import('@/pages/Admin'));
 const Privacy = lazy(() => import('@/pages/Privacy').then(m => ({ default: m.Privacy })));
 const Terms = lazy(() => import('@/pages/Terms').then(m => ({ default: m.Terms })));
 const ProductionReadiness = lazy(() => import('@/pages/ProductionReadiness').then(m => ({ default: m.ProductionReadiness })));
+const PreDeploymentDashboard = lazy(() => import('@/pages/PreDeploymentDashboard').then(m => ({ default: m.PreDeploymentDashboard })));
 const Support = lazy(() => import('@/pages/Support').then(m => ({ default: m.Support })));
 const ContentGuidelines = lazy(() => import('@/pages/ContentGuidelines').then(m => ({ default: m.ContentGuidelines })));
 const TranslationTest = lazy(() => import('@/pages/TranslationTest'));
@@ -163,6 +164,7 @@ export const AppRoutes: React.FC = React.memo(() => {
         {process.env.NODE_ENV === 'development' && (
           <>
             <Route path="/production-readiness" element={<ProductionReadiness />} />
+            <Route path="/pre-deployment" element={<PreDeploymentDashboard />} />
             <Route path="/translation-test" element={<TranslationTest />} />
             <Route path="/showcase" element={<ComponentShowcase />} />
           </>
