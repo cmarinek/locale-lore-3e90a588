@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { Elements } from '@stripe/react-stripe-js';
 import { getStripe } from '@/lib/stripe';
 import { PaymentMethodForm } from './PaymentMethodForm';
+import { PaymentMethodDisplay } from './PaymentMethodDisplay';
 
 interface Subscription {
   id: string;
@@ -241,9 +242,11 @@ export const SubscriptionDashboard: React.FC = () => {
         </Alert>
       )}
 
-      {/* Payment Method Management */}
+      {/* Payment Method Display & Management */}
       {subscription && (
         <div className="space-y-4">
+          <PaymentMethodDisplay />
+          
           <Button
             variant="outline"
             onClick={() => setShowPaymentForm(!showPaymentForm)}
