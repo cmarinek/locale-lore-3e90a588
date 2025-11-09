@@ -36,6 +36,7 @@ const ContentGuidelines = lazy(() => import('@/pages/ContentGuidelines').then(m 
 const TranslationTest = lazy(() => import('@/pages/TranslationTest'));
 const Monitoring = lazy(() => import('@/pages/Monitoring'));
 const SecurityAudit = lazy(() => import('@/pages/SecurityAudit'));
+const PerformanceMonitor = lazy(() => import('@/pages/PerformanceMonitor'));
 const LazyMap = lazy(() => import('@/pages/Map'));
 const Help = lazy(() => import('@/pages/Help'));
 const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
@@ -130,6 +131,11 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/security-audit" element={
           <ProtectedRoute adminOnly>
             <SecurityAudit />
+          </ProtectedRoute>
+        } />
+        <Route path="/performance" element={
+          <ProtectedRoute adminOnly>
+            <PerformanceMonitor />
           </ProtectedRoute>
         } />
         <Route path="/help" element={<Help />} />
