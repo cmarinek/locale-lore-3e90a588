@@ -2026,6 +2026,48 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_codes: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          discount_type: string
+          discount_value: number
+          expires_at: string
+          id: string
+          is_active: boolean
+          max_uses: number
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_type: string
+          discount_value: number
+          expires_at: string
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           auth_key: string
