@@ -16,6 +16,7 @@ import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 
 import { EnhancedMapControls } from './EnhancedMapControls';
+import { ClusteringControls } from './ClusteringControls';
 import { MapLoadingState } from './MapLoadingState';
 import { MapLoadingSkeleton } from './MapLoadingSkeleton';
 import { useFavoriteCities } from '@/hooks/useFavoriteCities';
@@ -118,6 +119,9 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const [viewportFacts, setViewportFacts] = useState<Fact[]>([]);
   const [loadingViewport, setLoadingViewport] = useState(false);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [clusterRadiusState, setClusterRadiusState] = useState(clusterRadius);
+  const [animationSpeed, setAnimationSpeed] = useState(1000);
+  const [clusteringEnabled, setClusteringEnabled] = useState(enableClustering);
 
   // Performance metrics
   const [metrics, setMetrics] = useState({
@@ -625,13 +629,48 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
           const userPos: [number, number] = [position.coords.longitude, position.coords.latitude];
           setUserLocation(userPos);
           if (map.current) {
-            map.current.easeTo({ center: userPos, zoom: 14, duration: 1000 });
+            map.current.easeTo({ center: userPos, zoom: 14, duration: animationSpeed });
+            
+            // Add a marker for user location
+            const el = document.createElement('div');
+            el.className = 'user-location-marker';
+            el.style.cssText = `
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              background: hsl(var(--primary));
+              border: 3px solid white;
+              box-shadow: 0 0 10px rgba(0,0,0,0.3);
+              animation: pulse 2s infinite;
+            `;
+            
+            new mapboxgl.Marker(el)
+              .setLngLat(userPos)
+              .addTo(map.current);
+            
+            toast({
+              title: "Location found",
+              description: "Centered map on your location"
+            });
           }
         },
-        (error) => console.warn('Location access denied:', error)
+        (error) => {
+          console.warn('Location access denied:', error);
+          toast({
+            title: "Location access denied",
+            description: "Please enable location access in your browser settings",
+            variant: "destructive"
+          });
+        }
       );
+    } else {
+      toast({
+        title: "Location not supported",
+        description: "Your browser doesn't support geolocation",
+        variant: "destructive"
+      });
     }
-  }, []);
+  }, [animationSpeed]);
 
   const handleStyleChange = useCallback(() => {
     const styles = ['light', 'dark', 'satellite'] as const;
@@ -757,6 +796,47 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
           onResetView={handleResetView}
           position="left"
         />
+      )}
+
+      {/* Clustering Controls */}
+      {isLoaded && enableClustering && (
+        <div className="absolute bottom-4 left-4 z-30">
+          <ClusteringControls
+            clusterRadius={clusterRadiusState}
+            onClusterRadiusChange={(value) => {
+              setClusterRadiusState(value);
+              // Reinitialize supercluster with new radius
+              if (map.current && isLoaded) {
+                const source = map.current.getSource('facts') as mapboxgl.GeoJSONSource;
+                if (source) {
+                  map.current.removeLayer('clusters');
+                  map.current.removeLayer('cluster-count');
+                  map.current.removeLayer('unclustered-point');
+                  map.current.removeSource('facts');
+                  setTimeout(() => setupClusteredMap(), 100);
+                }
+              }
+            }}
+            animationSpeed={animationSpeed}
+            onAnimationSpeedChange={setAnimationSpeed}
+            enableClustering={clusteringEnabled}
+            onClusteringToggle={(enabled) => {
+              setClusteringEnabled(enabled);
+              if (map.current && isLoaded) {
+                if (enabled) {
+                  setupClusteredMap();
+                } else {
+                  // Remove clustering layers
+                  if (map.current.getLayer('clusters')) map.current.removeLayer('clusters');
+                  if (map.current.getLayer('cluster-count')) map.current.removeLayer('cluster-count');
+                  if (map.current.getLayer('unclustered-point')) map.current.removeLayer('unclustered-point');
+                  if (map.current.getSource('facts')) map.current.removeSource('facts');
+                  setupMarkerMap();
+                }
+              }
+            }}
+          />
+        </div>
       )}
 
       {/* Favorite Cities */}

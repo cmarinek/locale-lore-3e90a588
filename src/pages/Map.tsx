@@ -133,7 +133,19 @@ export const Map: React.FC = () => {
 
           {/* Mobile-optimized Search Bar - fixed spacing to prevent overlaps */}
           <div className="absolute top-4 left-4 right-16 z-20 max-w-md mx-auto sm:max-w-none sm:left-32 sm:right-56">
-            <ModernSearchBar onSearch={handleSearch} placeholder="Search stories on map..." showLocationButton={true} />
+            <ModernSearchBar 
+              onSearch={handleSearch} 
+              placeholder="Search stories on map..." 
+              showLocationButton={true}
+              onLocationSelect={(location) => {
+                // Center map on selected location
+                const UnifiedMapRef = document.querySelector('[data-map-container]');
+                if (UnifiedMapRef) {
+                  // The map will handle this through the EnhancedMapControls
+                  console.log('Location selected:', location);
+                }
+              }}
+            />
           </div>
 
           {/* View Mode Toggle - positioned to avoid overlaps */}
