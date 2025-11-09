@@ -1,4 +1,3 @@
-import { StrictMode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { AppProviders } from '@/components/app/AppProviders';
 import { AppLayout } from '@/components/app/AppLayout';
@@ -7,17 +6,15 @@ import { ChunkErrorBoundary } from '@/components/common/ChunkErrorBoundary';
 
 function App() {
   return (
-    <StrictMode>
-      <ChunkErrorBoundary>
-        <BrowserRouter>
-          <AppProviders>
-            <AppLayout>
-              <AppRoutes />
-            </AppLayout>
-          </AppProviders>
-        </BrowserRouter>
-      </ChunkErrorBoundary>
-    </StrictMode>
+    <ChunkErrorBoundary>
+      <BrowserRouter>
+        <AppProviders>
+          <AppLayout>
+            <AppRoutes />
+          </AppLayout>
+        </AppProviders>
+      </BrowserRouter>
+    </ChunkErrorBoundary>
   );
 }
 
