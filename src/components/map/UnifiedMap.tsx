@@ -19,6 +19,9 @@ import { EnhancedMapControls } from './EnhancedMapControls';
 import { ClusteringControls } from './ClusteringControls';
 import { MapLoadingState } from './MapLoadingState';
 import { MapLoadingSkeleton } from './MapLoadingSkeleton';
+import { TimelineSlider } from './TimelineSlider';
+import { CollaborativeMarkers } from './CollaborativeMarkers';
+import { DrawingTools } from './DrawingTools';
 import { useFavoriteCities } from '@/hooks/useFavoriteCities';
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { mapboxService } from '@/services/mapboxService';
@@ -122,6 +125,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const [clusterRadiusState, setClusterRadiusState] = useState(clusterRadius);
   const [animationSpeed, setAnimationSpeed] = useState(1000);
   const [clusteringEnabled, setClusteringEnabled] = useState(enableClustering);
+  const [timelineRange, setTimelineRange] = useState<{ start: Date; end: Date } | null>(null);
 
   // Performance metrics
   const [metrics, setMetrics] = useState({
@@ -857,6 +861,29 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
       {/* Loading skeleton */}
       {!isLoaded && <MapLoadingSkeleton />}
+
+      {/* Timeline Slider */}
+      {isLoaded && (
+        <div className="absolute bottom-24 left-4 right-4 z-30">
+          <TimelineSlider
+            onDateRangeChange={(start, end) => setTimelineRange({ start, end })}
+            minDate={new Date(2014, 0, 1)}
+            maxDate={new Date()}
+          />
+        </div>
+      )}
+
+      {/* Collaborative Markers */}
+      {isLoaded && map.current && (
+        <CollaborativeMarkers map={map.current} />
+      )}
+
+      {/* Drawing Tools */}
+      {isLoaded && map.current && (
+        <div className="absolute top-24 right-4 z-30">
+          <DrawingTools map={map.current} />
+        </div>
+      )}
     </div>
   );
 };

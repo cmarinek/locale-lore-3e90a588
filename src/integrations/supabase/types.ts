@@ -1525,6 +1525,48 @@ export type Database = {
         }
         Relationships: []
       }
+      map_drawings: {
+        Row: {
+          coordinates: Json
+          created_at: string
+          description: string | null
+          drawing_type: string
+          id: string
+          is_public: boolean | null
+          name: string
+          share_token: string | null
+          style_properties: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coordinates: Json
+          created_at?: string
+          description?: string | null
+          drawing_type: string
+          id?: string
+          is_public?: boolean | null
+          name: string
+          share_token?: string | null
+          style_properties?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coordinates?: Json
+          created_at?: string
+          description?: string | null
+          drawing_type?: string
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          share_token?: string | null
+          style_properties?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_analytics: {
         Row: {
           browser: string | null
