@@ -1,12 +1,19 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Eye, EyeOff } from 'lucide-react';
-import { useTranslationDebug } from '@/contexts/TranslationDebugContext';
+import { TranslationDebugContext } from '@/contexts/TranslationDebugContext';
 import { toast } from 'sonner';
 
 export const TranslationDebugToggle: React.FC = () => {
-  const { debugMode, toggleDebugMode, missingKeys } = useTranslationDebug();
+  const context = useContext(TranslationDebugContext);
+  
+  // Don't render if context is not available
+  if (!context) {
+    return null;
+  }
+  
+  const { debugMode, toggleDebugMode, missingKeys } = context;
 
   const handleToggle = () => {
     toggleDebugMode();
