@@ -5,11 +5,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Languages, RefreshCw, CheckCircle, AlertCircle, Download, Upload } from 'lucide-react';
+import { Loader2, Languages, RefreshCw, CheckCircle, AlertCircle, Download, Upload, Zap, FileEdit } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 import { useTranslation } from 'react-i18next';
+import { batchDownloadTranslations, generateUploadInstructions, logSyncSummary, TranslationUpdate, TranslationSyncResult } from '@/utils/translationFileWriter';
 
 const NAMESPACES = ['common', 'navigation', 'auth', 'lore', 'profile', 'admin', 'errors'];
 
@@ -113,7 +115,7 @@ export const TranslationManager: React.FC = () => {
 
       toast({
         title: 'Translation Complete',
-        description: `${data.count} keys translated. File downloaded.`
+        description: `${data.count} keys translated. File downloaded. Please upload to repository.`
       });
 
       // Re-analyze after translation
@@ -122,6 +124,107 @@ export const TranslationManager: React.FC = () => {
       console.error('Translation failed:', error);
       toast({
         title: 'Translation Failed',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  const syncAllMissingTranslations = async () => {
+    setIsTranslating(true);
+    const translationUpdates: TranslationUpdate[] = [];
+    const syncResults: TranslationSyncResult[] = [];
+    
+    try {
+      toast({
+        title: 'Full Sync Started',
+        description: 'Analyzing and translating all missing keys across all languages...'
+      });
+
+      for (const langCode of Object.keys(SUPPORTED_LANGUAGES)) {
+        if (langCode === 'en') continue;
+
+        for (const namespace of NAMESPACES) {
+          const sourceTranslations = await loadTranslationFile('en', namespace);
+          const targetTranslations = await loadTranslationFile(langCode, namespace);
+
+          if (!sourceTranslations) continue;
+
+          // Check if translations are needed
+          const { data: analysisData } = await supabase.functions.invoke('detect-missing-translations', {
+            body: {
+              sourceTranslations,
+              targetTranslations: targetTranslations || {}
+            }
+          });
+
+          if (analysisData) {
+            syncResults.push({
+              language: SUPPORTED_LANGUAGES[langCode as SupportedLanguage].name,
+              namespace,
+              totalKeys: analysisData.totalKeys,
+              translatedKeys: analysisData.translatedKeys,
+              completionPercentage: analysisData.completionPercentage,
+              missingKeys: analysisData.missingKeys || [],
+              emptyKeys: analysisData.emptyKeys || []
+            });
+
+            if (analysisData.missingKeys.length > 0 || analysisData.emptyKeys.length > 0) {
+              // Translate missing keys
+              const { data: translationData, error } = await supabase.functions.invoke('translation-sync', {
+                body: {
+                  sourceLanguage: 'English',
+                  targetLanguage: SUPPORTED_LANGUAGES[langCode as SupportedLanguage].name,
+                  translations: sourceTranslations,
+                  namespace
+                }
+              });
+
+              if (!error && translationData) {
+                translationUpdates.push({
+                  language: langCode as SupportedLanguage,
+                  namespace,
+                  translations: translationData.translations,
+                  keysUpdated: translationData.count
+                });
+
+                // Small delay to avoid overwhelming the API
+                await new Promise(resolve => setTimeout(resolve, 500));
+              }
+            }
+          }
+        }
+      }
+
+      // Batch download all updated files
+      if (translationUpdates.length > 0) {
+        batchDownloadTranslations(translationUpdates);
+        
+        // Generate and log instructions
+        const instructions = generateUploadInstructions(translationUpdates);
+        console.log(instructions);
+        
+        // Log summary
+        logSyncSummary(syncResults);
+
+        toast({
+          title: 'Full Sync Complete',
+          description: `${translationUpdates.length} files updated and downloaded. Check console for upload instructions.`,
+          duration: 10000
+        });
+      } else {
+        toast({
+          title: 'Already Up to Date',
+          description: 'All translations are complete. No updates needed.'
+        });
+      }
+      
+    } catch (error) {
+      console.error('Full sync failed:', error);
+      toast({
+        title: 'Sync Failed',
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: 'destructive'
       });
@@ -185,6 +288,40 @@ export const TranslationManager: React.FC = () => {
           </p>
         </div>
       </div>
+
+      <Alert className="mb-6">
+        <FileEdit className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Auto-Sync Feature:</strong> Click "Full Auto-Sync" to automatically detect and translate all missing keys across all languages and namespaces. 
+          Files will be downloaded automatically. Upload them to <code className="bg-muted px-1 rounded">public/locales/</code> to apply changes.
+        </AlertDescription>
+      </Alert>
+
+      <Card className="p-6 mb-6 bg-gradient-to-r from-primary/5 to-secondary/5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+              <Zap className="h-5 w-5 text-primary" />
+              Full Auto-Sync
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Automatically scan all languages and translate missing keys using OpenAI
+            </p>
+          </div>
+          <Button 
+            onClick={syncAllMissingTranslations} 
+            disabled={isTranslating || isAnalyzing}
+            size="lg"
+            className="gap-2"
+          >
+            {isTranslating ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> Syncing...</>
+            ) : (
+              <><Zap className="h-4 w-4" /> Run Full Sync</>
+            )}
+          </Button>
+        </div>
+      </Card>
 
       <Tabs defaultValue="single" className="space-y-6">
         <TabsList>
