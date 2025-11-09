@@ -43,6 +43,7 @@ const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
 const RefundPolicy = lazy(() => import('@/pages/RefundPolicy'));
 const BillingSuccess = lazy(() => import('@/pages/BillingSuccess').then(m => ({ default: m.BillingSuccess })));
 const BillingCanceled = lazy(() => import('@/pages/BillingCanceled').then(m => ({ default: m.BillingCanceled })));
+const Settings = lazy(() => import('@/pages/Settings'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -140,6 +141,11 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/refund" element={<RefundPolicy />} />
         <Route path="/billing/success" element={<BillingSuccess />} />
         <Route path="/billing/canceled" element={<BillingCanceled />} />
+        <Route path="/settings" element={
+          <ProtectedRoute requiresAuth>
+            <Settings />
+          </ProtectedRoute>
+        } />
         <Route path="/support" element={<Support />} />
         <Route path="/content-guidelines" element={<ContentGuidelines />} />
         {process.env.NODE_ENV === 'development' && (
