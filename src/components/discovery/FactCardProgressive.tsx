@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LocationNavigationButton } from '@/components/ui/LocationNavigationButton';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
-import { useUserStore } from '@/stores/userStore';
+import { useSavedFacts } from '@/hooks/useSavedFacts';
 import { EnhancedFact } from '@/types/fact';
 import { cn } from '@/lib/utils';
 
@@ -23,7 +23,7 @@ export const FactCardProgressive: React.FC<FactCardProgressiveProps> = ({
   viewMode = 'grid'
 }) => {
   const { setSelectedFact } = useDiscoveryStore();
-  const { savedFacts, toggleSavedFact } = useUserStore();
+  const { savedFacts, toggleSave, isSaving } = useSavedFacts();
   
   // Progressive loading states
   const [titleLoaded, setTitleLoaded] = useState(false);
@@ -63,7 +63,7 @@ export const FactCardProgressive: React.FC<FactCardProgressiveProps> = ({
 
   const handleSaveToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleSavedFact(fact.id);
+    toggleSave(fact.id);
   };
 
   const handleQuickView = (e: React.MouseEvent) => {
@@ -128,7 +128,13 @@ export const FactCardProgressive: React.FC<FactCardProgressiveProps> = ({
                 </div>
                 
                 {/* Save Button */}
-                <Button variant="ghost" size="sm" onClick={handleSaveToggle} className="h-8 w-8 p-0 shrink-0">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleSaveToggle} 
+                  className="h-8 w-8 p-0 shrink-0"
+                  disabled={isSaving}
+                >
                   {isSaved ? <BookmarkCheck className="h-4 w-4 text-yellow-600" /> : <Bookmark className="h-4 w-4" />}
                 </Button>
               </div>
@@ -185,7 +191,13 @@ export const FactCardProgressive: React.FC<FactCardProgressiveProps> = ({
                 
                 {/* Quick Actions */}
                 <div className="absolute top-3 right-3">
-                  <Button variant="ghost" size="sm" onClick={handleSaveToggle} className="h-8 w-8 p-0 bg-black/20 backdrop-blur-sm hover:bg-black/40">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleSaveToggle} 
+                    className="h-8 w-8 p-0 bg-black/20 backdrop-blur-sm hover:bg-black/40"
+                    disabled={isSaving}
+                  >
                     {isSaved ? <BookmarkCheck className="h-4 w-4 text-yellow-400" /> : <Bookmark className="h-4 w-4 text-white" />}
                   </Button>
                 </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { toast } from '@/hooks/use-toast';
+import { useOptimisticUpdate } from './useOptimisticUpdate';
 
 export interface FavoriteCity {
   name: string;
@@ -14,6 +15,7 @@ export const useFavoriteCities = () => {
   const [favoriteCities, setFavoriteCities] = useState<FavoriteCity[]>([]);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
+  const { execute: executeOptimistic, isPending } = useOptimisticUpdate();
 
   // Fetch favorite cities
   const fetchFavoriteCities = async () => {
@@ -46,99 +48,67 @@ export const useFavoriteCities = () => {
   const addFavoriteCity = async (city: FavoriteCity) => {
     if (!user) return;
 
-    try {
-      const updatedCities = [...favoriteCities, city];
-      
-      const { error } = await supabase
-        .from('profiles')
-        .update({ favorite_cities: updatedCities as any })
-        .eq('id', user.id);
+    const updatedCities = [...favoriteCities, city];
+    const previousCities = [...favoriteCities];
 
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to add favorite city. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
+    await executeOptimistic({
+      onUpdate: () => setFavoriteCities(updatedCities),
+      onRevert: () => setFavoriteCities(previousCities),
+      serverUpdate: async () => {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ favorite_cities: updatedCities as any })
+          .eq('id', user.id);
 
-      setFavoriteCities(updatedCities);
-      toast({
-        title: "Success",
-        description: `${city.name} added to your favorite cities!`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add favorite city. Please try again.",
-        variant: "destructive",
-      });
-    }
+        if (error) throw error;
+      },
+      successMessage: `${city.name} added to your favorite cities!`,
+      errorMessage: "Failed to add favorite city. Please try again.",
+    });
   };
 
   // Remove a favorite city
   const removeFavoriteCity = async (index: number) => {
     if (!user) return;
 
-    try {
-      const updatedCities = favoriteCities.filter((_, i) => i !== index);
-      
-      const { error } = await supabase
-        .from('profiles')
-        .update({ favorite_cities: updatedCities as any })
-        .eq('id', user.id);
+    const updatedCities = favoriteCities.filter((_, i) => i !== index);
+    const previousCities = [...favoriteCities];
 
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to remove favorite city. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
+    await executeOptimistic({
+      onUpdate: () => setFavoriteCities(updatedCities),
+      onRevert: () => setFavoriteCities(previousCities),
+      serverUpdate: async () => {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ favorite_cities: updatedCities as any })
+          .eq('id', user.id);
 
-      setFavoriteCities(updatedCities);
-      toast({
-        title: "Success",
-        description: "Favorite city removed successfully!",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to remove favorite city. Please try again.",
-        variant: "destructive",
-      });
-    }
+        if (error) throw error;
+      },
+      successMessage: "Favorite city removed successfully!",
+      errorMessage: "Failed to remove favorite city. Please try again.",
+    });
   };
 
   // Update favorite cities order
   const updateFavoriteCitiesOrder = async (newOrder: FavoriteCity[]) => {
     if (!user) return;
 
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ favorite_cities: newOrder as any })
-        .eq('id', user.id);
+    const previousOrder = [...favoriteCities];
 
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to update cities order. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
+    await executeOptimistic({
+      onUpdate: () => setFavoriteCities(newOrder),
+      onRevert: () => setFavoriteCities(previousOrder),
+      serverUpdate: async () => {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ favorite_cities: newOrder as any })
+          .eq('id', user.id);
 
-      setFavoriteCities(newOrder);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update cities order. Please try again.",
-        variant: "destructive",
-      });
-    }
+        if (error) throw error;
+      },
+      silent: true, // Don't show toast for drag-and-drop
+    });
   };
 
   useEffect(() => {
@@ -148,6 +118,7 @@ export const useFavoriteCities = () => {
   return {
     favoriteCities,
     loading,
+    isUpdating: isPending,
     addFavoriteCity,
     removeFavoriteCity,
     updateFavoriteCitiesOrder,
