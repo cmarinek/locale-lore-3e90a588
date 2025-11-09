@@ -129,6 +129,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const [timelineRange, setTimelineRange] = useState<{ start: Date; end: Date } | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isHistoricalAnimationPlaying, setIsHistoricalAnimationPlaying] = useState(false);
+  const [showHistoricalAnimation, setShowHistoricalAnimation] = useState(false);
   const [loadingDismissed, setLoadingDismissed] = useState(false);
 
   // Performance metrics
@@ -802,9 +803,23 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     <div className={`relative w-full h-full ${className}`}>
       <div ref={mapContainer} className="absolute inset-0" />
       
+      {/* Historical Timeline Toggle Button */}
+      {isLoaded && (
+        <div className="absolute top-20 left-4 z-20">
+          <Button
+            onClick={() => setShowHistoricalAnimation(!showHistoricalAnimation)}
+            variant={showHistoricalAnimation ? "default" : "outline"}
+            size="sm"
+            className="backdrop-blur-sm bg-background/90 hover:bg-background shadow-md"
+          >
+            📜 {showHistoricalAnimation ? 'Hide' : 'Show'} Timeline
+          </Button>
+        </div>
+      )}
+
       {/* Performance metrics */}
       {enablePerformanceMetrics && (
-        <Card className="absolute top-4 right-4 p-3 bg-background/90 backdrop-blur">
+        <Card className="absolute top-4 right-4 p-3 bg-background/90 backdrop-blur z-20">
           <div className="text-xs space-y-1">
             <div className="flex items-center gap-2">
               <Layers className="w-3 h-3" />
@@ -911,9 +926,9 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         </div>
       )}
 
-      {/* Historical Animation */}
-      {isLoaded && map.current && (
-        <div className="absolute top-24 left-4 z-30 max-w-sm">
+      {/* Historical Animation - only show when toggled */}
+      {isLoaded && map.current && showHistoricalAnimation && (
+        <div className="absolute top-32 left-4 z-30 max-w-sm">
           <HistoricalAnimation
             map={map.current}
             isPlaying={isHistoricalAnimationPlaying}
