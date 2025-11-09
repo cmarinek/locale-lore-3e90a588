@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 
 import { EnhancedMapControls } from './EnhancedMapControls';
 import { MapLoadingState } from './MapLoadingState';
+import { MapLoadingSkeleton } from './MapLoadingSkeleton';
 import { useFavoriteCities } from '@/hooks/useFavoriteCities';
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { mapboxService } from '@/services/mapboxService';
@@ -774,8 +775,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         </div>
       )}
 
-      {/* Loading state */}
-      {!isLoaded && <MapLoadingState />}
+      {/* Loading skeleton */}
+      {!isLoaded && <MapLoadingSkeleton />}
     </div>
   );
 };
