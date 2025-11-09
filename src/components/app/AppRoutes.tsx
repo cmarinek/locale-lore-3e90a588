@@ -45,6 +45,7 @@ const RefundPolicy = lazy(() => import('@/pages/RefundPolicy'));
 const BillingSuccess = lazy(() => import('@/pages/BillingSuccess').then(m => ({ default: m.BillingSuccess })));
 const BillingCanceled = lazy(() => import('@/pages/BillingCanceled').then(m => ({ default: m.BillingCanceled })));
 const Settings = lazy(() => import('@/pages/Settings'));
+const TranslationManager = lazy(() => import('@/pages/admin/TranslationManager').then(m => ({ default: m.TranslationManager })));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -136,6 +137,11 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/performance" element={
           <ProtectedRoute adminOnly>
             <PerformanceMonitor />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/translations" element={
+          <ProtectedRoute adminOnly>
+            <TranslationManager />
           </ProtectedRoute>
         } />
         <Route path="/help" element={<Help />} />
