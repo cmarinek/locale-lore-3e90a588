@@ -101,6 +101,7 @@ export interface SearchFilters {
   sortBy: 'relevance' | 'date' | 'popularity' | 'recency';
   location?: { lat: number; lng: number; name?: string };
   radius?: number;
+  hasMedia?: boolean;
   center?: [number, number] | null;
 }
 

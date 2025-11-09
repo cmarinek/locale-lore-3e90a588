@@ -83,10 +83,10 @@ export const QuickFilters: React.FC<QuickFiltersProps> = ({
       id: 'with-media',
       label: 'Has Media',
       icon: <Image className="w-4 h-4" />,
-      active: filters.timeRange === 'has_media', // Using timeRange as a hack for now
+      active: filters.hasMedia || false,
       onClick: () => {
         onFiltersChange({ 
-          timeRange: filters.timeRange === 'has_media' ? '' : 'has_media'
+          hasMedia: !(filters.hasMedia || false)
         });
       }
     }
