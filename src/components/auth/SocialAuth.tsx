@@ -22,8 +22,30 @@ export const SocialAuth = ({ onSuccess }: SocialAuthProps) => {
   };
 
   const handleAppleSignIn = async () => {
-    // Apple sign in would be implemented here
-    log.info('Apple sign in not implemented yet', { component: 'SocialAuth', action: 'appleSignIn' });
+    try {
+      log.info('Initiating Apple sign in', { component: 'SocialAuth', action: 'appleSignIn' });
+      
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          scopes: 'email name',
+        },
+      });
+
+      if (error) {
+        log.error('Apple sign in error', error, { component: 'SocialAuth', action: 'appleSignIn' });
+        throw error;
+      }
+
+      if (data) {
+        log.info('Apple sign in initiated successfully', { component: 'SocialAuth', action: 'appleSignIn' });
+        onSuccess?.();
+      }
+    } catch (error) {
+      log.error('Apple sign in exception', error, { component: 'SocialAuth', action: 'appleSignIn' });
+    }
   };
 
   return (
