@@ -26,9 +26,15 @@ serve(async (req) => {
     for (const name of possibleNames) {
       const token = Deno.env.get(name);
       if (token) {
-        mapboxToken = token.trim();
+        // Remove all whitespace including \r\n and other special characters
+        mapboxToken = token.replace(/[\r\n\s]/g, '').trim();
         foundVariable = name;
-        break;
+        // Only use non-empty tokens
+        if (mapboxToken.length > 0) {
+          break;
+        } else {
+          mapboxToken = null;
+        }
       }
     }
     

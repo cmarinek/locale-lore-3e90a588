@@ -147,6 +147,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   }, []);
 
   const fetchMapboxToken = useCallback(async () => {
+    console.log('🗺️ Fetching Mapbox token...');
     setTokenStatus('loading');
     setTokenError(null);
 
@@ -154,19 +155,24 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       const token = await mapboxService.getToken();
 
       if (!isMountedRef.current) {
+        console.log('⚠️ Component unmounted, aborting token fetch');
         return;
       }
 
-      if (token) {
+      console.log('✅ Token received:', token ? `${token.substring(0, 10)}...` : 'null');
+
+      if (token && token.length > 0) {
         setMapboxToken(token);
         setTokenStatus('ready');
+        console.log('✅ Mapbox token ready');
       } else {
         setMapboxToken('');
         setTokenStatus('missing');
         setTokenError('A Mapbox public token is required to display the interactive map.');
+        console.error('❌ No Mapbox token available');
       }
     } catch (error) {
-      console.error('Failed to load Mapbox token', error);
+      console.error('❌ Failed to load Mapbox token:', error);
 
       if (!isMountedRef.current) {
         return;
@@ -381,54 +387,74 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken || isInitialized.current) return;
+    if (!mapContainer.current || !mapboxToken || isInitialized.current) {
+      console.log('⏭️ Skipping map init:', {
+        hasContainer: !!mapContainer.current,
+        hasToken: !!mapboxToken,
+        isInitialized: isInitialized.current
+      });
+      return;
+    }
 
+    console.log('🗺️ Initializing Mapbox map...');
     mapboxgl.accessToken = mapboxToken;
     isInitialized.current = true;
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: getMapStyleUrl(mapStyle),
-      center: center,
-      zoom: zoom,
-      projection: { name: 'globe' },
-      antialias: true,
-      attributionControl: false,
-      logoPosition: 'bottom-right'
-    });
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: getMapStyleUrl(mapStyle),
+        center: center,
+        zoom: zoom,
+        projection: { name: 'globe' },
+        antialias: true,
+        attributionControl: false,
+        logoPosition: 'bottom-right'
+      });
 
-    map.current.on('load', () => {
-      setIsLoaded(true);
-      
-      if (enableClustering) {
-        setupClusteredMap();
-      } else {
-        setupMarkerMap();
-      }
+      map.current.on('load', () => {
+        console.log('✅ Map loaded successfully');
+        setIsLoaded(true);
+        
+        if (enableClustering) {
+          setupClusteredMap();
+        } else {
+          setupMarkerMap();
+        }
 
-      // Initial viewport load
-      if (enableViewportLoading && useScalableLoading) {
-        loadViewportFacts(map.current!.getBounds(), zoom);
-      }
-    });
+        // Initial viewport load
+        if (enableViewportLoading && useScalableLoading) {
+          loadViewportFacts(map.current!.getBounds(), zoom);
+        }
+      });
 
-    // Event handlers
-    const handleMove = debounce(() => {
-      if (!map.current) return;
-      
-      const bounds = map.current.getBounds();
-      const currentZoom = map.current.getZoom();
-      setCurrentZoom(currentZoom);
-      
-      if (enableViewportLoading && useScalableLoading) {
-        loadViewportFacts(bounds, currentZoom);
-      }
-    }, 150);
+      map.current.on('error', (e) => {
+        console.error('❌ Map error:', e);
+      });
 
-    map.current.on('moveend', handleMove);
-    map.current.on('zoomend', handleMove);
+      // Event handlers
+      const handleMove = debounce(() => {
+        if (!map.current) return;
+        
+        const bounds = map.current.getBounds();
+        const currentZoom = map.current.getZoom();
+        setCurrentZoom(currentZoom);
+        
+        if (enableViewportLoading && useScalableLoading) {
+          loadViewportFacts(bounds, currentZoom);
+        }
+      }, 150);
+
+      map.current.on('moveend', handleMove);
+      map.current.on('zoomend', handleMove);
+    } catch (error) {
+      console.error('❌ Failed to initialize map:', error);
+      setTokenStatus('error');
+      setTokenError(error instanceof Error ? error.message : 'Failed to initialize map');
+    }
 
     return () => {
+      console.log('🧹 Cleaning up map');
       map.current?.remove();
       isInitialized.current = false;
     };
