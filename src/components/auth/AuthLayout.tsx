@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -21,6 +22,8 @@ export const AuthLayout = ({
   showHomeLink = true,
   onBack 
 }: AuthLayoutProps) => {
+  const { branding } = useSiteSettings();
+  
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-primary/5">
       {/* Top navigation bar */}
@@ -28,9 +31,13 @@ export const AuthLayout = ({
         <header className="w-full p-4">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 hover-scale">
-              <img src="/icon-192.png" alt="LocaleLore" className="w-10 h-8" />
+              <img 
+                src={branding?.logo_url || '/logo.png'} 
+                alt={branding?.site_name || 'LocaleLore'} 
+                className="h-8 object-contain" 
+              />
               <span className="font-bold text-xl bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">
-                LocaleLore
+                {branding?.site_name || 'LocaleLore'}
               </span>
             </Link>
             <Button variant="outline" size="sm" asChild>

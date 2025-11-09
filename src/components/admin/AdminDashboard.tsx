@@ -16,6 +16,7 @@ import MediaManagement from '@/pages/MediaManagement';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { SiteSettingsPanel } from './SiteSettingsPanel';
 
 export const AdminDashboard: React.FC = () => {
   const { isAdmin, loading } = useAdmin();
@@ -71,6 +72,8 @@ export const AdminDashboard: React.FC = () => {
         return <MobileAppBuilder />;
       case 'media':
         return <MediaManagement />;
+      case 'settings':
+        return <SiteSettingsPanel />;
       default:
         return <AnalyticsDashboard />;
     }

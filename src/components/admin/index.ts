@@ -5,3 +5,4 @@ export { ReportsPanel } from './ReportsPanel';
 export { UserManagementPanel } from './UserManagementPanel';
 export { MobileAppBuilder } from './MobileAppBuilder';
 export { TranslationStatusDashboard } from './TranslationStatusDashboard';
+export { SiteSettingsPanel } from './SiteSettingsPanel';

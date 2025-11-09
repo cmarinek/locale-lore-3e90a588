@@ -20,6 +20,7 @@ import {
   FileText,
   Database,
   Smartphone,
+  Settings,
 } from 'lucide-react';
 
 const adminItems = [
@@ -50,6 +51,7 @@ const adminItems = [
       { title: 'Users', value: 'users', icon: Users },
       { title: 'Reports', value: 'reports', icon: FileText },
       { title: 'Mobile Builder', value: 'mobile', icon: Smartphone },
+      { title: 'Site Settings', value: 'settings', icon: Settings },
     ]
   }
 ];
