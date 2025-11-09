@@ -884,6 +884,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
             map={map.current}
             isPlaying={isHistoricalAnimationPlaying}
             onPlayStateChange={setIsHistoricalAnimationPlaying}
+            mapContainerRef={mapContainer}
           />
         </div>
       )}

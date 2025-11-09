@@ -3,9 +3,10 @@ import mapboxgl from 'mapbox-gl';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, X } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, Video } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { VideoExportDialog } from './VideoExportDialog';
 
 interface HistoricalEvent {
   id: string;
@@ -29,6 +30,7 @@ interface HistoricalAnimationProps {
   map: mapboxgl.Map | null;
   isPlaying: boolean;
   onPlayStateChange: (playing: boolean) => void;
+  mapContainerRef?: React.RefObject<HTMLDivElement>;
   className?: string;
 }
 
@@ -36,6 +38,7 @@ export const HistoricalAnimation: React.FC<HistoricalAnimationProps> = ({
   map,
   isPlaying,
   onPlayStateChange,
+  mapContainerRef,
   className
 }) => {
   const [events, setEvents] = useState<HistoricalEvent[]>([]);
@@ -43,6 +46,8 @@ export const HistoricalAnimation: React.FC<HistoricalAnimationProps> = ({
   const [isNarrationEnabled, setIsNarrationEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(3000); // ms per event
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -249,6 +254,26 @@ export const HistoricalAnimation: React.FC<HistoricalAnimationProps> = ({
     stopNarration();
   };
 
+  const handleExportClick = () => {
+    if (isPlaying) {
+      toast.error('Please stop the animation before exporting');
+      return;
+    }
+    setShowExportDialog(true);
+  };
+
+  const handleStartRecording = () => {
+    setIsRecording(true);
+    // Reset to beginning and start playing
+    setCurrentEventIndex(0);
+    onPlayStateChange(true);
+  };
+
+  const handleStopRecording = () => {
+    setIsRecording(false);
+    onPlayStateChange(false);
+  };
+
   const currentEvent = events[currentEventIndex];
 
   if (loading) {
@@ -291,18 +316,31 @@ export const HistoricalAnimation: React.FC<HistoricalAnimationProps> = ({
                 Event {currentEventIndex + 1} of {events.length}
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsNarrationEnabled(!isNarrationEnabled)}
-              className="h-8 w-8"
-            >
-              {isNarrationEnabled ? (
-                <Volume2 className="w-4 h-4" />
-              ) : (
-                <VolumeX className="w-4 h-4" />
-              )}
-            </Button>
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsNarrationEnabled(!isNarrationEnabled)}
+                className="h-8 w-8"
+                title={isNarrationEnabled ? 'Mute narration' : 'Enable narration'}
+              >
+                {isNarrationEnabled ? (
+                  <Volume2 className="w-4 h-4" />
+                ) : (
+                  <VolumeX className="w-4 h-4" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleExportClick}
+                className="h-8 w-8"
+                disabled={isPlaying || isRecording}
+                title="Export as video"
+              >
+                <Video className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Current Event Info */}
@@ -399,6 +437,16 @@ export const HistoricalAnimation: React.FC<HistoricalAnimationProps> = ({
           </div>
         </div>
       </Card>
+
+      {/* Video Export Dialog */}
+      <VideoExportDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        mapContainer={mapContainerRef?.current || null}
+        isRecording={isRecording}
+        onStartRecording={handleStartRecording}
+        onStopRecording={handleStopRecording}
+      />
     </>
   );
 };
