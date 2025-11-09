@@ -15,26 +15,10 @@ import { MapPin, Layers, ZoomIn, AlertTriangle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 
-import { EnhancedMapControls } from './EnhancedMapControls';
-import { ClusteringControls } from './ClusteringControls';
-import { MapLoadingState } from './MapLoadingState';
-import { MapLoadingSkeleton } from './MapLoadingSkeleton';
-import { TimelineSlider } from './TimelineSlider';
-import { CollaborativeMarkers } from './CollaborativeMarkers';
-import { DrawingTools } from './DrawingTools';
-import { HistoricalAnimation } from './HistoricalAnimation';
-import { MapStatsOverlay } from './MapStatsOverlay';
-import { MapLegend } from './MapLegend';
-import { MapFilterPanel } from './MapFilterPanel';
-import { MapSearchBar } from './MapSearchBar';
-import { useFavoriteCities } from '@/hooks/useFavoriteCities';
-import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
+import { SimpleMapControls } from './SimpleMapControls';
+import { MapSkeleton } from './MapSkeleton';
 import { mapboxService } from '@/services/mapboxService';
-import { scalableFactService } from '@/services/scalableFactService';
-import { useDiscoveryStore } from '@/stores/discoveryStore';
-import { useSearchStore } from '@/stores/searchStore';
 import { useMapStore } from '@/stores/mapStore';
-import { useUIStore } from '@/stores/uiStore';
 import { MapTokenMissing } from './MapTokenMissing';
 
 // Types
@@ -74,11 +58,6 @@ interface UnifiedMapProps {
   
   // Performance options
   enableViewportLoading?: boolean;
-  enablePerformanceMetrics?: boolean;
-  
-  // Feature options
-  showHeatmap?: boolean;
-  showBuiltInSearch?: boolean;
   
   // Event handlers
   onFactClick?: (fact: Fact) => void;
@@ -91,17 +70,14 @@ interface UnifiedMapProps {
 
 export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   facts: externalFacts,
-  useScalableLoading = true,
+  useScalableLoading = false,
   center = [0, 20],
   zoom = 2,
   maxZoom = 16,
   style = 'light',
   enableClustering = true,
   clusterRadius = 50,
-  enableViewportLoading = true,
-  enablePerformanceMetrics = true,
-  showHeatmap = false,
-  showBuiltInSearch = true,
+  enableViewportLoading = false,
   onFactClick,
   onBoundsChange,
   className,
@@ -116,11 +92,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const updateTimeout = useRef<NodeJS.Timeout | null>(null);
   const isUpdating = useRef(false);
 
-  // Hooks
-  const { startRenderMeasurement, endRenderMeasurement } = usePerformanceMonitor(enablePerformanceMetrics);
-  const { favoriteCities } = useFavoriteCities();
-  const { selectedFact, setSelectedFact } = useDiscoveryStore();
-  const { filters } = useSearchStore();
+  // Hooks - minimal state management
   const { selectedMarkerId, setSelectedMarkerId } = useMapStore();
 
   // State
@@ -130,36 +102,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentZoom, setCurrentZoom] = useState(zoom);
   const [mapStyle, setMapStyle] = useState(style);
-  const [facts, setFacts] = useState<Fact[]>([]);
-  const [viewportFacts, setViewportFacts] = useState<Fact[]>([]);
-  const [loadingViewport, setLoadingViewport] = useState(false);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [clusterRadiusState, setClusterRadiusState] = useState(clusterRadius);
-  const [animationSpeed, setAnimationSpeed] = useState(1000);
-  const [clusteringEnabled, setClusteringEnabled] = useState(enableClustering);
-  const [timelineRange, setTimelineRange] = useState<{ start: Date; end: Date } | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [isHistoricalAnimationPlaying, setIsHistoricalAnimationPlaying] = useState(false);
-  const [showHistoricalAnimation, setShowHistoricalAnimation] = useState(false);
   const [loadingDismissed, setLoadingDismissed] = useState(false);
-  
-  // UI state from stores
-  const showMapLegend = useUIStore((state) => state.showMapLegend);
-  const toggleMapLegend = useUIStore((state) => state.toggleMapLegend);
-  
-  // New UI states
-  const [heatmapEnabled, setHeatmapEnabled] = useState(showHeatmap);
-  const [filterCategories, setFilterCategories] = useState<string[]>([]);
-  const [filterDateRange, setFilterDateRange] = useState<{ start: Date; end: Date } | null>(null);
-  const [filterPopularity, setFilterPopularity] = useState(0);
-
-  // Performance metrics
-  const [metrics, setMetrics] = useState({
-    totalFacts: 0,
-    visibleClusters: 0,
-    renderTime: 0,
-    loadTime: 0
-  });
 
   const [retryTrigger, setRetryTrigger] = useState(0);
 
@@ -242,189 +185,12 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     return styles[styleType as keyof typeof styles] || styles.light;
   }, []);
 
-  // Process facts data - use external facts or load from viewport
+  // Process facts data - use provided facts directly
   const processedFacts = useMemo(() => {
-    if (externalFacts) {
-      return externalFacts;
-    }
-    return useScalableLoading ? viewportFacts : facts;
-  }, [externalFacts, useScalableLoading, viewportFacts, facts]);
+    return externalFacts || [];
+  }, [externalFacts]);
 
-  // Compute stats and category distribution
-  const { categories } = useDiscoveryStore();
-  
-  const filteredFacts = useMemo(() => {
-    let filtered = processedFacts;
-    
-    // Filter by categories
-    if (filterCategories.length > 0) {
-      filtered = filtered.filter(fact => 
-        fact.categories?.slug && filterCategories.includes(fact.categories.slug)
-      );
-    }
-    
-    // Filter by date range
-    if (filterDateRange) {
-      filtered = filtered.filter(fact => {
-        const factDate = new Date(fact.created_at);
-        return factDate >= filterDateRange.start && factDate <= filterDateRange.end;
-      });
-    }
-    
-    // Filter by popularity
-    if (filterPopularity > 0) {
-      filtered = filtered.filter(fact => 
-        (fact.vote_count_up || 0) >= filterPopularity
-      );
-    }
-    
-    return filtered;
-  }, [processedFacts, filterCategories, filterDateRange, filterPopularity]);
-
-  const categoryDistribution = useMemo(() => {
-    const distribution: Record<string, { count: number; icon: string; color: string }> = {};
-    
-    filteredFacts.forEach(fact => {
-      const categorySlug = fact.categories?.slug || 'unknown';
-      const categoryName = fact.categories?.category_translations?.[0]?.name || 'Unknown';
-      const categoryIcon = fact.categories?.icon || '📍';
-      const categoryColor = fact.categories?.color || '#666666';
-      
-      if (!distribution[categoryName]) {
-        distribution[categoryName] = { count: 0, icon: categoryIcon, color: categoryColor };
-      }
-      distribution[categoryName].count++;
-    });
-    
-    return distribution;
-  }, [filteredFacts]);
-
-  const legendCategories = useMemo(() => {
-    return categories.map(cat => ({
-      id: cat.slug,
-      name: cat.category_translations?.[0]?.name || cat.slug,
-      icon: cat.icon || '📍',
-      color: cat.color || '#666666',
-      count: filteredFacts.filter(f => f.categories?.slug === cat.slug).length
-    }));
-  }, [categories, filteredFacts]);
-
-  const filterPanelCategories = useMemo(() => {
-    return categories.map(cat => ({
-      id: cat.slug,
-      name: cat.category_translations?.[0]?.name || cat.slug,
-      icon: cat.icon || '📍',
-      color: cat.color || '#666666',
-      count: processedFacts.filter(f => f.categories?.slug === cat.slug).length
-    }));
-  }, [categories, processedFacts]);
-
-  // Filter handlers
-  const handleCategoryToggle = useCallback((categoryId: string) => {
-    setFilterCategories(prev => 
-      prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
-    );
-  }, []);
-
-  const handleClearFilters = useCallback(() => {
-    setFilterCategories([]);
-    setFilterDateRange(null);
-    setFilterPopularity(0);
-  }, []);
-
-  // Search result handler
-  const handleSearchResultSelect = useCallback((result: any) => {
-    if (!map.current) return;
-    
-    // Fly to the selected location
-    map.current.flyTo({
-      center: [result.longitude, result.latitude],
-      zoom: 14,
-      duration: 2000,
-      essential: true
-    });
-    
-    // Select the marker
-    setSelectedMarkerId(result.id);
-    
-    // Trigger fact click if handler exists
-    if (onFactClick) {
-      onFactClick(result);
-    }
-  }, [onFactClick, setSelectedMarkerId]);
-
-  // Heatmap toggle handler
-  const toggleHeatmap = useCallback(() => {
-    if (!map.current || !isLoaded) return;
-
-    const newHeatmapState = !heatmapEnabled;
-    setHeatmapEnabled(newHeatmapState);
-
-    if (newHeatmapState) {
-      // Add heatmap layer
-      if (!map.current.getLayer('heatmap-layer')) {
-        map.current.addLayer({
-          id: 'heatmap-layer',
-          type: 'heatmap',
-          source: 'facts',
-          maxzoom: 15,
-          paint: {
-            // Increase weight as diameter increases
-            'heatmap-weight': [
-              'interpolate',
-              ['linear'],
-              ['get', 'vote_count_up'],
-              0, 0,
-              10, 1
-            ],
-            // Increase intensity as zoom increases
-            'heatmap-intensity': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              0, 1,
-              15, 3
-            ],
-            // Color ramp for heatmap
-            'heatmap-color': [
-              'interpolate',
-              ['linear'],
-              ['heatmap-density'],
-              0, 'rgba(33,102,172,0)',
-              0.2, 'rgb(103,169,207)',
-              0.4, 'rgb(209,229,240)',
-              0.6, 'rgb(253,219,199)',
-              0.8, 'rgb(239,138,98)',
-              1, 'rgb(178,24,43)'
-            ],
-            // Adjust radius by zoom level
-            'heatmap-radius': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              0, 2,
-              15, 20
-            ],
-            // Transition from heatmap to circle layer
-            'heatmap-opacity': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              7, 1,
-              15, 0
-            ]
-          }
-        }, 'clusters');
-      }
-    } else {
-      // Remove heatmap layer
-      if (map.current.getLayer('heatmap-layer')) {
-        map.current.removeLayer('heatmap-layer');
-      }
-    }
-  }, [heatmapEnabled, isLoaded]);
+  const filteredFacts = processedFacts;
 
   // Initialize supercluster
   const initializeSupercluster = useCallback(() => {
@@ -453,49 +219,6 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
     return cluster;
   }, [filteredFacts, enableClustering, clusterRadius, maxZoom]);
-
-  // Throttled viewport loading
-  const loadViewportFacts = useCallback(
-    throttle(async (bounds: mapboxgl.LngLatBounds, zoomLevel: number) => {
-      if (!enableViewportLoading || !useScalableLoading) return;
-      
-      setLoadingViewport(true);
-      const startTime = performance.now();
-
-      try {
-        const boundsObj = {
-          north: bounds.getNorth(),
-          south: bounds.getSouth(),
-          east: bounds.getEast(),
-          west: bounds.getWest()
-        };
-
-        const query = {
-          bounds: boundsObj,
-          zoom: zoomLevel,
-          category: filters.category,
-          status: 'verified' as const
-        };
-
-        const newFacts = await scalableFactService.loadFactsForViewport(query);
-        setViewportFacts(newFacts);
-        
-        const loadTime = performance.now() - startTime;
-        setMetrics(prev => ({
-          ...prev,
-          totalFacts: newFacts.length,
-          loadTime: Math.round(loadTime)
-        }));
-
-        onBoundsChange?.(bounds);
-      } catch (error) {
-        console.error('Error loading viewport facts:', error);
-      } finally {
-        setLoadingViewport(false);
-      }
-    }, 300),
-    [enableViewportLoading, useScalableLoading, filters.category, onBoundsChange]
-  );
 
   // Create marker elements
   const createMarkerElement = useCallback((fact: Fact) => {
@@ -645,11 +368,6 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         } else {
           setupMarkerMap();
         }
-
-        // Initial viewport load
-        if (enableViewportLoading && useScalableLoading) {
-          loadViewportFacts(map.current!.getBounds(), zoom);
-        }
       });
 
       map.current.on('error', (e) => {
@@ -664,9 +382,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         const currentZoom = map.current.getZoom();
         setCurrentZoom(currentZoom);
         
-        if (enableViewportLoading && useScalableLoading) {
-          loadViewportFacts(bounds, currentZoom);
-        }
+        onBoundsChange?.(bounds);
       }, 150);
 
       map.current.on('moveend', handleMove);
@@ -682,7 +398,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       map.current?.remove();
       isInitialized.current = false;
     };
-  }, [mapboxToken, getMapStyleUrl, mapStyle, center, zoom, enableClustering, enableViewportLoading, useScalableLoading, loadViewportFacts]);
+  }, [mapboxToken, getMapStyleUrl, mapStyle, center, zoom, enableClustering]);
 
   // Setup clustered map using Mapbox GL native clustering with category distribution
   const setupClusteredMap = useCallback(() => {
@@ -982,8 +698,6 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     } else {
       setupMarkerMap();
     }
-
-    setMetrics(prev => ({ ...prev, totalFacts: processedFacts.length }));
   }, [processedFacts, isLoaded, enableClustering, setupMarkerMap]);
 
   // Map control handlers
@@ -1000,9 +714,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const userPos: [number, number] = [position.coords.longitude, position.coords.latitude];
-          setUserLocation(userPos);
           if (map.current) {
-            map.current.easeTo({ center: userPos, zoom: 14, duration: animationSpeed });
+            map.current.easeTo({ center: userPos, zoom: 14, duration: 1000 });
             
             // Add a marker for user location
             const el = document.createElement('div');
@@ -1043,7 +756,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         variant: "destructive"
       });
     }
-  }, [animationSpeed]);
+  }, []);
 
   const handleStyleChange = useCallback(() => {
     const styles = ['light', 'dark', 'satellite'] as const;
@@ -1086,35 +799,11 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   if (!isVisible) return null;
 
-  // Auto-dismiss loading after 10 seconds as failsafe
-  useEffect(() => {
-    if ((tokenStatus === 'loading' || tokenStatus === 'idle') && !loadingDismissed) {
-      const failsafeTimer = setTimeout(() => {
-        console.warn('⏱️ [UnifiedMap] FAILSAFE: Auto-dismissing loading state after 10 seconds');
-        setLoadingDismissed(true);
-      }, 10000);
-      
-      return () => clearTimeout(failsafeTimer);
-    }
-  }, [tokenStatus, loadingDismissed]);
-
-  // Log current status for debugging
-  useEffect(() => {
-    console.log('🗺️ [UnifiedMap] Current state:', { 
-      tokenStatus, 
-      loadingDismissed, 
-      hasToken: !!mapboxToken,
-      tokenLength: mapboxToken?.length 
-    });
-  }, [tokenStatus, loadingDismissed, mapboxToken]);
-
-  if ((tokenStatus === 'loading' || tokenStatus === 'idle') && !loadingDismissed) {
+  // Handle loading and error states
+  if (tokenStatus === 'loading' || tokenStatus === 'idle') {
     return (
       <div className={`relative w-full h-full ${className}`}>
-        <MapLoadingState 
-          message="Preparing interactive map experience..." 
-          onClose={handleDismissLoading}
-        />
+        <MapSkeleton />
       </div>
     );
   }
@@ -1135,10 +824,10 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
             <div className="flex flex-col gap-4 p-6 text-destructive">
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-5 w-5" />
-                <h3 className="text-lg font-semibold">We couldn't reach Mapbox</h3>
+                <h3 className="text-lg font-semibold">Map Loading Error</h3>
               </div>
               <p className="text-sm text-destructive/80">
-                {tokenError || 'The Mapbox API token could not be retrieved. Please check your network connection and try again.'}
+                {tokenError || 'Unable to load map. Please check your connection and try again.'}
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button onClick={handleRetryTokenFetch} variant="destructive">
@@ -1157,214 +846,21 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   return (
     <div className={`relative w-full h-full ${className}`}>
+      {/* Map Container */}
       <div ref={mapContainer} className="absolute inset-0" />
       
-      {/* Map Stats Overlay */}
-      {isLoaded && (
-        <MapStatsOverlay
-          totalStories={processedFacts.length}
-          storiesInView={filteredFacts.length}
-          categoryDistribution={categoryDistribution}
-        />
-      )}
+      {/* Loading Skeleton */}
+      {!isLoaded && <MapSkeleton />}
 
-      {/* Search Bar */}
+      {/* Simple Map Controls */}
       {isLoaded && (
-        <MapSearchBar
-          facts={filteredFacts as any[]}
-          onResultSelect={handleSearchResultSelect}
-          className="absolute top-20 right-4 z-20 w-80"
-        />
-      )}
-
-      {/* Legend Toggle Button */}
-      {isLoaded && (
-        <div className="absolute bottom-20 right-4 z-20 flex gap-2">
-          <Button
-            onClick={toggleMapLegend}
-            variant="outline"
-            size="sm"
-            className="backdrop-blur-sm bg-background/90 hover:bg-background shadow-md"
-          >
-            {showMapLegend ? 'Hide' : 'Show'} Legend
-          </Button>
-          <Button
-            onClick={toggleHeatmap}
-            variant={heatmapEnabled ? "default" : "outline"}
-            size="sm"
-            className="backdrop-blur-sm bg-background/90 hover:bg-background shadow-md"
-          >
-            🔥 {heatmapEnabled ? 'Hide' : 'Show'} Heatmap
-          </Button>
-        </div>
-      )}
-
-      {/* Map Legend */}
-      {isLoaded && (
-        <MapLegend
-          categories={legendCategories}
-        />
-      )}
-
-      {/* Filter Panel */}
-      {isLoaded && (
-        <MapFilterPanel
-          categories={filterPanelCategories}
-          selectedCategories={filterCategories}
-          onCategoryToggle={handleCategoryToggle}
-          dateRange={filterDateRange}
-          onDateRangeChange={setFilterDateRange}
-          popularityFilter={filterPopularity}
-          onPopularityFilterChange={setFilterPopularity}
-          onClearFilters={handleClearFilters}
-        />
-      )}
-      
-      {/* Historical Timeline Toggle Button */}
-      {isLoaded && (
-        <div className="absolute top-20 left-4 z-20">
-          <Button
-            onClick={() => setShowHistoricalAnimation(!showHistoricalAnimation)}
-            variant={showHistoricalAnimation ? "default" : "outline"}
-            size="sm"
-            className="backdrop-blur-sm bg-background/90 hover:bg-background shadow-md"
-          >
-            📜 {showHistoricalAnimation ? 'Hide' : 'Show'} Timeline
-          </Button>
-        </div>
-      )}
-
-      {/* Performance metrics */}
-      {enablePerformanceMetrics && (
-        <Card className="absolute top-4 right-4 p-3 bg-background/90 backdrop-blur z-20">
-          <div className="text-xs space-y-1">
-            <div className="flex items-center gap-2">
-              <Layers className="w-3 h-3" />
-              <span>{metrics.totalFacts.toLocaleString()} facts</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <ZoomIn className="w-3 h-3" />
-              <span>Zoom: {currentZoom.toFixed(1)}</span>
-            </div>
-            {useScalableLoading && (
-              <div className="text-muted-foreground">
-                Load: {metrics.loadTime}ms
-              </div>
-            )}
-            {loadingViewport && (
-              <Badge variant="secondary" className="text-xs">Loading...</Badge>
-            )}
-          </div>
-        </Card>
-      )}
-
-      {/* Enhanced Map Controls */}
-      {isLoaded && (
-        <EnhancedMapControls
+        <SimpleMapControls
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
           onRecenter={handleRecenter}
-          onMyLocation={handleMyLocation}
           onStyleChange={handleStyleChange}
-          onResetView={handleResetView}
-          position="left"
+          currentStyle={mapStyle}
         />
-      )}
-
-      {/* Clustering Controls */}
-      {isLoaded && enableClustering && (
-        <div className="absolute bottom-4 left-4 z-30">
-          <ClusteringControls
-            clusterRadius={clusterRadiusState}
-            onClusterRadiusChange={(value) => {
-              setClusterRadiusState(value);
-              // Reinitialize supercluster with new radius
-              if (map.current && isLoaded) {
-                const source = map.current.getSource('facts') as mapboxgl.GeoJSONSource;
-                if (source) {
-                  map.current.removeLayer('clusters');
-                  map.current.removeLayer('cluster-count');
-                  map.current.removeLayer('unclustered-point');
-                  map.current.removeSource('facts');
-                  setTimeout(() => setupClusteredMap(), 100);
-                }
-              }
-            }}
-            animationSpeed={animationSpeed}
-            onAnimationSpeedChange={setAnimationSpeed}
-            enableClustering={clusteringEnabled}
-            onClusteringToggle={(enabled) => {
-              setClusteringEnabled(enabled);
-              if (map.current && isLoaded) {
-                if (enabled) {
-                  setupClusteredMap();
-                } else {
-                  // Remove clustering layers
-                  if (map.current.getLayer('clusters')) map.current.removeLayer('clusters');
-                  if (map.current.getLayer('cluster-count')) map.current.removeLayer('cluster-count');
-                  if (map.current.getLayer('unclustered-point')) map.current.removeLayer('unclustered-point');
-                  if (map.current.getSource('facts')) map.current.removeSource('facts');
-                  setupMarkerMap();
-                }
-              }
-            }}
-          />
-        </div>
-      )}
-
-      {/* Favorite Cities */}
-      {isLoaded && favoriteCities.length > 0 && (
-        <div className="absolute top-4 left-4 flex flex-col space-y-2 z-20">
-          {favoriteCities.slice(0, 3).map((city, index) => (
-            <button
-              key={index}
-              onClick={() => handleCityClick(city)}
-              className="px-3 py-2 bg-background/90 backdrop-blur-sm border border-border rounded-lg text-sm font-medium hover:bg-accent transition-all shadow-md"
-              title={`Fly to ${city.name}`}
-            >
-              {city.name}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Loading skeleton */}
-      {!isLoaded && <MapLoadingSkeleton />}
-
-      {/* Timeline Slider */}
-      {isLoaded && (
-        <div className="absolute bottom-24 left-4 right-4 z-30">
-          <TimelineSlider
-            onDateRangeChange={(start, end) => setTimelineRange({ start, end })}
-            onCategoriesChange={setSelectedCategories}
-            minDate={new Date(2014, 0, 1)}
-            maxDate={new Date()}
-          />
-        </div>
-      )}
-
-      {/* Historical Animation - only show when toggled */}
-      {isLoaded && map.current && showHistoricalAnimation && (
-        <div className="absolute top-32 left-4 z-30 max-w-sm">
-          <HistoricalAnimation
-            map={map.current}
-            isPlaying={isHistoricalAnimationPlaying}
-            onPlayStateChange={setIsHistoricalAnimationPlaying}
-            mapContainerRef={mapContainer}
-          />
-        </div>
-      )}
-
-      {/* Collaborative Markers */}
-      {isLoaded && map.current && (
-        <CollaborativeMarkers map={map.current} />
-      )}
-
-      {/* Drawing Tools */}
-      {isLoaded && map.current && (
-        <div className="absolute top-96 right-4 z-30">
-          <DrawingTools map={map.current} />
-        </div>
       )}
     </div>
   );
