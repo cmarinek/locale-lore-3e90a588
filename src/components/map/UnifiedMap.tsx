@@ -195,10 +195,21 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     }
   }, []);
 
-  // Load Mapbox token
+  // Load Mapbox token with timeout
   useEffect(() => {
     console.log('🗺️ [UnifiedMap] useEffect triggered - fetching token');
     fetchMapboxToken();
+
+    // Timeout after 10 seconds
+    const timeoutId = setTimeout(() => {
+      if (tokenStatus === 'loading' || tokenStatus === 'idle') {
+        console.error('❌ [UnifiedMap] Token fetch timeout after 10 seconds');
+        setTokenStatus('error');
+        setTokenError('Connection timeout. Please check your internet connection and try again.');
+      }
+    }, 10000);
+
+    return () => clearTimeout(timeoutId);
   }, [fetchMapboxToken]);
 
   // Handle loading state dismissal
