@@ -1,28 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  CreditCard, 
-  Calendar, 
-  TrendingUp, 
-  Settings, 
-  Download,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Loader2
-} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthProvider';
+import { toast } from 'sonner';
+import {
+  Calendar,
+  CreditCard,
+  DollarSign,
+  TrendingUp,
+  AlertCircle,
+  Loader2,
+  Settings,
+  X,
+  RotateCcw,
+} from 'lucide-react';
+import { format } from 'date-fns';
 import { Elements } from '@stripe/react-stripe-js';
 import { getStripe } from '@/lib/stripe';
 import { PaymentMethodForm } from './PaymentMethodForm';
 import { PaymentMethodDisplay } from './PaymentMethodDisplay';
 import { CancelSubscriptionDialog } from './CancelSubscriptionDialog';
+import { TierUpgradeDialog } from './TierUpgradeDialog';
+import { InvoiceList } from './InvoiceList';
 
 interface Subscription {
   id: string;
@@ -39,20 +41,17 @@ interface Payment {
   amount: number;
   currency: string;
   status: string;
-  type: string;
   created_at: string;
-  tier?: string;
 }
 
-export const SubscriptionDashboard: React.FC = () => {
+export function SubscriptionDashboard() {
   const { user } = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [managingPayment, setManagingPayment] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
-  const stripePromise = getStripe();
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -64,29 +63,20 @@ export const SubscriptionDashboard: React.FC = () => {
   const fetchSubscriptionData = async () => {
     try {
       const { data, error } = await supabase
-        .from('subscribers')
+        .from('subscriptions')
         .select('*')
         .eq('user_id', user?.id)
-        .maybeSingle();
+        .eq('status', 'active')
+        .single();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
+      if (error) throw error;
 
-      // Convert subscribers data to subscription format
-      if (data && data.subscribed) {
-        setSubscription({
-          id: data.id,
-          tier: 'contributor',
-          status: 'active',
-          current_period_start: data.created_at,
-          current_period_end: data.subscription_end || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        });
-      } else {
-        setSubscription(null);
-      }
+      setSubscription(data);
     } catch (error: any) {
       console.error('Error fetching subscription:', error);
+      setSubscription(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,62 +87,72 @@ export const SubscriptionDashboard: React.FC = () => {
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(5);
 
       if (error) throw error;
+
       setPayments(data || []);
     } catch (error: any) {
-      console.error('Error fetching payments:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error fetching payment history:', error);
     }
   };
 
-  const handleManageSubscription = async (action: string) => {
-    setActionLoading(true);
+  const handleManageSubscription = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal');
+      const { data, error } = await supabase.functions.invoke('manage-subscription', {
+        body: { action: 'create_portal_session' },
+      });
 
       if (error) throw error;
 
       if (data.url) {
         window.open(data.url, '_blank');
-      } else {
-        toast({
-          title: "Success",
-          description: `Subscription ${action} completed successfully.`,
-        });
-        fetchSubscriptionData();
       }
     } catch (error: any) {
-      console.error('Subscription management error:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to manage subscription",
-        variant: "destructive",
+      console.error('Error managing subscription:', error);
+      toast.error(error.message || 'Failed to open billing portal');
+    }
+  };
+
+  const handleReactivate = async () => {
+    try {
+      const { error } = await supabase.functions.invoke('manage-subscription', {
+        body: { action: 'reactivate' },
       });
-    } finally {
-      setActionLoading(false);
+
+      if (error) throw error;
+
+      toast.success('Subscription reactivated successfully!');
+      fetchSubscriptionData();
+    } catch (error: any) {
+      console.error('Error reactivating subscription:', error);
+      toast.error(error.message || 'Failed to reactivate subscription');
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-500';
-      case 'trialing': return 'bg-blue-500';
-      case 'past_due': return 'bg-yellow-500';
-      case 'canceled': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'active':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'trialing':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'past_due':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'canceled':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'active': return CheckCircle;
-      case 'trialing': return Clock;
-      case 'past_due': 
-      case 'canceled': return AlertCircle;
-      default: return Clock;
+      case 'active':
+        return <DollarSign className="h-4 w-4" />;
+      case 'past_due':
+        return <AlertCircle className="h-4 w-4" />;
+      default:
+        return <Calendar className="h-4 w-4" />;
     }
   };
 
@@ -166,202 +166,205 @@ export const SubscriptionDashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
+    );
+  }
+
+  if (!subscription) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-10">
+          <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+          <p className="text-lg font-medium mb-2">No Active Subscription</p>
+          <p className="text-sm text-muted-foreground">Subscribe to unlock all features</p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
     <div className="space-y-6">
       {/* Current Subscription */}
-      {subscription ? (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Current Subscription
-                </CardTitle>
-                <CardDescription>Manage your active subscription</CardDescription>
-              </div>
-              <Badge className={`${getStatusColor(subscription.status)} text-white`}>
-                {subscription.status}
-              </Badge>
+      <Card>
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Current Subscription
+              </CardTitle>
+              <CardDescription>Manage your subscription and billing</CardDescription>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Plan</p>
-                <p className="text-2xl font-bold capitalize">{subscription.tier}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Next Billing</p>
-                <p className="text-lg font-semibold">
-                  {new Date(subscription.current_period_end).toLocaleDateString()}
-                </p>
+            <Badge className={getStatusColor(subscription.status)}>
+              {getStatusIcon(subscription.status)}
+              <span className="ml-1 capitalize">{subscription.status}</span>
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Plan</p>
+              <p className="text-2xl font-bold capitalize">{subscription.tier}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Current Period Start</p>
+              <p className="text-lg">{format(new Date(subscription.current_period_start), 'MMM dd, yyyy')}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Next Billing Date</p>
+              <p className="text-lg">{format(new Date(subscription.current_period_end), 'MMM dd, yyyy')}</p>
+            </div>
+          </div>
+
+          {subscription.cancel_at_period_end && (
+            <div className="rounded-lg bg-yellow-50 dark:bg-yellow-950 p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-yellow-800 dark:text-yellow-200">Subscription Cancelling</p>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                    Your subscription will end on {format(new Date(subscription.current_period_end), 'MMMM dd, yyyy')}. You can reactivate anytime before this date.
+                  </p>
+                </div>
               </div>
             </div>
+          )}
 
-            {subscription.trial_end && new Date(subscription.trial_end) > new Date() && (
-              <Alert>
-                <Clock className="h-4 w-4" />
-                <AlertDescription>
-                  Trial ends on {new Date(subscription.trial_end).toLocaleDateString()}
-                </AlertDescription>
-              </Alert>
-            )}
+          <Separator />
 
-            {subscription.cancel_at_period_end && (
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Your subscription will be canceled at the end of the current billing period.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <Separator />
-
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                onClick={() => handleManageSubscription('portal')}
-                disabled={actionLoading}
-              >
-                <Settings className="mr-2 h-4 w-4" />
-                Manage Subscription
+          <div className="flex gap-2 flex-wrap">
+            <Button onClick={handleManageSubscription} variant="outline">
+              <Settings className="mr-2 h-4 w-4" />
+              Manage Subscription
+            </Button>
+            <Button onClick={() => setShowUpgradeDialog(true)} variant="outline">
+              <TrendingUp className="mr-2 h-4 w-4" />
+              Change Tier
+            </Button>
+            {subscription?.status === 'active' && !subscription?.cancel_at_period_end ? (
+              <Button variant="destructive" onClick={() => setShowCancelDialog(true)}>
+                <X className="mr-2 h-4 w-4" />
+                Cancel Subscription
               </Button>
-              
-              {!subscription.cancel_at_period_end && (
-                <Button
-                  variant="destructive"
-                  onClick={() => setShowCancelDialog(true)}
-                  disabled={actionLoading}
-                >
-                  Cancel Subscription
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            You're currently on the free plan. Become a contributor to submit content and join discussions.
-          </AlertDescription>
-        </Alert>
-      )}
+            ) : subscription?.cancel_at_period_end ? (
+              <Button onClick={handleReactivate} className="bg-green-600 hover:bg-green-700">
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Reactivate Subscription
+              </Button>
+            ) : null}
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Payment Method Display & Management */}
-      {subscription && (
-        <div className="space-y-4">
+      {/* Payment Method */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Payment Method</CardTitle>
+          <CardDescription>Manage your payment information</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
           <PaymentMethodDisplay />
           
-          <Button
-            variant="outline"
-            onClick={() => setShowPaymentForm(!showPaymentForm)}
-            className="w-full sm:w-auto"
-          >
-            <CreditCard className="mr-2 h-4 w-4" />
-            {showPaymentForm ? 'Hide' : 'Update'} Payment Method
-          </Button>
-          
-          {showPaymentForm && (
-            <Elements stripe={stripePromise}>
-              <PaymentMethodForm
-                onSuccess={() => {
-                  setShowPaymentForm(false);
-                  fetchSubscriptionData();
-                }}
-              />
-            </Elements>
+          {!managingPayment ? (
+            <Button variant="outline" onClick={() => setManagingPayment(true)}>
+              <CreditCard className="mr-2 h-4 w-4" />
+              Update Payment Method
+            </Button>
+          ) : (
+            <div className="space-y-4">
+              <Elements stripe={getStripe()}>
+                <PaymentMethodForm
+                  onSuccess={() => {
+                    setManagingPayment(false);
+                    toast.success('Payment method updated successfully');
+                  }}
+                />
+              </Elements>
+              <Button variant="ghost" onClick={() => setManagingPayment(false)}>
+                Cancel
+              </Button>
+            </div>
           )}
-        </div>
-      )}
+        </CardContent>
+      </Card>
 
-      {/* Cancel Subscription Dialog */}
+      {/* Usage Stats */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Usage Overview
+          </CardTitle>
+          <CardDescription>Your activity this billing period</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-1">
+              <p className="text-2xl font-bold">0</p>
+              <p className="text-sm text-muted-foreground">API Requests</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-2xl font-bold">0</p>
+              <p className="text-sm text-muted-foreground">Storage Used</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-2xl font-bold">0</p>
+              <p className="text-sm text-muted-foreground">Active Users</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Invoices */}
+      <InvoiceList />
+
+      {/* Recent Payments */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Payments</CardTitle>
+          <CardDescription>Your payment history</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {payments.length > 0 ? (
+            <div className="space-y-3">
+              {payments.map((payment) => (
+                <div
+                  key={payment.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium">{formatCurrency(payment.amount, payment.currency)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {format(new Date(payment.created_at), 'MMM dd, yyyy')}
+                    </p>
+                  </div>
+                  <Badge variant={payment.status === 'succeeded' ? 'default' : 'destructive'}>
+                    {payment.status}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">No payments yet</p>
+          )}
+        </CardContent>
+      </Card>
+
       <CancelSubscriptionDialog
         open={showCancelDialog}
         onOpenChange={setShowCancelDialog}
         onSuccess={fetchSubscriptionData}
         currentPeriodEnd={subscription?.current_period_end}
       />
-
-      {/* Usage & Analytics */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            Usage Statistics
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="text-center">
-              <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">Facts Submitted</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">Comments Posted</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Payment History */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Payment History</CardTitle>
-              <CardDescription>Your recent transactions</CardDescription>
-            </div>
-            <Button variant="outline" size="sm">
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {payments.length > 0 ? (
-            <div className="space-y-4">
-              {payments.map((payment) => (
-                <div key={payment.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${
-                      payment.status === 'completed' ? 'bg-green-500' : 'bg-red-500'
-                    }`} />
-                    <div>
-                      <p className="font-medium">
-                        {payment.type === 'recurring' ? 'Subscription Payment' : 'One-time Purchase'}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(payment.created_at).toLocaleDateString()}
-                        {payment.tier && ` • ${payment.tier}`}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold">
-                      {formatCurrency(payment.amount, payment.currency)}
-                    </p>
-                    <p className="text-sm text-muted-foreground capitalize">
-                      {payment.status}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center text-muted-foreground py-4">
-              No payment history found
-            </p>
-          )}
-        </CardContent>
-      </Card>
+      
+      <TierUpgradeDialog
+        open={showUpgradeDialog}
+        onOpenChange={setShowUpgradeDialog}
+        currentTier={subscription?.tier || 'basic'}
+        onSuccess={fetchSubscriptionData}
+      />
     </div>
   );
-};
+}
