@@ -52,6 +52,10 @@ serve(async (req) => {
       billing_address_collection: 'required',
       tax_id_collection: { enabled: true },
       automatic_tax: { enabled: true },
+      customer_update: {
+        address: 'auto', // Allow Stripe to save billing address to customer
+        shipping: 'auto', // Allow Stripe to save shipping address if collected
+      },
       success_url: `${req.headers.get("origin")}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/billing/canceled`,
       metadata: {
