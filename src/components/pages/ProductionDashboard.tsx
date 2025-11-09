@@ -9,7 +9,7 @@ import { ProductionHeader } from '@/components/layout/ProductionHeader';
 import { runProductionReadinessChecks, getProductionReadinessScore, getCriticalIssues } from '@/utils/production-checks';
 import { LoadTestingDashboard } from '@/components/performance/LoadTestingDashboard';
 import { SecurityAuditPanel } from '@/components/monitoring/SecurityAuditPanel';
-import { performanceMonitor } from '@/utils/performance-monitor';
+import { performanceMonitor } from '@/utils/performance';
 
 export const ProductionDashboard = () => {
   const [checks, setChecks] = useState(runProductionReadinessChecks());

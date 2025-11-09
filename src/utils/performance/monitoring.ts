@@ -1,3 +1,4 @@
+// Web Vitals and performance monitoring - SSOT for all performance tracking
 import { onCLS, onINP, onFCP, onLCP, onTTFB } from 'web-vitals';
 
 export interface PerformanceMetric {
@@ -117,7 +118,7 @@ export class PerformanceMonitor {
   }
 }
 
-// Global instance
+// Global singleton instance
 export const performanceMonitor = new PerformanceMonitor();
 
 // React hook for performance monitoring
@@ -128,4 +129,9 @@ export const usePerformanceMonitor = () => {
     markEnd: performanceMonitor.markEnd.bind(performanceMonitor),
     getMetrics: performanceMonitor.getMetrics.bind(performanceMonitor)
   };
+};
+
+// Initialize performance monitoring
+export const initPerformanceMonitoring = () => {
+  return performanceMonitor;
 };

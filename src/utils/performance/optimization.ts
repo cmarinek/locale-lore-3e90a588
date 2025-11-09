@@ -1,5 +1,4 @@
-
-// Performance utilities for optimization
+// Code splitting and optimization utilities - SSOT for lazy loading and memoization
 import React, { lazy, ComponentType, Suspense } from 'react';
 
 // Code splitting utility with error handling
@@ -72,27 +71,6 @@ export const preloadImage = (src: string): Promise<void> => {
     img.onerror = reject;
     img.src = src;
   });
-};
-
-export const preloadRoute = (routeImport: () => Promise<any>): void => {
-  // Preload route component in idle time
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(() => routeImport());
-  } else {
-    setTimeout(() => routeImport(), 100);
-  }
-};
-
-// Performance monitoring utilities
-export const measurePerformance = (name: string, fn: () => void): void => {
-  if ('performance' in window && performance.mark) {
-    performance.mark(`${name}-start`);
-    fn();
-    performance.mark(`${name}-end`);
-    performance.measure(name, `${name}-start`, `${name}-end`);
-  } else {
-    fn();
-  }
 };
 
 // Bundle size analyzer (dev only)

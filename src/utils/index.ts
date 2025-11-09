@@ -4,6 +4,6 @@ export * from './analytics';
 export * from './format';
 export * from './location';
 export * from './validation';
-export * from './performance-core';
+export * from './performance'; // Consolidated performance module
 export * from './localization';
 export * from './api';
