@@ -109,7 +109,7 @@ export const Hybrid: React.FC = () => {
               </TabsTrigger>
               <TabsTrigger value="list" className="flex items-center gap-2">
                 <List className="h-4 w-4" />
-                List View
+                Lore
               </TabsTrigger>
             </TabsList>
 
