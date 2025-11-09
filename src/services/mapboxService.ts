@@ -55,9 +55,26 @@ class MapboxService {
       }
 
       if (data?.token) {
-        const cleanToken = data.token.replace(/[\r\n\s]/g, '').trim();
-        console.log('✅ [MapboxService] Token received and cleaned:', cleanToken ? `${cleanToken.substring(0, 15)}...` : 'empty');
-        return cleanToken || null;
+        // Additional client-side cleaning just in case
+        const cleanToken = data.token
+          .replace(/[\r\n\t\f\v\s]/g, '')
+          .replace(/[^\x20-\x7E]/g, '')
+          .trim();
+        
+        console.log('✅ [MapboxService] Token received and cleaned:', {
+          originalLength: data.token.length,
+          cleanedLength: cleanToken.length,
+          preview: cleanToken ? `${cleanToken.substring(0, 15)}...` : 'empty',
+          isValid: cleanToken.length > 0,
+          startsWithPk: cleanToken.startsWith('pk.') || cleanToken.startsWith('sk.')
+        });
+        
+        if (cleanToken.length > 0) {
+          return cleanToken;
+        } else {
+          console.error('❌ [MapboxService] Token is empty after cleaning');
+          throw new Error('Token is empty after cleaning whitespace');
+        }
       }
 
       if (data?.error) {
@@ -66,7 +83,7 @@ class MapboxService {
       }
 
       console.warn('⚠️ [MapboxService] No token in response data');
-      return null;
+      throw new Error('No token in response data');
     } catch (error) {
       console.error('❌ [MapboxService] Exception fetching Mapbox token:', error);
       console.error('❌ [MapboxService] Exception type:', typeof error);
