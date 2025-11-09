@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { FactCard } from './FactCard';
+import { FactCardProgressive } from './FactCardProgressive';
 import { FactCardSkeleton } from './FactCardSkeleton';
 import { EmptyFactsList } from '@/components/ui/enhanced-empty-states';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
@@ -10,9 +11,14 @@ import { cn } from '@/lib/utils';
 interface InfiniteFactListProps {
   className?: string;
   viewMode?: 'grid' | 'list';
+  useProgressiveLoading?: boolean;
 }
 
-export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ className, viewMode = 'grid' }) => {
+export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ 
+  className, 
+  viewMode = 'grid',
+  useProgressiveLoading = true 
+}) => {
   const observerRef = useRef<HTMLDivElement>(null);
   
   const { 
@@ -80,18 +86,21 @@ export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ className, v
           ? "grid md:grid-cols-2 lg:grid-cols-3" 
           : "flex flex-col space-y-4"
       )}>
-        {facts.map((fact, index) => (
-          <FactCard
-            key={fact.id}
-            fact={fact as any}
-            viewMode={viewMode}
-            className={cn(
-              "animate-fade-in",
-              // Stagger animation
-              `animation-delay-${(index % 6) * 100}`
-            )}
-          />
-        ))}
+        {facts.map((fact, index) => {
+          const FactComponent = useProgressiveLoading ? FactCardProgressive : FactCard;
+          return (
+            <FactComponent
+              key={fact.id}
+              fact={fact as any}
+              viewMode={viewMode}
+              className={cn(
+                !useProgressiveLoading && "animate-fade-in",
+                // Stagger animation
+                `animation-delay-${(index % 6) * 100}`
+              )}
+            />
+          );
+        })}
       </div>
 
       {/* Loading More Indicator with Skeletons */}
