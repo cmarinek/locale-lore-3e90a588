@@ -139,79 +139,44 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     loadTime: 0
   });
 
-  const isMountedRef = useRef(true);
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
+  // Fetch Mapbox token - simplified
   useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
+    let mounted = true;
 
-  const fetchMapboxToken = useCallback(async () => {
-    console.log('🗺️ [UnifiedMap] Starting Mapbox token fetch...');
-    console.log('🗺️ [UnifiedMap] Current token status:', tokenStatus);
-    setTokenStatus('loading');
-    setTokenError(null);
-    setLoadingDismissed(false);
+    const fetchToken = async () => {
+      setTokenStatus('loading');
+      setTokenError(null);
+      setLoadingDismissed(false);
 
-    try {
-      console.log('🗺️ [UnifiedMap] Calling mapboxService.getToken()...');
-      const token = await mapboxService.getToken();
+      try {
+        const token = await mapboxService.getToken();
 
-      if (!isMountedRef.current) {
-        console.log('⚠️ [UnifiedMap] Component unmounted, aborting token fetch');
-        return;
-      }
+        if (!mounted) return;
 
-      console.log('🗺️ [UnifiedMap] Token received:', token ? `${token.substring(0, 10)}...` : 'null');
-      console.log('🗺️ [UnifiedMap] Token length:', token?.length || 0);
-
-      if (token && token.length > 0) {
-        console.log('✅ [UnifiedMap] Setting Mapbox token in state...');
-        setMapboxToken(token);
-        setTokenStatus('ready');
-        console.log('✅ [UnifiedMap] Mapbox token ready! Token first 20 chars:', token.substring(0, 20));
-      } else {
-        setMapboxToken('');
-        setTokenStatus('missing');
-        setTokenError('A Mapbox public token is required to display the interactive map.');
-        console.error('❌ [UnifiedMap] No Mapbox token available');
-      }
-    } catch (error) {
-      console.error('❌ [UnifiedMap] Failed to load Mapbox token:', error);
-      console.error('❌ [UnifiedMap] Error details:', {
-        message: error instanceof Error ? error.message : 'Unknown',
-        stack: error instanceof Error ? error.stack : undefined,
-        type: typeof error,
-        error
-      });
-
-      if (!isMountedRef.current) {
-        return;
-      }
-
-      setMapboxToken('');
-      setTokenStatus('error');
-      setTokenError(error instanceof Error ? error.message : 'Unknown error while fetching Mapbox token.');
-    }
-  }, []);
-
-  // Load Mapbox token with timeout
-  useEffect(() => {
-    console.log('🗺️ [UnifiedMap] useEffect triggered - fetching token');
-    fetchMapboxToken();
-
-    // Timeout after 10 seconds
-    const timeoutId = setTimeout(() => {
-      if (tokenStatus === 'loading' || tokenStatus === 'idle') {
-        console.error('❌ [UnifiedMap] Token fetch timeout after 10 seconds');
+        if (token && token.length > 0) {
+          setMapboxToken(token);
+          setTokenStatus('ready');
+        } else {
+          setTokenStatus('missing');
+          setTokenError('A Mapbox public token is required to display the interactive map.');
+        }
+      } catch (error) {
+        if (!mounted) return;
+        
+        console.error('Failed to load Mapbox token:', error);
         setTokenStatus('error');
-        setTokenError('Connection timeout. Please check your internet connection and try again.');
+        setTokenError(error instanceof Error ? error.message : 'Unknown error while fetching Mapbox token.');
       }
-    }, 10000);
+    };
 
-    return () => clearTimeout(timeoutId);
-  }, [fetchMapboxToken]);
+    fetchToken();
+
+    return () => {
+      mounted = false;
+    };
+  }, [retryTrigger]);
 
   // Handle loading state dismissal
   const handleDismissLoading = useCallback(() => {
@@ -221,8 +186,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   const handleRetryTokenFetch = useCallback(() => {
     mapboxService.clearToken();
-    fetchMapboxToken();
-  }, [fetchMapboxToken]);
+    setRetryTrigger(prev => prev + 1);
+  }, []);
 
   // Get map style URL
   const getMapStyleUrl = useCallback((styleType: string) => {
