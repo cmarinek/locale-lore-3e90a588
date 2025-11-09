@@ -26,6 +26,7 @@ import { HistoricalAnimation } from './HistoricalAnimation';
 import { MapStatsOverlay } from './MapStatsOverlay';
 import { MapLegend } from './MapLegend';
 import { MapFilterPanel } from './MapFilterPanel';
+import { MapSearchBar } from './MapSearchBar';
 import { useFavoriteCities } from '@/hooks/useFavoriteCities';
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { mapboxService } from '@/services/mapboxService';
@@ -143,6 +144,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   
   // New UI states
   const [showLegend, setShowLegend] = useState(false);
+  const [heatmapEnabled, setHeatmapEnabled] = useState(showHeatmap);
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [filterDateRange, setFilterDateRange] = useState<{ start: Date; end: Date } | null>(null);
   const [filterPopularity, setFilterPopularity] = useState(0);
@@ -306,6 +308,98 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     setFilterDateRange(null);
     setFilterPopularity(0);
   }, []);
+
+  // Search result handler
+  const handleSearchResultSelect = useCallback((result: any) => {
+    if (!map.current) return;
+    
+    // Fly to the selected location
+    map.current.flyTo({
+      center: [result.longitude, result.latitude],
+      zoom: 14,
+      duration: 2000,
+      essential: true
+    });
+    
+    // Select the marker
+    setSelectedMarkerId(result.id);
+    
+    // Trigger fact click if handler exists
+    if (onFactClick) {
+      onFactClick(result);
+    }
+  }, [onFactClick, setSelectedMarkerId]);
+
+  // Heatmap toggle handler
+  const toggleHeatmap = useCallback(() => {
+    if (!map.current || !isLoaded) return;
+
+    const newHeatmapState = !heatmapEnabled;
+    setHeatmapEnabled(newHeatmapState);
+
+    if (newHeatmapState) {
+      // Add heatmap layer
+      if (!map.current.getLayer('heatmap-layer')) {
+        map.current.addLayer({
+          id: 'heatmap-layer',
+          type: 'heatmap',
+          source: 'facts',
+          maxzoom: 15,
+          paint: {
+            // Increase weight as diameter increases
+            'heatmap-weight': [
+              'interpolate',
+              ['linear'],
+              ['get', 'vote_count_up'],
+              0, 0,
+              10, 1
+            ],
+            // Increase intensity as zoom increases
+            'heatmap-intensity': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              0, 1,
+              15, 3
+            ],
+            // Color ramp for heatmap
+            'heatmap-color': [
+              'interpolate',
+              ['linear'],
+              ['heatmap-density'],
+              0, 'rgba(33,102,172,0)',
+              0.2, 'rgb(103,169,207)',
+              0.4, 'rgb(209,229,240)',
+              0.6, 'rgb(253,219,199)',
+              0.8, 'rgb(239,138,98)',
+              1, 'rgb(178,24,43)'
+            ],
+            // Adjust radius by zoom level
+            'heatmap-radius': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              0, 2,
+              15, 20
+            ],
+            // Transition from heatmap to circle layer
+            'heatmap-opacity': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              7, 1,
+              15, 0
+            ]
+          }
+        }, 'clusters');
+      }
+    } else {
+      // Remove heatmap layer
+      if (map.current.getLayer('heatmap-layer')) {
+        map.current.removeLayer('heatmap-layer');
+      }
+    }
+  }, [heatmapEnabled, isLoaded]);
 
   // Initialize supercluster
   const initializeSupercluster = useCallback(() => {
@@ -565,21 +659,23 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     };
   }, [mapboxToken, getMapStyleUrl, mapStyle, center, zoom, enableClustering, enableViewportLoading, useScalableLoading, loadViewportFacts]);
 
-  // Setup clustered map using Mapbox GL native clustering
+  // Setup clustered map using Mapbox GL native clustering with category distribution
   const setupClusteredMap = useCallback(() => {
     if (!map.current || !isLoaded) return;
 
-    // Add facts source with clustering
+    // Add facts source with clustering and category tracking
     map.current.addSource('facts', {
       type: 'geojson',
       data: {
         type: 'FeatureCollection',
-        features: processedFacts.map(fact => ({
+        features: filteredFacts.map(fact => ({
           type: 'Feature',
           properties: {
             id: fact.id,
             title: fact.title,
-            category: fact.categories?.slug || fact.category,
+            category: fact.categories?.slug || fact.category || 'unknown',
+            categoryIcon: fact.categories?.icon || '📍',
+            categoryColor: fact.categories?.color || '#666666',
             verified: fact.status === 'verified',
             vote_count_up: fact.vote_count_up || 0
           },
@@ -593,11 +689,17 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       clusterMaxZoom: maxZoom - 1,
       clusterRadius: clusterRadius,
       clusterProperties: {
-        sum_votes: ['+', ['get', 'vote_count_up']]
+        sum_votes: ['+', ['get', 'vote_count_up']],
+        // Track category distribution in clusters
+        history_count: ['+', ['case', ['==', ['get', 'category'], 'history'], 1, 0]],
+        culture_count: ['+', ['case', ['==', ['get', 'category'], 'culture'], 1, 0]],
+        nature_count: ['+', ['case', ['==', ['get', 'category'], 'nature'], 1, 0]],
+        mystery_count: ['+', ['case', ['==', ['get', 'category'], 'mystery'], 1, 0]],
+        legend_count: ['+', ['case', ['==', ['get', 'category'], 'legend'], 1, 0]]
       }
     });
 
-    // Cluster circles
+    // Cluster circles with category-based coloring
     map.current.addLayer({
       id: 'clusters',
       type: 'circle',
@@ -605,32 +707,54 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       filter: ['has', 'point_count'],
       paint: {
         'circle-color': [
-          'step',
-          ['get', 'point_count'],
+          'case',
+          ['>', ['get', 'history_count'], ['max', ['get', 'culture_count'], ['get', 'nature_count'], ['get', 'mystery_count'], ['get', 'legend_count']]],
           'hsl(var(--primary))',
-          50, 'hsl(var(--accent))',
-          100, 'hsl(var(--destructive))'
+          ['>', ['get', 'nature_count'], ['max', ['get', 'culture_count'], ['get', 'mystery_count'], ['get', 'legend_count']]],
+          'hsl(var(--success))',
+          ['>', ['get', 'culture_count'], ['max', ['get', 'mystery_count'], ['get', 'legend_count']]],
+          'hsl(var(--accent))',
+          ['>', ['get', 'mystery_count'], ['get', 'legend_count']],
+          'hsl(var(--destructive))',
+          'hsl(var(--warning))'
         ],
         'circle-radius': [
           'step',
           ['get', 'point_count'],
-          15, 50, 20, 100, 25
+          20, 10, 25, 50, 30, 100, 35
         ],
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#fff'
+        'circle-stroke-width': 3,
+        'circle-stroke-color': '#fff',
+        'circle-opacity': 0.9
       }
     });
 
-    // Cluster count labels
+    // Cluster count labels with category indicator
     map.current.addLayer({
       id: 'cluster-count',
       type: 'symbol',
       source: 'facts',
       filter: ['has', 'point_count'],
       layout: {
-        'text-field': '{point_count_abbreviated}',
+        'text-field': [
+          'concat',
+          ['to-string', ['get', 'point_count']],
+          '\n',
+          ['case',
+            ['>', ['get', 'history_count'], ['max', ['get', 'culture_count'], ['get', 'nature_count'], ['get', 'mystery_count'], ['get', 'legend_count']]],
+            '🏛️',
+            ['>', ['get', 'nature_count'], ['max', ['get', 'culture_count'], ['get', 'mystery_count'], ['get', 'legend_count']]],
+            '🌿',
+            ['>', ['get', 'culture_count'], ['max', ['get', 'mystery_count'], ['get', 'legend_count']]],
+            '🎭',
+            ['>', ['get', 'mystery_count'], ['get', 'legend_count']],
+            '🔮',
+            '📜'
+          ]
+        ],
         'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        'text-size': 12
+        'text-size': 11,
+        'text-line-height': 1.2
       },
       paint: {
         'text-color': '#ffffff'
@@ -651,14 +775,15 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
           'nature', 'hsl(var(--success))',
           'culture', 'hsl(var(--accent))',
           'mystery', 'hsl(var(--destructive))',
+          'legend', 'hsl(var(--warning))',
           'hsl(var(--muted-foreground))'
         ],
         'circle-radius': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          8, 4,
-          16, 8
+          8, 5,
+          16, 10
         ],
         'circle-stroke-width': [
           'case',
@@ -669,7 +794,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
           'case',
           ['==', ['get', 'id'], selectedMarkerId || ''],
           '#FFD700', '#fff'
-        ]
+        ],
+        'circle-opacity': 0.9
       }
     });
 
@@ -694,11 +820,11 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     map.current.on('click', 'unclustered-point', (e) => {
       const feature = e.features?.[0];
       if (feature && feature.properties && onFactClick) {
-        const fact = processedFacts.find(f => f.id === feature.properties.id);
+        const fact = filteredFacts.find(f => f.id === feature.properties.id);
         if (fact) onFactClick(fact);
       }
     });
-  }, [isLoaded, processedFacts, maxZoom, clusterRadius, selectedMarkerId, onFactClick]);
+  }, [isLoaded, filteredFacts, maxZoom, clusterRadius, selectedMarkerId, onFactClick]);
 
   // Setup marker-based map
   const setupMarkerMap = useCallback(() => {
@@ -911,16 +1037,35 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         />
       )}
 
+      {/* Search Bar */}
+      {isLoaded && (
+        <MapSearchBar
+          facts={filteredFacts as any[]}
+          onResultSelect={handleSearchResultSelect}
+          className="absolute top-20 right-4 z-20 w-80"
+        />
+      )}
+
       {/* Legend Toggle Button */}
       {isLoaded && (
-        <Button
-          onClick={() => setShowLegend(!showLegend)}
-          variant="outline"
-          size="sm"
-          className="absolute bottom-20 right-16 z-20 backdrop-blur-sm bg-background/90 hover:bg-background shadow-md"
-        >
-          {showLegend ? 'Hide' : 'Show'} Legend
-        </Button>
+        <div className="absolute bottom-20 right-4 z-20 flex gap-2">
+          <Button
+            onClick={() => setShowLegend(!showLegend)}
+            variant="outline"
+            size="sm"
+            className="backdrop-blur-sm bg-background/90 hover:bg-background shadow-md"
+          >
+            {showLegend ? 'Hide' : 'Show'} Legend
+          </Button>
+          <Button
+            onClick={toggleHeatmap}
+            variant={heatmapEnabled ? "default" : "outline"}
+            size="sm"
+            className="backdrop-blur-sm bg-background/90 hover:bg-background shadow-md"
+          >
+            🔥 {heatmapEnabled ? 'Hide' : 'Show'} Heatmap
+          </Button>
+        </div>
       )}
 
       {/* Map Legend */}
