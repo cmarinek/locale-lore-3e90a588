@@ -6,8 +6,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSiteConfiguration } from '@/hooks/useSiteConfiguration';
 import { FileText, Share2, Phone, BarChart3, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const SiteConfigurationPanel: React.FC = () => {
+  const { t } = useTranslation('admin');
   const { seoConfig, socialConfig, contactConfig, analyticsConfig, isLoading, updateConfig } = useSiteConfiguration();
 
   if (isLoading) {

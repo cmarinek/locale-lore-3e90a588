@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const SiteSettingsPanel: React.FC = () => {
+  const { t } = useTranslation('admin');
   const { branding, isLoading, uploadLogo, uploadFavicon, isUploading, updateBranding } = useSiteSettings();
 
   const onDropLogo = useCallback((acceptedFiles: File[]) => {

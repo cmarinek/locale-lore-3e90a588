@@ -9,8 +9,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useDropzone } from 'react-dropzone';
 import { Upload, Image as ImageIcon, Trash2, Search, Tag, Loader2, Edit, Copy, Check } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useTranslation } from 'react-i18next';
 
 export const MediaLibraryPanel: React.FC = () => {
+  const { t } = useTranslation('admin');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());

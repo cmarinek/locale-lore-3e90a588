@@ -11,8 +11,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Edit, Trash2, Megaphone, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 export const AnnouncementManager: React.FC = () => {
+  const { t } = useTranslation('admin');
   const { announcements, isLoading, createAnnouncement, updateAnnouncement, deleteAnnouncement, isCreating } = useAnnouncements();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
