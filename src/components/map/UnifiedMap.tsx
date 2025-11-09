@@ -1086,6 +1086,28 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   if (!isVisible) return null;
 
+  // Auto-dismiss loading after 10 seconds as failsafe
+  useEffect(() => {
+    if ((tokenStatus === 'loading' || tokenStatus === 'idle') && !loadingDismissed) {
+      const failsafeTimer = setTimeout(() => {
+        console.warn('⏱️ [UnifiedMap] FAILSAFE: Auto-dismissing loading state after 10 seconds');
+        setLoadingDismissed(true);
+      }, 10000);
+      
+      return () => clearTimeout(failsafeTimer);
+    }
+  }, [tokenStatus, loadingDismissed]);
+
+  // Log current status for debugging
+  useEffect(() => {
+    console.log('🗺️ [UnifiedMap] Current state:', { 
+      tokenStatus, 
+      loadingDismissed, 
+      hasToken: !!mapboxToken,
+      tokenLength: mapboxToken?.length 
+    });
+  }, [tokenStatus, loadingDismissed, mapboxToken]);
+
   if ((tokenStatus === 'loading' || tokenStatus === 'idle') && !loadingDismissed) {
     return (
       <div className={`relative w-full h-full ${className}`}>
