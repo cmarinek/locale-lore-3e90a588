@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +18,9 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthProvider';
+import { Elements } from '@stripe/react-stripe-js';
+import { getStripe } from '@/lib/stripe';
+import { PaymentMethodForm } from './PaymentMethodForm';
 
 interface Subscription {
   id: string;
@@ -46,6 +48,8 @@ export const SubscriptionDashboard: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const stripePromise = getStripe();
 
   useEffect(() => {
     if (user) {
@@ -235,6 +239,31 @@ export const SubscriptionDashboard: React.FC = () => {
             You're currently on the free plan. Become a contributor to submit content and join discussions.
           </AlertDescription>
         </Alert>
+      )}
+
+      {/* Payment Method Management */}
+      {subscription && (
+        <div className="space-y-4">
+          <Button
+            variant="outline"
+            onClick={() => setShowPaymentForm(!showPaymentForm)}
+            className="w-full sm:w-auto"
+          >
+            <CreditCard className="mr-2 h-4 w-4" />
+            {showPaymentForm ? 'Hide' : 'Update'} Payment Method
+          </Button>
+          
+          {showPaymentForm && (
+            <Elements stripe={stripePromise}>
+              <PaymentMethodForm
+                onSuccess={() => {
+                  setShowPaymentForm(false);
+                  fetchSubscriptionData();
+                }}
+              />
+            </Elements>
+          )}
+        </div>
       )}
 
       {/* Usage & Analytics */}

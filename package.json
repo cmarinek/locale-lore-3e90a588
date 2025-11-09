@@ -59,6 +59,8 @@
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@sentry/react": "^10.23.0",
+    "@stripe/react-stripe-js": "^5.3.0",
+    "@stripe/stripe-js": "^8.3.0",
     "@supabase/supabase-js": "^2.56.1",
     "@tanstack/react-query": "^5.89.0",
     "@testing-library/dom": "^10.4.1",
