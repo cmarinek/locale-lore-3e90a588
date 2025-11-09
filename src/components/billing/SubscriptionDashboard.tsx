@@ -22,6 +22,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { getStripe } from '@/lib/stripe';
 import { PaymentMethodForm } from './PaymentMethodForm';
 import { PaymentMethodDisplay } from './PaymentMethodDisplay';
+import { CancelSubscriptionDialog } from './CancelSubscriptionDialog';
 
 interface Subscription {
   id: string;
@@ -50,6 +51,7 @@ export const SubscriptionDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
   const stripePromise = getStripe();
 
   useEffect(() => {
@@ -223,13 +225,23 @@ export const SubscriptionDashboard: React.FC = () => {
             <Separator />
 
             <div className="flex gap-2 flex-wrap">
-                 <Button
+              <Button
                 onClick={() => handleManageSubscription('portal')}
                 disabled={actionLoading}
               >
                 <Settings className="mr-2 h-4 w-4" />
                 Manage Subscription
               </Button>
+              
+              {!subscription.cancel_at_period_end && (
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowCancelDialog(true)}
+                  disabled={actionLoading}
+                >
+                  Cancel Subscription
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -268,6 +280,14 @@ export const SubscriptionDashboard: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Cancel Subscription Dialog */}
+      <CancelSubscriptionDialog
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+        onSuccess={fetchSubscriptionData}
+        currentPeriodEnd={subscription?.current_period_end}
+      />
 
       {/* Usage & Analytics */}
       <Card>
