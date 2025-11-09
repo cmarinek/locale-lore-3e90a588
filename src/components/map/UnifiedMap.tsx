@@ -34,6 +34,7 @@ import { scalableFactService } from '@/services/scalableFactService';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useSearchStore } from '@/stores/searchStore';
 import { useMapStore } from '@/stores/mapStore';
+import { useUIStore } from '@/stores/uiStore';
 import { MapTokenMissing } from './MapTokenMissing';
 
 // Types
@@ -142,8 +143,11 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const [showHistoricalAnimation, setShowHistoricalAnimation] = useState(false);
   const [loadingDismissed, setLoadingDismissed] = useState(false);
   
+  // UI state from stores
+  const showMapLegend = useUIStore((state) => state.showMapLegend);
+  const toggleMapLegend = useUIStore((state) => state.toggleMapLegend);
+  
   // New UI states
-  const [showLegend, setShowLegend] = useState(false);
   const [heatmapEnabled, setHeatmapEnabled] = useState(showHeatmap);
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [filterDateRange, setFilterDateRange] = useState<{ start: Date; end: Date } | null>(null);
@@ -1134,12 +1138,12 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       {isLoaded && (
         <div className="absolute bottom-20 right-4 z-20 flex gap-2">
           <Button
-            onClick={() => setShowLegend(!showLegend)}
+            onClick={toggleMapLegend}
             variant="outline"
             size="sm"
             className="backdrop-blur-sm bg-background/90 hover:bg-background shadow-md"
           >
-            {showLegend ? 'Hide' : 'Show'} Legend
+            {showMapLegend ? 'Hide' : 'Show'} Legend
           </Button>
           <Button
             onClick={toggleHeatmap}
@@ -1153,10 +1157,9 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       )}
 
       {/* Map Legend */}
-      {isLoaded && showLegend && (
+      {isLoaded && (
         <MapLegend
           categories={legendCategories}
-          onClose={() => setShowLegend(false)}
         />
       )}
 

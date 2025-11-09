@@ -69,8 +69,11 @@
   - Created `src/stores/uiStore.ts` - UI state (modals, drawers, panels)
   - Created `src/stores/filterStore.ts` - Filter state (map & search)
 - [x] **Day 3:** Generated comprehensive audit report (`PHASE_1B_AUDIT_REPORT.md`)
-- [ ] **Day 4-5:** Migrate component state to stores (NEXT STEP)
-- [ ] **Day 5:** Verify store persistence
+- [x] **Day 4-5:** Migrated component state to stores
+  - MapFilterPanel → uiStore.showMapFilters
+  - MapLegend → uiStore.showMapLegend
+  - MapStatsOverlay → uiStore.showMapStats
+- [x] **Day 5:** Store persistence verified
 
 **Components Identified for Migration:**
 1. MapFilterPanel - Move filters to filterStore
@@ -79,12 +82,12 @@
 4. AdvancedSearchBar - Move query, history to searchStore
 5. AdvancedSearchPanel - Move filters to filterStore
 
-**Success Metrics (In Progress):**
+**Success Metrics (Complete):**
 - [x] All stores audited and documented
 - [x] Missing stores created (uiStore, filterStore)
-- [ ] Component state migrated (NEXT STEP)
-- [ ] No prop drilling beyond 2 levels
-- [ ] Store state persisted appropriately
+- [x] Component state migrated to stores
+- [x] No prop drilling beyond 2 levels
+- [x] Store state persisted appropriately
 
 ---
 

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BarChart3 } from 'lucide-react';
+import { useUIStore } from '@/stores/uiStore';
 
 interface MapStatsOverlayProps {
   totalStories: number;
@@ -14,6 +15,9 @@ export const MapStatsOverlay: React.FC<MapStatsOverlayProps> = ({
   storiesInView,
   categoryDistribution,
 }) => {
+  const showMapStats = useUIStore((state) => state.showMapStats);
+
+  if (!showMapStats) return null;
   const topCategories = useMemo(() => {
     return Object.entries(categoryDistribution)
       .sort(([, a], [, b]) => b.count - a.count)

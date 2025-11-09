@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Slider } from '@/components/ui/slider';
 import { ChevronLeft, ChevronRight, Filter, Calendar, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
+import { useUIStore } from '@/stores/uiStore';
 
 interface Category {
   id: string;
@@ -38,7 +39,8 @@ export const MapFilterPanel: React.FC<MapFilterPanelProps> = ({
   onPopularityFilterChange,
   onClearFilters,
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const showMapFilters = useUIStore((state) => state.showMapFilters);
+  const toggleMapFilters = useUIStore((state) => state.toggleMapFilters);
 
   const hasActiveFilters = selectedCategories.length > 0 || dateRange !== null || popularityFilter > 0;
 
@@ -46,14 +48,14 @@ export const MapFilterPanel: React.FC<MapFilterPanelProps> = ({
     <>
       {/* Toggle Button */}
       <Button
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={toggleMapFilters}
         variant="outline"
         size="sm"
         className={`absolute top-20 z-20 backdrop-blur-sm bg-background/90 hover:bg-background shadow-md transition-all duration-300 ${
-          isCollapsed ? 'left-4' : 'left-80'
+          !showMapFilters ? 'left-4' : 'left-80'
         }`}
       >
-        {isCollapsed ? (
+        {!showMapFilters ? (
           <>
             <Filter className="w-4 h-4 mr-2" />
             Filters
@@ -71,7 +73,7 @@ export const MapFilterPanel: React.FC<MapFilterPanelProps> = ({
       {/* Filter Panel */}
       <Card
         className={`absolute top-20 left-4 z-20 w-72 bg-background/95 backdrop-blur-md border-border/50 shadow-xl transition-transform duration-300 ${
-          isCollapsed ? '-translate-x-80' : 'translate-x-0'
+          !showMapFilters ? '-translate-x-80' : 'translate-x-0'
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b border-border">
