@@ -1,8 +1,14 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "lib": ["deno.window"],
-    "strict": true
+    "lib": ["deno.window", "deno.unstable"],
+    "strict": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "https://esm.sh/react@18.2.0"
   },
-  "importMap": "./import_map.json"
+  "imports": {
+    "std/": "https://deno.land/std@0.190.0/",
+    "stripe": "https://esm.sh/stripe@14.21.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.0"
+  }
 }

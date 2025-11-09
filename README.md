@@ -1,19 +1,32 @@
-# Locale Lore
+# GeoCache Lore
 
-Discover and explore local stories, culture, and hidden gems in your area. A modern Progressive Web App built with React, TypeScript, and iOS-inspired design.
+A production-ready web application with comprehensive monitoring, testing, and deployment automation. Discover and explore local stories, culture, and hidden gems in your area.
 
 ## 🚀 Features
 
+### Core Features
+- ✅ **Authentication & Authorization** - Role-based access control (admin, contributor, free)
+- ✅ **Admin Dashboard** - Complete admin panel with user management, role assignment, and promo codes
+- ✅ **Database Integration** - Supabase with real-time data and Row Level Security
+- ✅ **Payment Processing** - Stripe integration for subscriptions and one-time payments
+- ✅ **AI Features** - Categorization, recommendations, and suggestions
+- ✅ **Mobile Support** - Capacitor integration for iOS and Android
+
+### Production Features
+- ✅ **Performance Monitoring** - Real-time Web Vitals tracking with production dashboard
+- ✅ **Error Tracking** - Sentry integration for comprehensive error monitoring
+- ✅ **CI/CD Pipeline** - Automated testing, linting, and deployment via GitHub Actions
+- ✅ **E2E Testing** - Playwright test suite covering critical user flows
+- ✅ **Accessibility** - Automated a11y testing with axe-core
+- ✅ **PWA** - Service worker for offline functionality
+- ✅ **Internationalization** - Multi-language support with i18n
+
+### Technology Stack
 - ⚡ **Vite** - Fast build tool and dev server
 - 🔥 **React 18** - Latest React with concurrent features
 - 🏗️ **TypeScript** - Full type safety
 - 🎨 **Tailwind CSS** - Utility-first CSS framework
-- 📱 **PWA Ready** - Service worker and manifest configured
-- 🍎 **iOS-inspired Design** - Modern, clean, and fluid animations
-- 🧩 **Atomic Design** - Scalable component architecture
 - 🔧 **shadcn/ui** - High-quality, accessible components
-- 📏 **ESLint + Prettier** - Code formatting and linting
-- 🐕 **Husky** - Git hooks for quality assurance
 - 🔀 **React Router** - Client-side routing
 - 🌐 **React Query** - Data fetching and caching
 
@@ -36,6 +49,13 @@ src/
 
 ## 🛠️ Getting Started
 
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Supabase account (for backend features)
+
+### Quick Start
+
 1. **Install dependencies:**
    ```bash
    npm install
@@ -44,6 +64,12 @@ src/
 2. **Setup environment variables:**
    ```bash
    cp .env.example .env.local
+   ```
+   
+   Required variables:
+   ```
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
 3. **Setup Git hooks:**
@@ -57,10 +83,10 @@ src/
    npm run dev
    ```
 
-5. **Build for production:**
-   ```bash
-   npm run build
-   ```
+5. **Access the application:**
+   - Main app: http://localhost:5173
+   - Production dashboard: http://localhost:5173/production
+   - Admin panel: http://localhost:5173/admin
 
 ## 🎨 Design System
 
@@ -123,12 +149,50 @@ import { MainLayout } from '@/components/templates/MainLayout';
 
 ## 🔧 Development Scripts
 
+### Core Scripts
 - `npm run dev` - Start development server
-- `npm run build` - Build for production
+- `npm run build` - Build for production  
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
 - `npm run lint:fix` - Fix ESLint errors
 - `npm run type-check` - Run TypeScript compiler
+
+### Testing Scripts
+- `npm test` - Run unit tests
+- `npm run test:coverage` - Run tests with coverage report
+- `npm run test:e2e` - Run E2E tests with Playwright
+- `npm run test:e2e:ui` - Run E2E tests in UI mode
+- `npm run test:e2e:debug` - Debug E2E tests
+
+## 🧪 Testing
+
+### Unit Tests
+```bash
+npm test
+npm run test:coverage
+```
+
+### E2E Tests
+The project includes comprehensive E2E tests covering:
+- Authentication flow
+- Admin dashboard functionality
+- Navigation and routing
+- Accessibility compliance
+- Production dashboard
+
+```bash
+# Run all E2E tests
+npm run test:e2e
+
+# Run in UI mode for development
+npm run test:e2e:ui
+
+# Debug specific tests
+npm run test:e2e:debug
+```
+
+### Accessibility Testing
+All E2E tests include automated accessibility audits using @axe-core/playwright to ensure WCAG 2.1 AA compliance.
 
 ## 📱 PWA Features
 
@@ -149,16 +213,88 @@ The app includes polyfills and fallback mechanisms to handle these cases gracefu
 
 ## 🚀 Deployment
 
-The app is production-ready and can be deployed to any static hosting service:
+### Automated CI/CD Pipeline
 
-- **Vercel**: Connect your repository and deploy automatically
-- **Netlify**: Drag and drop the `dist` folder or connect via Git
-- **GitHub Pages**: Use the build output for static hosting
-- **Your own server**: Serve the `dist` folder with any web server
+The project includes a comprehensive GitHub Actions pipeline that runs on every push and pull request:
 
-Build the app for production:
+**Pipeline Steps:**
+1. **Linting** - ESLint validation
+2. **Type Checking** - TypeScript compilation
+3. **Unit Tests** - Jest test suite with coverage
+4. **E2E Tests** - Playwright across multiple browsers
+5. **Security Audit** - npm audit for vulnerabilities
+6. **Build** - Production build generation
+7. **Lighthouse** - Performance auditing
+8. **Deploy** - Automatic deployment to production (main branch only)
+
+### Production Readiness Check
+
+Before deploying, run the production readiness script:
+```bash
+bash scripts/production-deploy.sh
+```
+
+This validates:
+- ✅ TypeScript compilation
+- ✅ Linting passes
+- ✅ All tests pass
+- ✅ Security vulnerabilities checked
+- ✅ Bundle size analysis
+- ✅ Environment variables validated
+- ✅ PWA requirements met
+
+### Manual Deployment
+
+Build for production:
 ```bash
 npm run build
 ```
 
-The optimized files will be in the `dist` directory.
+The optimized files will be in the `dist` directory. Deploy to:
+- **Vercel** - Connect repository for automatic deployments
+- **Netlify** - Drag and drop `dist` folder or connect via Git
+- **GitHub Pages** - Use `dist` output for static hosting
+- **Your own server** - Serve `dist` folder with any web server
+
+### Environment Variables for Production
+
+Set these in your hosting platform:
+```
+VITE_SUPABASE_URL=your_production_supabase_url
+VITE_SUPABASE_PUBLISHABLE_KEY=your_production_key
+VITE_SENTRY_DSN=your_sentry_dsn (optional)
+VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_key (optional)
+```
+
+## 📊 Production Monitoring
+
+### Production Dashboard
+Access at `/production` to monitor:
+- **System Health** - Real-time status checks
+- **Performance Metrics** - Web Vitals (LCP, FID, CLS)
+- **Security Audit** - Vulnerability scanning
+- **Load Testing** - Performance under load
+- **Error Tracking** - Error rates and alerts
+
+### Monitoring Integrations
+- **Sentry** - Error tracking and performance monitoring
+- **Custom Analytics** - User behavior tracking
+- **Web Vitals** - Core performance metrics
+- **Load Testing** - Synthetic load generation
+
+## 🔐 Security
+
+### Security Features
+- **Row Level Security (RLS)** - Database-level access control
+- **Role-Based Access** - Separate roles (admin, contributor, free)
+- **Secure Authentication** - Supabase Auth with multiple providers
+- **Environment Variables** - Secure secret management
+- **Content Security Policy** - XSS protection
+- **HTTPS Enforcement** - Secure communication
+
+### Admin Access
+1. Sign up/sign in to the application
+2. Navigate to `/make-admin` to assign yourself admin role
+3. Access admin panel at `/admin`
+
+Note: In production, assign admin roles through direct database access for security.
