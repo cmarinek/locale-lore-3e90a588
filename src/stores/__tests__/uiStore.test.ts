@@ -3,7 +3,7 @@
  * Target: 95% coverage
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 import { useUIStore } from '../uiStore';
 import { renderHook, act } from '@testing-library/react';
 

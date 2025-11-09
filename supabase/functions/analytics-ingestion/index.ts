@@ -15,6 +15,9 @@ interface AnalyticsEvent {
   sessionId: string;
   userId?: string;
   url?: string;
+  processed_at?: string;
+  ip_hash?: string;
+  user_agent_hash?: string;
 }
 
 serve(async (req) => {

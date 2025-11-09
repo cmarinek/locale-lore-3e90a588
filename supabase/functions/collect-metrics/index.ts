@@ -1,6 +1,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { validatePerformanceMetric, validateErrorLog, validateEnum } from '../shared/validation.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,7 +14,20 @@ serve(async (req) => {
   }
 
   try {
-    const { type, data } = await req.json()
+    const body = await req.json()
+    const { type, data } = body
+    
+    // Validate type
+    const typeError = validateEnum(type, 'type', ['performance', 'error', 'analytics'])
+    if (typeError) {
+      return new Response(
+        JSON.stringify({ error: typeError }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
+    }
     
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -29,7 +43,18 @@ serve(async (req) => {
     const sessionId = req.headers.get('x-session-id') || crypto.randomUUID()
 
     switch (type) {
-      case 'performance':
+      case 'performance': {
+        const validation = validatePerformanceMetric(data)
+        if (!validation.success) {
+          return new Response(
+            JSON.stringify({ error: 'Validation failed', details: validation.errors }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 400,
+            }
+          )
+        }
+        
         await supabaseClient.from('performance_metrics').insert({
           session_id: sessionId,
           metric_name: data.name,
@@ -38,8 +63,20 @@ serve(async (req) => {
           user_agent: userAgent,
         })
         break
+      }
 
-      case 'error':
+      case 'error': {
+        const validation = validateErrorLog(data)
+        if (!validation.success) {
+          return new Response(
+            JSON.stringify({ error: 'Validation failed', details: validation.errors }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 400,
+            }
+          )
+        }
+        
         await supabaseClient.from('error_logs').insert({
           session_id: sessionId,
           error_message: data.message,
@@ -49,8 +86,9 @@ serve(async (req) => {
           user_agent: userAgent,
         })
         break
+      }
 
-      case 'analytics':
+      case 'analytics': {
         await supabaseClient.from('analytics_events').insert({
           session_id: sessionId,
           event_name: data.name,
@@ -59,6 +97,7 @@ serve(async (req) => {
           referrer: data.referrer,
         })
         break
+      }
 
       default:
         throw new Error('Invalid metric type')
