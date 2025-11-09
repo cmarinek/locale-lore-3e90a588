@@ -3,6 +3,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { CookieConsent } from '@/components/compliance/CookieConsent';
 import { PerformanceMonitor } from '@/components/monitoring/PerformanceMonitor';
 import { useAdmin } from '@/hooks/useAdmin';
+import { AnnouncementBanner } from '@/components/site/AnnouncementBanner';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ children }) => 
 
   return (
     <div className="App">
+      <AnnouncementBanner />
       {children}
       <Toaster />
       <CookieConsent />

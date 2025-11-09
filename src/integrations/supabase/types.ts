@@ -1567,6 +1567,57 @@ export type Database = {
         }
         Relationships: []
       }
+      media_library: {
+        Row: {
+          alt_text: string | null
+          caption: string | null
+          created_at: string | null
+          file_path: string
+          file_size: number | null
+          file_url: string
+          filename: string
+          height: number | null
+          id: string
+          mime_type: string | null
+          tags: string[] | null
+          updated_at: string | null
+          uploaded_by: string | null
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string | null
+          file_path: string
+          file_size?: number | null
+          file_url: string
+          filename: string
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string | null
+          file_path?: string
+          file_size?: number | null
+          file_url?: string
+          filename?: string
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+          width?: number | null
+        }
+        Relationships: []
+      }
       notification_analytics: {
         Row: {
           browser: string | null
@@ -2232,6 +2283,75 @@ export type Database = {
           scan_duration_ms?: number | null
           security_score?: number
           total_findings?: number
+        }
+        Relationships: []
+      }
+      site_announcements: {
+        Row: {
+          background_color: string | null
+          created_at: string | null
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          message: string
+          starts_at: string | null
+          text_color: string | null
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          background_color?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message: string
+          starts_at?: string | null
+          text_color?: string | null
+          title: string
+          type?: string
+          updated_at?: string | null
+        }
+        Update: {
+          background_color?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message?: string
+          starts_at?: string | null
+          text_color?: string | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      site_configuration: {
+        Row: {
+          config_key: string
+          config_value: Json
+          id: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          config_key: string
+          config_value: Json
+          id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          id?: string
+          updated_at?: string | null
+          updated_by?: string | null
         }
         Relationships: []
       }

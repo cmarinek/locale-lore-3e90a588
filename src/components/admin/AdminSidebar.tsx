@@ -21,6 +21,10 @@ import {
   Database,
   Smartphone,
   Settings,
+  Megaphone,
+  Image as ImageIcon,
+  Palette,
+  FileCode,
 } from 'lucide-react';
 
 const adminItems = [
@@ -43,6 +47,16 @@ const adminItems = [
       { title: 'Moderation', value: 'moderation', icon: Shield },
       { title: 'Media Management', value: 'media', icon: FileText },
       { title: 'Fact Acquisition', value: 'acquisition', icon: Database },
+      { title: 'Media Library', value: 'media-library', icon: ImageIcon },
+    ]
+  },
+  {
+    group: 'Site',
+    items: [
+      { title: 'Announcements', value: 'announcements', icon: Megaphone },
+      { title: 'Theme Customizer', value: 'theme', icon: Palette },
+      { title: 'Configuration', value: 'configuration', icon: FileCode },
+      { title: 'Site Settings', value: 'settings', icon: Settings },
     ]
   },
   {
@@ -51,7 +65,6 @@ const adminItems = [
       { title: 'Users', value: 'users', icon: Users },
       { title: 'Reports', value: 'reports', icon: FileText },
       { title: 'Mobile Builder', value: 'mobile', icon: Smartphone },
-      { title: 'Site Settings', value: 'settings', icon: Settings },
     ]
   }
 ];

@@ -6,11 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 export const SiteSettingsPanel: React.FC = () => {
   const { branding, isLoading, uploadLogo, uploadFavicon, isUploading, updateBranding } = useSiteSettings();
-  const { toast } = useToast();
 
   const onDropLogo = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -56,9 +54,9 @@ export const SiteSettingsPanel: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-foreground">Site Settings</h2>
+        <h2 className="text-3xl font-bold text-foreground">Branding Settings</h2>
         <p className="text-muted-foreground mt-2">
-          Manage your site's branding, logo, and general configuration
+          Manage your site's logo, favicon, and brand identity
         </p>
       </div>
 
@@ -158,16 +156,23 @@ export const SiteSettingsPanel: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Theme Colors (Future Enhancement) */}
+        {/* Info Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Theme Colors</CardTitle>
-            <CardDescription>Customize your site's color scheme (Coming soon)</CardDescription>
+            <CardTitle>Additional Settings</CardTitle>
+            <CardDescription>More configuration options available</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Advanced theme customization will be available in a future update.
+              Use the other tabs in the admin sidebar to configure:
             </p>
+            <ul className="list-disc list-inside text-sm text-muted-foreground mt-2 space-y-1">
+              <li>Theme colors with live preview</li>
+              <li>SEO meta tags and keywords</li>
+              <li>Social media links</li>
+              <li>Contact information</li>
+              <li>Analytics tracking codes</li>
+            </ul>
           </CardContent>
         </Card>
       </div>
