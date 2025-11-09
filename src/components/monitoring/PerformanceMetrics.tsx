@@ -27,44 +27,81 @@ export function PerformanceMetrics({ compact }: PerformanceMetricsProps) {
 
   const loadPerformanceMetrics = async () => {
     try {
-      // Mock data - in production, fetch from performance API
-      const mockVitals: WebVital[] = [
-        {
-          name: 'Largest Contentful Paint (LCP)',
-          value: 1850,
-          rating: 'good',
-          threshold: { good: 2500, poor: 4000 },
-          unit: 'ms',
-        },
-        {
-          name: 'First Input Delay (FID)',
-          value: 45,
-          rating: 'good',
-          threshold: { good: 100, poor: 300 },
-          unit: 'ms',
-        },
-        {
+      // Use real Web Vitals data
+      const { onCLS, onLCP, onTTFB, onINP } = await import('web-vitals');
+      
+      const vitalsData: WebVital[] = [];
+
+      // Collect CLS (Cumulative Layout Shift)
+      onCLS((metric) => {
+        vitalsData.push({
           name: 'Cumulative Layout Shift (CLS)',
-          value: 0.08,
-          rating: 'good',
+          value: parseFloat(metric.value.toFixed(3)),
+          rating: metric.rating === 'good' ? 'good' : metric.rating === 'needs-improvement' ? 'needs-improvement' : 'poor',
           threshold: { good: 0.1, poor: 0.25 },
           unit: '',
-        },
-        {
+        });
+        if (vitalsData.length >= 3) setWebVitals([...vitalsData]);
+      });
+
+      // Collect INP (Interaction to Next Paint) - replaces FID
+      onINP((metric) => {
+        vitalsData.push({
+          name: 'Interaction to Next Paint (INP)',
+          value: Math.round(metric.value),
+          rating: metric.rating === 'good' ? 'good' : metric.rating === 'needs-improvement' ? 'needs-improvement' : 'poor',
+          threshold: { good: 200, poor: 500 },
+          unit: 'ms',
+        });
+        if (vitalsData.length >= 3) setWebVitals([...vitalsData]);
+      });
+
+      // Collect LCP (Largest Contentful Paint)
+      onLCP((metric) => {
+        vitalsData.push({
+          name: 'Largest Contentful Paint (LCP)',
+          value: Math.round(metric.value),
+          rating: metric.rating === 'good' ? 'good' : metric.rating === 'needs-improvement' ? 'needs-improvement' : 'poor',
+          threshold: { good: 2500, poor: 4000 },
+          unit: 'ms',
+        });
+        if (vitalsData.length >= 3) setWebVitals([...vitalsData]);
+      });
+
+      // Collect TTFB (Time to First Byte)
+      onTTFB((metric) => {
+        vitalsData.push({
           name: 'Time to First Byte (TTFB)',
-          value: 320,
-          rating: 'needs-improvement',
+          value: Math.round(metric.value),
+          rating: metric.rating === 'good' ? 'good' : metric.rating === 'needs-improvement' ? 'needs-improvement' : 'poor',
           threshold: { good: 800, poor: 1800 },
           unit: 'ms',
-        },
-      ];
-
-      setWebVitals(mockVitals);
-    } catch (error) {
-      logger.error('Failed to load performance metrics', error as Error, {
-        component: 'PerformanceMetrics',
+        });
+        if (vitalsData.length >= 3) setWebVitals([...vitalsData]);
       });
-    } finally {
+
+      // Fallback timeout
+      setTimeout(() => {
+        if (vitalsData.length === 0) {
+          // Use navigation timing as fallback
+          const perfData = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+          if (perfData) {
+            setWebVitals([
+              {
+                name: 'Page Load Time',
+                value: Math.round(perfData.loadEventEnd - perfData.fetchStart),
+                rating: perfData.loadEventEnd - perfData.fetchStart < 2000 ? 'good' : 'needs-improvement',
+                threshold: { good: 2000, poor: 4000 },
+                unit: 'ms',
+              },
+            ]);
+          }
+        }
+        setLoading(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to load performance metrics:', error);
+      setWebVitals([]);
       setLoading(false);
     }
   };

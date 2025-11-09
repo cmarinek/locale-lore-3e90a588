@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
-import { logger } from '@/utils/logger';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ErrorEvent {
   id: string;
@@ -30,49 +30,36 @@ export function ErrorMetrics({ limit, compact }: ErrorMetricsProps) {
 
   const loadErrorMetrics = async () => {
     try {
-      // In production, this would fetch from Sentry API
-      // For now, showing mock data
-      const mockErrors: ErrorEvent[] = [
-        {
-          id: '1',
-          level: 'error',
-          message: 'Failed to load user profile',
-          timestamp: new Date(Date.now() - 1000 * 60 * 5),
-          count: 3,
-          component: 'ProfilePage',
-          stack: 'Error at ProfilePage.tsx:45',
-        },
-        {
-          id: '2',
-          level: 'warning',
-          message: 'Slow API response detected',
-          timestamp: new Date(Date.now() - 1000 * 60 * 15),
-          count: 12,
-          component: 'APIClient',
-        },
-        {
-          id: '3',
-          level: 'error',
-          message: 'Database connection timeout',
-          timestamp: new Date(Date.now() - 1000 * 60 * 30),
-          count: 1,
-          stack: 'Error at supabase-client.ts:78',
-        },
-        {
-          id: '4',
-          level: 'info',
-          message: 'User authentication succeeded',
-          timestamp: new Date(Date.now() - 1000 * 60 * 45),
-          count: 245,
-          component: 'AuthProvider',
-        },
-      ];
+      // Fetch real error logs from database
+      const { data: errorLogs, error: fetchError } = await supabase
+        .from('error_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit || 20);
 
-      setErrors(limit ? mockErrors.slice(0, limit) : mockErrors);
+      if (fetchError || !errorLogs) {
+        // If table doesn't exist, show empty state
+        console.warn('Error logs table not available:', fetchError);
+        setErrors([]);
+        setLoading(false);
+        return;
+      }
+
+      // Transform database errors to component format
+      const transformedErrors: ErrorEvent[] = errorLogs.map(log => ({
+        id: log.id,
+        level: 'error',
+        message: log.error_message || 'Unknown error',
+        timestamp: new Date(log.created_at),
+        count: 1,
+        component: log.url,
+        stack: log.error_stack
+      }));
+
+      setErrors(transformedErrors);
     } catch (error) {
-      logger.error('Failed to load error metrics', error as Error, {
-        component: 'ErrorMetrics',
-      });
+      console.error('Failed to load error metrics:', error);
+      setErrors([]);
     } finally {
       setLoading(false);
     }
