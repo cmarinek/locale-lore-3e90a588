@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { setUserContext, clearUserContext } from '@/utils/monitoring';
 import { logger } from '@/utils/logger';
 import { setDebugMode } from '@/lib/debug';
+import { clearRoleCache, roleQueryKeys } from '@/lib/rbac';
 
 interface AuthContextType {
   user: User | null;
@@ -23,9 +25,12 @@ function AuthProviderComponent({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   const signOut = async () => {
     try {
+      // Clear role cache before signing out
+      clearRoleCache(queryClient);
       await supabase.auth.signOut();
       window.location.href = '/auth';
     } catch (error) {
@@ -60,6 +65,11 @@ function AuthProviderComponent({ children }: AuthProviderProps) {
           if (session?.user) {
             setUserContext(session.user.id, session.user.email);
             
+            // Invalidate role cache to fetch fresh role data
+            queryClient.invalidateQueries({
+              queryKey: roleQueryKeys.user(session.user.id),
+            });
+            
             // Check if user is admin and enable debug mode
             setTimeout(() => {
               supabase
@@ -74,6 +84,8 @@ function AuthProviderComponent({ children }: AuthProviderProps) {
           } else {
             clearUserContext();
             setDebugMode(false);
+            // Clear role cache on logout
+            clearRoleCache(queryClient);
           }
         }
       }

@@ -7,3 +7,4 @@ export * from './permissions';
 export * from './roles';
 export * from './guards';
 export * from './hooks';
+export * from './cache';
