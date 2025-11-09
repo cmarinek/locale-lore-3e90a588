@@ -129,6 +129,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const [timelineRange, setTimelineRange] = useState<{ start: Date; end: Date } | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isHistoricalAnimationPlaying, setIsHistoricalAnimationPlaying] = useState(false);
+  const [loadingDismissed, setLoadingDismissed] = useState(false);
 
   // Performance metrics
   const [metrics, setMetrics] = useState({
@@ -147,32 +148,42 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   }, []);
 
   const fetchMapboxToken = useCallback(async () => {
-    console.log('🗺️ Fetching Mapbox token...');
+    console.log('🗺️ [UnifiedMap] Starting Mapbox token fetch...');
+    console.log('🗺️ [UnifiedMap] Current token status:', tokenStatus);
     setTokenStatus('loading');
     setTokenError(null);
+    setLoadingDismissed(false);
 
     try {
+      console.log('🗺️ [UnifiedMap] Calling mapboxService.getToken()...');
       const token = await mapboxService.getToken();
 
       if (!isMountedRef.current) {
-        console.log('⚠️ Component unmounted, aborting token fetch');
+        console.log('⚠️ [UnifiedMap] Component unmounted, aborting token fetch');
         return;
       }
 
-      console.log('✅ Token received:', token ? `${token.substring(0, 10)}...` : 'null');
+      console.log('🗺️ [UnifiedMap] Token received:', token ? `${token.substring(0, 10)}...` : 'null');
+      console.log('🗺️ [UnifiedMap] Token length:', token?.length || 0);
 
       if (token && token.length > 0) {
         setMapboxToken(token);
         setTokenStatus('ready');
-        console.log('✅ Mapbox token ready');
+        console.log('✅ [UnifiedMap] Mapbox token ready!');
       } else {
         setMapboxToken('');
         setTokenStatus('missing');
         setTokenError('A Mapbox public token is required to display the interactive map.');
-        console.error('❌ No Mapbox token available');
+        console.error('❌ [UnifiedMap] No Mapbox token available');
       }
     } catch (error) {
-      console.error('❌ Failed to load Mapbox token:', error);
+      console.error('❌ [UnifiedMap] Failed to load Mapbox token:', error);
+      console.error('❌ [UnifiedMap] Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown',
+        stack: error instanceof Error ? error.stack : undefined,
+        type: typeof error,
+        error
+      });
 
       if (!isMountedRef.current) {
         return;
@@ -186,8 +197,15 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // Load Mapbox token
   useEffect(() => {
+    console.log('🗺️ [UnifiedMap] useEffect triggered - fetching token');
     fetchMapboxToken();
   }, [fetchMapboxToken]);
+
+  // Handle loading state dismissal
+  const handleDismissLoading = useCallback(() => {
+    console.log('🗺️ [UnifiedMap] Loading state dismissed by user');
+    setLoadingDismissed(true);
+  }, []);
 
   const handleRetryTokenFetch = useCallback(() => {
     mapboxService.clearToken();
@@ -746,10 +764,13 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   if (!isVisible) return null;
 
-  if (tokenStatus === 'loading' || tokenStatus === 'idle') {
+  if ((tokenStatus === 'loading' || tokenStatus === 'idle') && !loadingDismissed) {
     return (
       <div className={`relative w-full h-full ${className}`}>
-        <MapLoadingState message="Preparing interactive map experience..." />
+        <MapLoadingState 
+          message="Preparing interactive map experience..." 
+          onClose={handleDismissLoading}
+        />
       </div>
     );
   }

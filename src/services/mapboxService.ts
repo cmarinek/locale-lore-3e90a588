@@ -34,32 +34,44 @@ class MapboxService {
 
   private async fetchTokenFromSupabase(): Promise<string | null> {
     try {
-      console.log('📡 Calling get-mapbox-token edge function...');
+      console.log('📡 [MapboxService] Calling get-mapbox-token edge function...');
+      console.log('📡 [MapboxService] Supabase client configured:', !!supabase);
+      
       const { data, error } = await supabase.functions.invoke('get-mapbox-token');
       
-      console.log('📡 Edge function response:', { 
+      console.log('📡 [MapboxService] Edge function response:', { 
         hasData: !!data, 
         hasError: !!error,
         dataKeys: data ? Object.keys(data) : [],
-        error: error 
+        dataContent: data,
+        errorDetails: error 
       });
 
       if (error) {
-        console.error('❌ Failed to fetch Mapbox token:', error);
-        return null;
+        console.error('❌ [MapboxService] Failed to fetch Mapbox token:', error);
+        console.error('❌ [MapboxService] Error type:', typeof error);
+        console.error('❌ [MapboxService] Error message:', error.message || 'No message');
+        throw new Error(`Edge function error: ${error.message || 'Unknown error'}`);
       }
 
       if (data?.token) {
         const cleanToken = data.token.replace(/[\r\n\s]/g, '').trim();
-        console.log('✅ Token received and cleaned:', cleanToken ? `${cleanToken.substring(0, 15)}...` : 'empty');
+        console.log('✅ [MapboxService] Token received and cleaned:', cleanToken ? `${cleanToken.substring(0, 15)}...` : 'empty');
         return cleanToken || null;
       }
 
-      console.warn('⚠️ No token in response data');
+      if (data?.error) {
+        console.error('❌ [MapboxService] Server returned error:', data.error);
+        throw new Error(data.error);
+      }
+
+      console.warn('⚠️ [MapboxService] No token in response data');
       return null;
     } catch (error) {
-      console.error('❌ Exception fetching Mapbox token:', error);
-      return null;
+      console.error('❌ [MapboxService] Exception fetching Mapbox token:', error);
+      console.error('❌ [MapboxService] Exception type:', typeof error);
+      console.error('❌ [MapboxService] Exception details:', error);
+      throw error;
     }
   }
 
