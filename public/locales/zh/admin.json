@@ -1,0 +1,196 @@
+{
+  "dashboard": "仪表板",
+  "users": "用户",
+  "content": "内容",
+  "system": "系统",
+  "security": "安全",
+  "reports": "报告",
+  "statistics": {
+    "title": "统计",
+    "totalUsers": "总用户数",
+    "activeUsers": "活跃用户",
+    "totalStories": "总故事数",
+    "pendingReviews": "待审核"
+  },
+  "userManagement": {
+    "title": "用户管理",
+    "searchUsers": "搜索用户",
+    "filterByRole": "按角色筛选",
+    "allRoles": "所有角色",
+    "admin": "管理员",
+    "moderator": "版主",
+    "user": "用户",
+    "banned": "已封禁",
+    "actions": "操作",
+    "viewProfile": "查看资料",
+    "editUser": "编辑用户",
+    "deleteUser": "删除用户",
+    "banUser": "封禁用户",
+    "unbanUser": "解封用户",
+    "changeRole": "更改角色",
+    "confirmDelete": "确定要删除此用户吗？",
+    "confirmBan": "确定要封禁此用户吗？",
+    "userDeleted": "用户删除成功",
+    "userBanned": "用户封禁成功",
+    "roleChanged": "角色更改成功"
+  },
+  "contentModeration": {
+    "title": "内容审核",
+    "pending": "待处理",
+    "approved": "已批准",
+    "rejected": "已拒绝",
+    "flagged": "已标记",
+    "approve": "批准",
+    "reject": "拒绝",
+    "flag": "标记",
+    "reason": "原因",
+    "moderatorNotes": "版主备注",
+    "reviewStory": "审核故事",
+    "contentApproved": "内容已批准",
+    "contentRejected": "内容已拒绝"
+  },
+  "translationManagement": {
+    "title": "翻译管理",
+    "languages": "语言",
+    "namespaces": "命名空间",
+    "addTranslation": "添加翻译",
+    "editTranslation": "编辑翻译",
+    "deleteTranslation": "删除翻译",
+    "importTranslations": "导入翻译",
+    "exportTranslations": "导出翻译",
+    "translationKey": "键",
+    "translationValue": "值",
+    "autoTranslate": "自动翻译",
+    "progress": "进度",
+    "complete": "完成",
+    "incomplete": "未完成",
+    "missingKeys": "缺失键"
+  },
+  "systemSettings": {
+    "title": "系统设置",
+    "general": "常规",
+    "email": "电子邮件",
+    "storage": "存储",
+    "performance": "性能",
+    "backup": "备份",
+    "siteName": "网站名称",
+    "siteDescription": "网站描述",
+    "maintenanceMode": "维护模式",
+    "enableMaintenanceMode": "启用维护模式",
+    "disableMaintenanceMode": "禁用维护模式",
+    "settingsSaved": "设置保存成功"
+  },
+  "reportsSection": {
+    "title": "报告",
+    "userReports": "用户报告",
+    "contentReports": "内容报告",
+    "analyticsReports": "分析报告",
+    "generateReport": "生成报告",
+    "downloadReport": "下载报告",
+    "reportPeriod": "报告周期",
+    "lastWeek": "上周",
+    "lastMonth": "上月",
+    "lastYear": "去年",
+    "custom": "自定义"
+  },
+  "announcements": {
+    "title": "公告",
+    "create": "创建公告",
+    "edit": "编辑公告",
+    "delete": "删除公告",
+    "publish": "发布",
+    "unpublish": "取消发布",
+    "fields": {
+      "title": "标题",
+      "message": "消息",
+      "type": "类型",
+      "priority": "优先级",
+      "startDate": "开始日期",
+      "endDate": "结束日期",
+      "targetAudience": "目标受众"
+    },
+    "types": {
+      "info": "信息",
+      "warning": "警告",
+      "success": "成功",
+      "error": "错误"
+    },
+    "priorities": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "urgent": "紧急"
+    }
+  },
+  "mediaLibrary": {
+    "title": "媒体库",
+    "upload": "上传",
+    "delete": "删除",
+    "search": "搜索媒体",
+    "filterByType": "按类型筛选",
+    "allTypes": "所有类型",
+    "images": "图片",
+    "videos": "视频",
+    "documents": "文档",
+    "fileSize": "文件大小",
+    "uploadedBy": "上传者",
+    "uploadDate": "上传日期",
+    "dimensions": "尺寸",
+    "confirmDelete": "确定要删除此文件吗？"
+  },
+  "siteSettings": {
+    "title": "网站设置",
+    "appearance": "外观",
+    "features": "功能",
+    "integrations": "集成",
+    "theme": {
+      "title": "主题",
+      "primary": "主色",
+      "secondary": "辅色",
+      "accent": "强调色",
+      "background": "背景",
+      "text": "文本"
+    },
+    "logo": {
+      "title": "徽标",
+      "upload": "上传徽标",
+      "remove": "删除徽标",
+      "favicon": "网站图标"
+    },
+    "seo": {
+      "title": "SEO",
+      "metaTitle": "元标题",
+      "metaDescription": "元描述",
+      "keywords": "关键词",
+      "ogImage": "Open Graph 图片"
+    }
+  },
+  "siteConfiguration": {
+    "title": "网站配置",
+    "general": "常规",
+    "advanced": "高级",
+    "api": "API",
+    "webhooks": "Webhooks",
+    "apiKeys": {
+      "title": "API 密钥",
+      "create": "创建密钥",
+      "revoke": "撤销",
+      "name": "名称",
+      "key": "密钥",
+      "created": "创建时间",
+      "lastUsed": "最后使用"
+    },
+    "caching": {
+      "title": "缓存",
+      "enable": "启用缓存",
+      "clearCache": "清除缓存",
+      "cacheCleared": "缓存清除成功"
+    },
+    "rateLimit": {
+      "title": "速率限制",
+      "enable": "启用速率限制",
+      "requestsPerHour": "每小时请求数",
+      "ipWhitelist": "IP 白名单"
+    }
+  }
+}

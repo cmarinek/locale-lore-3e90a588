@@ -1,0 +1,196 @@
+{
+  "dashboard": "Панель управления",
+  "users": "Пользователи",
+  "content": "Контент",
+  "system": "Система",
+  "security": "Безопасность",
+  "reports": "Отчёты",
+  "statistics": {
+    "title": "Статистика",
+    "totalUsers": "Всего пользователей",
+    "activeUsers": "Активные пользователи",
+    "totalStories": "Всего историй",
+    "pendingReviews": "Ожидающие проверки"
+  },
+  "userManagement": {
+    "title": "Управление пользователями",
+    "searchUsers": "Поиск пользователей",
+    "filterByRole": "Фильтр по роли",
+    "allRoles": "Все роли",
+    "admin": "Администратор",
+    "moderator": "Модератор",
+    "user": "Пользователь",
+    "banned": "Заблокирован",
+    "actions": "Действия",
+    "viewProfile": "Просмотреть профиль",
+    "editUser": "Редактировать пользователя",
+    "deleteUser": "Удалить пользователя",
+    "banUser": "Заблокировать пользователя",
+    "unbanUser": "Разблокировать пользователя",
+    "changeRole": "Изменить роль",
+    "confirmDelete": "Вы уверены, что хотите удалить этого пользователя?",
+    "confirmBan": "Вы уверены, что хотите заблокировать этого пользователя?",
+    "userDeleted": "Пользователь успешно удалён",
+    "userBanned": "Пользователь успешно заблокирован",
+    "roleChanged": "Роль успешно изменена"
+  },
+  "contentModeration": {
+    "title": "Модерация контента",
+    "pending": "Ожидает",
+    "approved": "Одобрено",
+    "rejected": "Отклонено",
+    "flagged": "Помечено",
+    "approve": "Одобрить",
+    "reject": "Отклонить",
+    "flag": "Пометить",
+    "reason": "Причина",
+    "moderatorNotes": "Заметки модератора",
+    "reviewStory": "Проверить историю",
+    "contentApproved": "Контент одобрен",
+    "contentRejected": "Контент отклонён"
+  },
+  "translationManagement": {
+    "title": "Управление переводами",
+    "languages": "Языки",
+    "namespaces": "Пространства имён",
+    "addTranslation": "Добавить перевод",
+    "editTranslation": "Редактировать перевод",
+    "deleteTranslation": "Удалить перевод",
+    "importTranslations": "Импортировать переводы",
+    "exportTranslations": "Экспортировать переводы",
+    "translationKey": "Ключ",
+    "translationValue": "Значение",
+    "autoTranslate": "Автоперевод",
+    "progress": "Прогресс",
+    "complete": "Завершено",
+    "incomplete": "Не завершено",
+    "missingKeys": "Отсутствующие ключи"
+  },
+  "systemSettings": {
+    "title": "Системные настройки",
+    "general": "Общие",
+    "email": "Электронная почта",
+    "storage": "Хранилище",
+    "performance": "Производительность",
+    "backup": "Резервное копирование",
+    "siteName": "Название сайта",
+    "siteDescription": "Описание сайта",
+    "maintenanceMode": "Режим обслуживания",
+    "enableMaintenanceMode": "Включить режим обслуживания",
+    "disableMaintenanceMode": "Выключить режим обслуживания",
+    "settingsSaved": "Настройки успешно сохранены"
+  },
+  "reportsSection": {
+    "title": "Отчёты",
+    "userReports": "Отчёты пользователей",
+    "contentReports": "Отчёты по контенту",
+    "analyticsReports": "Аналитические отчёты",
+    "generateReport": "Создать отчёт",
+    "downloadReport": "Скачать отчёт",
+    "reportPeriod": "Период отчёта",
+    "lastWeek": "Прошлая неделя",
+    "lastMonth": "Прошлый месяц",
+    "lastYear": "Прошлый год",
+    "custom": "Настраиваемый"
+  },
+  "announcements": {
+    "title": "Объявления",
+    "create": "Создать объявление",
+    "edit": "Редактировать объявление",
+    "delete": "Удалить объявление",
+    "publish": "Опубликовать",
+    "unpublish": "Снять с публикации",
+    "fields": {
+      "title": "Заголовок",
+      "message": "Сообщение",
+      "type": "Тип",
+      "priority": "Приоритет",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "targetAudience": "Целевая аудитория"
+    },
+    "types": {
+      "info": "Информация",
+      "warning": "Предупреждение",
+      "success": "Успех",
+      "error": "Ошибка"
+    },
+    "priorities": {
+      "low": "Низкий",
+      "medium": "Средний",
+      "high": "Высокий",
+      "urgent": "Срочный"
+    }
+  },
+  "mediaLibrary": {
+    "title": "Медиатека",
+    "upload": "Загрузить",
+    "delete": "Удалить",
+    "search": "Поиск медиафайлов",
+    "filterByType": "Фильтр по типу",
+    "allTypes": "Все типы",
+    "images": "Изображения",
+    "videos": "Видео",
+    "documents": "Документы",
+    "fileSize": "Размер файла",
+    "uploadedBy": "Загружено пользователем",
+    "uploadDate": "Дата загрузки",
+    "dimensions": "Размеры",
+    "confirmDelete": "Вы уверены, что хотите удалить этот файл?"
+  },
+  "siteSettings": {
+    "title": "Настройки сайта",
+    "appearance": "Внешний вид",
+    "features": "Функции",
+    "integrations": "Интеграции",
+    "theme": {
+      "title": "Тема",
+      "primary": "Основной цвет",
+      "secondary": "Второстепенный цвет",
+      "accent": "Акцентный цвет",
+      "background": "Фон",
+      "text": "Текст"
+    },
+    "logo": {
+      "title": "Логотип",
+      "upload": "Загрузить логотип",
+      "remove": "Удалить логотип",
+      "favicon": "Фавикон"
+    },
+    "seo": {
+      "title": "SEO",
+      "metaTitle": "Мета-заголовок",
+      "metaDescription": "Мета-описание",
+      "keywords": "Ключевые слова",
+      "ogImage": "Изображение Open Graph"
+    }
+  },
+  "siteConfiguration": {
+    "title": "Конфигурация сайта",
+    "general": "Общая",
+    "advanced": "Расширенная",
+    "api": "API",
+    "webhooks": "Вебхуки",
+    "apiKeys": {
+      "title": "API ключи",
+      "create": "Создать ключ",
+      "revoke": "Отозвать",
+      "name": "Имя",
+      "key": "Ключ",
+      "created": "Создан",
+      "lastUsed": "Последнее использование"
+    },
+    "caching": {
+      "title": "Кэширование",
+      "enable": "Включить кэширование",
+      "clearCache": "Очистить кэш",
+      "cacheCleared": "Кэш успешно очищен"
+    },
+    "rateLimit": {
+      "title": "Ограничение скорости",
+      "enable": "Включить ограничение скорости",
+      "requestsPerHour": "Запросов в час",
+      "ipWhitelist": "Белый список IP"
+    }
+  }
+}

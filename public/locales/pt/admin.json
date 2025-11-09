@@ -1,0 +1,196 @@
+{
+  "dashboard": "Painel de Controle",
+  "users": "Usuários",
+  "content": "Conteúdo",
+  "system": "Sistema",
+  "security": "Segurança",
+  "reports": "Relatórios",
+  "statistics": {
+    "title": "Estatísticas",
+    "totalUsers": "Total de Usuários",
+    "activeUsers": "Usuários Ativos",
+    "totalStories": "Total de Histórias",
+    "pendingReviews": "Revisões Pendentes"
+  },
+  "userManagement": {
+    "title": "Gerenciamento de Usuários",
+    "searchUsers": "Pesquisar usuários",
+    "filterByRole": "Filtrar por função",
+    "allRoles": "Todas as funções",
+    "admin": "Administrador",
+    "moderator": "Moderador",
+    "user": "Usuário",
+    "banned": "Banido",
+    "actions": "Ações",
+    "viewProfile": "Ver perfil",
+    "editUser": "Editar usuário",
+    "deleteUser": "Excluir usuário",
+    "banUser": "Banir usuário",
+    "unbanUser": "Desbanir usuário",
+    "changeRole": "Alterar função",
+    "confirmDelete": "Tem certeza de que deseja excluir este usuário?",
+    "confirmBan": "Tem certeza de que deseja banir este usuário?",
+    "userDeleted": "Usuário excluído com sucesso",
+    "userBanned": "Usuário banido com sucesso",
+    "roleChanged": "Função alterada com sucesso"
+  },
+  "contentModeration": {
+    "title": "Moderação de Conteúdo",
+    "pending": "Pendente",
+    "approved": "Aprovado",
+    "rejected": "Rejeitado",
+    "flagged": "Sinalizado",
+    "approve": "Aprovar",
+    "reject": "Rejeitar",
+    "flag": "Sinalizar",
+    "reason": "Motivo",
+    "moderatorNotes": "Notas do moderador",
+    "reviewStory": "Revisar história",
+    "contentApproved": "Conteúdo aprovado",
+    "contentRejected": "Conteúdo rejeitado"
+  },
+  "translationManagement": {
+    "title": "Gerenciamento de Traduções",
+    "languages": "Idiomas",
+    "namespaces": "Namespaces",
+    "addTranslation": "Adicionar tradução",
+    "editTranslation": "Editar tradução",
+    "deleteTranslation": "Excluir tradução",
+    "importTranslations": "Importar traduções",
+    "exportTranslations": "Exportar traduções",
+    "translationKey": "Chave",
+    "translationValue": "Valor",
+    "autoTranslate": "Tradução automática",
+    "progress": "Progresso",
+    "complete": "Completo",
+    "incomplete": "Incompleto",
+    "missingKeys": "Chaves ausentes"
+  },
+  "systemSettings": {
+    "title": "Configurações do Sistema",
+    "general": "Geral",
+    "email": "E-mail",
+    "storage": "Armazenamento",
+    "performance": "Desempenho",
+    "backup": "Backup",
+    "siteName": "Nome do site",
+    "siteDescription": "Descrição do site",
+    "maintenanceMode": "Modo de manutenção",
+    "enableMaintenanceMode": "Ativar modo de manutenção",
+    "disableMaintenanceMode": "Desativar modo de manutenção",
+    "settingsSaved": "Configurações salvas com sucesso"
+  },
+  "reportsSection": {
+    "title": "Relatórios",
+    "userReports": "Relatórios de usuários",
+    "contentReports": "Relatórios de conteúdo",
+    "analyticsReports": "Relatórios de análise",
+    "generateReport": "Gerar relatório",
+    "downloadReport": "Baixar relatório",
+    "reportPeriod": "Período do relatório",
+    "lastWeek": "Semana passada",
+    "lastMonth": "Mês passado",
+    "lastYear": "Ano passado",
+    "custom": "Personalizado"
+  },
+  "announcements": {
+    "title": "Anúncios",
+    "create": "Criar anúncio",
+    "edit": "Editar anúncio",
+    "delete": "Excluir anúncio",
+    "publish": "Publicar",
+    "unpublish": "Cancelar publicação",
+    "fields": {
+      "title": "Título",
+      "message": "Mensagem",
+      "type": "Tipo",
+      "priority": "Prioridade",
+      "startDate": "Data de início",
+      "endDate": "Data de término",
+      "targetAudience": "Público-alvo"
+    },
+    "types": {
+      "info": "Informação",
+      "warning": "Aviso",
+      "success": "Sucesso",
+      "error": "Erro"
+    },
+    "priorities": {
+      "low": "Baixa",
+      "medium": "Média",
+      "high": "Alta",
+      "urgent": "Urgente"
+    }
+  },
+  "mediaLibrary": {
+    "title": "Biblioteca de Mídia",
+    "upload": "Carregar",
+    "delete": "Excluir",
+    "search": "Pesquisar mídia",
+    "filterByType": "Filtrar por tipo",
+    "allTypes": "Todos os tipos",
+    "images": "Imagens",
+    "videos": "Vídeos",
+    "documents": "Documentos",
+    "fileSize": "Tamanho do arquivo",
+    "uploadedBy": "Carregado por",
+    "uploadDate": "Data de carregamento",
+    "dimensions": "Dimensões",
+    "confirmDelete": "Tem certeza de que deseja excluir este arquivo?"
+  },
+  "siteSettings": {
+    "title": "Configurações do Site",
+    "appearance": "Aparência",
+    "features": "Recursos",
+    "integrations": "Integrações",
+    "theme": {
+      "title": "Tema",
+      "primary": "Cor primária",
+      "secondary": "Cor secundária",
+      "accent": "Cor de destaque",
+      "background": "Fundo",
+      "text": "Texto"
+    },
+    "logo": {
+      "title": "Logo",
+      "upload": "Carregar logo",
+      "remove": "Remover logo",
+      "favicon": "Favicon"
+    },
+    "seo": {
+      "title": "SEO",
+      "metaTitle": "Título meta",
+      "metaDescription": "Descrição meta",
+      "keywords": "Palavras-chave",
+      "ogImage": "Imagem Open Graph"
+    }
+  },
+  "siteConfiguration": {
+    "title": "Configuração do Site",
+    "general": "Geral",
+    "advanced": "Avançado",
+    "api": "API",
+    "webhooks": "Webhooks",
+    "apiKeys": {
+      "title": "Chaves API",
+      "create": "Criar chave",
+      "revoke": "Revogar",
+      "name": "Nome",
+      "key": "Chave",
+      "created": "Criada",
+      "lastUsed": "Último uso"
+    },
+    "caching": {
+      "title": "Cache",
+      "enable": "Ativar cache",
+      "clearCache": "Limpar cache",
+      "cacheCleared": "Cache limpo com sucesso"
+    },
+    "rateLimit": {
+      "title": "Limite de taxa",
+      "enable": "Ativar limite de taxa",
+      "requestsPerHour": "Solicitações por hora",
+      "ipWhitelist": "Lista branca de IP"
+    }
+  }
+}
