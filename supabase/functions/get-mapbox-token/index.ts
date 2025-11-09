@@ -26,7 +26,7 @@ serve(async (req) => {
     for (const name of possibleNames) {
       const token = Deno.env.get(name);
       if (token) {
-        mapboxToken = token;
+        mapboxToken = token.trim();
         foundVariable = name;
         break;
       }
