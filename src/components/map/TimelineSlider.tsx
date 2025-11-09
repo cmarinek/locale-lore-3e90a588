@@ -2,11 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { Calendar, Play, Pause, SkipBack, SkipForward } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Play, Pause, SkipBack, SkipForward, Filter, X } from 'lucide-react';
 import { format, subYears, addYears } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Category {
+  id: string;
+  slug: string;
+  icon: string;
+  color: string;
+  category_translations: {
+    name: string;
+    language_code: string;
+  }[];
+}
 
 interface TimelineSliderProps {
   onDateRangeChange: (startDate: Date, endDate: Date) => void;
+  onCategoriesChange?: (categories: string[]) => void;
   minDate?: Date;
   maxDate?: Date;
   className?: string;
@@ -14,6 +28,7 @@ interface TimelineSliderProps {
 
 export const TimelineSlider: React.FC<TimelineSliderProps> = ({
   onDateRangeChange,
+  onCategoriesChange,
   minDate = subYears(new Date(), 10),
   maxDate = new Date(),
   className
@@ -21,10 +36,29 @@ export const TimelineSlider: React.FC<TimelineSliderProps> = ({
   const [selectedYear, setSelectedYear] = useState(maxDate.getFullYear());
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1000); // ms per step
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [showCategoryFilter, setShowCategoryFilter] = useState(false);
 
   const minYear = minDate.getFullYear();
   const maxYear = maxDate.getFullYear();
   const yearRange = maxYear - minYear;
+
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, slug, icon, color, category_translations(name, language_code)')
+        .order('slug');
+
+      if (data && !error) {
+        setCategories(data as Category[]);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const startOfYear = new Date(selectedYear, 0, 1);
@@ -72,6 +106,22 @@ export const TimelineSlider: React.FC<TimelineSliderProps> = ({
     setIsPlaying(false);
   };
 
+  const toggleCategory = (categorySlug: string) => {
+    setSelectedCategories(prev => {
+      const newSelection = prev.includes(categorySlug)
+        ? prev.filter(c => c !== categorySlug)
+        : [...prev, categorySlug];
+      
+      onCategoriesChange?.(newSelection);
+      return newSelection;
+    });
+  };
+
+  const clearCategoryFilters = () => {
+    setSelectedCategories([]);
+    onCategoriesChange?.([]);
+  };
+
   return (
     <Card className={`p-4 bg-background/95 backdrop-blur-sm border-border shadow-lg ${className}`}>
       <div className="space-y-4">
@@ -80,11 +130,64 @@ export const TimelineSlider: React.FC<TimelineSliderProps> = ({
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-primary" />
             <span className="text-sm font-medium text-foreground">Timeline</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCategoryFilter(!showCategoryFilter)}
+              className="h-6 px-2"
+            >
+              <Filter className="w-3 h-3 mr-1" />
+              {selectedCategories.length > 0 && (
+                <Badge variant="secondary" className="ml-1 h-4 px-1 text-xs">
+                  {selectedCategories.length}
+                </Badge>
+              )}
+            </Button>
           </div>
           <div className="text-2xl font-bold text-primary">
             {selectedYear}
           </div>
         </div>
+
+        {/* Category Filters */}
+        {showCategoryFilter && (
+          <div className="space-y-2 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">Filter by Category</span>
+              {selectedCategories.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearCategoryFilters}
+                  className="h-6 px-2 text-xs"
+                >
+                  <X className="w-3 h-3 mr-1" />
+                  Clear
+                </Button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(category => {
+                const name = category.category_translations.find(t => t.language_code === 'en')?.name || category.slug;
+                const isSelected = selectedCategories.includes(category.slug);
+                
+                return (
+                  <Button
+                    key={category.id}
+                    variant={isSelected ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => toggleCategory(category.slug)}
+                    className="h-7 px-2 text-xs"
+                    style={isSelected ? { backgroundColor: category.color, borderColor: category.color } : {}}
+                  >
+                    <span className="mr-1">{category.icon}</span>
+                    {name}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Slider */}
         <div className="px-2">

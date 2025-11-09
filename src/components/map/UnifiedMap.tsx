@@ -22,6 +22,7 @@ import { MapLoadingSkeleton } from './MapLoadingSkeleton';
 import { TimelineSlider } from './TimelineSlider';
 import { CollaborativeMarkers } from './CollaborativeMarkers';
 import { DrawingTools } from './DrawingTools';
+import { HistoricalAnimation } from './HistoricalAnimation';
 import { useFavoriteCities } from '@/hooks/useFavoriteCities';
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { mapboxService } from '@/services/mapboxService';
@@ -126,6 +127,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const [animationSpeed, setAnimationSpeed] = useState(1000);
   const [clusteringEnabled, setClusteringEnabled] = useState(enableClustering);
   const [timelineRange, setTimelineRange] = useState<{ start: Date; end: Date } | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isHistoricalAnimationPlaying, setIsHistoricalAnimationPlaying] = useState(false);
 
   // Performance metrics
   const [metrics, setMetrics] = useState({
@@ -867,8 +870,20 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         <div className="absolute bottom-24 left-4 right-4 z-30">
           <TimelineSlider
             onDateRangeChange={(start, end) => setTimelineRange({ start, end })}
+            onCategoriesChange={setSelectedCategories}
             minDate={new Date(2014, 0, 1)}
             maxDate={new Date()}
+          />
+        </div>
+      )}
+
+      {/* Historical Animation */}
+      {isLoaded && map.current && (
+        <div className="absolute top-24 left-4 z-30 max-w-sm">
+          <HistoricalAnimation
+            map={map.current}
+            isPlaying={isHistoricalAnimationPlaying}
+            onPlayStateChange={setIsHistoricalAnimationPlaying}
           />
         </div>
       )}
@@ -880,7 +895,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
       {/* Drawing Tools */}
       {isLoaded && map.current && (
-        <div className="absolute top-24 right-4 z-30">
+        <div className="absolute top-96 right-4 z-30">
           <DrawingTools map={map.current} />
         </div>
       )}
