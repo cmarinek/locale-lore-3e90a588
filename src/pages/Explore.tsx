@@ -11,9 +11,7 @@ import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useSearchStore } from '@/stores/searchStore';
 import { useStoreSync } from '@/hooks/useStoreSync';
-import { SmartLink } from '@/components/SmartLink';
-import { Button } from '@/components/ui/button';
-import { Map, Layers } from 'lucide-react';
+import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 
 export const Explore: React.FC = () => {
   const { 
@@ -68,7 +66,12 @@ export const Explore: React.FC = () => {
         <link rel="canonical" href="/explore" />
       </Helmet>
 
-      <div className="h-screen w-full bg-gradient-to-br from-background to-muted flex flex-col">
+      <div className="h-screen w-full bg-gradient-to-br from-background to-muted flex flex-col relative">
+        {/* View Mode Toggle - positioned to match Map and Hybrid pages */}
+        <div className="absolute top-4 right-4 z-20">
+          <ViewModeToggle variant="glass" />
+        </div>
+
         {/* Enhanced Search Header */}
         <div className="flex-shrink-0 px-4 py-6 bg-background/80 backdrop-blur-sm border-b">
           <div className="max-w-4xl mx-auto space-y-4">
@@ -85,22 +88,6 @@ export const Explore: React.FC = () => {
               onQueryChange={handleSearch}
               placeholder={t('lore:searchPlaceholder', 'Search for stories, places, or legends...')}
             />
-
-            {/* View Mode Links */}
-            <div className="flex gap-2 justify-center">
-              <Button variant="outline" size="sm" asChild>
-                <SmartLink to="/map">
-                  <Map className="w-4 h-4 mr-2" />
-                  Map View
-                </SmartLink>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <SmartLink to="/hybrid">
-                  <Layers className="w-4 h-4 mr-2" />
-                  Hybrid View
-                </SmartLink>
-              </Button>
-            </div>
           </div>
         </div>
 
