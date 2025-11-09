@@ -337,6 +337,36 @@ export type Database = {
           },
         ]
       }
+      analytics_events: {
+        Row: {
+          created_at: string | null
+          event_name: string
+          id: string
+          properties: Json | null
+          referrer: string | null
+          session_id: string | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_name: string
+          id?: string
+          properties?: Json | null
+          referrer?: string | null
+          session_id?: string | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_name?: string
+          id?: string
+          properties?: Json | null
+          referrer?: string | null
+          session_id?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
       bug_reports: {
         Row: {
           actual_behavior: string | null
@@ -871,6 +901,39 @@ export type Database = {
           updated_at?: string
           user_id?: string
           view_duration_seconds?: number | null
+        }
+        Relationships: []
+      }
+      error_logs: {
+        Row: {
+          created_at: string | null
+          error_context: Json | null
+          error_message: string
+          error_stack: string | null
+          id: string
+          session_id: string | null
+          url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_context?: Json | null
+          error_message: string
+          error_stack?: string | null
+          id?: string
+          session_id?: string | null
+          url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_context?: Json | null
+          error_message?: string
+          error_stack?: string | null
+          id?: string
+          session_id?: string | null
+          url?: string | null
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -1736,6 +1799,36 @@ export type Database = {
           tier?: string | null
           type?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      performance_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          labels: Json | null
+          metric_name: string
+          metric_value: number
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          labels?: Json | null
+          metric_name: string
+          metric_value: number
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          labels?: Json | null
+          metric_name?: string
+          metric_value?: number
+          session_id?: string | null
+          user_agent?: string | null
         }
         Relationships: []
       }
