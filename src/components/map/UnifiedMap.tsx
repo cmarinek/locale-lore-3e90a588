@@ -15,14 +15,9 @@ import { MapPin, Layers, ZoomIn, AlertTriangle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 
-import { EnhancedMapControls } from './EnhancedMapControls';
-import { MapLoadingState } from './MapLoadingState';
-import { useFavoriteCities } from '@/hooks/useFavoriteCities';
-import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
+import { SimpleMapControls } from './SimpleMapControls';
+import { MapSkeleton } from './MapSkeleton';
 import { mapboxService } from '@/services/mapboxService';
-import { scalableFactService } from '@/services/scalableFactService';
-import { useDiscoveryStore } from '@/stores/discoveryStore';
-import { useSearchStore } from '@/stores/searchStore';
 import { useMapStore } from '@/stores/mapStore';
 import { MapTokenMissing } from './MapTokenMissing';
 
@@ -36,8 +31,14 @@ interface Fact {
   status?: string;
   vote_count_up?: number;
   vote_count_down?: number;
+  created_at?: string;
   profiles?: { username?: string };
-  categories?: { slug?: string };
+  categories?: { 
+    slug?: string;
+    icon?: string;
+    color?: string;
+    category_translations?: { name?: string }[];
+  };
 }
 
 interface UnifiedMapProps {
@@ -57,11 +58,6 @@ interface UnifiedMapProps {
   
   // Performance options
   enableViewportLoading?: boolean;
-  enablePerformanceMetrics?: boolean;
-  
-  // Feature options
-  showHeatmap?: boolean;
-  showBuiltInSearch?: boolean;
   
   // Event handlers
   onFactClick?: (fact: Fact) => void;
@@ -74,17 +70,14 @@ interface UnifiedMapProps {
 
 export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   facts: externalFacts,
-  useScalableLoading = true,
+  useScalableLoading = false,
   center = [0, 20],
   zoom = 2,
   maxZoom = 16,
   style = 'light',
   enableClustering = true,
   clusterRadius = 50,
-  enableViewportLoading = true,
-  enablePerformanceMetrics = true,
-  showHeatmap = false,
-  showBuiltInSearch = true,
+  enableViewportLoading = false,
   onFactClick,
   onBoundsChange,
   className,
@@ -99,11 +92,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const updateTimeout = useRef<NodeJS.Timeout | null>(null);
   const isUpdating = useRef(false);
 
-  // Hooks
-  const { startRenderMeasurement, endRenderMeasurement } = usePerformanceMonitor(enablePerformanceMetrics);
-  const { favoriteCities } = useFavoriteCities();
-  const { selectedFact, setSelectedFact } = useDiscoveryStore();
-  const { filters } = useSearchStore();
+  // Hooks - minimal state management
   const { selectedMarkerId, setSelectedMarkerId } = useMapStore();
 
   // State
@@ -113,68 +102,78 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentZoom, setCurrentZoom] = useState(zoom);
   const [mapStyle, setMapStyle] = useState(style);
-  const [facts, setFacts] = useState<Fact[]>([]);
-  const [viewportFacts, setViewportFacts] = useState<Fact[]>([]);
-  const [loadingViewport, setLoadingViewport] = useState(false);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [loadingDismissed, setLoadingDismissed] = useState(false);
 
-  // Performance metrics
-  const [metrics, setMetrics] = useState({
-    totalFacts: 0,
-    visibleClusters: 0,
-    renderTime: 0,
-    loadTime: 0
-  });
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
-  const isMountedRef = useRef(true);
-
+  // Fetch Mapbox token - with timeout and debug logging
   useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
+    let mounted = true;
+    let timeoutId: NodeJS.Timeout;
+
+    const fetchToken = async () => {
+      console.log('🗺️ [UnifiedMap] Starting token fetch, status:', tokenStatus);
+      setTokenStatus('loading');
+      setTokenError(null);
+      setLoadingDismissed(false);
+
+      // Set timeout to prevent infinite loading
+      timeoutId = setTimeout(() => {
+        if (mounted && tokenStatus === 'loading') {
+          console.error('⏱️ [UnifiedMap] Token fetch timeout - forcing dismissal');
+          setLoadingDismissed(true);
+        }
+      }, 8000); // 8 second timeout
+
+      try {
+        const token = await mapboxService.getToken();
+        clearTimeout(timeoutId);
+
+        console.log('🗺️ [UnifiedMap] Token fetch result:', { 
+          mounted, 
+          hasToken: !!token, 
+          tokenLength: token?.length 
+        });
+
+        if (!mounted) return;
+
+        if (token && token.length > 0) {
+          setMapboxToken(token);
+          setTokenStatus('ready');
+          console.log('✅ [UnifiedMap] Token status set to READY');
+        } else {
+          setTokenStatus('missing');
+          setTokenError('A Mapbox public token is required to display the interactive map.');
+          console.log('❌ [UnifiedMap] Token status set to MISSING');
+        }
+      } catch (error) {
+        clearTimeout(timeoutId);
+        if (!mounted) return;
+        
+        console.error('❌ [UnifiedMap] Failed to load Mapbox token:', error);
+        setTokenStatus('error');
+        setTokenError(error instanceof Error ? error.message : 'Unknown error while fetching Mapbox token.');
+      }
     };
+
+    fetchToken();
+
+    return () => {
+      mounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [retryTrigger]);
+
+  // Handle loading state dismissal
+  const handleDismissLoading = useCallback(() => {
+    console.log('🗺️ [UnifiedMap] Loading state dismissed by user');
+    setLoadingDismissed(true);
   }, []);
-
-  const fetchMapboxToken = useCallback(async () => {
-    setTokenStatus('loading');
-    setTokenError(null);
-
-    try {
-      const token = await mapboxService.getToken();
-
-      if (!isMountedRef.current) {
-        return;
-      }
-
-      if (token) {
-        setMapboxToken(token);
-        setTokenStatus('ready');
-      } else {
-        setMapboxToken('');
-        setTokenStatus('missing');
-        setTokenError('A Mapbox public token is required to display the interactive map.');
-      }
-    } catch (error) {
-      console.error('Failed to load Mapbox token', error);
-
-      if (!isMountedRef.current) {
-        return;
-      }
-
-      setMapboxToken('');
-      setTokenStatus('error');
-      setTokenError(error instanceof Error ? error.message : 'Unknown error while fetching Mapbox token.');
-    }
-  }, []);
-
-  // Load Mapbox token
-  useEffect(() => {
-    fetchMapboxToken();
-  }, [fetchMapboxToken]);
 
   const handleRetryTokenFetch = useCallback(() => {
     mapboxService.clearToken();
-    fetchMapboxToken();
-  }, [fetchMapboxToken]);
+    setRetryTrigger(prev => prev + 1);
+  }, []);
 
   // Get map style URL
   const getMapStyleUrl = useCallback((styleType: string) => {
@@ -186,13 +185,12 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     return styles[styleType as keyof typeof styles] || styles.light;
   }, []);
 
-  // Process facts data - use external facts or load from viewport
+  // Process facts data - use provided facts directly
   const processedFacts = useMemo(() => {
-    if (externalFacts) {
-      return externalFacts;
-    }
-    return useScalableLoading ? viewportFacts : facts;
-  }, [externalFacts, useScalableLoading, viewportFacts, facts]);
+    return externalFacts || [];
+  }, [externalFacts]);
+
+  const filteredFacts = processedFacts;
 
   // Initialize supercluster
   const initializeSupercluster = useCallback(() => {
@@ -206,8 +204,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       reduce: (accumulated, props) => { accumulated.sum += props.sum; }
     });
 
-    if (processedFacts.length > 0) {
-      const geoJsonPoints = processedFacts.map(fact => ({
+    if (filteredFacts.length > 0) {
+      const geoJsonPoints = filteredFacts.map(fact => ({
         type: 'Feature' as const,
         properties: { fact },
         geometry: {
@@ -220,50 +218,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     }
 
     return cluster;
-  }, [processedFacts, enableClustering, clusterRadius, maxZoom]);
-
-  // Throttled viewport loading
-  const loadViewportFacts = useCallback(
-    throttle(async (bounds: mapboxgl.LngLatBounds, zoomLevel: number) => {
-      if (!enableViewportLoading || !useScalableLoading) return;
-      
-      setLoadingViewport(true);
-      const startTime = performance.now();
-
-      try {
-        const boundsObj = {
-          north: bounds.getNorth(),
-          south: bounds.getSouth(),
-          east: bounds.getEast(),
-          west: bounds.getWest()
-        };
-
-        const query = {
-          bounds: boundsObj,
-          zoom: zoomLevel,
-          category: filters.category,
-          status: 'verified' as const
-        };
-
-        const newFacts = await scalableFactService.loadFactsForViewport(query);
-        setViewportFacts(newFacts);
-        
-        const loadTime = performance.now() - startTime;
-        setMetrics(prev => ({
-          ...prev,
-          totalFacts: newFacts.length,
-          loadTime: Math.round(loadTime)
-        }));
-
-        onBoundsChange?.(bounds);
-      } catch (error) {
-        console.error('Error loading viewport facts:', error);
-      } finally {
-        setLoadingViewport(false);
-      }
-    }, 300),
-    [enableViewportLoading, useScalableLoading, filters.category, onBoundsChange]
-  );
+  }, [filteredFacts, enableClustering, clusterRadius, maxZoom]);
 
   // Create marker elements
   const createMarkerElement = useCallback((fact: Fact) => {
@@ -369,74 +324,99 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken || isInitialized.current) return;
+    console.log('🔄 Map init useEffect triggered:', {
+      hasContainer: !!mapContainer.current,
+      hasToken: !!mapboxToken,
+      tokenLength: mapboxToken?.length || 0,
+      tokenPreview: mapboxToken ? `${mapboxToken.substring(0, 10)}...` : 'null',
+      isInitialized: isInitialized.current,
+      tokenStatus
+    });
 
+    if (!mapContainer.current || !mapboxToken || isInitialized.current) {
+      console.log('⏭️ Skipping map init:', {
+        hasContainer: !!mapContainer.current,
+        hasToken: !!mapboxToken,
+        tokenLength: mapboxToken?.length || 0,
+        isInitialized: isInitialized.current
+      });
+      return;
+    }
+
+    console.log('🗺️ Initializing Mapbox map with token:', `${mapboxToken.substring(0, 20)}...`);
     mapboxgl.accessToken = mapboxToken;
     isInitialized.current = true;
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: getMapStyleUrl(mapStyle),
-      center: center,
-      zoom: zoom,
-      projection: { name: 'globe' },
-      antialias: true,
-      attributionControl: false,
-      logoPosition: 'bottom-right'
-    });
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: getMapStyleUrl(mapStyle),
+        center: center,
+        zoom: zoom,
+        projection: { name: 'globe' },
+        antialias: true,
+        attributionControl: false,
+        logoPosition: 'bottom-right'
+      });
 
-    map.current.on('load', () => {
-      setIsLoaded(true);
-      
-      if (enableClustering) {
-        setupClusteredMap();
-      } else {
-        setupMarkerMap();
-      }
+      map.current.on('load', () => {
+        console.log('✅ Map loaded successfully');
+        setIsLoaded(true);
+        
+        if (enableClustering) {
+          setupClusteredMap();
+        } else {
+          setupMarkerMap();
+        }
+      });
 
-      // Initial viewport load
-      if (enableViewportLoading && useScalableLoading) {
-        loadViewportFacts(map.current!.getBounds(), zoom);
-      }
-    });
+      map.current.on('error', (e) => {
+        console.error('❌ Map error:', e);
+      });
 
-    // Event handlers
-    const handleMove = debounce(() => {
-      if (!map.current) return;
-      
-      const bounds = map.current.getBounds();
-      const currentZoom = map.current.getZoom();
-      setCurrentZoom(currentZoom);
-      
-      if (enableViewportLoading && useScalableLoading) {
-        loadViewportFacts(bounds, currentZoom);
-      }
-    }, 150);
+      // Event handlers
+      const handleMove = debounce(() => {
+        if (!map.current) return;
+        
+        const bounds = map.current.getBounds();
+        const currentZoom = map.current.getZoom();
+        setCurrentZoom(currentZoom);
+        
+        onBoundsChange?.(bounds);
+      }, 150);
 
-    map.current.on('moveend', handleMove);
-    map.current.on('zoomend', handleMove);
+      map.current.on('moveend', handleMove);
+      map.current.on('zoomend', handleMove);
+    } catch (error) {
+      console.error('❌ Failed to initialize map:', error);
+      setTokenStatus('error');
+      setTokenError(error instanceof Error ? error.message : 'Failed to initialize map');
+    }
 
     return () => {
+      console.log('🧹 Cleaning up map');
       map.current?.remove();
       isInitialized.current = false;
     };
-  }, [mapboxToken, getMapStyleUrl, mapStyle, center, zoom, enableClustering, enableViewportLoading, useScalableLoading, loadViewportFacts]);
+  }, [mapboxToken, getMapStyleUrl, mapStyle, center, zoom, enableClustering]);
 
-  // Setup clustered map using Mapbox GL native clustering
+  // Setup clustered map using Mapbox GL native clustering with category distribution
   const setupClusteredMap = useCallback(() => {
     if (!map.current || !isLoaded) return;
 
-    // Add facts source with clustering
+    // Add facts source with clustering and category tracking
     map.current.addSource('facts', {
       type: 'geojson',
       data: {
         type: 'FeatureCollection',
-        features: processedFacts.map(fact => ({
+        features: filteredFacts.map(fact => ({
           type: 'Feature',
           properties: {
             id: fact.id,
             title: fact.title,
-            category: fact.categories?.slug || fact.category,
+            category: fact.categories?.slug || fact.category || 'unknown',
+            categoryIcon: fact.categories?.icon || '📍',
+            categoryColor: fact.categories?.color || '#666666',
             verified: fact.status === 'verified',
             vote_count_up: fact.vote_count_up || 0
           },
@@ -450,11 +430,17 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       clusterMaxZoom: maxZoom - 1,
       clusterRadius: clusterRadius,
       clusterProperties: {
-        sum_votes: ['+', ['get', 'vote_count_up']]
+        sum_votes: ['+', ['get', 'vote_count_up']],
+        // Track category distribution in clusters
+        history_count: ['+', ['case', ['==', ['get', 'category'], 'history'], 1, 0]],
+        culture_count: ['+', ['case', ['==', ['get', 'category'], 'culture'], 1, 0]],
+        nature_count: ['+', ['case', ['==', ['get', 'category'], 'nature'], 1, 0]],
+        mystery_count: ['+', ['case', ['==', ['get', 'category'], 'mystery'], 1, 0]],
+        legend_count: ['+', ['case', ['==', ['get', 'category'], 'legend'], 1, 0]]
       }
     });
 
-    // Cluster circles
+    // Cluster circles with category-based coloring
     map.current.addLayer({
       id: 'clusters',
       type: 'circle',
@@ -462,39 +448,61 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       filter: ['has', 'point_count'],
       paint: {
         'circle-color': [
-          'step',
-          ['get', 'point_count'],
+          'case',
+          ['>', ['get', 'history_count'], ['max', ['get', 'culture_count'], ['get', 'nature_count'], ['get', 'mystery_count'], ['get', 'legend_count']]],
           'hsl(var(--primary))',
-          50, 'hsl(var(--accent))',
-          100, 'hsl(var(--destructive))'
+          ['>', ['get', 'nature_count'], ['max', ['get', 'culture_count'], ['get', 'mystery_count'], ['get', 'legend_count']]],
+          'hsl(var(--success))',
+          ['>', ['get', 'culture_count'], ['max', ['get', 'mystery_count'], ['get', 'legend_count']]],
+          'hsl(var(--accent))',
+          ['>', ['get', 'mystery_count'], ['get', 'legend_count']],
+          'hsl(var(--destructive))',
+          'hsl(var(--warning))'
         ],
         'circle-radius': [
           'step',
           ['get', 'point_count'],
-          15, 50, 20, 100, 25
+          20, 10, 25, 50, 30, 100, 35
         ],
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#fff'
+        'circle-stroke-width': 3,
+        'circle-stroke-color': '#fff',
+        'circle-opacity': 0.9
       }
     });
 
-    // Cluster count labels
+    // Cluster count labels with category indicator
     map.current.addLayer({
       id: 'cluster-count',
       type: 'symbol',
       source: 'facts',
       filter: ['has', 'point_count'],
       layout: {
-        'text-field': '{point_count_abbreviated}',
+        'text-field': [
+          'concat',
+          ['to-string', ['get', 'point_count']],
+          '\n',
+          ['case',
+            ['>', ['get', 'history_count'], ['max', ['get', 'culture_count'], ['get', 'nature_count'], ['get', 'mystery_count'], ['get', 'legend_count']]],
+            '🏛️',
+            ['>', ['get', 'nature_count'], ['max', ['get', 'culture_count'], ['get', 'mystery_count'], ['get', 'legend_count']]],
+            '🌿',
+            ['>', ['get', 'culture_count'], ['max', ['get', 'mystery_count'], ['get', 'legend_count']]],
+            '🎭',
+            ['>', ['get', 'mystery_count'], ['get', 'legend_count']],
+            '🔮',
+            '📜'
+          ]
+        ],
         'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        'text-size': 12
+        'text-size': 11,
+        'text-line-height': 1.2
       },
       paint: {
         'text-color': '#ffffff'
       }
     });
 
-    // Individual points
+    // Individual points with animation support
     map.current.addLayer({
       id: 'unclustered-point',
       type: 'circle',
@@ -508,14 +516,15 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
           'nature', 'hsl(var(--success))',
           'culture', 'hsl(var(--accent))',
           'mystery', 'hsl(var(--destructive))',
+          'legend', 'hsl(var(--warning))',
           'hsl(var(--muted-foreground))'
         ],
         'circle-radius': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          8, 4,
-          16, 8
+          8, 5,
+          16, 10
         ],
         'circle-stroke-width': [
           'case',
@@ -526,23 +535,108 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
           'case',
           ['==', ['get', 'id'], selectedMarkerId || ''],
           '#FFD700', '#fff'
+        ],
+        'circle-opacity': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          8, 0.7,
+          16, 0.95
         ]
       }
     });
+    
+    // Add symbol layer for marker icons with animation data
+    map.current.addLayer({
+      id: 'unclustered-point-icon',
+      type: 'symbol',
+      source: 'facts',
+      filter: ['!', ['has', 'point_count']],
+      layout: {
+        'icon-image': 'custom-marker',
+        'icon-size': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          8, 0.5,
+          16, 1
+        ],
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': true
+      }
+    });
 
-    // Click handlers
+    // Click handlers with smooth expansion animation
     map.current.on('click', 'clusters', (e) => {
       const features = map.current!.queryRenderedFeatures(e.point, { layers: ['clusters'] });
       if (features[0]) {
         const clusterId = features[0].properties.cluster_id;
-        (map.current!.getSource('facts') as mapboxgl.GeoJSONSource).getClusterExpansionZoom(
+        const source = map.current!.getSource('facts') as mapboxgl.GeoJSONSource;
+        
+        // Get cluster children for animation
+        source.getClusterLeaves(clusterId, 100, 0, (err, leaves) => {
+          if (err) return;
+          
+          // Temporarily hide cluster markers that will be revealed
+          const childIds = leaves?.map(leaf => leaf.properties.id) || [];
+          
+          // Add animation class to markers that will be revealed
+          if (leaves && leaves.length > 0) {
+            // Create temporary visual effect
+            const tempCircle = document.createElement('div');
+            tempCircle.className = 'cluster-expansion-ring';
+            tempCircle.style.cssText = `
+              position: absolute;
+              width: 60px;
+              height: 60px;
+              border: 3px solid hsl(var(--primary));
+              border-radius: 50%;
+              pointer-events: none;
+              animation: cluster-expand 0.6s ease-out forwards;
+              z-index: 1000;
+            `;
+            
+            const point = map.current!.project((features[0].geometry as any).coordinates);
+            tempCircle.style.left = `${point.x - 30}px`;
+            tempCircle.style.top = `${point.y - 30}px`;
+            
+            map.current!.getContainer().appendChild(tempCircle);
+            setTimeout(() => tempCircle.remove(), 600);
+          }
+        });
+        
+        source.getClusterExpansionZoom(
           clusterId,
           (err, zoom) => {
             if (err) return;
+            
+            // Smooth zoom with longer duration
             map.current!.easeTo({
               center: (features[0].geometry as any).coordinates,
-              zoom: zoom
+              zoom: zoom,
+              duration: 800,
+              easing: (t) => t * (2 - t) // easeOutQuad
             });
+            
+            // After zoom completes, trigger staggered marker reveal
+            setTimeout(() => {
+              // Get newly visible markers
+              const visibleFeatures = map.current!.querySourceFeatures('facts', {
+                sourceLayer: 'facts',
+                filter: ['!', ['has', 'point_count']]
+              });
+              
+              // Trigger staggered animation via CSS
+              visibleFeatures.forEach((feature, index) => {
+                setTimeout(() => {
+                  // Pulse effect on newly revealed markers
+                  const elements = document.querySelectorAll(`[data-fact-id="${feature.properties?.id}"]`);
+                  elements.forEach(el => {
+                    (el as HTMLElement).style.animation = 'marker-reveal 0.4s ease-out';
+                  });
+                }, index * 50); // 50ms stagger between each marker
+              });
+            }, 400); // Start revealing halfway through zoom
           }
         );
       }
@@ -551,11 +645,11 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     map.current.on('click', 'unclustered-point', (e) => {
       const feature = e.features?.[0];
       if (feature && feature.properties && onFactClick) {
-        const fact = processedFacts.find(f => f.id === feature.properties.id);
+        const fact = filteredFacts.find(f => f.id === feature.properties.id);
         if (fact) onFactClick(fact);
       }
     });
-  }, [isLoaded, processedFacts, maxZoom, clusterRadius, selectedMarkerId, onFactClick]);
+  }, [isLoaded, filteredFacts, maxZoom, clusterRadius, selectedMarkerId, onFactClick]);
 
   // Setup marker-based map
   const setupMarkerMap = useCallback(() => {
@@ -604,8 +698,6 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     } else {
       setupMarkerMap();
     }
-
-    setMetrics(prev => ({ ...prev, totalFacts: processedFacts.length }));
   }, [processedFacts, isLoaded, enableClustering, setupMarkerMap]);
 
   // Map control handlers
@@ -622,13 +714,47 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const userPos: [number, number] = [position.coords.longitude, position.coords.latitude];
-          setUserLocation(userPos);
           if (map.current) {
             map.current.easeTo({ center: userPos, zoom: 14, duration: 1000 });
+            
+            // Add a marker for user location
+            const el = document.createElement('div');
+            el.className = 'user-location-marker';
+            el.style.cssText = `
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              background: hsl(var(--primary));
+              border: 3px solid white;
+              box-shadow: 0 0 10px rgba(0,0,0,0.3);
+              animation: pulse 2s infinite;
+            `;
+            
+            new mapboxgl.Marker(el)
+              .setLngLat(userPos)
+              .addTo(map.current);
+            
+            toast({
+              title: "Location found",
+              description: "Centered map on your location"
+            });
           }
         },
-        (error) => console.warn('Location access denied:', error)
+        (error) => {
+          console.warn('Location access denied:', error);
+          toast({
+            title: "Location access denied",
+            description: "Please enable location access in your browser settings",
+            variant: "destructive"
+          });
+        }
       );
+    } else {
+      toast({
+        title: "Location not supported",
+        description: "Your browser doesn't support geolocation",
+        variant: "destructive"
+      });
     }
   }, []);
 
@@ -673,10 +799,11 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   if (!isVisible) return null;
 
+  // Handle loading and error states
   if (tokenStatus === 'loading' || tokenStatus === 'idle') {
     return (
       <div className={`relative w-full h-full ${className}`}>
-        <MapLoadingState message="Preparing interactive map experience..." />
+        <MapSkeleton />
       </div>
     );
   }
@@ -697,10 +824,10 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
             <div className="flex flex-col gap-4 p-6 text-destructive">
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-5 w-5" />
-                <h3 className="text-lg font-semibold">We couldn't reach Mapbox</h3>
+                <h3 className="text-lg font-semibold">Map Loading Error</h3>
               </div>
               <p className="text-sm text-destructive/80">
-                {tokenError || 'The Mapbox API token could not be retrieved. Please check your network connection and try again.'}
+                {tokenError || 'Unable to load map. Please check your connection and try again.'}
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button onClick={handleRetryTokenFetch} variant="destructive">
@@ -719,63 +846,22 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   return (
     <div className={`relative w-full h-full ${className}`}>
+      {/* Map Container */}
       <div ref={mapContainer} className="absolute inset-0" />
       
-      {/* Performance metrics */}
-      {enablePerformanceMetrics && (
-        <Card className="absolute top-4 right-4 p-3 bg-background/90 backdrop-blur">
-          <div className="text-xs space-y-1">
-            <div className="flex items-center gap-2">
-              <Layers className="w-3 h-3" />
-              <span>{metrics.totalFacts.toLocaleString()} facts</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <ZoomIn className="w-3 h-3" />
-              <span>Zoom: {currentZoom.toFixed(1)}</span>
-            </div>
-            {useScalableLoading && (
-              <div className="text-muted-foreground">
-                Load: {metrics.loadTime}ms
-              </div>
-            )}
-            {loadingViewport && (
-              <Badge variant="secondary" className="text-xs">Loading...</Badge>
-            )}
-          </div>
-        </Card>
-      )}
+      {/* Loading Skeleton */}
+      {!isLoaded && <MapSkeleton />}
 
-      {/* Enhanced Map Controls */}
+      {/* Simple Map Controls */}
       {isLoaded && (
-        <EnhancedMapControls
+        <SimpleMapControls
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
           onRecenter={handleRecenter}
-          onMyLocation={handleMyLocation}
           onStyleChange={handleStyleChange}
-          onResetView={handleResetView}
-          position="left"
+          currentStyle={mapStyle}
         />
       )}
-
-      {/* Favorite Cities */}
-      {isLoaded && favoriteCities.length > 0 && (
-        <div className="absolute top-4 left-4 flex flex-col space-y-2 z-20">
-          {favoriteCities.slice(0, 3).map((city, index) => (
-            <button
-              key={index}
-              onClick={() => handleCityClick(city)}
-              className="px-3 py-2 bg-background/90 backdrop-blur-sm border border-border rounded-lg text-sm font-medium hover:bg-accent transition-all shadow-md"
-              title={`Fly to ${city.name}`}
-            >
-              {city.name}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Loading state */}
-      {!isLoaded && <MapLoadingState />}
     </div>
   );
 };

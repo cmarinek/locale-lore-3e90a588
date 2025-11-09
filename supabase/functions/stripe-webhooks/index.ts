@@ -61,6 +61,24 @@ serve(async (req) => {
   }
 });
 
+// Helper function to send emails
+async function sendEmail(to: string, subject: string, type: string, data: any) {
+  try {
+    const hasResendKey = Deno.env.get("RESEND_API_KEY");
+    if (!hasResendKey) {
+      console.log('Resend API key not configured, skipping email');
+      return;
+    }
+
+    await supabaseClient.functions.invoke('send-payment-email', {
+      body: { to, subject, type, data }
+    });
+    console.log(`Email sent to ${to}: ${type}`);
+  } catch (error) {
+    console.error(`Failed to send email to ${to}:`, error);
+  }
+}
+
 async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
   const { customer, subscription, metadata, amount_total, mode } = session;
   
@@ -108,6 +126,9 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+  const customer = await stripe.customers.retrieve(subscription.customer as string);
+  const email = customer && !customer.deleted ? customer.email : null;
+
   await supabaseClient
     .from('subscriptions')
     .update({
@@ -115,6 +136,19 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       canceled_at: new Date().toISOString(),
     })
     .eq('stripe_subscription_id', subscription.id);
+
+  // Send cancellation email
+  if (email) {
+    const endDate = new Date(subscription.current_period_end * 1000).toLocaleDateString();
+    await sendEmail(
+      email,
+      'Subscription Cancelled',
+      'subscription_cancelled',
+      { endDate }
+    );
+  }
+
+  console.log(`Subscription deleted: ${subscription.id}`);
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
@@ -142,17 +176,46 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
           status: 'completed',
           invoice_id: invoice.id,
         });
+
+      // Send payment success email
+      const email = (customer as Stripe.Customer).email;
+      if (email) {
+        await sendEmail(
+          email,
+          'Payment Successful',
+          'payment_success',
+          { amount: `$${(invoice.amount_paid / 100).toFixed(2)}` }
+        );
+      }
     }
   }
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
   if (invoice.subscription) {
+    const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
+    const customer = await stripe.customers.retrieve(subscription.customer as string);
+
     await supabaseClient
       .from('subscriptions')
       .update({ status: 'past_due' })
       .eq('stripe_subscription_id', invoice.subscription);
+
+    // Send payment failed email
+    if (customer && !customer.deleted) {
+      const email = (customer as Stripe.Customer).email;
+      if (email) {
+        await sendEmail(
+          email,
+          'Payment Failed - Action Required',
+          'payment_failed',
+          { reason: 'Payment could not be processed' }
+        );
+      }
+    }
   }
+
+  console.log(`Subscription marked as past_due: ${invoice.subscription}`);
 }
 
 async function createOrUpdateSubscription(subscription: Stripe.Subscription, userId: string) {

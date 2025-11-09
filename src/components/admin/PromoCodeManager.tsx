@@ -46,34 +46,13 @@ export const PromoCodeManager: React.FC = () => {
   const loadPromoCodes = async () => {
     setLoading(true);
     try {
-      // This would be a custom table for promo codes
-      // For now, we'll simulate the data structure
-      setPromoCodes([
-        {
-          id: '1',
-          code: 'WELCOME10',
-          discount_type: 'percentage',
-          discount_value: 10,
-          max_uses: 1000,
-          used_count: 250,
-          is_active: true,
-          expires_at: '2024-12-31T23:59:59Z',
-          created_at: '2024-01-01T00:00:00Z',
-          description: 'Welcome discount for new users'
-        },
-        {
-          id: '2',
-          code: 'SUMMER50',
-          discount_type: 'fixed',
-          discount_value: 50,
-          max_uses: 500,
-          used_count: 120,
-          is_active: true,
-          expires_at: '2024-08-31T23:59:59Z',
-          created_at: '2024-06-01T00:00:00Z',
-          description: 'Summer promotion fixed discount'
-        }
-      ]);
+      const { data, error } = await supabase
+        .from('promo_codes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setPromoCodes((data || []) as PromoCode[]);
     } catch (error) {
       console.error('Error loading promo codes:', error);
       toast({

@@ -15,7 +15,6 @@ import {
 
 const MapShowcase = () => {
   const [selectedFact, setSelectedFact] = useState<FactMarker | null>(null);
-  const [showHeatmap, setShowHeatmap] = useState(false);
 
   const handleFactClick = (fact: FactMarker) => {
     setSelectedFact(fact);
@@ -90,14 +89,6 @@ const MapShowcase = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-3">
-            <Button
-              variant={showHeatmap ? 'ios' : 'outline'}
-              size="sm"
-              onClick={() => setShowHeatmap(!showHeatmap)}
-            >
-              <Eye className="w-4 h-4 mr-2" />
-              {showHeatmap ? 'Hide' : 'Show'} Heatmap
-            </Button>
             <Badge variant="notification">
               100+ Facts
             </Badge>
@@ -116,7 +107,6 @@ const MapShowcase = () => {
               center={[-74.0060, 40.7128]}
               zoom={10}
               onFactClick={handleFactClick}
-              showHeatmap={showHeatmap}
               enableClustering={true}
               useScalableLoading={false}
             />

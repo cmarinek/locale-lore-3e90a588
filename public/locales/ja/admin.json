@@ -1,0 +1,196 @@
+{
+  "dashboard": "ダッシュボード",
+  "users": "ユーザー",
+  "content": "コンテンツ",
+  "system": "システム",
+  "security": "セキュリティ",
+  "reports": "レポート",
+  "statistics": {
+    "title": "統計",
+    "totalUsers": "総ユーザー数",
+    "activeUsers": "アクティブユーザー",
+    "totalStories": "総ストーリー数",
+    "pendingReviews": "保留中のレビュー"
+  },
+  "userManagement": {
+    "title": "ユーザー管理",
+    "searchUsers": "ユーザーを検索",
+    "filterByRole": "役割で絞り込む",
+    "allRoles": "すべての役割",
+    "admin": "管理者",
+    "moderator": "モデレーター",
+    "user": "ユーザー",
+    "banned": "禁止済み",
+    "actions": "アクション",
+    "viewProfile": "プロフィールを表示",
+    "editUser": "ユーザーを編集",
+    "deleteUser": "ユーザーを削除",
+    "banUser": "ユーザーを禁止",
+    "unbanUser": "ユーザーの禁止を解除",
+    "changeRole": "役割を変更",
+    "confirmDelete": "このユーザーを削除してもよろしいですか？",
+    "confirmBan": "このユーザーを禁止してもよろしいですか？",
+    "userDeleted": "ユーザーが正常に削除されました",
+    "userBanned": "ユーザーが正常に禁止されました",
+    "roleChanged": "役割が正常に変更されました"
+  },
+  "contentModeration": {
+    "title": "コンテンツモデレーション",
+    "pending": "保留中",
+    "approved": "承認済み",
+    "rejected": "却下済み",
+    "flagged": "フラグ付き",
+    "approve": "承認",
+    "reject": "却下",
+    "flag": "フラグを立てる",
+    "reason": "理由",
+    "moderatorNotes": "モデレーターメモ",
+    "reviewStory": "ストーリーをレビュー",
+    "contentApproved": "コンテンツが承認されました",
+    "contentRejected": "コンテンツが却下されました"
+  },
+  "translationManagement": {
+    "title": "翻訳管理",
+    "languages": "言語",
+    "namespaces": "名前空間",
+    "addTranslation": "翻訳を追加",
+    "editTranslation": "翻訳を編集",
+    "deleteTranslation": "翻訳を削除",
+    "importTranslations": "翻訳をインポート",
+    "exportTranslations": "翻訳をエクスポート",
+    "translationKey": "キー",
+    "translationValue": "値",
+    "autoTranslate": "自動翻訳",
+    "progress": "進捗",
+    "complete": "完了",
+    "incomplete": "未完了",
+    "missingKeys": "欠落キー"
+  },
+  "systemSettings": {
+    "title": "システム設定",
+    "general": "一般",
+    "email": "メール",
+    "storage": "ストレージ",
+    "performance": "パフォーマンス",
+    "backup": "バックアップ",
+    "siteName": "サイト名",
+    "siteDescription": "サイトの説明",
+    "maintenanceMode": "メンテナンスモード",
+    "enableMaintenanceMode": "メンテナンスモードを有効化",
+    "disableMaintenanceMode": "メンテナンスモードを無効化",
+    "settingsSaved": "設定が正常に保存されました"
+  },
+  "reportsSection": {
+    "title": "レポート",
+    "userReports": "ユーザーレポート",
+    "contentReports": "コンテンツレポート",
+    "analyticsReports": "分析レポート",
+    "generateReport": "レポートを生成",
+    "downloadReport": "レポートをダウンロード",
+    "reportPeriod": "レポート期間",
+    "lastWeek": "先週",
+    "lastMonth": "先月",
+    "lastYear": "昨年",
+    "custom": "カスタム"
+  },
+  "announcements": {
+    "title": "お知らせ",
+    "create": "お知らせを作成",
+    "edit": "お知らせを編集",
+    "delete": "お知らせを削除",
+    "publish": "公開",
+    "unpublish": "非公開",
+    "fields": {
+      "title": "タイトル",
+      "message": "メッセージ",
+      "type": "タイプ",
+      "priority": "優先度",
+      "startDate": "開始日",
+      "endDate": "終了日",
+      "targetAudience": "対象オーディエンス"
+    },
+    "types": {
+      "info": "情報",
+      "warning": "警告",
+      "success": "成功",
+      "error": "エラー"
+    },
+    "priorities": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "urgent": "緊急"
+    }
+  },
+  "mediaLibrary": {
+    "title": "メディアライブラリ",
+    "upload": "アップロード",
+    "delete": "削除",
+    "search": "メディアを検索",
+    "filterByType": "タイプで絞り込む",
+    "allTypes": "すべてのタイプ",
+    "images": "画像",
+    "videos": "動画",
+    "documents": "ドキュメント",
+    "fileSize": "ファイルサイズ",
+    "uploadedBy": "アップロード者",
+    "uploadDate": "アップロード日",
+    "dimensions": "寸法",
+    "confirmDelete": "このファイルを削除してもよろしいですか？"
+  },
+  "siteSettings": {
+    "title": "サイト設定",
+    "appearance": "外観",
+    "features": "機能",
+    "integrations": "統合",
+    "theme": {
+      "title": "テーマ",
+      "primary": "プライマリカラー",
+      "secondary": "セカンダリカラー",
+      "accent": "アクセントカラー",
+      "background": "背景",
+      "text": "テキスト"
+    },
+    "logo": {
+      "title": "ロゴ",
+      "upload": "ロゴをアップロード",
+      "remove": "ロゴを削除",
+      "favicon": "ファビコン"
+    },
+    "seo": {
+      "title": "SEO",
+      "metaTitle": "メタタイトル",
+      "metaDescription": "メタディスクリプション",
+      "keywords": "キーワード",
+      "ogImage": "Open Graph画像"
+    }
+  },
+  "siteConfiguration": {
+    "title": "サイト構成",
+    "general": "一般",
+    "advanced": "詳細",
+    "api": "API",
+    "webhooks": "Webhook",
+    "apiKeys": {
+      "title": "APIキー",
+      "create": "キーを作成",
+      "revoke": "取り消す",
+      "name": "名前",
+      "key": "キー",
+      "created": "作成日",
+      "lastUsed": "最終使用日"
+    },
+    "caching": {
+      "title": "キャッシング",
+      "enable": "キャッシュを有効化",
+      "clearCache": "キャッシュをクリア",
+      "cacheCleared": "キャッシュが正常にクリアされました"
+    },
+    "rateLimit": {
+      "title": "レート制限",
+      "enable": "レート制限を有効化",
+      "requestsPerHour": "1時間あたりのリクエスト",
+      "ipWhitelist": "IPホワイトリスト"
+    }
+  }
+}

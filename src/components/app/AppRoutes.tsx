@@ -31,11 +31,23 @@ const Admin = lazy(() => import('@/pages/Admin'));
 const Privacy = lazy(() => import('@/pages/Privacy').then(m => ({ default: m.Privacy })));
 const Terms = lazy(() => import('@/pages/Terms').then(m => ({ default: m.Terms })));
 const ProductionReadiness = lazy(() => import('@/pages/ProductionReadiness').then(m => ({ default: m.ProductionReadiness })));
+const PreDeploymentDashboard = lazy(() => import('@/pages/PreDeploymentDashboard').then(m => ({ default: m.PreDeploymentDashboard })));
 const Support = lazy(() => import('@/pages/Support').then(m => ({ default: m.Support })));
 const ContentGuidelines = lazy(() => import('@/pages/ContentGuidelines').then(m => ({ default: m.ContentGuidelines })));
 const TranslationTest = lazy(() => import('@/pages/TranslationTest'));
+const Monitoring = lazy(() => import('@/pages/Monitoring'));
+const SecurityAudit = lazy(() => import('@/pages/SecurityAudit'));
+const PerformanceMonitor = lazy(() => import('@/pages/PerformanceMonitor'));
 const LazyMap = lazy(() => import('@/pages/Map'));
 const Help = lazy(() => import('@/pages/Help'));
+const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
+const RefundPolicy = lazy(() => import('@/pages/RefundPolicy'));
+const BillingSuccess = lazy(() => import('@/pages/BillingSuccess').then(m => ({ default: m.BillingSuccess })));
+const BillingCanceled = lazy(() => import('@/pages/BillingCanceled').then(m => ({ default: m.BillingCanceled })));
+const Settings = lazy(() => import('@/pages/Settings'));
+const TranslationManager = lazy(() => import('@/pages/admin/TranslationManager').then(m => ({ default: m.TranslationManager })));
+const MakeAdmin = lazy(() => import('@/pages/MakeAdmin'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -78,50 +90,87 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/map" element={<LazyMap />} />
         <Route path="/search" element={<Search />} />
         <Route path="/submit" element={
-          <ProtectedRoute requiresAuth feature="content submission" showPreview>
+          <ProtectedRoute requiresAuth>
             <Submit />
           </ProtectedRoute>
         } />
         <Route path="/profile/:id?" element={
-          <ProtectedRoute requiresAuth feature="user profile" graceful={false}>
+          <ProtectedRoute requiresAuth>
             <Profile />
           </ProtectedRoute>
         } />
         <Route path="/fact/:id" element={<Fact />} />
         <Route path="/gamification" element={
-          <ProtectedRoute requiresAuth feature="challenges and rewards" showPreview>
+          <ProtectedRoute requiresAuth>
             <Gamification />
           </ProtectedRoute>
         } />
         <Route path="/billing" element={
-          <ProtectedRoute requiresAuth feature="billing and subscriptions" graceful={false}>
+          <ProtectedRoute requiresAuth>
             <Billing />
           </ProtectedRoute>
         } />
         <Route path="/social" element={
-          <ProtectedRoute requiresAuth feature="social features" showPreview>
+          <ProtectedRoute requiresAuth>
             <Social />
           </ProtectedRoute>
         } />
         <Route path="/stories" element={<Stories />} />
         <Route path="/contributor" element={
-          <ProtectedRoute requiresAuth feature="contributor program" showPreview>
+          <ProtectedRoute contributorOnly>
             <ContributorEconomy />
           </ProtectedRoute>
         } />
         <Route path="/admin" element={
-          <ProtectedRoute adminOnly feature="admin dashboard" graceful={false}>
+          <ProtectedRoute adminOnly>
             <Admin />
+          </ProtectedRoute>
+        } />
+        <Route path="/monitoring" element={
+          <ProtectedRoute adminOnly>
+            <Monitoring />
+          </ProtectedRoute>
+        } />
+        <Route path="/security-audit" element={
+          <ProtectedRoute adminOnly>
+            <SecurityAudit />
+          </ProtectedRoute>
+        } />
+        <Route path="/performance" element={
+          <ProtectedRoute adminOnly>
+            <PerformanceMonitor />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/translations" element={
+          <ProtectedRoute adminOnly>
+            <TranslationManager />
+          </ProtectedRoute>
+        } />
+        <Route path="/make-admin" element={
+          <ProtectedRoute requiresAuth>
+            <MakeAdmin />
           </ProtectedRoute>
         } />
         <Route path="/help" element={<Help />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/refund" element={<RefundPolicy />} />
+        <Route path="/billing/success" element={<BillingSuccess />} />
+        <Route path="/billing/canceled" element={<BillingCanceled />} />
+        <Route path="/settings" element={
+          <ProtectedRoute requiresAuth>
+            <Settings />
+          </ProtectedRoute>
+        } />
         <Route path="/support" element={<Support />} />
         <Route path="/content-guidelines" element={<ContentGuidelines />} />
         {process.env.NODE_ENV === 'development' && (
           <>
             <Route path="/production-readiness" element={<ProductionReadiness />} />
+            <Route path="/pre-deployment" element={<PreDeploymentDashboard />} />
             <Route path="/translation-test" element={<TranslationTest />} />
             <Route path="/showcase" element={<ComponentShowcase />} />
           </>

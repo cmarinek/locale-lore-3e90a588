@@ -1,8 +1,9 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Story } from '@/types/stories';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Heart, 
   MessageCircle, 
@@ -10,9 +11,11 @@ import {
   MapPin, 
   MoreHorizontal,
   Play,
-  Pause
+  Pause,
+  Send,
+  X
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { useStories } from '@/hooks/useStories';
 
@@ -31,9 +34,12 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isPlaying, setIsPlaying] = useState(isActive);
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState<any[]>([]);
+  const [newComment, setNewComment] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-  const { likeStory, unlikeStory, checkIfLiked, trackView } = useStories();
+  const { likeStory, unlikeStory, checkIfLiked, trackView, shareStory, addComment, fetchComments } = useStories();
 
   useEffect(() => {
     if (story.media_type === 'video' && videoRef.current) {
@@ -53,6 +59,17 @@ export const StoryCard: React.FC<StoryCardProps> = ({
     }
   }, [isActive, story.id, checkIfLiked, trackView]);
 
+  useEffect(() => {
+    if (showComments) {
+      loadComments();
+    }
+  }, [showComments]);
+
+  const loadComments = async () => {
+    const fetchedComments = await fetchComments(story.id);
+    setComments(fetchedComments);
+  };
+
   const handleLike = async () => {
     try {
       if (isLiked) {
@@ -68,11 +85,18 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   };
 
   const handleShare = () => {
-    // TODO: Implement share functionality
+    shareStory(story);
   };
 
   const handleComment = () => {
-    // TODO: Implement comment functionality
+    setShowComments(!showComments);
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim()) return;
+    await addComment(story.id, newComment);
+    setNewComment('');
+    loadComments();
   };
 
   const togglePlayPause = () => {
@@ -254,6 +278,84 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           🔥 Trending
         </div>
       )}
+
+      {/* Comments Panel */}
+      <AnimatePresence>
+        {showComments && (
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 25 }}
+            className="absolute inset-0 bg-black/95 backdrop-blur-sm z-40 flex flex-col"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h3 className="text-white font-semibold">Comments</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowComments(false)}
+                className="text-white hover:bg-white/10"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Comments list */}
+            <ScrollArea className="flex-1 p-4">
+              {comments.length === 0 ? (
+                <p className="text-white/50 text-center py-8">No comments yet. Be the first!</p>
+              ) : (
+                <div className="space-y-4">
+                  {comments.map((comment: any) => (
+                    <div key={comment.id} className="flex gap-3">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage src={comment.profiles?.avatar_url} />
+                        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                          {comment.profiles?.username?.charAt(0) || '?'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="text-white text-sm font-semibold">@{comment.profiles?.username}</p>
+                        <p className="text-white/80 text-sm mt-1">{comment.content}</p>
+                        <p className="text-white/50 text-xs mt-1">
+                          {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+
+            {/* Comment input */}
+            <div className="p-4 border-t border-white/10">
+              <div className="flex gap-2">
+                <Input
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add a comment..."
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleAddComment();
+                    }
+                  }}
+                />
+                <Button
+                  onClick={handleAddComment}
+                  disabled={!newComment.trim()}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

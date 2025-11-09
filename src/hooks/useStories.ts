@@ -319,6 +319,161 @@ export const useStories = () => {
     }
   };
 
+  const shareStory = async (story: Story) => {
+    const shareData = {
+      title: story.title,
+      text: story.content,
+      url: `${window.location.origin}/stories/${story.id}`
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        toast({
+          title: "Shared!",
+          description: "Story shared successfully"
+        });
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        toast({
+          title: "Link Copied",
+          description: "Story link copied to clipboard"
+        });
+      }
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        console.error('Error sharing story:', error);
+        toast({
+          title: "Error",
+          description: "Failed to share story",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const addComment = async (storyId: string, content: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('story_comments')
+        .insert({
+          story_id: storyId,
+          user_id: user.id,
+          content
+        });
+
+      if (error) throw error;
+
+      // Update local state
+      setStories(prev => prev.map(story => 
+        story.id === storyId 
+          ? { ...story, comment_count: story.comment_count + 1 }
+          : story
+      ));
+
+      toast({
+        title: "Comment Added",
+        description: "Your comment was posted successfully"
+      });
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add comment",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const fetchComments = async (storyId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('story_comments')
+        .select(`
+          *,
+          profiles (
+            username,
+            avatar_url
+          )
+        `)
+        .eq('story_id', storyId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      return [];
+    }
+  };
+
+  const fetchStoriesWithPagination = async (page: number = 0, limit: number = 10) => {
+    try {
+      setLoading(true);
+      const offset = page * limit;
+      
+      const { data, error, count } = await supabase
+        .from('stories')
+        .select(`
+          *,
+          profiles (
+            username,
+            avatar_url
+          )
+        `, { count: 'exact' })
+        .eq('is_active', true)
+        .gte('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (error) throw error;
+
+      const transformedStories: Story[] = (data || []).map(story => ({
+        id: story.id,
+        user_id: story.user_id,
+        title: story.title,
+        content: story.content,
+        media_urls: story.media_urls || [],
+        media_type: story.media_type as 'image' | 'video' | 'carousel',
+        location_name: story.location_name,
+        latitude: story.latitude ? Number(story.latitude) : undefined,
+        longitude: story.longitude ? Number(story.longitude) : undefined,
+        hashtags: story.hashtags || [],
+        expires_at: story.expires_at,
+        view_count: story.view_count,
+        like_count: story.like_count,
+        comment_count: story.comment_count,
+        is_trending: story.is_trending,
+        created_at: story.created_at,
+        author: story.profiles ? {
+          id: story.user_id,
+          username: (story.profiles as any).username,
+          avatar_url: (story.profiles as any).avatar_url
+        } : undefined
+      }));
+
+      if (page === 0) {
+        setStories(transformedStories);
+      } else {
+        setStories(prev => [...prev, ...transformedStories]);
+      }
+
+      return { stories: transformedStories, totalCount: count || 0 };
+    } catch (error) {
+      console.error('Error fetching stories:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load stories",
+        variant: "destructive"
+      });
+      return { stories: [], totalCount: 0 };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchStories();
   }, []);
@@ -333,6 +488,10 @@ export const useStories = () => {
     trackView,
     likeStory,
     unlikeStory,
-    checkIfLiked
+    checkIfLiked,
+    shareStory,
+    addComment,
+    fetchComments,
+    fetchStoriesWithPagination
   };
 };

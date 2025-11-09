@@ -6,23 +6,38 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { LogIn, UserPlus } from "lucide-react";
 import { UnifiedHeroSearchBar } from "@/components/ui/UnifiedHeroSearchBar";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+
 export const WelcomeHero = () => {
   const [email, setEmail] = useState("");
-  const {
-    t
-  } = useTranslation('lore');
-  const {
-    user
-  } = useAuth();
+  const { t } = useTranslation('lore');
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const { branding } = useSiteSettings();
+  
   return <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5 min-h-screen">
       <div className="container mx-auto px-4 py-16 md:py-24">
           <div className="text-center max-w-4xl mx-auto">
-            {/* Main heading */}
+            {/* Logo */}
+            {branding?.logo_url && (
+              <div className="flex justify-center mb-6">
+                <img 
+                  src={branding.logo_url} 
+                  alt={branding.site_name || 'LocaleLore'} 
+                  className="h-24 md:h-32 object-contain"
+                />
+              </div>
+            )}
             
+            {/* Main heading */}
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground">
+              {branding?.site_name || 'LocaleLore'}
+            </h1>
             
             {/* Subtitle */}
-            
+            <p className="text-lg md:text-xl text-muted-foreground mb-8">
+              Discover fascinating local stories, culture, and hidden gems
+            </p>
 
             {/* Search bar */}
             <div className="mb-8">

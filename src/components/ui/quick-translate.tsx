@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { TranslationDebugContext } from '@/contexts/TranslationDebugContext';
 
 interface TProps {
   k: string; // translation key
@@ -21,15 +22,35 @@ export const T: React.FC<TProps> = ({
   fallback, 
   children 
 }) => {
-  const { t } = useTranslation(ns);
+  const { t, i18n } = useTranslation(ns);
+  const debug = useContext(TranslationDebugContext);
   
   const translatedText = t(k, { 
     defaultValue: fallback || k,
     ...values 
   });
 
+  // Check if translation is missing
+  const isMissing = debug?.debugMode && (
+    translatedText === k || 
+    translatedText === `${ns}:${k}` ||
+    translatedText === (fallback || k)
+  );
+
+  if (isMissing) {
+    debug?.addMissingKey(k, ns);
+  }
+
   if (children) {
     return <>{children}</>;
+  }
+
+  if (isMissing) {
+    return (
+      <span className="bg-destructive/20 text-destructive border-b-2 border-destructive px-1 rounded" title={`Missing: ${ns}:${k}`}>
+        {translatedText}
+      </span>
+    );
   }
 
   return <>{translatedText}</>;

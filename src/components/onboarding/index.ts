@@ -1,2 +1,2 @@
-export { OnboardingTour } from './OnboardingTour';
-export { WelcomeOnboarding } from './WelcomeOnboarding';
+export { OnboardingFlow } from './OnboardingFlow';
+export { OnboardingProvider } from './OnboardingProvider';

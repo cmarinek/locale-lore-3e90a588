@@ -6,6 +6,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { ContentModerationPanel } from '@/components/admin/ContentModerationPanel';
 import { UserManagementPanel } from '@/components/admin/UserManagementPanel';
+import { RoleManagementPanel } from '@/components/admin/RoleManagementPanel';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { ReportsPanel } from '@/components/admin/ReportsPanel';
 import { PaymentDashboard } from '@/components/admin/PaymentDashboard';
@@ -16,6 +17,11 @@ import MediaManagement from '@/pages/MediaManagement';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { SiteSettingsPanel } from './SiteSettingsPanel';
+import { AnnouncementManager } from './AnnouncementManager';
+import { MediaLibraryPanel } from './MediaLibraryPanel';
+import { ThemeCustomizer } from './ThemeCustomizer';
+import { SiteConfigurationPanel } from './SiteConfigurationPanel';
 
 export const AdminDashboard: React.FC = () => {
   const { isAdmin, loading } = useAdmin();
@@ -63,6 +69,8 @@ export const AdminDashboard: React.FC = () => {
         return <ContentModerationPanel />;
       case 'users':
         return <UserManagementPanel />;
+      case 'roles':
+        return <RoleManagementPanel />;
       case 'reports':
         return <ReportsPanel />;
       case 'acquisition':
@@ -71,6 +79,16 @@ export const AdminDashboard: React.FC = () => {
         return <MobileAppBuilder />;
       case 'media':
         return <MediaManagement />;
+      case 'media-library':
+        return <MediaLibraryPanel />;
+      case 'announcements':
+        return <AnnouncementManager />;
+      case 'theme':
+        return <ThemeCustomizer />;
+      case 'configuration':
+        return <SiteConfigurationPanel />;
+      case 'settings':
+        return <SiteSettingsPanel />;
       default:
         return <AnalyticsDashboard />;
     }

@@ -1,25 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
-import { useNavigate } from 'react-router-dom';
-import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { UnifiedMap } from '@/components/map/UnifiedMap';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
-import { useSearchStore } from '@/stores/searchStore';
 import { useMapStore } from '@/stores/mapStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
-import { ModernSearchBar } from '@/components/ui/modern-search-bar';
 
 export const Map: React.FC = () => {
-  const navigate = useNavigate();
-  
   const { facts, selectedFact, setSelectedFact, fetchFactById, initializeData } = useDiscoveryStore();
-  const { filters, setFilters } = useSearchStore();
   const { selectedMarkerId, setSelectedMarkerId } = useMapStore();
 
   const handleFactClick = (fact: any) => {
-    // Convert fact to enhanced format for modal compatibility
     const enhancedFact = {
       id: fact.id,
       title: fact.title,
@@ -54,21 +46,15 @@ export const Map: React.FC = () => {
     setSelectedMarkerId(fact.id);
   };
 
-  const handleSearch = (query: string) => {
-    setFilters({ search: query });
-  };
-
   const handleCloseModal = () => {
     setSelectedFact(null);
     setSelectedMarkerId(null);
   };
 
-  // Initialize data when component mounts
   useEffect(() => {
     initializeData();
   }, [initializeData]);
 
-  // Handle selectedMarkerId when component mounts or changes
   useEffect(() => {
     if (selectedMarkerId) {
       const loadFact = async () => {
@@ -107,41 +93,16 @@ export const Map: React.FC = () => {
         </Helmet>
 
         <div className="h-screen w-full relative">
-          {/* Improved Map with Context - Better error handling and architecture */}
-          <ErrorBoundary 
-            fallback={
-              <div className="h-full w-full flex items-center justify-center bg-muted">
-                <div className="text-center space-y-4">
-                  <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
-                  <p className="text-muted-foreground">Loading interactive map...</p>
-                  <p className="text-sm text-muted-foreground/70">This may take a moment</p>
-                </div>
-              </div>
-            }
-          >
-            <UnifiedMap
-              facts={facts}
-              useScalableLoading={false}
-              enableClustering={true}
-              enablePerformanceMetrics={true}
-              center={[0, 20]}
-              zoom={2}
-              style="light"
-              onFactClick={handleFactClick}
-            />
-          </ErrorBoundary>
+          <UnifiedMap
+            facts={facts}
+            useScalableLoading={false}
+            enableClustering={true}
+            center={[0, 20]}
+            zoom={2}
+            style="light"
+            onFactClick={handleFactClick}
+          />
 
-          {/* Mobile-optimized Search Bar - fixed spacing to prevent overlaps */}
-          <div className="absolute top-4 left-4 right-16 z-20 max-w-md mx-auto sm:max-w-none sm:left-32 sm:right-56">
-            <ModernSearchBar onSearch={handleSearch} placeholder="Search stories on map..." showLocationButton={true} />
-          </div>
-
-          {/* View Mode Toggle - positioned to avoid overlaps */}
-          <div className="absolute top-4 right-4 z-20">
-            <ViewModeToggle variant="glass" />
-          </div>
-
-          {/* Fact Preview Modal */}
           {selectedFact && (
             <FactPreviewModal
               fact={selectedFact}
@@ -149,7 +110,6 @@ export const Map: React.FC = () => {
               onClose={handleCloseModal}
             />
           )}
-
         </div>
       </MainLayout>
     </ErrorBoundary>

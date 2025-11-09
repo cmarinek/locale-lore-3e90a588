@@ -1,0 +1,196 @@
+{
+  "dashboard": "Dashibodi",
+  "users": "Watumiaji",
+  "content": "Maudhui",
+  "system": "Mfumo",
+  "security": "Usalama",
+  "reports": "Ripoti",
+  "statistics": {
+    "title": "Takwimu",
+    "totalUsers": "Jumla ya Watumiaji",
+    "activeUsers": "Watumiaji Hai",
+    "totalStories": "Jumla ya Hadithi",
+    "pendingReviews": "Mapitio Yanayosubiri"
+  },
+  "userManagement": {
+    "title": "Usimamizi wa Watumiaji",
+    "searchUsers": "Tafuta watumiaji",
+    "filterByRole": "Chuja kwa jukumu",
+    "allRoles": "Majukumu yote",
+    "admin": "Msimamizi",
+    "moderator": "Msimamizi",
+    "user": "Mtumiaji",
+    "banned": "Amezuiliwa",
+    "actions": "Vitendo",
+    "viewProfile": "Tazama wasifu",
+    "editUser": "Hariri mtumiaji",
+    "deleteUser": "Futa mtumiaji",
+    "banUser": "Zuia mtumiaji",
+    "unbanUser": "Ondoa kizuizi kwa mtumiaji",
+    "changeRole": "Badilisha jukumu",
+    "confirmDelete": "Je, una uhakika unataka kufuta mtumiaji huyu?",
+    "confirmBan": "Je, una uhakika unataka kuzuia mtumiaji huyu?",
+    "userDeleted": "Mtumiaji amefutwa kwa mafanikio",
+    "userBanned": "Mtumiaji amezuiliwa kwa mafanikio",
+    "roleChanged": "Jukumu limebadilishwa kwa mafanikio"
+  },
+  "contentModeration": {
+    "title": "Usimamizi wa Maudhui",
+    "pending": "Inasubiri",
+    "approved": "Imeidhinishwa",
+    "rejected": "Imekataliwa",
+    "flagged": "Imewekwa alama",
+    "approve": "Idhinisha",
+    "reject": "Kataa",
+    "flag": "Weka alama",
+    "reason": "Sababu",
+    "moderatorNotes": "Vidokezo vya msimamizi",
+    "reviewStory": "Pitia hadithi",
+    "contentApproved": "Maudhui yameidhinishwa",
+    "contentRejected": "Maudhui yamekataliwa"
+  },
+  "translationManagement": {
+    "title": "Usimamizi wa Tafsiri",
+    "languages": "Lugha",
+    "namespaces": "Nafasi za majina",
+    "addTranslation": "Ongeza tafsiri",
+    "editTranslation": "Hariri tafsiri",
+    "deleteTranslation": "Futa tafsiri",
+    "importTranslations": "Ingiza tafsiri",
+    "exportTranslations": "Hamisha tafsiri",
+    "translationKey": "Ufunguo",
+    "translationValue": "Thamani",
+    "autoTranslate": "Tafsiri otomatiki",
+    "progress": "Maendeleo",
+    "complete": "Kamili",
+    "incomplete": "Haijamalizika",
+    "missingKeys": "Funguo zinazokosekana"
+  },
+  "systemSettings": {
+    "title": "Mipangilio ya Mfumo",
+    "general": "Jumla",
+    "email": "Barua pepe",
+    "storage": "Hifadhi",
+    "performance": "Utendaji",
+    "backup": "Nakala ya kuhifadhi",
+    "siteName": "Jina la tovuti",
+    "siteDescription": "Maelezo ya tovuti",
+    "maintenanceMode": "Hali ya matengenezo",
+    "enableMaintenanceMode": "Washa hali ya matengenezo",
+    "disableMaintenanceMode": "Zima hali ya matengenezo",
+    "settingsSaved": "Mipangilio imehifadhiwa kwa mafanikio"
+  },
+  "reportsSection": {
+    "title": "Ripoti",
+    "userReports": "Ripoti za watumiaji",
+    "contentReports": "Ripoti za maudhui",
+    "analyticsReports": "Ripoti za uchambuzi",
+    "generateReport": "Tengeneza ripoti",
+    "downloadReport": "Pakua ripoti",
+    "reportPeriod": "Kipindi cha ripoti",
+    "lastWeek": "Wiki iliyopita",
+    "lastMonth": "Mwezi uliopita",
+    "lastYear": "Mwaka uliopita",
+    "custom": "Maalum"
+  },
+  "announcements": {
+    "title": "Matangazo",
+    "create": "Unda tangazo",
+    "edit": "Hariri tangazo",
+    "delete": "Futa tangazo",
+    "publish": "Chapisha",
+    "unpublish": "Ondoa uchapishaji",
+    "fields": {
+      "title": "Kichwa",
+      "message": "Ujumbe",
+      "type": "Aina",
+      "priority": "Kipaumbele",
+      "startDate": "Tarehe ya kuanza",
+      "endDate": "Tarehe ya mwisho",
+      "targetAudience": "Hadhira lengwa"
+    },
+    "types": {
+      "info": "Taarifa",
+      "warning": "Onyo",
+      "success": "Mafanikio",
+      "error": "Hitilafu"
+    },
+    "priorities": {
+      "low": "Chini",
+      "medium": "Wastani",
+      "high": "Juu",
+      "urgent": "Ya haraka"
+    }
+  },
+  "mediaLibrary": {
+    "title": "Maktaba ya Midia",
+    "upload": "Pakia",
+    "delete": "Futa",
+    "search": "Tafuta midia",
+    "filterByType": "Chuja kwa aina",
+    "allTypes": "Aina zote",
+    "images": "Picha",
+    "videos": "Video",
+    "documents": "Hati",
+    "fileSize": "Ukubwa wa faili",
+    "uploadedBy": "Ilipakiwa na",
+    "uploadDate": "Tarehe ya kupakia",
+    "dimensions": "Vipimo",
+    "confirmDelete": "Je, una uhakika unataka kufuta faili hii?"
+  },
+  "siteSettings": {
+    "title": "Mipangilio ya Tovuti",
+    "appearance": "Mwonekano",
+    "features": "Vipengele",
+    "integrations": "Ujumuishaji",
+    "theme": {
+      "title": "Mada",
+      "primary": "Rangi kuu",
+      "secondary": "Rangi ya pili",
+      "accent": "Rangi ya msisitizo",
+      "background": "Usuli",
+      "text": "Maandishi"
+    },
+    "logo": {
+      "title": "Nembo",
+      "upload": "Pakia nembo",
+      "remove": "Ondoa nembo",
+      "favicon": "Aikoni ya tovuti"
+    },
+    "seo": {
+      "title": "SEO",
+      "metaTitle": "Kichwa cha meta",
+      "metaDescription": "Maelezo ya meta",
+      "keywords": "Maneno muhimu",
+      "ogImage": "Picha ya Open Graph"
+    }
+  },
+  "siteConfiguration": {
+    "title": "Usanidi wa Tovuti",
+    "general": "Jumla",
+    "advanced": "Ya hali ya juu",
+    "api": "API",
+    "webhooks": "Webhooks",
+    "apiKeys": {
+      "title": "Funguo za API",
+      "create": "Unda ufunguo",
+      "revoke": "Batilisha",
+      "name": "Jina",
+      "key": "Ufunguo",
+      "created": "Iliundwa",
+      "lastUsed": "Matumizi ya mwisho"
+    },
+    "caching": {
+      "title": "Kuhifadhi",
+      "enable": "Washa kuhifadhi",
+      "clearCache": "Futa hifadhi",
+      "cacheCleared": "Hifadhi imefutwa kwa mafanikio"
+    },
+    "rateLimit": {
+      "title": "Kikomo cha kiwango",
+      "enable": "Washa kikomo cha kiwango",
+      "requestsPerHour": "Maombi kwa saa",
+      "ipWhitelist": "Orodha nyeupe ya IP"
+    }
+  }
+}

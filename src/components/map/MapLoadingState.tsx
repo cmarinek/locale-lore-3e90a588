@@ -1,18 +1,21 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Loader2 } from 'lucide-react';
+import { MapPin, Loader2, X } from 'lucide-react';
 import { useAnimations } from '@/hooks/useAnimations';
+import { Button } from '@/components/ui/button';
 
 interface MapLoadingStateProps {
   message?: string;
   showProgress?: boolean;
   progress?: number;
+  onClose?: () => void;
 }
 
 export const MapLoadingState: React.FC<MapLoadingStateProps> = ({
   message = "Loading amazing stories...",
   showProgress = false,
-  progress = 0
+  progress = 0,
+  onClose
 }) => {
   const { shimmerVariants, shouldReduceMotion } = useAnimations();
 
@@ -29,11 +32,22 @@ export const MapLoadingState: React.FC<MapLoadingStateProps> = ({
   return (
     <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm">
       <motion.div
-        className="flex flex-col items-center gap-6 p-8 bg-card/95 backdrop-blur-xl rounded-3xl border border-border/50 shadow-2xl max-w-sm mx-4"
+        className="relative flex flex-col items-center gap-6 p-8 bg-card/95 backdrop-blur-xl rounded-3xl border border-border/50 shadow-2xl max-w-sm mx-4"
         initial={{ opacity: 0, scale: 0.8, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: shouldReduceMotion ? 0 : 0.5, ease: "easeOut" }}
       >
+        {/* Close Button */}
+        {onClose && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 h-8 w-8"
+            onClick={onClose}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
         {/* Animated Map Icon */}
         <div className="relative">
           <motion.div

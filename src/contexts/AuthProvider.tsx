@@ -1,7 +1,12 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { setUserContext, clearUserContext } from '@/utils/monitoring';
+import { logger } from '@/utils/logger';
+import { setDebugMode } from '@/lib/debug';
+import { clearRoleCache, roleQueryKeys } from '@/lib/rbac';
 
 interface AuthContextType {
   user: User | null;
@@ -20,9 +25,12 @@ function AuthProviderComponent({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   const signOut = async () => {
     try {
+      // Clear role cache before signing out
+      clearRoleCache(queryClient);
       await supabase.auth.signOut();
       window.location.href = '/auth';
     } catch (error) {
@@ -48,10 +56,37 @@ function AuthProviderComponent({ children }: AuthProviderProps) {
       (event, session) => {
         if (mounted) {
           clearTimeout(loadingTimeout);
-          console.log('[AuthProvider] Auth state changed:', event);
+          logger.info('Auth state changed', { component: 'AuthProvider', event });
           setSession(session);
           setUser(session?.user ?? null);
           setLoading(false);
+          
+          // Update Sentry user context
+          if (session?.user) {
+            setUserContext(session.user.id, session.user.email);
+            
+            // Invalidate role cache to fetch fresh role data
+            queryClient.invalidateQueries({
+              queryKey: roleQueryKeys.user(session.user.id),
+            });
+            
+            // Check if user is admin and enable debug mode
+            setTimeout(() => {
+              supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', session.user.id)
+                .then(({ data }) => {
+                  const isAdmin = data?.some(r => r.role === 'admin') || false;
+                  setDebugMode(isAdmin);
+                });
+            }, 0);
+          } else {
+            clearUserContext();
+            setDebugMode(false);
+            // Clear role cache on logout
+            clearRoleCache(queryClient);
+          }
         }
       }
     );

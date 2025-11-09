@@ -114,19 +114,18 @@ export const StepLocation: React.FC<StepLocationProps> = ({
             <div className="space-y-2">
               <Label className="text-foreground">Interactive Map</Label>
               <div className="aspect-square rounded-lg overflow-hidden border border-border">
-                <UnifiedMap
-                  className="w-full h-full"
-                  center={
-                    data.latitude && data.longitude
-                      ? [data.longitude, data.latitude]
-                      : [-74.0060, 40.7128] // Default to NYC
-                  }
-                  zoom={data.latitude && data.longitude ? 15 : 10}
-                  onFactClick={handleMapClick}
-                  showHeatmap={false}
-                  enableClustering={false}
-                  useScalableLoading={false}
-                />
+              <UnifiedMap
+                className="w-full h-full"
+                center={
+                  data.latitude && data.longitude
+                    ? [data.longitude, data.latitude]
+                    : [-74.0060, 40.7128] // Default to NYC
+                }
+                zoom={data.latitude && data.longitude ? 15 : 10}
+                onFactClick={handleMapClick}
+                enableClustering={false}
+                useScalableLoading={false}
+              />
               </div>
             </div>
           </div>

@@ -2,7 +2,8 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { FactCard } from './FactCard';
-import { LoadingList } from '@/components/ui/enhanced-loading-states';
+import { FactCardProgressive } from './FactCardProgressive';
+import { FactCardSkeleton } from './FactCardSkeleton';
 import { EmptyFactsList } from '@/components/ui/enhanced-empty-states';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { cn } from '@/lib/utils';
@@ -10,9 +11,14 @@ import { cn } from '@/lib/utils';
 interface InfiniteFactListProps {
   className?: string;
   viewMode?: 'grid' | 'list';
+  useProgressiveLoading?: boolean;
 }
 
-export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ className, viewMode = 'grid' }) => {
+export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ 
+  className, 
+  viewMode = 'grid',
+  useProgressiveLoading = true 
+}) => {
   const observerRef = useRef<HTMLDivElement>(null);
   
   const { 
@@ -49,7 +55,16 @@ export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ className, v
   if (isLoading && facts.length === 0) {
     return (
       <div className={cn("space-y-6", className)}>
-        <LoadingList viewMode={viewMode} />
+        <div className={cn(
+          "gap-6",
+          viewMode === 'grid' 
+            ? "grid md:grid-cols-2 lg:grid-cols-3" 
+            : "flex flex-col space-y-4"
+        )}>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <FactCardSkeleton key={index} viewMode={viewMode} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -71,27 +86,34 @@ export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ className, v
           ? "grid md:grid-cols-2 lg:grid-cols-3" 
           : "flex flex-col space-y-4"
       )}>
-        {facts.map((fact, index) => (
-          <FactCard
-            key={fact.id}
-            fact={fact as any}
-            viewMode={viewMode}
-            className={cn(
-              "animate-fade-in",
-              // Stagger animation
-              `animation-delay-${(index % 6) * 100}`
-            )}
-          />
-        ))}
+        {facts.map((fact, index) => {
+          const FactComponent = useProgressiveLoading ? FactCardProgressive : FactCard;
+          return (
+            <FactComponent
+              key={fact.id}
+              fact={fact as any}
+              viewMode={viewMode}
+              className={cn(
+                !useProgressiveLoading && "animate-fade-in",
+                // Stagger animation
+                `animation-delay-${(index % 6) * 100}`
+              )}
+            />
+          );
+        })}
       </div>
 
-      {/* Loading More Indicator */}
+      {/* Loading More Indicator with Skeletons */}
       {isLoading && facts.length > 0 && (
-        <div className="flex justify-center py-8">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm">Loading more facts...</span>
-          </div>
+        <div className={cn(
+          "gap-6",
+          viewMode === 'grid' 
+            ? "grid md:grid-cols-2 lg:grid-cols-3" 
+            : "flex flex-col space-y-4"
+        )}>
+          {Array.from({ length: 3 }).map((_, index) => (
+            <FactCardSkeleton key={`loading-${index}`} viewMode={viewMode} />
+          ))}
         </div>
       )}
 

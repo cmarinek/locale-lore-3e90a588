@@ -43,6 +43,7 @@ export function MapProvider({ children }: MapProviderProps) {
 
     try {
       setMapError(null);
+      setIsMapReady(false);
       
       const token = await mapboxService.getToken();
       if (!token) {
@@ -58,8 +59,7 @@ export function MapProvider({ children }: MapProviderProps) {
         zoom: 2,
         antialias: false,
         maxTileCacheSize: 50,
-        preserveDrawingBuffer: true,
-        // Disable native controls (using custom EnhancedMapControls instead)
+        preserveDrawingBuffer: false,
         attributionControl: false,
         logoPosition: 'bottom-right',
         ...options
@@ -67,7 +67,7 @@ export function MapProvider({ children }: MapProviderProps) {
 
       map.current = new mapboxgl.Map(defaultOptions);
 
-      // Wait for map to load
+      // Set ready immediately after map creation
       map.current.on('load', () => {
         setIsMapReady(true);
         console.log('🗺️ Map loaded successfully');
@@ -76,23 +76,13 @@ export function MapProvider({ children }: MapProviderProps) {
       map.current.on('error', (e) => {
         console.error('Map error:', e);
         setMapError('Map failed to load');
-      });
-
-      // Handle token expiration
-      map.current.on('sourcedata', (e) => {
-        if (e.isSourceLoaded && e.source.type === 'raster' && e.source.url) {
-          // Check for 401 errors indicating token issues
-          const source = e.source as any;
-          if (source._tileSize === 0) {
-            console.warn('Possible token expiration, clearing cached token');
-            mapboxService.clearToken();
-          }
-        }
+        setIsMapReady(true); // Still set ready to prevent infinite loading
       });
 
     } catch (error) {
       console.error('Failed to initialize map:', error);
       setMapError(error instanceof Error ? error.message : 'Map initialization failed');
+      setIsMapReady(true); // Set ready even on error
     }
   }, []);
 

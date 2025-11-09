@@ -62,17 +62,20 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
               <span className="font-semibold bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">LocaleLore</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <Link to="/privacy" className="hover:text-primary transition-colors">
-                {t('privacy')}
-              </Link>
               <Link to="/terms" className="hover:text-primary transition-colors">
-                {t('terms')}
+                Terms of Service
+              </Link>
+              <Link to="/privacy" className="hover:text-primary transition-colors">
+                Privacy Policy
+              </Link>
+              <Link to="/refund" className="hover:text-primary transition-colors">
+                Refund Policy
               </Link>
               <a 
                 href="mailto:contact@localelore.com" 
                 className="hover:text-primary transition-colors"
               >
-                {t('contact')}
+                Contact
               </a>
             </div>
           </div>

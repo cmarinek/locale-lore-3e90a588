@@ -11,6 +11,7 @@ import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useSearchStore } from '@/stores/searchStore';
 import { useStoreSync } from '@/hooks/useStoreSync';
+import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 
 export const Explore: React.FC = () => {
   const { 
@@ -65,7 +66,12 @@ export const Explore: React.FC = () => {
         <link rel="canonical" href="/explore" />
       </Helmet>
 
-      <div className="h-screen w-full bg-gradient-to-br from-background to-muted flex flex-col">
+      <div className="h-screen w-full bg-gradient-to-br from-background to-muted flex flex-col relative">
+        {/* View Mode Toggle - positioned to match Map and Hybrid pages */}
+        <div className="absolute top-4 right-4 z-20">
+          <ViewModeToggle variant="glass" />
+        </div>
+
         {/* Enhanced Search Header */}
         <div className="flex-shrink-0 px-4 py-6 bg-background/80 backdrop-blur-sm border-b">
           <div className="max-w-4xl mx-auto space-y-4">

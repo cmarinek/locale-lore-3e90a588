@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { SmartLink } from '@/components/SmartLink';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthProvider';
@@ -61,7 +62,7 @@ export const Navigation: React.FC = () => {
         const active = isActive(navigationPath);
 
         return (
-          <Link key={item.id} to={navigationPath}>
+          <SmartLink key={item.id} to={navigationPath}>
             <Button
               variant={active ? "secondary" : "ghost"}
               size="sm"
@@ -75,7 +76,7 @@ export const Navigation: React.FC = () => {
               <Icon className="w-4 h-4 mr-2" />
               {item.label}
             </Button>
-          </Link>
+          </SmartLink>
         );
       })}
       
@@ -90,23 +91,23 @@ export const Navigation: React.FC = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem asChild>
-              <Link to={`/profile/${user.id}`} className="flex items-center">
+              <SmartLink to={`/profile/${user.id}`} className="flex items-center">
                 <User className="w-4 h-4 mr-2" />
                 Profile
-              </Link>
+              </SmartLink>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/settings" className="flex items-center">
+              <SmartLink to="/settings" className="flex items-center">
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
-              </Link>
+              </SmartLink>
             </DropdownMenuItem>
             {isAdmin && (
               <DropdownMenuItem asChild>
-                <Link to="/admin" className="flex items-center">
+                <SmartLink to="/admin" className="flex items-center">
                   <UserCog className="w-4 h-4 mr-2" />
                   Admin
-                </Link>
+                </SmartLink>
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />

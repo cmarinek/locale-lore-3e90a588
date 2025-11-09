@@ -105,5 +105,105 @@
     "scheduleReport": "Schedule Report",
     "customReport": "Custom Report",
     "generateReport": "Generate Report"
+  },
+  "announcements": {
+    "title": "Announcement Management",
+    "description": "Create and manage site-wide announcements",
+    "create": "Create Announcement",
+    "edit": "Edit Announcement",
+    "delete": "Delete Announcement",
+    "noAnnouncements": "No announcements yet",
+    "fields": {
+      "title": "Title",
+      "message": "Message",
+      "type": "Type",
+      "isActive": "Active",
+      "bgColor": "Background Color",
+      "textColor": "Text Color",
+      "expiresAt": "Expires At"
+    },
+    "types": {
+      "info": "Info",
+      "warning": "Warning",
+      "success": "Success",
+      "error": "Error"
+    }
+  },
+  "mediaLibrary": {
+    "title": "Media Library",
+    "description": "Upload and manage images and assets",
+    "upload": "Upload Media",
+    "dragDrop": "Drag and drop images here, or click to browse",
+    "search": "Search media...",
+    "noMedia": "No media files found",
+    "bulkActions": "Bulk Actions",
+    "bulkDelete": "Delete Selected",
+    "fields": {
+      "title": "Title",
+      "altText": "Alt Text",
+      "tags": "Tags",
+      "url": "URL"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "copy": "Copy URL",
+      "copied": "Copied!"
+    }
+  },
+  "siteSettings": {
+    "title": "Site Settings",
+    "branding": {
+      "title": "Branding",
+      "siteName": "Site Name",
+      "logo": "Logo",
+      "favicon": "Favicon",
+      "uploadLogo": "Upload Logo",
+      "uploadFavicon": "Upload Favicon",
+      "dragDropLogo": "Drag and drop logo here",
+      "dragDropFavicon": "Drag and drop favicon here"
+    },
+    "theme": {
+      "title": "Theme Customization",
+      "description": "Customize the site's color scheme",
+      "primary": "Primary Color",
+      "secondary": "Secondary Color",
+      "accent": "Accent Color",
+      "background": "Background",
+      "foreground": "Foreground",
+      "reset": "Reset to Default",
+      "preview": "Live Preview"
+    }
+  },
+  "siteConfiguration": {
+    "title": "Site Configuration",
+    "description": "Manage SEO, social media, contact information, and analytics",
+    "seo": {
+      "title": "SEO Settings",
+      "metaTitle": "Meta Title",
+      "metaDescription": "Meta Description",
+      "keywords": "Keywords",
+      "ogImage": "OG Image URL"
+    },
+    "social": {
+      "title": "Social Media Links",
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "youtube": "YouTube"
+    },
+    "contact": {
+      "title": "Contact Information",
+      "email": "Contact Email",
+      "phone": "Phone Number",
+      "address": "Address"
+    },
+    "analytics": {
+      "title": "Analytics & Tracking",
+      "googleAnalytics": "Google Analytics ID",
+      "facebookPixel": "Facebook Pixel ID",
+      "customScript": "Custom Tracking Script"
+    }
   }
 }

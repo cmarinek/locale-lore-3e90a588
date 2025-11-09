@@ -1,0 +1,196 @@
+{
+  "dashboard": "Dashboard",
+  "users": "Benutzer",
+  "content": "Inhalt",
+  "system": "System",
+  "security": "Sicherheit",
+  "reports": "Berichte",
+  "statistics": {
+    "title": "Statistiken",
+    "totalUsers": "Gesamtbenutzer",
+    "activeUsers": "Aktive Benutzer",
+    "totalStories": "Gesamtgeschichten",
+    "pendingReviews": "Ausstehende Überprüfungen"
+  },
+  "userManagement": {
+    "title": "Benutzerverwaltung",
+    "searchUsers": "Benutzer suchen",
+    "filterByRole": "Nach Rolle filtern",
+    "allRoles": "Alle Rollen",
+    "admin": "Administrator",
+    "moderator": "Moderator",
+    "user": "Benutzer",
+    "banned": "Gesperrt",
+    "actions": "Aktionen",
+    "viewProfile": "Profil ansehen",
+    "editUser": "Benutzer bearbeiten",
+    "deleteUser": "Benutzer löschen",
+    "banUser": "Benutzer sperren",
+    "unbanUser": "Benutzer entsperren",
+    "changeRole": "Rolle ändern",
+    "confirmDelete": "Sind Sie sicher, dass Sie diesen Benutzer löschen möchten?",
+    "confirmBan": "Sind Sie sicher, dass Sie diesen Benutzer sperren möchten?",
+    "userDeleted": "Benutzer erfolgreich gelöscht",
+    "userBanned": "Benutzer erfolgreich gesperrt",
+    "roleChanged": "Rolle erfolgreich geändert"
+  },
+  "contentModeration": {
+    "title": "Inhaltsmoderation",
+    "pending": "Ausstehend",
+    "approved": "Genehmigt",
+    "rejected": "Abgelehnt",
+    "flagged": "Markiert",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "flag": "Markieren",
+    "reason": "Grund",
+    "moderatorNotes": "Moderatornotizen",
+    "reviewStory": "Geschichte überprüfen",
+    "contentApproved": "Inhalt genehmigt",
+    "contentRejected": "Inhalt abgelehnt"
+  },
+  "translationManagement": {
+    "title": "Übersetzungsverwaltung",
+    "languages": "Sprachen",
+    "namespaces": "Namensräume",
+    "addTranslation": "Übersetzung hinzufügen",
+    "editTranslation": "Übersetzung bearbeiten",
+    "deleteTranslation": "Übersetzung löschen",
+    "importTranslations": "Übersetzungen importieren",
+    "exportTranslations": "Übersetzungen exportieren",
+    "translationKey": "Schlüssel",
+    "translationValue": "Wert",
+    "autoTranslate": "Automatische Übersetzung",
+    "progress": "Fortschritt",
+    "complete": "Vollständig",
+    "incomplete": "Unvollständig",
+    "missingKeys": "Fehlende Schlüssel"
+  },
+  "systemSettings": {
+    "title": "Systemeinstellungen",
+    "general": "Allgemein",
+    "email": "E-Mail",
+    "storage": "Speicher",
+    "performance": "Leistung",
+    "backup": "Sicherung",
+    "siteName": "Seitenname",
+    "siteDescription": "Seitenbeschreibung",
+    "maintenanceMode": "Wartungsmodus",
+    "enableMaintenanceMode": "Wartungsmodus aktivieren",
+    "disableMaintenanceMode": "Wartungsmodus deaktivieren",
+    "settingsSaved": "Einstellungen erfolgreich gespeichert"
+  },
+  "reportsSection": {
+    "title": "Berichte",
+    "userReports": "Benutzerberichte",
+    "contentReports": "Inhaltsberichte",
+    "analyticsReports": "Analyseberichte",
+    "generateReport": "Bericht erstellen",
+    "downloadReport": "Bericht herunterladen",
+    "reportPeriod": "Berichtszeitraum",
+    "lastWeek": "Letzte Woche",
+    "lastMonth": "Letzter Monat",
+    "lastYear": "Letztes Jahr",
+    "custom": "Benutzerdefiniert"
+  },
+  "announcements": {
+    "title": "Ankündigungen",
+    "create": "Ankündigung erstellen",
+    "edit": "Ankündigung bearbeiten",
+    "delete": "Ankündigung löschen",
+    "publish": "Veröffentlichen",
+    "unpublish": "Veröffentlichung rückgängig machen",
+    "fields": {
+      "title": "Titel",
+      "message": "Nachricht",
+      "type": "Typ",
+      "priority": "Priorität",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
+      "targetAudience": "Zielpublikum"
+    },
+    "types": {
+      "info": "Information",
+      "warning": "Warnung",
+      "success": "Erfolg",
+      "error": "Fehler"
+    },
+    "priorities": {
+      "low": "Niedrig",
+      "medium": "Mittel",
+      "high": "Hoch",
+      "urgent": "Dringend"
+    }
+  },
+  "mediaLibrary": {
+    "title": "Medienbibliothek",
+    "upload": "Hochladen",
+    "delete": "Löschen",
+    "search": "Medien suchen",
+    "filterByType": "Nach Typ filtern",
+    "allTypes": "Alle Typen",
+    "images": "Bilder",
+    "videos": "Videos",
+    "documents": "Dokumente",
+    "fileSize": "Dateigröße",
+    "uploadedBy": "Hochgeladen von",
+    "uploadDate": "Upload-Datum",
+    "dimensions": "Abmessungen",
+    "confirmDelete": "Sind Sie sicher, dass Sie diese Datei löschen möchten?"
+  },
+  "siteSettings": {
+    "title": "Website-Einstellungen",
+    "appearance": "Aussehen",
+    "features": "Funktionen",
+    "integrations": "Integrationen",
+    "theme": {
+      "title": "Thema",
+      "primary": "Primärfarbe",
+      "secondary": "Sekundärfarbe",
+      "accent": "Akzentfarbe",
+      "background": "Hintergrund",
+      "text": "Text"
+    },
+    "logo": {
+      "title": "Logo",
+      "upload": "Logo hochladen",
+      "remove": "Logo entfernen",
+      "favicon": "Favicon"
+    },
+    "seo": {
+      "title": "SEO",
+      "metaTitle": "Meta-Titel",
+      "metaDescription": "Meta-Beschreibung",
+      "keywords": "Schlüsselwörter",
+      "ogImage": "Open Graph Bild"
+    }
+  },
+  "siteConfiguration": {
+    "title": "Website-Konfiguration",
+    "general": "Allgemein",
+    "advanced": "Erweitert",
+    "api": "API",
+    "webhooks": "Webhooks",
+    "apiKeys": {
+      "title": "API-Schlüssel",
+      "create": "Schlüssel erstellen",
+      "revoke": "Widerrufen",
+      "name": "Name",
+      "key": "Schlüssel",
+      "created": "Erstellt",
+      "lastUsed": "Zuletzt verwendet"
+    },
+    "caching": {
+      "title": "Zwischenspeicherung",
+      "enable": "Cache aktivieren",
+      "clearCache": "Cache leeren",
+      "cacheCleared": "Cache erfolgreich geleert"
+    },
+    "rateLimit": {
+      "title": "Ratenbegrenzung",
+      "enable": "Ratenbegrenzung aktivieren",
+      "requestsPerHour": "Anfragen pro Stunde",
+      "ipWhitelist": "IP-Whitelist"
+    }
+  }
+}

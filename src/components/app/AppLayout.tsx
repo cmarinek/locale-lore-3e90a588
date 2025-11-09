@@ -2,7 +2,9 @@ import React from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import { CookieConsent } from '@/components/compliance/CookieConsent';
 import { PerformanceMonitor } from '@/components/monitoring/PerformanceMonitor';
+import { TranslationDebugToggle } from '@/components/admin/TranslationDebugToggle';
 import { useAdmin } from '@/hooks/useAdmin';
+import { AnnouncementBanner } from '@/components/site/AnnouncementBanner';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -13,10 +15,12 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ children }) => 
 
   return (
     <div className="App">
+      <AnnouncementBanner />
       {children}
       <Toaster />
       <CookieConsent />
       {isAdmin && <PerformanceMonitor />}
+      {import.meta.env.DEV && <TranslationDebugToggle />}
     </div>
   );
 });

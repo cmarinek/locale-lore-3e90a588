@@ -337,6 +337,36 @@ export type Database = {
           },
         ]
       }
+      analytics_events: {
+        Row: {
+          created_at: string | null
+          event_name: string
+          id: string
+          properties: Json | null
+          referrer: string | null
+          session_id: string | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_name: string
+          id?: string
+          properties?: Json | null
+          referrer?: string | null
+          session_id?: string | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_name?: string
+          id?: string
+          properties?: Json | null
+          referrer?: string | null
+          session_id?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
       bug_reports: {
         Row: {
           actual_behavior: string | null
@@ -871,6 +901,39 @@ export type Database = {
           updated_at?: string
           user_id?: string
           view_duration_seconds?: number | null
+        }
+        Relationships: []
+      }
+      error_logs: {
+        Row: {
+          created_at: string | null
+          error_context: Json | null
+          error_message: string
+          error_stack: string | null
+          id: string
+          session_id: string | null
+          url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_context?: Json | null
+          error_message: string
+          error_stack?: string | null
+          id?: string
+          session_id?: string | null
+          url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_context?: Json | null
+          error_message?: string
+          error_stack?: string | null
+          id?: string
+          session_id?: string | null
+          url?: string | null
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -1462,6 +1525,99 @@ export type Database = {
         }
         Relationships: []
       }
+      map_drawings: {
+        Row: {
+          coordinates: Json
+          created_at: string
+          description: string | null
+          drawing_type: string
+          id: string
+          is_public: boolean | null
+          name: string
+          share_token: string | null
+          style_properties: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coordinates: Json
+          created_at?: string
+          description?: string | null
+          drawing_type: string
+          id?: string
+          is_public?: boolean | null
+          name: string
+          share_token?: string | null
+          style_properties?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coordinates?: Json
+          created_at?: string
+          description?: string | null
+          drawing_type?: string
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          share_token?: string | null
+          style_properties?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      media_library: {
+        Row: {
+          alt_text: string | null
+          caption: string | null
+          created_at: string | null
+          file_path: string
+          file_size: number | null
+          file_url: string
+          filename: string
+          height: number | null
+          id: string
+          mime_type: string | null
+          tags: string[] | null
+          updated_at: string | null
+          uploaded_by: string | null
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string | null
+          file_path: string
+          file_size?: number | null
+          file_url: string
+          filename: string
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string | null
+          file_path?: string
+          file_size?: number | null
+          file_url?: string
+          filename?: string
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+          width?: number | null
+        }
+        Relationships: []
+      }
       notification_analytics: {
         Row: {
           browser: string | null
@@ -1739,6 +1895,36 @@ export type Database = {
         }
         Relationships: []
       }
+      performance_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          labels: Json | null
+          metric_name: string
+          metric_value: number
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          labels?: Json | null
+          metric_name: string
+          metric_value: number
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          labels?: Json | null
+          metric_name?: string
+          metric_value?: number
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       premium_content: {
         Row: {
           content_type: string
@@ -1837,6 +2023,48 @@ export type Database = {
           reputation_score?: number
           updated_at?: string
           username?: string
+        }
+        Relationships: []
+      }
+      promo_codes: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          discount_type: string
+          discount_value: number
+          expires_at: string
+          id: string
+          is_active: boolean
+          max_uses: number
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_type: string
+          discount_value: number
+          expires_at: string
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+          updated_at?: string
+          used_count?: number
         }
         Relationships: []
       }
@@ -2052,6 +2280,144 @@ export type Database = {
           query?: string
           results_count?: number | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      security_scan_history: {
+        Row: {
+          categories: Json
+          created_at: string
+          critical_count: number
+          findings: Json
+          high_count: number
+          id: string
+          low_count: number
+          medium_count: number
+          scan_date: string
+          scan_duration_ms: number | null
+          security_score: number
+          total_findings: number
+        }
+        Insert: {
+          categories?: Json
+          created_at?: string
+          critical_count?: number
+          findings?: Json
+          high_count?: number
+          id?: string
+          low_count?: number
+          medium_count?: number
+          scan_date?: string
+          scan_duration_ms?: number | null
+          security_score: number
+          total_findings?: number
+        }
+        Update: {
+          categories?: Json
+          created_at?: string
+          critical_count?: number
+          findings?: Json
+          high_count?: number
+          id?: string
+          low_count?: number
+          medium_count?: number
+          scan_date?: string
+          scan_duration_ms?: number | null
+          security_score?: number
+          total_findings?: number
+        }
+        Relationships: []
+      }
+      site_announcements: {
+        Row: {
+          background_color: string | null
+          created_at: string | null
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          message: string
+          starts_at: string | null
+          text_color: string | null
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          background_color?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message: string
+          starts_at?: string | null
+          text_color?: string | null
+          title: string
+          type?: string
+          updated_at?: string | null
+        }
+        Update: {
+          background_color?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message?: string
+          starts_at?: string | null
+          text_color?: string | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      site_configuration: {
+        Row: {
+          config_key: string
+          config_value: Json
+          id: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          config_key: string
+          config_value: Json
+          id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+          updated_by?: string | null
         }
         Relationships: []
       }

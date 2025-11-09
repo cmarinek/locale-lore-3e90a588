@@ -1,0 +1,196 @@
+{
+  "dashboard": "لوحة التحكم",
+  "users": "المستخدمون",
+  "content": "المحتوى",
+  "system": "النظام",
+  "security": "الأمان",
+  "reports": "التقارير",
+  "statistics": {
+    "title": "الإحصائيات",
+    "totalUsers": "إجمالي المستخدمين",
+    "activeUsers": "المستخدمون النشطون",
+    "totalStories": "إجمالي القصص",
+    "pendingReviews": "المراجعات المعلقة"
+  },
+  "userManagement": {
+    "title": "إدارة المستخدمين",
+    "searchUsers": "البحث عن مستخدمين",
+    "filterByRole": "تصفية حسب الدور",
+    "allRoles": "جميع الأدوار",
+    "admin": "مدير",
+    "moderator": "مشرف",
+    "user": "مستخدم",
+    "banned": "محظور",
+    "actions": "الإجراءات",
+    "viewProfile": "عرض الملف الشخصي",
+    "editUser": "تحرير المستخدم",
+    "deleteUser": "حذف المستخدم",
+    "banUser": "حظر المستخدم",
+    "unbanUser": "إلغاء حظر المستخدم",
+    "changeRole": "تغيير الدور",
+    "confirmDelete": "هل أنت متأكد من حذف هذا المستخدم؟",
+    "confirmBan": "هل أنت متأكد من حظر هذا المستخدم؟",
+    "userDeleted": "تم حذف المستخدم بنجاح",
+    "userBanned": "تم حظر المستخدم بنجاح",
+    "roleChanged": "تم تغيير الدور بنجاح"
+  },
+  "contentModeration": {
+    "title": "إدارة المحتوى",
+    "pending": "قيد الانتظار",
+    "approved": "موافق عليه",
+    "rejected": "مرفوض",
+    "flagged": "مبلغ عنه",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "flag": "إبلاغ",
+    "reason": "السبب",
+    "moderatorNotes": "ملاحظات المشرف",
+    "reviewStory": "مراجعة القصة",
+    "contentApproved": "تمت الموافقة على المحتوى",
+    "contentRejected": "تم رفض المحتوى"
+  },
+  "translationManagement": {
+    "title": "إدارة الترجمات",
+    "languages": "اللغات",
+    "namespaces": "مساحات الأسماء",
+    "addTranslation": "إضافة ترجمة",
+    "editTranslation": "تحرير الترجمة",
+    "deleteTranslation": "حذف الترجمة",
+    "importTranslations": "استيراد الترجمات",
+    "exportTranslations": "تصدير الترجمات",
+    "translationKey": "المفتاح",
+    "translationValue": "القيمة",
+    "autoTranslate": "ترجمة تلقائية",
+    "progress": "التقدم",
+    "complete": "مكتمل",
+    "incomplete": "غير مكتمل",
+    "missingKeys": "مفاتيح مفقودة"
+  },
+  "systemSettings": {
+    "title": "إعدادات النظام",
+    "general": "عام",
+    "email": "البريد الإلكتروني",
+    "storage": "التخزين",
+    "performance": "الأداء",
+    "backup": "النسخ الاحتياطي",
+    "siteName": "اسم الموقع",
+    "siteDescription": "وصف الموقع",
+    "maintenanceMode": "وضع الصيانة",
+    "enableMaintenanceMode": "تفعيل وضع الصيانة",
+    "disableMaintenanceMode": "تعطيل وضع الصيانة",
+    "settingsSaved": "تم حفظ الإعدادات بنجاح"
+  },
+  "reportsSection": {
+    "title": "التقارير",
+    "userReports": "تقارير المستخدمين",
+    "contentReports": "تقارير المحتوى",
+    "analyticsReports": "تقارير التحليلات",
+    "generateReport": "إنشاء تقرير",
+    "downloadReport": "تنزيل التقرير",
+    "reportPeriod": "فترة التقرير",
+    "lastWeek": "الأسبوع الماضي",
+    "lastMonth": "الشهر الماضي",
+    "lastYear": "السنة الماضية",
+    "custom": "مخصص"
+  },
+  "announcements": {
+    "title": "الإعلانات",
+    "create": "إنشاء إعلان",
+    "edit": "تحرير الإعلان",
+    "delete": "حذف الإعلان",
+    "publish": "نشر",
+    "unpublish": "إلغاء النشر",
+    "fields": {
+      "title": "العنوان",
+      "message": "الرسالة",
+      "type": "النوع",
+      "priority": "الأولوية",
+      "startDate": "تاريخ البدء",
+      "endDate": "تاريخ الانتهاء",
+      "targetAudience": "الجمهور المستهدف"
+    },
+    "types": {
+      "info": "معلومات",
+      "warning": "تحذير",
+      "success": "نجاح",
+      "error": "خطأ"
+    },
+    "priorities": {
+      "low": "منخفضة",
+      "medium": "متوسطة",
+      "high": "عالية",
+      "urgent": "عاجلة"
+    }
+  },
+  "mediaLibrary": {
+    "title": "مكتبة الوسائط",
+    "upload": "رفع",
+    "delete": "حذف",
+    "search": "البحث عن وسائط",
+    "filterByType": "تصفية حسب النوع",
+    "allTypes": "جميع الأنواع",
+    "images": "الصور",
+    "videos": "الفيديوهات",
+    "documents": "المستندات",
+    "fileSize": "حجم الملف",
+    "uploadedBy": "رفع بواسطة",
+    "uploadDate": "تاريخ الرفع",
+    "dimensions": "الأبعاد",
+    "confirmDelete": "هل أنت متأكد من حذف هذا الملف؟"
+  },
+  "siteSettings": {
+    "title": "إعدادات الموقع",
+    "appearance": "المظهر",
+    "features": "الميزات",
+    "integrations": "التكاملات",
+    "theme": {
+      "title": "الموضوع",
+      "primary": "اللون الأساسي",
+      "secondary": "اللون الثانوي",
+      "accent": "لون التمييز",
+      "background": "الخلفية",
+      "text": "النص"
+    },
+    "logo": {
+      "title": "الشعار",
+      "upload": "رفع الشعار",
+      "remove": "إزالة الشعار",
+      "favicon": "أيقونة الموقع"
+    },
+    "seo": {
+      "title": "تحسين محركات البحث",
+      "metaTitle": "عنوان ميتا",
+      "metaDescription": "وصف ميتا",
+      "keywords": "الكلمات المفتاحية",
+      "ogImage": "صورة Open Graph"
+    }
+  },
+  "siteConfiguration": {
+    "title": "تكوين الموقع",
+    "general": "عام",
+    "advanced": "متقدم",
+    "api": "API",
+    "webhooks": "خطافات الويب",
+    "apiKeys": {
+      "title": "مفاتيح API",
+      "create": "إنشاء مفتاح",
+      "revoke": "إلغاء",
+      "name": "الاسم",
+      "key": "المفتاح",
+      "created": "تم الإنشاء",
+      "lastUsed": "آخر استخدام"
+    },
+    "caching": {
+      "title": "التخزين المؤقت",
+      "enable": "تفعيل التخزين المؤقت",
+      "clearCache": "مسح التخزين المؤقت",
+      "cacheCleared": "تم مسح التخزين المؤقت بنجاح"
+    },
+    "rateLimit": {
+      "title": "حد المعدل",
+      "enable": "تفعيل حد المعدل",
+      "requestsPerHour": "الطلبات في الساعة",
+      "ipWhitelist": "القائمة البيضاء للـ IP"
+    }
+  }
+}

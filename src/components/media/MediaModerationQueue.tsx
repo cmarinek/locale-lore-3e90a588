@@ -35,54 +35,69 @@ export const MediaModerationQueue: React.FC = () => {
 
   const loadMediaFiles = async () => {
     try {
-      // For now, we'll use mock data since we don't have the actual media_files table
-      const mockData: MediaFile[] = [
-        {
-          id: '1',
-          name: 'landscape.jpg',
-          originalName: 'landscape.jpg',
-          type: 'image/jpeg',
-          mimeType: 'image/jpeg',
-          size: 2048576,
-          url: '/placeholder.svg',
-          thumbnailUrl: '/placeholder.svg',
-          status: 'pending',
-          uploadedAt: new Date(Date.now() - 3600000).toISOString(),
-          uploadedBy: 'user1',
-          uploader: {
-            id: 'user1',
-            username: 'explorer123',
-            avatar_url: '/placeholder.svg'
-          }
-        },
-        {
-          id: '2',
-          name: 'city_night.mp4',
-          originalName: 'city_night.mp4',
-          type: 'video/mp4',
-          mimeType: 'video/mp4',
-          size: 15728640,
-          url: '/placeholder.svg',
-          thumbnailUrl: '/placeholder.svg',
-          status: 'pending',
-          uploadedAt: new Date(Date.now() - 7200000).toISOString(),
-          uploadedBy: 'user2',
-          uploader: {
-            id: 'user2',
-            username: 'nightowl',
-            avatar_url: '/placeholder.svg'
-          }
-        }
-      ];
+      // Fetch actual media files from Supabase Storage
+      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
       
-      setMediaFiles(mockData);
+      if (bucketsError) {
+        console.warn('Could not list storage buckets:', bucketsError);
+        setMediaFiles([]);
+        setLoading(false);
+        return;
+      }
+
+      const mediaFilesList: MediaFile[] = [];
+      
+      // Check for media-files bucket
+      const mediaFilesBucket = buckets?.find(b => b.name === 'media-files');
+      
+      if (mediaFilesBucket) {
+        const { data: files, error: filesError } = await supabase.storage
+          .from('media-files')
+          .list('', {
+            limit: 100,
+            sortBy: { column: 'created_at', order: 'desc' }
+          });
+
+        if (!filesError && files) {
+          // Transform storage files to MediaFile format
+          const transformedFiles = files.map((file) => {
+            const { data: urlData } = supabase.storage
+              .from('media-files')
+              .getPublicUrl(file.name);
+
+            return {
+              id: file.name,
+              name: file.name,
+              originalName: file.name,
+              type: file.metadata?.mimetype || 'unknown',
+              mimeType: file.metadata?.mimetype || 'unknown',
+              size: file.metadata?.size || 0,
+              url: urlData.publicUrl,
+              thumbnailUrl: urlData.publicUrl,
+              status: 'pending' as const,
+              uploadedAt: file.created_at || new Date().toISOString(),
+              uploadedBy: 'unknown',
+              uploader: {
+                id: 'unknown',
+                username: 'Unknown User',
+                avatar_url: null
+              }
+            };
+          });
+
+          mediaFilesList.push(...transformedFiles);
+        }
+      }
+
+      setMediaFiles(mediaFilesList);
     } catch (error) {
       console.error('Error loading media files:', error);
       toast({
         title: "Error loading media files",
-        description: "Failed to load pending media files",
+        description: error instanceof Error ? error.message : "Failed to load pending media files",
         variant: "destructive",
       });
+      setMediaFiles([]);
     } finally {
       setLoading(false);
     }

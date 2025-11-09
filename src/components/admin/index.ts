@@ -5,3 +5,8 @@ export { ReportsPanel } from './ReportsPanel';
 export { UserManagementPanel } from './UserManagementPanel';
 export { MobileAppBuilder } from './MobileAppBuilder';
 export { TranslationStatusDashboard } from './TranslationStatusDashboard';
+export { SiteSettingsPanel } from './SiteSettingsPanel';
+export { AnnouncementManager } from './AnnouncementManager';
+export { MediaLibraryPanel } from './MediaLibraryPanel';
+export { ThemeCustomizer } from './ThemeCustomizer';
+export { SiteConfigurationPanel } from './SiteConfigurationPanel';

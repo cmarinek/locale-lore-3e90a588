@@ -1,0 +1,71 @@
+name: Translation Sync
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'public/locales/en/**/*.json'
+      - 'src/**/*.tsx'
+      - 'src/**/*.ts'
+  workflow_dispatch:
+
+jobs:
+  translation-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run translation detection
+        id: detect
+        run: node scripts/detect-translations.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --quiet public/locales/ || echo "has_changes=true" >> $GITHUB_OUTPUT
+
+      - name: Generate translation coverage report
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: node scripts/translation-coverage-report.js > translation-report.md
+
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: sync translations'
+          title: 'Auto-sync translations'
+          body-path: translation-report.md
+          branch: translation-sync-${{ github.run_number }}
+          delete-branch: true
+          labels: translations,automated
+
+      - name: Comment on commit
+        if: steps.check_changes.outputs.has_changes != 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: '✅ All translations are up to date!'
+            })

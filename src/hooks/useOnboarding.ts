@@ -1,42 +1,52 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthProvider';
 
-const ONBOARDING_STORAGE_KEY = 'localLore_onboarding_completed';
+const ONBOARDING_STORAGE_KEY = 'localelore_onboarding_completed';
 
-export function useOnboarding() {
+export const useOnboarding = () => {
+  const { user } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_STORAGE_KEY);
-    
-    if (!hasCompletedOnboarding && !showOnboarding) {
-      // Show onboarding after a short delay for better UX
-      const timer = setTimeout(() => {
-        setShowOnboarding(true);
-      }, 1000);
+    // Check if user has completed onboarding
+    const checkOnboardingStatus = () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
 
-      return () => clearTimeout(timer);
-    }
-  }, []); // Empty dependency array to run only once
+      const completed = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+      const userKey = `${ONBOARDING_STORAGE_KEY}_${user.id}`;
+      const userCompleted = localStorage.getItem(userKey);
+
+      // Show onboarding if neither global nor user-specific flag is set
+      if (!completed && !userCompleted) {
+        setShowOnboarding(true);
+      }
+      
+      setIsLoading(false);
+    };
+
+    checkOnboardingStatus();
+  }, [user]);
 
   const completeOnboarding = () => {
+    if (user) {
+      localStorage.setItem(`${ONBOARDING_STORAGE_KEY}_${user.id}`, 'true');
+    }
     localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
     setShowOnboarding(false);
   };
 
   const skipOnboarding = () => {
-    localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
-    setShowOnboarding(false);
-  };
-
-  const resetOnboarding = () => {
-    localStorage.removeItem(ONBOARDING_STORAGE_KEY);
-    setShowOnboarding(true);
+    completeOnboarding();
   };
 
   return {
     showOnboarding,
+    isLoading,
     completeOnboarding,
     skipOnboarding,
-    resetOnboarding
   };
-}
+};

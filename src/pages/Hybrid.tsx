@@ -81,12 +81,16 @@ export const Hybrid: React.FC = () => {
         <meta name="keywords" content="hybrid view, interactive map, local stories, cultural heritage, discovery" />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background relative">
         <div className="container mx-auto p-4 space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <ViewModeToggle />
             <h1 className="text-2xl font-bold">Hybrid Explorer</h1>
+          </div>
+
+          {/* View Mode Toggle - positioned to match Map page */}
+          <div className="absolute top-4 right-4 z-20">
+            <ViewModeToggle variant="glass" />
           </div>
 
           {/* Search */}
@@ -105,7 +109,7 @@ export const Hybrid: React.FC = () => {
               </TabsTrigger>
               <TabsTrigger value="list" className="flex items-center gap-2">
                 <List className="h-4 w-4" />
-                List View
+                Lore
               </TabsTrigger>
             </TabsList>
 

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { usePerformanceMonitor } from '@/utils/performance-monitor';
+import { usePerformanceMonitor } from '@/utils/performance';
 import { Activity, Zap, Clock, AlertTriangle } from 'lucide-react';
 
 interface LoadTestResult {

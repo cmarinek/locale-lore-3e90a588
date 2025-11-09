@@ -1,0 +1,196 @@
+{
+  "dashboard": "Tableau de Bord",
+  "users": "Utilisateurs",
+  "content": "Contenu",
+  "system": "Système",
+  "security": "Sécurité",
+  "reports": "Rapports",
+  "statistics": {
+    "title": "Statistiques",
+    "totalUsers": "Total des Utilisateurs",
+    "activeUsers": "Utilisateurs Actifs",
+    "totalStories": "Total des Histoires",
+    "pendingReviews": "Révisions en Attente"
+  },
+  "userManagement": {
+    "title": "Gestion des Utilisateurs",
+    "searchUsers": "Rechercher des utilisateurs",
+    "filterByRole": "Filtrer par rôle",
+    "allRoles": "Tous les rôles",
+    "admin": "Administrateur",
+    "moderator": "Modérateur",
+    "user": "Utilisateur",
+    "banned": "Banni",
+    "actions": "Actions",
+    "viewProfile": "Voir le profil",
+    "editUser": "Modifier l'utilisateur",
+    "deleteUser": "Supprimer l'utilisateur",
+    "banUser": "Bannir l'utilisateur",
+    "unbanUser": "Débannir l'utilisateur",
+    "changeRole": "Changer le rôle",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer cet utilisateur?",
+    "confirmBan": "Êtes-vous sûr de vouloir bannir cet utilisateur?",
+    "userDeleted": "Utilisateur supprimé avec succès",
+    "userBanned": "Utilisateur banni avec succès",
+    "roleChanged": "Rôle modifié avec succès"
+  },
+  "contentModeration": {
+    "title": "Modération du Contenu",
+    "pending": "En attente",
+    "approved": "Approuvé",
+    "rejected": "Rejeté",
+    "flagged": "Signalé",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "flag": "Signaler",
+    "reason": "Raison",
+    "moderatorNotes": "Notes du modérateur",
+    "reviewStory": "Examiner l'histoire",
+    "contentApproved": "Contenu approuvé",
+    "contentRejected": "Contenu rejeté"
+  },
+  "translationManagement": {
+    "title": "Gestion des Traductions",
+    "languages": "Langues",
+    "namespaces": "Espaces de noms",
+    "addTranslation": "Ajouter une traduction",
+    "editTranslation": "Modifier la traduction",
+    "deleteTranslation": "Supprimer la traduction",
+    "importTranslations": "Importer les traductions",
+    "exportTranslations": "Exporter les traductions",
+    "translationKey": "Clé",
+    "translationValue": "Valeur",
+    "autoTranslate": "Traduction automatique",
+    "progress": "Progrès",
+    "complete": "Complet",
+    "incomplete": "Incomplet",
+    "missingKeys": "Clés manquantes"
+  },
+  "systemSettings": {
+    "title": "Paramètres du Système",
+    "general": "Général",
+    "email": "E-mail",
+    "storage": "Stockage",
+    "performance": "Performance",
+    "backup": "Sauvegarde",
+    "siteName": "Nom du site",
+    "siteDescription": "Description du site",
+    "maintenanceMode": "Mode maintenance",
+    "enableMaintenanceMode": "Activer le mode maintenance",
+    "disableMaintenanceMode": "Désactiver le mode maintenance",
+    "settingsSaved": "Paramètres enregistrés avec succès"
+  },
+  "reportsSection": {
+    "title": "Rapports",
+    "userReports": "Rapports d'utilisateurs",
+    "contentReports": "Rapports de contenu",
+    "analyticsReports": "Rapports d'analyse",
+    "generateReport": "Générer un rapport",
+    "downloadReport": "Télécharger le rapport",
+    "reportPeriod": "Période du rapport",
+    "lastWeek": "Semaine dernière",
+    "lastMonth": "Mois dernier",
+    "lastYear": "Année dernière",
+    "custom": "Personnalisé"
+  },
+  "announcements": {
+    "title": "Annonces",
+    "create": "Créer une annonce",
+    "edit": "Modifier l'annonce",
+    "delete": "Supprimer l'annonce",
+    "publish": "Publier",
+    "unpublish": "Dépublier",
+    "fields": {
+      "title": "Titre",
+      "message": "Message",
+      "type": "Type",
+      "priority": "Priorité",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "targetAudience": "Public cible"
+    },
+    "types": {
+      "info": "Information",
+      "warning": "Avertissement",
+      "success": "Succès",
+      "error": "Erreur"
+    },
+    "priorities": {
+      "low": "Basse",
+      "medium": "Moyenne",
+      "high": "Haute",
+      "urgent": "Urgente"
+    }
+  },
+  "mediaLibrary": {
+    "title": "Bibliothèque Multimédia",
+    "upload": "Téléverser",
+    "delete": "Supprimer",
+    "search": "Rechercher des médias",
+    "filterByType": "Filtrer par type",
+    "allTypes": "Tous les types",
+    "images": "Images",
+    "videos": "Vidéos",
+    "documents": "Documents",
+    "fileSize": "Taille du fichier",
+    "uploadedBy": "Téléversé par",
+    "uploadDate": "Date de téléversement",
+    "dimensions": "Dimensions",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce fichier?"
+  },
+  "siteSettings": {
+    "title": "Paramètres du Site",
+    "appearance": "Apparence",
+    "features": "Fonctionnalités",
+    "integrations": "Intégrations",
+    "theme": {
+      "title": "Thème",
+      "primary": "Couleur primaire",
+      "secondary": "Couleur secondaire",
+      "accent": "Couleur d'accent",
+      "background": "Arrière-plan",
+      "text": "Texte"
+    },
+    "logo": {
+      "title": "Logo",
+      "upload": "Téléverser le logo",
+      "remove": "Supprimer le logo",
+      "favicon": "Favicon"
+    },
+    "seo": {
+      "title": "SEO",
+      "metaTitle": "Titre méta",
+      "metaDescription": "Description méta",
+      "keywords": "Mots-clés",
+      "ogImage": "Image Open Graph"
+    }
+  },
+  "siteConfiguration": {
+    "title": "Configuration du Site",
+    "general": "Général",
+    "advanced": "Avancé",
+    "api": "API",
+    "webhooks": "Webhooks",
+    "apiKeys": {
+      "title": "Clés API",
+      "create": "Créer une clé",
+      "revoke": "Révoquer",
+      "name": "Nom",
+      "key": "Clé",
+      "created": "Créée",
+      "lastUsed": "Dernière utilisation"
+    },
+    "caching": {
+      "title": "Cache",
+      "enable": "Activer le cache",
+      "clearCache": "Vider le cache",
+      "cacheCleared": "Cache vidé avec succès"
+    },
+    "rateLimit": {
+      "title": "Limite de débit",
+      "enable": "Activer la limite de débit",
+      "requestsPerHour": "Requêtes par heure",
+      "ipWhitelist": "Liste blanche IP"
+    }
+  }
+}

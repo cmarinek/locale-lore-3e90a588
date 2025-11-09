@@ -43,11 +43,37 @@ class Logger {
     return `[${timestamp}] [${level}]${contextStr} ${message}`;
   }
 
-  private sendToMonitoring(level: LogLevel, message: string, context?: LogContext, error?: Error) {
-    // Integration point for monitoring services (Sentry, LogRocket, etc.)
-    if (level >= LogLevel.ERROR && typeof window !== 'undefined') {
-      // Send to error monitoring service
-      // Example: Sentry.captureException(error || new Error(message), { extra: context });
+  private async sendToMonitoring(level: LogLevel, message: string, context?: LogContext, error?: Error) {
+    // Integration with Sentry for production error tracking
+    if (typeof window !== 'undefined') {
+      try {
+        const { captureException, captureMessage } = await import('@sentry/react');
+        
+        if (level >= LogLevel.ERROR) {
+          if (error) {
+            captureException(error, {
+              level: 'error',
+              extra: context,
+              tags: {
+                component: context?.component,
+                action: context?.action,
+              },
+            });
+          } else {
+            captureMessage(message, {
+              level: 'error',
+              extra: context,
+            });
+          }
+        } else if (level === LogLevel.WARN) {
+          captureMessage(message, {
+            level: 'warning',
+            extra: context,
+          });
+        }
+      } catch (err) {
+        // Silently fail if Sentry is not available
+      }
     }
   }
 

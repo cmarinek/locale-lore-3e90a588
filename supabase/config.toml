@@ -21,3 +21,9 @@ verify_jwt = false
 
 [functions.mapbox-proxy]
 verify_jwt = false
+
+[functions.translation-sync]
+verify_jwt = true
+
+[functions.detect-missing-translations]
+verify_jwt = true

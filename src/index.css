@@ -419,4 +419,105 @@
   .mb-safe {
     margin-bottom: env(safe-area-inset-bottom);
   }
+
+  /* Skeleton animation delays */
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+
+  /* Fade in animation */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+
+  /* Shimmer animation for skeletons */
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+
+  /* Cluster expansion animations */
+  .cluster-expansion-ring {
+    animation: cluster-expand 0.6s ease-out forwards;
+  }
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes cluster-expand {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(3);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(5);
+    opacity: 0;
+  }
+}
+
+@keyframes marker-reveal {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Map marker animations */
+.mapboxgl-marker {
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.mapboxgl-marker.marker-revealing {
+  animation: marker-reveal 0.4s ease-out;
+}
+
+

@@ -25,10 +25,34 @@ serve(async (req) => {
     
     for (const name of possibleNames) {
       const token = Deno.env.get(name);
+      console.log(`Checking ${name}:`, {
+        exists: !!token,
+        length: token?.length || 0,
+        hasWhitespace: token ? /[\r\n\s]/.test(token) : false,
+        preview: token ? `${token.substring(0, 20)}...` : 'null'
+      });
+      
       if (token) {
-        mapboxToken = token;
+        // Aggressively clean the token - remove ALL whitespace characters
+        mapboxToken = token
+          .replace(/[\r\n\t\f\v\s]/g, '') // Remove all whitespace variants
+          .replace(/[^\x20-\x7E]/g, '')   // Remove non-printable characters
+          .trim();
+        
         foundVariable = name;
-        break;
+        
+        console.log(`After cleaning ${name}:`, {
+          length: mapboxToken.length,
+          preview: mapboxToken ? `${mapboxToken.substring(0, 20)}...` : 'empty',
+          isValid: mapboxToken.length > 0
+        });
+        
+        // Only use non-empty tokens
+        if (mapboxToken.length > 0) {
+          break;
+        } else {
+          mapboxToken = null;
+        }
       }
     }
     
@@ -36,16 +60,18 @@ serve(async (req) => {
       checkedVariables: possibleNames,
       foundVariable: foundVariable,
       hasToken: !!mapboxToken,
-      allEnvVars: Object.keys(Deno.env.toObject())
+      tokenLength: mapboxToken?.length || 0,
+      tokenPreview: mapboxToken ? `${mapboxToken.substring(0, 20)}...` : 'null'
     });
     
-    if (!mapboxToken) {
-      console.error('No Mapbox token found in any expected environment variable');
+    if (!mapboxToken || mapboxToken.length === 0) {
+      console.error('No valid Mapbox token found in any expected environment variable');
       return new Response(
         JSON.stringify({ 
-          error: 'Mapbox token not configured',
+          error: 'Mapbox token not configured or is empty after cleaning',
           checkedVariables: possibleNames,
-          availableEnvVars: Object.keys(Deno.env.toObject())
+          foundVariable: foundVariable,
+          tokenWasEmpty: foundVariable ? true : false
         }),
         { 
           status: 500, 
@@ -54,9 +80,19 @@ serve(async (req) => {
       );
     }
 
+    console.log('✅ Returning valid token:', {
+      length: mapboxToken.length,
+      preview: `${mapboxToken.substring(0, 20)}...`,
+      startsWithPk: mapboxToken.startsWith('pk.') || mapboxToken.startsWith('sk.')
+    });
+
     // Return the token
     return new Response(
-      JSON.stringify({ token: mapboxToken }),
+      JSON.stringify({ 
+        token: mapboxToken,
+        length: mapboxToken.length,
+        isValid: mapboxToken.length > 0
+      }),
       { 
         status: 200, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

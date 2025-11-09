@@ -32,20 +32,26 @@ const Stories: React.FC = () => {
   const {
     stories,
     loading,
-    submitting,
     fetchStories,
     fetchTrendingStories,
     createStory,
-    trackView
+    trackView,
+    fetchStoriesWithPagination
   } = useStories();
 
   const handleRefresh = async () => {
     await fetchStories();
   };
 
-  const handleLoadMore = () => {
-    // TODO: Implement pagination
-    console.log('Loading more stories...');
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+
+  const handleLoadMore = async () => {
+    if (!hasMore) return;
+    const nextPage = page + 1;
+    const result = await fetchStoriesWithPagination(nextPage, 10);
+    setPage(nextPage);
+    setHasMore(result.stories.length > 0);
   };
 
   const handleSubmitStory = async (data: QuickCaptureData) => {
