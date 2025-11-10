@@ -70,7 +70,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border/50 bg-muted/30 py-8 mt-12 mb-20 md:mb-0 safe-area-padding-bottom">
+      <footer className="border-t border-border/50 bg-muted/30 py-8 mt-12 mb-20 md:mb-0 safe-area-padding-bottom relative z-10">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
