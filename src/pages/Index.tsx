@@ -87,6 +87,7 @@ const Index: React.FC = React.memo(() => {
               // Size variations for depth
               const sizes = ['w-0.5 h-0.5', 'w-1 h-1', 'w-1.5 h-1.5', 'w-2 h-2'];
               const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+              const isLarge = randomSize === 'w-2 h-2' || randomSize === 'w-1.5 h-1.5';
               
               // Color variations using semantic tokens
               const colors = [
@@ -103,7 +104,9 @@ const Index: React.FC = React.memo(() => {
               return (
                 <div
                   key={i}
-                  className={`absolute ${randomSize} ${randomColor} rounded-full ${randomAnimation}`}
+                  className={`absolute ${randomSize} ${randomColor} rounded-full ${randomAnimation} ${
+                    isLarge ? 'blur-[1px] shadow-[0_0_8px_rgba(var(--primary),0.4)]' : ''
+                  }`}
                   style={{
                     left: `${Math.random() * 100}%`,
                     top: `${Math.random() * 100}%`,
@@ -112,6 +115,25 @@ const Index: React.FC = React.memo(() => {
                 />
               );
             })}
+            
+            {/* Shooting stars */}
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={`shooting-${i}`}
+                className={`absolute w-1 h-1 bg-gradient-to-r from-primary/80 via-primary/40 to-transparent rounded-full ${
+                  i % 2 === 0 ? 'animate-shooting-star' : 'animate-shooting-star-reverse'
+                }`}
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 50}%`,
+                  animationDelay: `${Math.random() * 10 + 5}s`,
+                  width: '60px',
+                  height: '2px',
+                  filter: 'blur(0.5px)',
+                  boxShadow: '0 0 6px hsl(var(--primary) / 0.6)',
+                }}
+              />
+            ))}
           </div>
 
           {/* Hero Section */}
