@@ -19,6 +19,17 @@ const Index: React.FC = React.memo(() => {
   const { user } = useAuth();
   const { storiesShared, activeContributors, locationsCovered, isLoading: statsLoading, error: statsError } = useCommunityStats();
   const { showOnboarding, completeOnboarding, skipOnboarding } = useOnboarding();
+  const [scrollY, setScrollY] = React.useState(0);
+
+  // Track scroll position for parallax effect
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Memoized quick actions to prevent re-renders
   const quickActions = React.useMemo(() => [
@@ -84,9 +95,14 @@ const Index: React.FC = React.memo(() => {
               const randomAnimation = animations[i % animations.length];
               const randomDelay = `${Math.random() * 3}s`;
               
-              // Size variations for depth
+              // Size variations for depth - larger = closer
+              const sizeIndex = Math.floor(Math.random() * 4);
               const sizes = ['w-0.5 h-0.5', 'w-1 h-1', 'w-1.5 h-1.5', 'w-2 h-2'];
-              const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+              const randomSize = sizes[sizeIndex];
+              
+              // Parallax speed based on size (larger/closer particles move faster)
+              const parallaxSpeeds = [0.05, 0.15, 0.25, 0.4];
+              const parallaxSpeed = parallaxSpeeds[sizeIndex];
               
               // Color variations using semantic tokens
               const colors = [
@@ -100,14 +116,19 @@ const Index: React.FC = React.memo(() => {
               ];
               const randomColor = colors[Math.floor(Math.random() * colors.length)];
               
+              const leftPosition = Math.random() * 100;
+              const topPosition = Math.random() * 100;
+              
               return (
                 <div
                   key={i}
                   className={`absolute ${randomSize} ${randomColor} rounded-full ${randomAnimation}`}
                   style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
+                    left: `${leftPosition}%`,
+                    top: `${topPosition}%`,
                     animationDelay: randomDelay,
+                    transform: `translateY(${scrollY * parallaxSpeed}px)`,
+                    transition: 'transform 0.1s ease-out',
                   }}
                 />
               );
