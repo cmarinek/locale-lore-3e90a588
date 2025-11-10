@@ -92,7 +92,7 @@ export const Map: React.FC = () => {
           <link rel="canonical" href="/map" />
         </Helmet>
 
-        <div className="h-screen w-full relative">
+        <div className="h-[calc(100vh-4rem)] w-full relative z-0">
           <UnifiedMap
             facts={facts}
             useScalableLoading={false}
