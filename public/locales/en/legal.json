@@ -1,0 +1,164 @@
+{
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated",
+    "readCarefully": "Please read these terms carefully before using our service.",
+    "acceptance": {
+      "title": "Acceptance of Terms",
+      "content": "By accessing and using Locale Lore (\"the Service\"), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our service."
+    },
+    "userAccounts": {
+      "title": "User Accounts",
+      "accountResponsibility": {
+        "title": "Account Responsibility",
+        "content": "You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities under your account."
+      },
+      "ageRequirements": {
+        "title": "Age Requirements",
+        "content": "You must be at least 13 years old to use this service. Users under 18 must have parental consent."
+      },
+      "accountTermination": {
+        "title": "Account Termination",
+        "content": "We reserve the right to terminate accounts that violate these terms or our community guidelines."
+      }
+    },
+    "contentAndConduct": {
+      "title": "Content and Conduct",
+      "userContent": {
+        "title": "User Content",
+        "content": "You retain ownership of content you create. By posting content, you grant us a license to display, distribute, and promote your content within the service."
+      },
+      "prohibitedContent": {
+        "title": "Prohibited Content",
+        "items": {
+          "illegal": "Illegal, harmful, or offensive content",
+          "spam": "Spam, harassment, or abusive behavior",
+          "misinformation": "Misinformation or deliberately false content",
+          "intellectual": "Content that violates intellectual property rights",
+          "personal": "Personal information of others without consent"
+        }
+      }
+    },
+    "privacyAndData": {
+      "title": "Privacy and Data",
+      "content": "Your privacy is important to us. Please review our",
+      "privacyPolicyLink": "Privacy Policy",
+      "toUnderstand": "to understand how we collect, use, and protect your information."
+    },
+    "subscriptionAndPayments": {
+      "title": "Subscription and Payments",
+      "premiumFeatures": {
+        "title": "Premium Features",
+        "content": "Some features require a paid subscription. Subscription fees are billed in advance and are non-refundable except as required by law."
+      },
+      "cancellation": {
+        "title": "Cancellation",
+        "content": "You may cancel your subscription at any time through your account settings. Cancellation takes effect at the end of your current billing period."
+      }
+    },
+    "disclaimers": {
+      "title": "Disclaimers",
+      "serviceAvailability": {
+        "title": "Service Availability",
+        "content": "We strive for 99.9% uptime but cannot guarantee uninterrupted service. We may temporarily suspend service for maintenance or updates."
+      },
+      "contentAccuracy": {
+        "title": "Content Accuracy",
+        "content": "User-generated content is not verified by us. Use information at your own discretion and verify important facts independently."
+      }
+    },
+    "legal": {
+      "title": "Legal",
+      "limitationOfLiability": {
+        "title": "Limitation of Liability",
+        "content": "Our liability is limited to the maximum extent permitted by law. We are not liable for indirect, incidental, or consequential damages."
+      },
+      "governingLaw": {
+        "title": "Governing Law",
+        "content": "These terms are governed by the laws of the jurisdiction where our company is registered."
+      },
+      "changesToTerms": {
+        "title": "Changes to Terms",
+        "content": "We may update these terms periodically. Continued use of the service constitutes acceptance of updated terms."
+      }
+    },
+    "contactInformation": {
+      "title": "Contact Information",
+      "content": "Questions about these terms? Contact us at",
+      "email": "legal@localelore.com"
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated",
+    "intro": "Your privacy is important to us. This policy explains how we collect, use, and protect your information.",
+    "informationWeCollect": {
+      "title": "Information We Collect",
+      "accountInformation": {
+        "title": "Account Information",
+        "content": "When you create an account, we collect your email address, name, and any profile information you provide."
+      },
+      "contentAndActivity": {
+        "title": "Content and Activity",
+        "content": "We collect the content you create, share, or interact with, including stories, facts, votes, and comments."
+      },
+      "locationData": {
+        "title": "Location Data",
+        "content": "With your permission, we collect location data to provide location-based discoveries and content."
+      },
+      "usageAnalytics": {
+        "title": "Usage Analytics",
+        "content": "We collect anonymized usage data to improve our service. You can opt-out of analytics in your settings."
+      }
+    },
+    "howWeUse": {
+      "title": "How We Use Your Information",
+      "items": {
+        "provide": "Provide and improve our services",
+        "personalize": "Personalize your experience and recommendations",
+        "communicate": "Communicate with you about updates and features",
+        "security": "Ensure security and prevent abuse",
+        "comply": "Comply with legal obligations"
+      }
+    },
+    "locationData": {
+      "title": "Location Data",
+      "content": "Location data is used only for location-based features like discovering nearby content. We add noise to coordinates for privacy protection (±1km accuracy). You can disable location sharing at any time in your privacy settings."
+    },
+    "cookiesAndTracking": {
+      "title": "Cookies and Tracking",
+      "essentialCookies": {
+        "title": "Essential Cookies",
+        "content": "Required for authentication and basic functionality."
+      },
+      "analyticsCookies": {
+        "title": "Analytics Cookies",
+        "content": "Optional cookies that help us understand usage patterns. You can opt-out via our cookie banner."
+      }
+    },
+    "yourRights": {
+      "title": "Your Rights",
+      "accessAndPortability": {
+        "title": "Access & Portability",
+        "content": "Export your data anytime from your profile settings."
+      },
+      "rectification": {
+        "title": "Rectification",
+        "content": "Update your information in your account settings."
+      },
+      "erasure": {
+        "title": "Erasure",
+        "content": "Request account deletion from your profile settings."
+      },
+      "optOut": {
+        "title": "Opt-out",
+        "content": "Control tracking and marketing preferences in settings."
+      }
+    },
+    "contactUs": {
+      "title": "Contact Us",
+      "content": "Questions about this privacy policy? Contact us at",
+      "email": "privacy@localelore.com"
+    }
+  }
+}

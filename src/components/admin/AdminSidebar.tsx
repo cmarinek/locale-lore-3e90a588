@@ -25,6 +25,7 @@ import {
   Image as ImageIcon,
   Palette,
   FileCode,
+  Languages,
 } from 'lucide-react';
 
 const adminItems = [
@@ -56,6 +57,7 @@ const adminItems = [
       { title: 'Announcements', value: 'announcements', icon: Megaphone },
       { title: 'Theme Customizer', value: 'theme', icon: Palette },
       { title: 'Configuration', value: 'configuration', icon: FileCode },
+      { title: 'Translations', value: 'translations', icon: Languages },
       { title: 'Site Settings', value: 'settings', icon: Settings },
     ]
   },

@@ -22,6 +22,8 @@ import { AnnouncementManager } from './AnnouncementManager';
 import { MediaLibraryPanel } from './MediaLibraryPanel';
 import { ThemeCustomizer } from './ThemeCustomizer';
 import { SiteConfigurationPanel } from './SiteConfigurationPanel';
+import { TranslationCoverageDashboard } from './TranslationCoverageDashboard';
+import { TranslationManagementTools } from './TranslationManagementTools';
 
 export const AdminDashboard: React.FC = () => {
   const { isAdmin, loading } = useAdmin();
@@ -87,6 +89,13 @@ export const AdminDashboard: React.FC = () => {
         return <ThemeCustomizer />;
       case 'configuration':
         return <SiteConfigurationPanel />;
+      case 'translations':
+        return (
+          <div className="space-y-6">
+            <TranslationCoverageDashboard />
+            <TranslationManagementTools />
+          </div>
+        );
       case 'settings':
         return <SiteSettingsPanel />;
       default:
