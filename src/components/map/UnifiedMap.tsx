@@ -799,8 +799,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   if (!isVisible) return null;
 
-  // Handle loading and error states
-  if (tokenStatus === 'loading' || tokenStatus === 'idle') {
+  // Handle loading and error states - only show skeleton when truly loading
+  if ((tokenStatus === 'loading' || tokenStatus === 'idle') && !mapboxToken) {
     return (
       <div className={`relative w-full h-full ${className}`}>
         <MapSkeleton />
