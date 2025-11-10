@@ -84,8 +84,8 @@ export const Profile: React.FC = () => {
       <MainLayout>
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
-            <h2 className="text-xl font-semibold mb-2">Profile not available</h2>
-            <p className="text-muted-foreground mb-4">You can only view your own profile for now.</p>
+            <h2 className="text-xl font-semibold mb-2">{t('profileNotAvailable', 'Profile not available')}</h2>
+            <p className="text-muted-foreground mb-4">{t('ownProfileOnly', 'You can only view your own profile for now.')}</p>
           </div>
         </div>
       </MainLayout>

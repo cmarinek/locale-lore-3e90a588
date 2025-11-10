@@ -1,0 +1,180 @@
+{
+  "title": "LocaleLore",
+  "subtitle": "매력적인 지역 이야기를 발견하고 공유하세요",
+  "submitStory": "스토리 제출",
+  "exploreStories": "스토리 탐색",
+  "featuredStories": "추천 스토리",
+  "recentStories": "최근 스토리",
+  "nearbyStories": "근처 스토리",
+  "popularStories": "인기 스토리",
+  "welcome": {
+    "title": "전 세계의 숨겨진 이야기를 발견하세요",
+    "subtitle": "전 세계 장소에 대한 알려지지 않은 이야기와 숨겨진 비밀을 발견하고 공유하세요."
+  },
+  "home": {
+    "subtitle": "전 세계의 매력적인 지역 이야기와 전설을 발견하세요",
+    "loading": "환영 섹션 로딩 중...",
+    "quickActions": {
+      "discoverDaily": {
+        "title": "매일 발견",
+        "description": "매력적인 지역 이야기 찾기"
+      },
+      "exploreMap": {
+        "title": "지도 탐색",
+        "description": "위치별로 이야기 탐색"
+      },
+      "trending": {
+        "title": "인기 스토리",
+        "description": "지금 인기있는 것 보기"
+      },
+      "joinCommunity": {
+        "title": "커뮤니티 가입",
+        "description": "지역 이야기꾼들과 연결"
+      }
+    },
+    "features": {
+      "advancedSearch": {
+        "title": "고급 검색",
+        "description": "여러 기준으로 이야기 찾기"
+      },
+      "shareStory": {
+        "title": "스토리 공유",
+        "description": "세상에 당신의 장소를 알리세요"
+      },
+      "verifiedContent": {
+        "title": "검증된 콘텐츠",
+        "description": "진정한 지역 지식 신뢰"
+      }
+    },
+    "auth": {
+      "title": "LocaleLore 가입",
+      "description": "계정을 만들어 자신의 이야기를 공유하고 커뮤니티와 연결하세요",
+      "signUp": "가입하기",
+      "signIn": "로그인"
+    },
+    "stats": {
+      "storiesShared": "공유된 스토리",
+      "activeContributors": "활동 중인 기여자",
+      "locationsCovered": "다룬 위치"
+    }
+  },
+  "features": {
+    "hiddenGems": {
+      "title": "근처 숨은 보석",
+      "description": "현지인만 아는 비밀 장소와 지역 전설 발견"
+    },
+    "communityVerified": {
+      "title": "커뮤니티 검증",
+      "description": "그곳에 가본 진짜 사람들이 검증한 이야기"
+    },
+    "locationStories": {
+      "title": "위치 스토리",
+      "description": "모든 장소에는 이야기가 있습니다 - 익숙한 위치 뒤의 역사를 발견하세요"
+    }
+  },
+  "categories": {
+    "history": "역사",
+    "folklore": "민속", 
+    "legends": "전설",
+    "mystery": "미스터리",
+    "culture": "문화",
+    "food": "음식과 요리",
+    "architecture": "건축",
+    "nature": "자연",
+    "events": "이벤트",
+    "people": "사람들"
+  },
+  "storyDetails": {
+    "readTime": "읽기 시간",
+    "difficulty": "난이도",
+    "verified": "검증됨",
+    "unverified": "미검증",
+    "votes": "투표",
+    "upvote": "찬성",
+    "downvote": "반대",
+    "bookmark": "북마크",
+    "report": "신고",
+    "viewOnMap": "지도에서 보기",
+    "shareStory": "스토리 공유",
+    "relatedStories": "관련 스토리"
+  },
+  "submission": {
+    "checkingPrivileges": "제출 권한 확인 중...",
+    "backToExplore": "탐색으로 돌아가기",
+    "subtitle": "독특한 지역 지식을 공유하고 미래 세대를 위한 문화 유산 보존을 도우세요.",
+    "basicInfo": "기본 정보",
+    "storyTitle": "스토리 제목",
+    "storyDescription": "스토리 설명",
+    "category": "카테고리",
+    "selectCategory": "카테고리 선택",
+    "location": "위치",
+    "addLocation": "위치 추가",
+    "searchLocation": "위치 검색",
+    "content": "스토리 내용",
+    "writeYourStory": "스토리 작성...",
+    "media": "미디어",
+    "addPhotos": "사진 추가",
+    "addVideos": "동영상 추가",
+    "preview": "미리보기",
+    "submit": "스토리 제출",
+    "draft": "초안으로 저장",
+    "publishing": "게시 중...",
+    "published": "스토리가 성공적으로 게시되었습니다!",
+    "failed": "스토리 게시 실패",
+    "benefits": {
+      "preserveHistory": "역사 보존",
+      "preserveDesc": "미래 세대를 위해 지역 이야기와 문화 유산을 보존하는 데 도움",
+      "buildReputation": "평판 구축",
+      "buildDesc": "커뮤니티에서 인정받고 기여자 평판을 구축하세요",
+      "verifiedContent": "검증된 콘텐츠",
+      "verifiedDesc": "제출물은 커뮤니티에서 검토하고 검증합니다"
+    }
+  },
+  "verification": {
+    "communityVerification": "커뮤니티 검증",
+    "verificationScore": "검증 점수",
+    "votesToVerify": "검증에 필요한 투표",
+    "swipeToVote": "스와이프하여 이 스토리에 투표",
+    "swipeLeft": "의심하려면 왼쪽으로 스와이프",
+    "swipeRight": "검증하려면 오른쪽으로 스와이프",
+    "verifyStory": "스토리 검증",
+    "doubtStory": "스토리 의심",
+    "alreadyVoted": "이미 이 스토리에 투표했습니다",
+    "thanksForVoting": "투표해 주셔서 감사합니다!",
+    "discussionThread": "토론 스레드",
+    "addComment": "댓글 추가...",
+    "viewDiscussion": "토론 보기"
+  },
+  "search": {
+    "title": "지역 전승 발견",
+    "description": "수천 개의 지역 이야기, 전설 및 역사적 사실을 검색하세요. 음성 검색을 사용하고 필터를 적용하며 해당 지역의 트렌드 콘텐츠를 발견하세요.",
+    "searchPlaceholder": "스토리, 위치 또는 주제 검색...",
+    "filterByLocation": "위치로 필터",
+    "filterByCategory": "카테고리로 필터",
+    "sortBy": "정렬 기준",
+    "relevance": "관련성",
+    "newest": "최신순",
+    "oldest": "오래된순",
+    "mostVoted": "투표순",
+    "nearestFirst": "가까운순",
+    "noResults": "스토리를 찾을 수 없습니다",
+    "tryDifferentSearch": "다른 검색어를 시도하세요",
+    "quickFilters": "빠른 필터",
+    "filters": {
+      "verifiedOnly": "검증된 것만",
+      "verifiedDesc": "공식 및 검증된 콘텐츠",
+      "recentSubmissions": "최근 제출",
+      "recentDesc": "최근 사용자 기여",
+      "nearMe": "내 근처",
+      "nearMeDesc": "10km 이내 콘텐츠"
+    },
+    "tips": {
+      "title": "검색 팁",
+      "exactPhrases": "• 정확한 문구에는 따옴표 사용: \"유령 이야기\"",
+      "locationNames": "• 위치 이름 시도: \"시내\", \"오래된 다리\"",
+      "voiceSearch": "• 핸즈프리 검색을 위한 음성 검색 사용",
+      "saveSearches": "• 빠른 액세스를 위해 자주 검색 저장",
+      "qrCodes": "• QR 코드를 스캔하여 위치 기반 콘텐츠 발견"
+    }
+  }
+}

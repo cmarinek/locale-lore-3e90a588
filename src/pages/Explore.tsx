@@ -77,16 +77,16 @@ export const Explore: React.FC = () => {
           <div className="max-w-4xl mx-auto space-y-4">
             <div className="text-center space-y-2">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                {t('lore:title', 'Explore Local Lore')}
+                {t('exploreStories', 'Explore Stories')}
               </h1>
               <p className="text-muted-foreground">
-                {t('lore:subtitle', 'Discover fascinating stories and legends from around the world')}
+                {t('home.subtitle', 'Discover fascinating local stories and legends from around the world')}
               </p>
             </div>
             
             <CleanSearchBar 
               onQueryChange={handleSearch}
-              placeholder={t('lore:searchPlaceholder', 'Search for stories, places, or legends...')}
+              placeholder={t('search.searchPlaceholder', 'Search stories, locations, or topics...')}
             />
           </div>
         </div>

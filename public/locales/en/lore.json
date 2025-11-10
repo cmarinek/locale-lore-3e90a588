@@ -99,6 +99,9 @@
     "relatedStories": "Related Stories"
   },
   "submission": {
+    "checkingPrivileges": "Checking your submission privileges...",
+    "backToExplore": "Back to Explore",
+    "subtitle": "Share your unique local knowledge and help preserve cultural heritage for future generations.",
     "basicInfo": "Basic Information",
     "storyTitle": "Story Title",
     "storyDescription": "Story Description",
@@ -117,7 +120,15 @@
     "draft": "Save as Draft",
     "publishing": "Publishing...",
     "published": "Story published successfully!",
-    "failed": "Failed to publish story"
+    "failed": "Failed to publish story",
+    "benefits": {
+      "preserveHistory": "Preserve History",
+      "preserveDesc": "Help preserve local stories and cultural heritage for future generations",
+      "buildReputation": "Build Reputation",
+      "buildDesc": "Gain recognition in the community and build your contributor reputation",
+      "verifiedContent": "Verified Content",
+      "verifiedDesc": "Your submissions will be reviewed and verified by our community"
+    }
   },
   "verification": {
     "communityVerification": "Community Verification",
@@ -135,6 +146,8 @@
     "viewDiscussion": "View Discussion"
   },
   "search": {
+    "title": "Discover Local Lore",
+    "description": "Search through thousands of local stories, legends, and historical facts. Use voice search, apply filters, and discover trending content in your area.",
     "searchPlaceholder": "Search stories, locations, or topics...",
     "filterByLocation": "Filter by location",
     "filterByCategory": "Filter by category",
@@ -145,6 +158,23 @@
     "mostVoted": "Most Voted",
     "nearestFirst": "Nearest First",
     "noResults": "No stories found",
-    "tryDifferentSearch": "Try a different search term"
+    "tryDifferentSearch": "Try a different search term",
+    "quickFilters": "Quick Filters",
+    "filters": {
+      "verifiedOnly": "Verified Only",
+      "verifiedDesc": "Official and verified content",
+      "recentSubmissions": "Recent Submissions",
+      "recentDesc": "Latest user contributions",
+      "nearMe": "Near Me",
+      "nearMeDesc": "Content within 10km"
+    },
+    "tips": {
+      "title": "Search Tips",
+      "exactPhrases": "• Use quotes for exact phrases: \"ghost story\"",
+      "locationNames": "• Try location names: \"downtown\", \"old bridge\"",
+      "voiceSearch": "• Use voice search for hands-free searching",
+      "saveSearches": "• Save frequent searches for quick access",
+      "qrCodes": "• Scan QR codes to discover location-based content"
+    }
   }
 }

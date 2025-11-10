@@ -99,7 +99,7 @@ export const Submit: React.FC = () => {
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Checking your submission privileges...</p>
+            <p className="text-muted-foreground">{t('submission.checkingPrivileges', 'Checking your submission privileges...')}</p>
           </div>
         </div>
       </MainLayout>
@@ -136,7 +136,7 @@ export const Submit: React.FC = () => {
                 className="mb-4"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                {t('search.goBack', { defaultValue: 'Back to Explore' })}
+                {t('submission.backToExplore', 'Back to Explore')}
               </Button>
             </div>
 
@@ -144,7 +144,7 @@ export const Submit: React.FC = () => {
               {t('submitStory')}
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              {t('subtitle')}
+              {t('submission.subtitle', 'Share your unique local knowledge and help preserve cultural heritage for future generations.')}
             </p>
 
             {/* Subscription Tier Badge */}
@@ -169,25 +169,25 @@ export const Submit: React.FC = () => {
           >
             <Card className="p-6 text-center bg-card/50 backdrop-blur">
               <BookOpen className="w-8 h-8 text-primary mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Preserve History</h3>
+              <h3 className="font-semibold mb-2">{t('submission.benefits.preserveHistory', 'Preserve History')}</h3>
               <p className="text-sm text-muted-foreground">
-                Help preserve local stories and cultural heritage for future generations
+                {t('submission.benefits.preserveDesc', 'Help preserve local stories and cultural heritage for future generations')}
               </p>
             </Card>
 
             <Card className="p-6 text-center bg-card/50 backdrop-blur">
               <Star className="w-8 h-8 text-secondary mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Build Reputation</h3>
+              <h3 className="font-semibold mb-2">{t('submission.benefits.buildReputation', 'Build Reputation')}</h3>
               <p className="text-sm text-muted-foreground">
-                Gain recognition in the community and build your contributor reputation
+                {t('submission.benefits.buildDesc', 'Gain recognition in the community and build your contributor reputation')}
               </p>
             </Card>
 
             <Card className="p-6 text-center bg-card/50 backdrop-blur">
               <Shield className="w-8 h-8 text-green-500 mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Verified Content</h3>
+              <h3 className="font-semibold mb-2">{t('submission.benefits.verifiedContent', 'Verified Content')}</h3>
               <p className="text-sm text-muted-foreground">
-                Your submissions will be reviewed and verified by our community
+                {t('submission.benefits.verifiedDesc', 'Your submissions will be reviewed and verified by our community')}
               </p>
             </Card>
           </motion.div>

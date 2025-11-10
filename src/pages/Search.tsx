@@ -180,11 +180,10 @@ export const Search: React.FC = () => {
             className="text-center mb-12"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-              Discover Local Lore
+              {t('search.title', 'Discover Local Lore')}
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              Search through thousands of local stories, legends, and historical facts. 
-              Use voice search, apply filters, and discover trending content in your area.
+              {t('search.description', 'Search through thousands of local stories, legends, and historical facts. Use voice search, apply filters, and discover trending content in your area.')}
             </p>
 
             {/* Advanced Search Bar */}
@@ -222,22 +221,22 @@ export const Search: React.FC = () => {
 
               {/* Quick Filters */}
               <Card className="p-6 bg-card/50 backdrop-blur">
-                <h3 className="font-semibold mb-4">Quick Filters</h3>
+                <h3 className="font-semibold mb-4">{t('search.quickFilters', 'Quick Filters')}</h3>
                 <div className="space-y-3">
                   <button
                     onClick={() => handleSearch('', { ...filters, verified: true })}
                     className="w-full text-left p-3 rounded-lg border border-border hover:border-primary/50 transition-colors"
                   >
-                    <div className="font-medium">Verified Only</div>
-                    <div className="text-sm text-muted-foreground">Official and verified content</div>
+                    <div className="font-medium">{t('search.filters.verifiedOnly', 'Verified Only')}</div>
+                    <div className="text-sm text-muted-foreground">{t('search.filters.verifiedDesc', 'Official and verified content')}</div>
                   </button>
                   
                   <button
                     onClick={() => handleSearch('', { ...filters, status: 'pending' })}
                     className="w-full text-left p-3 rounded-lg border border-border hover:border-primary/50 transition-colors"
                   >
-                    <div className="font-medium">Recent Submissions</div>
-                    <div className="text-sm text-muted-foreground">Latest user contributions</div>
+                    <div className="font-medium">{t('search.filters.recentSubmissions', 'Recent Submissions')}</div>
+                    <div className="text-sm text-muted-foreground">{t('search.filters.recentDesc', 'Latest user contributions')}</div>
                   </button>
                   
                   <button
@@ -261,21 +260,21 @@ export const Search: React.FC = () => {
                     }}
                     className="w-full text-left p-3 rounded-lg border border-border hover:border-primary/50 transition-colors"
                   >
-                    <div className="font-medium">Near Me</div>
-                    <div className="text-sm text-muted-foreground">Content within 10km</div>
+                    <div className="font-medium">{t('search.filters.nearMe', 'Near Me')}</div>
+                    <div className="text-sm text-muted-foreground">{t('search.filters.nearMeDesc', 'Content within 10km')}</div>
                   </button>
                 </div>
               </Card>
 
               {/* Search Tips */}
               <Card className="p-6 bg-card/50 backdrop-blur">
-                <h3 className="font-semibold mb-4">Search Tips</h3>
+                <h3 className="font-semibold mb-4">{t('search.tips.title', 'Search Tips')}</h3>
                 <div className="space-y-2 text-sm text-muted-foreground">
-                  <p>• Use quotes for exact phrases: "ghost story"</p>
-                  <p>• Try location names: "downtown", "old bridge"</p>
-                  <p>• Use voice search for hands-free searching</p>
-                  <p>• Save frequent searches for quick access</p>
-                  <p>• Scan QR codes to discover location-based content</p>
+                  <p>{t('search.tips.exactPhrases', '• Use quotes for exact phrases: "ghost story"')}</p>
+                  <p>{t('search.tips.locationNames', '• Try location names: "downtown", "old bridge"')}</p>
+                  <p>{t('search.tips.voiceSearch', '• Use voice search for hands-free searching')}</p>
+                  <p>{t('search.tips.saveSearches', '• Save frequent searches for quick access')}</p>
+                  <p>{t('search.tips.qrCodes', '• Scan QR codes to discover location-based content')}</p>
                 </div>
               </Card>
             </div>

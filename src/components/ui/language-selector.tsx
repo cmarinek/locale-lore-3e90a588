@@ -54,7 +54,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
               transition={{ duration: 0.2 }}
               className="absolute top-full right-0 mt-2 z-50"
             >
-              <Card className="p-2 min-w-[200px] bg-popover border shadow-lg">
+              <Card className="p-2 min-w-[200px] max-h-[400px] overflow-y-auto bg-popover border shadow-lg">
                 <div className="space-y-1">
                   {Object.values(supportedLanguages).map((lang) => (
                     <button
@@ -123,7 +123,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             transition={{ duration: 0.2 }}
             className="absolute top-full right-0 mt-2 z-50"
           >
-            <Card className="p-3 min-w-[280px] bg-popover border shadow-lg">
+            <Card className="p-3 min-w-[280px] max-h-[500px] overflow-y-auto bg-popover border shadow-lg">
               <div className="space-y-2">
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">
                   {t('selectLanguage')}

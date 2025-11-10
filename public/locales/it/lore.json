@@ -1,0 +1,180 @@
+{
+  "title": "LocaleLore",
+  "subtitle": "Scopri e condividi affascinanti storie locali",
+  "submitStory": "Invia la Tua Storia",
+  "exploreStories": "Esplora le Storie",
+  "featuredStories": "Storie in Evidenza",
+  "recentStories": "Storie Recenti",
+  "nearbyStories": "Storie Vicine",
+  "popularStories": "Storie Popolari",
+  "welcome": {
+    "title": "Scopri Storie Nascoste in Tutto il Mondo",
+    "subtitle": "Scopri e condividi storie sconosciute e segreti nascosti su luoghi in tutto il mondo."
+  },
+  "home": {
+    "subtitle": "Scopri affascinanti storie locali e leggende da tutto il mondo",
+    "loading": "Caricamento sezione di benvenuto...",
+    "quickActions": {
+      "discoverDaily": {
+        "title": "Scopri Ogni Giorno",
+        "description": "Trova affascinanti storie locali"
+      },
+      "exploreMap": {
+        "title": "Esplora la Mappa",
+        "description": "Naviga le storie per posizione"
+      },
+      "trending": {
+        "title": "Storie di Tendenza",
+        "description": "Vedi cosa è popolare ora"
+      },
+      "joinCommunity": {
+        "title": "Unisciti alla Comunità",
+        "description": "Connettiti con narratori locali"
+      }
+    },
+    "features": {
+      "advancedSearch": {
+        "title": "Ricerca Avanzata",
+        "description": "Trova storie con più criteri"
+      },
+      "shareStory": {
+        "title": "Condividi la Tua Storia",
+        "description": "Racconta al mondo del tuo posto"
+      },
+      "verifiedContent": {
+        "title": "Contenuto Verificato",
+        "description": "Fidati della conoscenza locale autentica"
+      }
+    },
+    "auth": {
+      "title": "Unisciti a LocaleLore",
+      "description": "Crea un account per condividere le tue storie e connetterti con la comunità",
+      "signUp": "Iscriviti",
+      "signIn": "Accedi"
+    },
+    "stats": {
+      "storiesShared": "Storie Condivise",
+      "activeContributors": "Contributori Attivi",
+      "locationsCovered": "Località Coperte"
+    }
+  },
+  "features": {
+    "hiddenGems": {
+      "title": "Gemme Nascoste Vicine",
+      "description": "Scopri luoghi segreti e leggende locali che solo i locali conoscono"
+    },
+    "communityVerified": {
+      "title": "Verificato dalla Comunità",
+      "description": "Storie validate da persone reali che ci sono state e lo hanno vissuto"
+    },
+    "locationStories": {
+      "title": "Storie di Luoghi",
+      "description": "Ogni luogo ha una storia - scopri la storia dietro luoghi familiari"
+    }
+  },
+  "categories": {
+    "history": "Storia",
+    "folklore": "Folklore", 
+    "legends": "Leggende",
+    "mystery": "Mistero",
+    "culture": "Cultura",
+    "food": "Cibo e Cucina",
+    "architecture": "Architettura",
+    "nature": "Natura",
+    "events": "Eventi",
+    "people": "Persone"
+  },
+  "storyDetails": {
+    "readTime": "Tempo di lettura",
+    "difficulty": "Difficoltà",
+    "verified": "Verificato",
+    "unverified": "Non verificato",
+    "votes": "voti",
+    "upvote": "Voto positivo",
+    "downvote": "Voto negativo",
+    "bookmark": "Salva",
+    "report": "Segnala",
+    "viewOnMap": "Visualizza sulla Mappa",
+    "shareStory": "Condividi Storia",
+    "relatedStories": "Storie Correlate"
+  },
+  "submission": {
+    "checkingPrivileges": "Controllo dei tuoi privilegi di invio...",
+    "backToExplore": "Torna a Esplora",
+    "subtitle": "Condividi la tua conoscenza locale unica e aiuta a preservare il patrimonio culturale per le generazioni future.",
+    "basicInfo": "Informazioni di Base",
+    "storyTitle": "Titolo della Storia",
+    "storyDescription": "Descrizione della Storia",
+    "category": "Categoria",
+    "selectCategory": "Seleziona una categoria",
+    "location": "Posizione",
+    "addLocation": "Aggiungi Posizione",
+    "searchLocation": "Cerca una posizione",
+    "content": "Contenuto della Storia",
+    "writeYourStory": "Scrivi la tua storia...",
+    "media": "Media",
+    "addPhotos": "Aggiungi Foto",
+    "addVideos": "Aggiungi Video",
+    "preview": "Anteprima",
+    "submit": "Invia Storia",
+    "draft": "Salva come Bozza",
+    "publishing": "Pubblicazione...",
+    "published": "Storia pubblicata con successo!",
+    "failed": "Pubblicazione della storia fallita",
+    "benefits": {
+      "preserveHistory": "Preserva la Storia",
+      "preserveDesc": "Aiuta a preservare storie locali e patrimonio culturale per le generazioni future",
+      "buildReputation": "Costruisci la Reputazione",
+      "buildDesc": "Ottieni riconoscimento nella comunità e costruisci la tua reputazione da contributore",
+      "verifiedContent": "Contenuto Verificato",
+      "verifiedDesc": "I tuoi invii saranno rivisti e verificati dalla nostra comunità"
+    }
+  },
+  "verification": {
+    "communityVerification": "Verifica della Comunità",
+    "verificationScore": "Punteggio di Verifica",
+    "votesToVerify": "Voti necessari per la verifica",
+    "swipeToVote": "Scorri per votare questa storia",
+    "swipeLeft": "Scorri a sinistra per dubitare",
+    "swipeRight": "Scorri a destra per verificare",
+    "verifyStory": "Verifica Storia",
+    "doubtStory": "Dubita Storia",
+    "alreadyVoted": "Hai già votato questa storia",
+    "thanksForVoting": "Grazie per il tuo voto!",
+    "discussionThread": "Thread di Discussione",
+    "addComment": "Aggiungi un commento...",
+    "viewDiscussion": "Visualizza Discussione"
+  },
+  "search": {
+    "title": "Scopri le Tradizioni Locali",
+    "description": "Cerca tra migliaia di storie locali, leggende e fatti storici. Usa la ricerca vocale, applica filtri e scopri contenuti di tendenza nella tua zona.",
+    "searchPlaceholder": "Cerca storie, luoghi o argomenti...",
+    "filterByLocation": "Filtra per posizione",
+    "filterByCategory": "Filtra per categoria",
+    "sortBy": "Ordina per",
+    "relevance": "Rilevanza",
+    "newest": "Più Recenti",
+    "oldest": "Più Vecchi",
+    "mostVoted": "Più Votati",
+    "nearestFirst": "Prima i Più Vicini",
+    "noResults": "Nessuna storia trovata",
+    "tryDifferentSearch": "Prova un termine di ricerca diverso",
+    "quickFilters": "Filtri Rapidi",
+    "filters": {
+      "verifiedOnly": "Solo Verificati",
+      "verifiedDesc": "Contenuto ufficiale e verificato",
+      "recentSubmissions": "Invii Recenti",
+      "recentDesc": "Ultimi contributi degli utenti",
+      "nearMe": "Vicino a Me",
+      "nearMeDesc": "Contenuto entro 10km"
+    },
+    "tips": {
+      "title": "Suggerimenti di Ricerca",
+      "exactPhrases": "• Usa le virgolette per frasi esatte: \"storia di fantasmi\"",
+      "locationNames": "• Prova nomi di luoghi: \"centro\", \"ponte vecchio\"",
+      "voiceSearch": "• Usa la ricerca vocale per cercare a mani libere",
+      "saveSearches": "• Salva le ricerche frequenti per un accesso rapido",
+      "qrCodes": "• Scansiona codici QR per scoprire contenuti basati sulla posizione"
+    }
+  }
+}
