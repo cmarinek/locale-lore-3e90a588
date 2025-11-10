@@ -393,6 +393,34 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         logoPosition: 'bottom-right'
       });
 
+      // Add navigation controls (zoom in/out, compass)
+      map.current.addControl(
+        new mapboxgl.NavigationControl({
+          visualizePitch: true,
+          showCompass: true,
+          showZoom: true
+        }),
+        'top-right'
+      );
+
+      // Add geolocate control (locate me button)
+      map.current.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true
+          },
+          trackUserLocation: true,
+          showUserHeading: true
+        }),
+        'top-right'
+      );
+
+      // Add fullscreen control
+      map.current.addControl(
+        new mapboxgl.FullscreenControl(),
+        'top-right'
+      );
+
       map.current.on('load', () => {
         console.log('✅ Map loaded successfully');
         setIsLoaded(true);
