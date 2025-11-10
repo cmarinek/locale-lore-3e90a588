@@ -845,58 +845,58 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   if (!isVisible) return null;
 
-  // Handle loading and error states - only show skeleton when truly loading
-  if ((tokenStatus === 'loading' || tokenStatus === 'idle') && !mapboxToken) {
-    return (
-      <div className={`relative w-full h-full ${className}`}>
-        <MapSkeleton />
-      </div>
-    );
-  }
-
-  if (tokenStatus === 'missing') {
-    return (
-      <div className={`relative w-full h-full ${className}`}>
-        <MapTokenMissing />
-      </div>
-    );
-  }
-
-  if (tokenStatus === 'error') {
-    return (
-      <div className={`relative w-full h-full ${className}`}>
-        <div className="flex min-h-[320px] w-full items-center justify-center p-6">
-          <Card className="max-w-md w-full border-destructive/40 bg-destructive/5">
-            <div className="flex flex-col gap-4 p-6 text-destructive">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="h-5 w-5" />
-                <h3 className="text-lg font-semibold">Map Loading Error</h3>
-              </div>
-              <p className="text-sm text-destructive/80">
-                {tokenError || 'Unable to load map. Please check your connection and try again.'}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Button onClick={handleRetryTokenFetch} variant="destructive">
-                  Try again
-                </Button>
-                <Button onClick={() => window.location.reload()} variant="outline">
-                  Refresh page
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={`relative w-full h-full ${className}`}>
-      {/* Map Container */}
+      {/* Map Container - always render to attach ref */}
       <div ref={mapContainer} className="absolute inset-0" />
       
-      {/* Loading Skeleton */}
-      {!isLoaded && <MapSkeleton />}
+      {/* Loading State */}
+      {((tokenStatus === 'loading' || tokenStatus === 'idle') && !mapboxToken) && (
+        <div className="absolute inset-0 z-10">
+          <MapSkeleton />
+        </div>
+      )}
+
+      {/* Token Missing State */}
+      {tokenStatus === 'missing' && (
+        <div className="absolute inset-0 z-10">
+          <MapTokenMissing />
+        </div>
+      )}
+
+      {/* Error State */}
+      {tokenStatus === 'error' && (
+        <div className="absolute inset-0 z-10">
+          <div className="flex min-h-[320px] w-full items-center justify-center p-6">
+            <Card className="max-w-md w-full border-destructive/40 bg-destructive/5">
+              <div className="flex flex-col gap-4 p-6 text-destructive">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="h-5 w-5" />
+                  <h3 className="text-lg font-semibold">Map Loading Error</h3>
+                </div>
+                <p className="text-sm text-destructive/80">
+                  {tokenError || 'Unable to load map. Please check your connection and try again.'}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button onClick={handleRetryTokenFetch} variant="destructive">
+                    Try again
+                  </Button>
+                  <Button onClick={() => window.location.reload()} variant="outline">
+                    Refresh page
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      )}
+      
+      {/* Loading Skeleton while map initializes */}
+      {!isLoaded && mapboxToken && (
+        <div className="absolute inset-0 z-10">
+          <MapSkeleton />
+        </div>
+      )}
 
       {/* Simple Map Controls */}
       {isLoaded && (
