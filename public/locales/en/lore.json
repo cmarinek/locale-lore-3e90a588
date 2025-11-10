@@ -7,27 +7,71 @@
   "recentStories": "Recent Stories",
   "nearbyStories": "Nearby Stories",
   "popularStories": "Popular Stories",
-  "discover_daily": "Discover Daily",
-  "discover_daily_desc": "Find fascinating local stories",
-  "explore_map": "Explore Map",
-  "explore_map_desc": "Navigate stories by location",
-  "trending_stories": "Trending Stories",
-  "trending_stories_desc": "See what's popular right now",
-  "join_community": "Join Community",
-  "join_community_desc": "Connect with local storytellers",
-  "advanced_search": "Advanced Search",
-  "advanced_search_desc": "Find stories by multiple criteria",
-  "share_your_story": "Share Your Story",
-  "share_your_story_desc": "Tell the world about your place",
-  "verified_content": "Verified Content",
-  "verified_content_desc": "Trust in authentic local knowledge",
-  "join_localelore": "Join LocaleLore",
-  "join_description": "Create an account to share your own stories and connect with the community",
-  "sign_up": "Sign Up",
-  "sign_in": "Sign In",
-  "stories_shared": "Stories Shared",
-  "active_contributors": "Active Contributors",
-  "locations_covered": "Locations Covered",
+  "welcome": {
+    "title": "Discover Hidden Stories Around the World",
+    "subtitle": "Discover and share unknown stories and hidden secrets about places around the world."
+  },
+  "home": {
+    "subtitle": "Discover fascinating local stories and legends from around the world",
+    "loading": "Loading welcome section...",
+    "quickActions": {
+      "discoverDaily": {
+        "title": "Discover Daily",
+        "description": "Find fascinating local stories"
+      },
+      "exploreMap": {
+        "title": "Explore Map",
+        "description": "Navigate stories by location"
+      },
+      "trending": {
+        "title": "Trending Stories",
+        "description": "See what's popular right now"
+      },
+      "joinCommunity": {
+        "title": "Join Community",
+        "description": "Connect with local storytellers"
+      }
+    },
+    "features": {
+      "advancedSearch": {
+        "title": "Advanced Search",
+        "description": "Find stories by multiple criteria"
+      },
+      "shareStory": {
+        "title": "Share Your Story",
+        "description": "Tell the world about your place"
+      },
+      "verifiedContent": {
+        "title": "Verified Content",
+        "description": "Trust in authentic local knowledge"
+      }
+    },
+    "auth": {
+      "title": "Join LocaleLore",
+      "description": "Create an account to share your own stories and connect with the community",
+      "signUp": "Sign Up",
+      "signIn": "Sign In"
+    },
+    "stats": {
+      "storiesShared": "Stories Shared",
+      "activeContributors": "Active Contributors",
+      "locationsCovered": "Locations Covered"
+    }
+  },
+  "features": {
+    "hiddenGems": {
+      "title": "Hidden Gems Nearby",
+      "description": "Uncover secret spots and local legends that only locals know about"
+    },
+    "communityVerified": {
+      "title": "Community Verified",
+      "description": "Stories validated by real people who've been there and experienced it"
+    },
+    "locationStories": {
+      "title": "Location Stories",
+      "description": "Every place has a story - discover the history behind familiar locations"
+    }
+  },
   "categories": {
     "history": "History",
     "folklore": "Folklore", 
