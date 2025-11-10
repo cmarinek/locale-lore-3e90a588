@@ -79,18 +79,23 @@ const Index: React.FC = React.memo(() => {
         <div className="min-h-screen relative">
           {/* Star-like floating particles background */}
           <div className="fixed inset-0 pointer-events-none z-0">
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute w-1 h-1 bg-primary/20 rounded-full animate-pulse"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 3}s`,
-                  animationDuration: `${2 + Math.random() * 4}s`,
-                }}
-              />
-            ))}
+            {[...Array(20)].map((_, i) => {
+              const animations = ['animate-twinkle', 'animate-twinkle-slow', 'animate-float', 'animate-float-slow'];
+              const randomAnimation = animations[i % animations.length];
+              const randomDelay = `${Math.random() * 3}s`;
+              
+              return (
+                <div
+                  key={i}
+                  className={`absolute w-1 h-1 bg-primary/20 rounded-full ${randomAnimation}`}
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: randomDelay,
+                  }}
+                />
+              );
+            })}
           </div>
 
           {/* Hero Section */}
