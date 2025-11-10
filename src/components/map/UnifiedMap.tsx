@@ -893,9 +893,9 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         </div>
       )}
       
-      {/* Loading Skeleton while map initializes */}
-      {!isLoaded && mapboxToken && (
-        <div className="absolute inset-0 z-10">
+      {/* Loading Skeleton while map initializes - hide when loaded */}
+      {!isLoaded && mapboxToken && tokenStatus === 'ready' && (
+        <div className="absolute inset-0 z-10 bg-background">
           <MapSkeleton />
         </div>
       )}

@@ -65,7 +65,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
       </header>
 
       {/* Main Content */}
-      <main className="relative min-h-[calc(100vh-16rem)] pb-28 md:pb-0">
+      <main className="relative">
         {children}
       </main>
 
