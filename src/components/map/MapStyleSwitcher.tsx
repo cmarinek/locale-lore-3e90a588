@@ -28,16 +28,15 @@ export const MapStyleSwitcher: React.FC<MapStyleSwitcherProps> = ({
         <Button
           key={style.value}
           variant={currentStyle === style.value ? 'default' : 'ghost'}
-          size="sm"
+          size="icon"
           onClick={() => onStyleChange(style.value)}
           className={cn(
-            "gap-2 transition-all",
+            "transition-all",
             currentStyle === style.value && "shadow-sm"
           )}
           title={style.label}
         >
           {style.icon}
-          <span className="hidden sm:inline">{style.label}</span>
         </Button>
       ))}
     </div>
