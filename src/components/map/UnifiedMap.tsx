@@ -404,6 +404,18 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const setupClusteredMap = useCallback(() => {
     if (!map.current || !isLoaded) return;
 
+    // Remove existing layers and source if they exist
+    const layersToRemove = ['unclustered-point-labels', 'unclustered-point', 'cluster-count', 'clusters'];
+    layersToRemove.forEach(layerId => {
+      if (map.current?.getLayer(layerId)) {
+        map.current.removeLayer(layerId);
+      }
+    });
+
+    if (map.current.getSource('facts')) {
+      map.current.removeSource('facts');
+    }
+
     // Add facts source with clustering and category tracking
     map.current.addSource('facts', {
       type: 'geojson',
