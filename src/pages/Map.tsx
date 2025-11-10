@@ -101,20 +101,15 @@ export const Map: React.FC = () => {
         </div>
       }
     >
-      <MainLayout className="h-screen overflow-hidden">
+      <MainLayout>
         <Helmet>
           <title>Explore Map - Discover Stories Around You</title>
           <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
           <link rel="canonical" href="/map" />
         </Helmet>
 
-        <style>{`
-          footer { display: none !important; }
-          main { padding: 0 !important; }
-        `}</style>
-
-        {/* Map container takes full viewport height minus header */}
-        <div className="fixed inset-0 top-16 z-0">
+        {/* Map container - takes viewport height minus header, footer stays below naturally */}
+        <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
           {/* View Mode Switcher */}
           <div className="absolute top-4 right-4 z-20">
             <MapViewSwitcher currentView={viewMode} onViewChange={setViewMode} variant="glass" />

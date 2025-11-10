@@ -65,7 +65,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
       </header>
 
       {/* Main Content */}
-      <main className="relative">
+      <main className="relative" style={{ padding: 0 }}>
         {children}
       </main>
 
