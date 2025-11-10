@@ -156,18 +156,18 @@ export const PerformanceMonitor: React.FC = () => {
     return () => observer.disconnect();
   }, [checkPerformanceThresholds]);
 
-  // Show critical alerts as toasts
-  useEffect(() => {
-    alerts.forEach(alert => {
-      if (alert.type === 'error') {
-        toast({
-          title: "Performance Issue",
-          description: alert.message,
-          variant: "destructive",
-        });
-      }
-    });
-  }, [alerts]);
+  // Performance alerts disabled - no toasts
+  // useEffect(() => {
+  //   alerts.forEach(alert => {
+  //     if (alert.type === 'error') {
+  //       toast({
+  //         title: "Performance Issue",
+  //         description: alert.message,
+  //         variant: "destructive",
+  //       });
+  //     }
+  //   });
+  // }, [alerts]);
 
   // Only show to admins or in development
   if (!isVisible || Object.keys(metrics).length === 0 || loading) return null;
