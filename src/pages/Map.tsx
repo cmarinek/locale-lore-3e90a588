@@ -101,15 +101,17 @@ export const Map: React.FC = () => {
         </div>
       }
     >
-      <MainLayout>
+      {/* Map page uses fullscreen - no MainLayout to avoid footer spacing issues */}
+      <div className="fixed inset-0 bg-background">
         <Helmet>
           <title>Explore Map - Discover Stories Around You</title>
           <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
           <link rel="canonical" href="/map" />
         </Helmet>
 
-        <div className="fixed inset-0 top-16 z-0">
-          {/* View Mode Switcher - positioned to match Explore and Hybrid pages */}
+        {/* Map container - fullscreen */}
+        <div className="absolute inset-0 z-0">
+          {/* View Mode Switcher */}
           <div className="absolute top-4 right-4 z-20">
             <MapViewSwitcher currentView={viewMode} onViewChange={setViewMode} variant="glass" />
           </div>
@@ -181,7 +183,7 @@ export const Map: React.FC = () => {
             />
           )}
         </div>
-      </MainLayout>
+      </div>
     </ErrorBoundary>
   );
 };
