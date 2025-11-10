@@ -126,19 +126,14 @@ export const Map: React.FC = () => {
 
         {/* Map container - takes viewport height minus header, footer stays below naturally */}
         <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
-          {/* View Mode Switcher */}
+          {/* View Mode Switcher - always visible */}
           <div className="absolute top-4 right-4 z-20">
             <MapViewSwitcher currentView={viewMode} onViewChange={setViewMode} variant="glass" />
           </div>
 
-          {/* Map Style Switcher */}
-          <div className="absolute top-4 left-4 z-20">
-            <MapStyleSwitcher currentStyle={mapStyle} onStyleChange={handleStyleChange} />
-          </div>
-
           {/* Map View */}
           {(viewMode === 'map' || viewMode === 'hybrid') && (
-            <>
+            <div className="relative w-full h-full">
               <UnifiedMap
                 facts={filteredFacts}
                 useScalableLoading={false}
@@ -150,6 +145,11 @@ export const Map: React.FC = () => {
                 className="w-full h-full"
               />
 
+              {/* Map Style Switcher - overlays on map */}
+              <div className="absolute top-4 left-4 z-30">
+                <MapStyleSwitcher currentStyle={mapStyle} onStyleChange={handleStyleChange} />
+              </div>
+
               {/* Stats Overlay */}
               <MapStatsOverlay
                 totalStories={totalStories}
@@ -158,7 +158,7 @@ export const Map: React.FC = () => {
 
               {/* Search Bar */}
               <MapSearchBar onSearch={handleSearch} />
-            </>
+            </div>
           )}
 
           {/* Hybrid View - Split screen */}
