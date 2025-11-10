@@ -36,7 +36,7 @@ export const MapSearchBar: React.FC<MapSearchBarProps> = ({
   };
 
   return (
-    <div className="fixed top-20 right-4 z-20 w-80">
+    <div className="fixed top-20 left-4 z-20 w-80">
       <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg overflow-hidden">
         <div className="flex items-center gap-2 px-3">
           <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
