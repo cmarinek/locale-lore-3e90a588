@@ -1,0 +1,164 @@
+{
+  "terms": {
+    "title": "Términos de Servicio",
+    "lastUpdated": "Última actualización",
+    "readCarefully": "Por favor, lea estos términos cuidadosamente antes de usar nuestro servicio.",
+    "acceptance": {
+      "title": "Aceptación de Términos",
+      "content": "Al acceder y usar Locale Lore (\"el Servicio\"), usted acepta y se compromete a cumplir estos Términos de Servicio. Si no está de acuerdo con estos términos, por favor no use nuestro servicio."
+    },
+    "userAccounts": {
+      "title": "Cuentas de Usuario",
+      "accountResponsibility": {
+        "title": "Responsabilidad de la Cuenta",
+        "content": "Usted es responsable de mantener la confidencialidad de su cuenta y contraseña. Acepta asumir la responsabilidad de todas las actividades bajo su cuenta."
+      },
+      "ageRequirements": {
+        "title": "Requisitos de Edad",
+        "content": "Debe tener al menos 13 años para usar este servicio. Los usuarios menores de 18 años deben tener el consentimiento de sus padres."
+      },
+      "accountTermination": {
+        "title": "Terminación de Cuenta",
+        "content": "Nos reservamos el derecho de terminar cuentas que violen estos términos o nuestras pautas de la comunidad."
+      }
+    },
+    "contentAndConduct": {
+      "title": "Contenido y Conducta",
+      "userContent": {
+        "title": "Contenido del Usuario",
+        "content": "Usted conserva la propiedad del contenido que crea. Al publicar contenido, nos otorga una licencia para mostrar, distribuir y promocionar su contenido dentro del servicio."
+      },
+      "prohibitedContent": {
+        "title": "Contenido Prohibido",
+        "items": {
+          "illegal": "Contenido ilegal, dañino u ofensivo",
+          "spam": "Spam, acoso o comportamiento abusivo",
+          "misinformation": "Información falsa o deliberadamente engañosa",
+          "intellectual": "Contenido que viola derechos de propiedad intelectual",
+          "personal": "Información personal de otros sin consentimiento"
+        }
+      }
+    },
+    "privacyAndData": {
+      "title": "Privacidad y Datos",
+      "content": "Su privacidad es importante para nosotros. Por favor revise nuestra",
+      "privacyPolicyLink": "Política de Privacidad",
+      "toUnderstand": "para entender cómo recopilamos, usamos y protegemos su información."
+    },
+    "subscriptionAndPayments": {
+      "title": "Suscripción y Pagos",
+      "premiumFeatures": {
+        "title": "Características Premium",
+        "content": "Algunas características requieren una suscripción paga. Las tarifas de suscripción se facturan por adelantado y no son reembolsables excepto según lo requiera la ley."
+      },
+      "cancellation": {
+        "title": "Cancelación",
+        "content": "Puede cancelar su suscripción en cualquier momento a través de la configuración de su cuenta. La cancelación entra en vigencia al final de su período de facturación actual."
+      }
+    },
+    "disclaimers": {
+      "title": "Descargos de Responsabilidad",
+      "serviceAvailability": {
+        "title": "Disponibilidad del Servicio",
+        "content": "Nos esforzamos por lograr un tiempo de actividad del 99.9%, pero no podemos garantizar un servicio ininterrumpido. Podemos suspender temporalmente el servicio para mantenimiento o actualizaciones."
+      },
+      "contentAccuracy": {
+        "title": "Precisión del Contenido",
+        "content": "El contenido generado por usuarios no es verificado por nosotros. Use la información bajo su propio criterio y verifique los hechos importantes de forma independiente."
+      }
+    },
+    "legal": {
+      "title": "Legal",
+      "limitationOfLiability": {
+        "title": "Limitación de Responsabilidad",
+        "content": "Nuestra responsabilidad está limitada en la medida máxima permitida por la ley. No somos responsables de daños indirectos, incidentales o consecuentes."
+      },
+      "governingLaw": {
+        "title": "Ley Aplicable",
+        "content": "Estos términos se rigen por las leyes de la jurisdicción donde nuestra empresa está registrada."
+      },
+      "changesToTerms": {
+        "title": "Cambios en los Términos",
+        "content": "Podemos actualizar estos términos periódicamente. El uso continuado del servicio constituye la aceptación de los términos actualizados."
+      }
+    },
+    "contactInformation": {
+      "title": "Información de Contacto",
+      "content": "¿Preguntas sobre estos términos? Contáctenos en",
+      "email": "legal@localelore.com"
+    }
+  },
+  "privacy": {
+    "title": "Política de Privacidad",
+    "lastUpdated": "Última actualización",
+    "intro": "Su privacidad es importante para nosotros. Esta política explica cómo recopilamos, usamos y protegemos su información.",
+    "informationWeCollect": {
+      "title": "Información que Recopilamos",
+      "accountInformation": {
+        "title": "Información de la Cuenta",
+        "content": "Cuando crea una cuenta, recopilamos su dirección de correo electrónico, nombre y cualquier información de perfil que proporcione."
+      },
+      "contentAndActivity": {
+        "title": "Contenido y Actividad",
+        "content": "Recopilamos el contenido que crea, comparte o con el que interactúa, incluyendo historias, hechos, votos y comentarios."
+      },
+      "locationData": {
+        "title": "Datos de Ubicación",
+        "content": "Con su permiso, recopilamos datos de ubicación para proporcionar descubrimientos y contenido basados en la ubicación."
+      },
+      "usageAnalytics": {
+        "title": "Análisis de Uso",
+        "content": "Recopilamos datos de uso anónimos para mejorar nuestro servicio. Puede optar por no participar en los análisis en su configuración."
+      }
+    },
+    "howWeUse": {
+      "title": "Cómo Usamos su Información",
+      "items": {
+        "provide": "Proporcionar y mejorar nuestros servicios",
+        "personalize": "Personalizar su experiencia y recomendaciones",
+        "communicate": "Comunicarnos con usted sobre actualizaciones y características",
+        "security": "Garantizar la seguridad y prevenir abusos",
+        "comply": "Cumplir con obligaciones legales"
+      }
+    },
+    "locationData": {
+      "title": "Datos de Ubicación",
+      "content": "Los datos de ubicación se utilizan solo para características basadas en la ubicación, como descubrir contenido cercano. Añadimos ruido a las coordenadas para proteger la privacidad (precisión de ±1 km). Puede desactivar el uso compartido de ubicación en cualquier momento en su configuración de privacidad."
+    },
+    "cookiesAndTracking": {
+      "title": "Cookies y Seguimiento",
+      "essentialCookies": {
+        "title": "Cookies Esenciales",
+        "content": "Requeridas para autenticación y funcionalidad básica."
+      },
+      "analyticsCookies": {
+        "title": "Cookies de Análisis",
+        "content": "Cookies opcionales que nos ayudan a comprender los patrones de uso. Puede optar por no participar a través de nuestro banner de cookies."
+      }
+    },
+    "yourRights": {
+      "title": "Sus Derechos",
+      "accessAndPortability": {
+        "title": "Acceso y Portabilidad",
+        "content": "Exporte sus datos en cualquier momento desde la configuración de su perfil."
+      },
+      "rectification": {
+        "title": "Rectificación",
+        "content": "Actualice su información en la configuración de su cuenta."
+      },
+      "erasure": {
+        "title": "Eliminación",
+        "content": "Solicite la eliminación de la cuenta desde la configuración de su perfil."
+      },
+      "optOut": {
+        "title": "Exclusión",
+        "content": "Controle las preferencias de seguimiento y marketing en la configuración."
+      }
+    },
+    "contactUs": {
+      "title": "Contáctenos",
+      "content": "¿Preguntas sobre esta política de privacidad? Contáctenos en",
+      "email": "privacy@localelore.com"
+    }
+  }
+}

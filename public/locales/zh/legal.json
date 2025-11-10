@@ -1,0 +1,164 @@
+{
+  "terms": {
+    "title": "服务条款",
+    "lastUpdated": "最后更新",
+    "readCarefully": "使用我们的服务之前，请仔细阅读这些条款。",
+    "acceptance": {
+      "title": "接受条款",
+      "content": "通过访问和使用 Locale Lore("服务"),您接受并同意遵守这些服务条款。如果您不同意这些条款,请不要使用我们的服务。"
+    },
+    "userAccounts": {
+      "title": "用户账户",
+      "accountResponsibility": {
+        "title": "账户责任",
+        "content": "您有责任维护您的账户和密码的机密性。您同意对您账户下的所有活动承担责任。"
+      },
+      "ageRequirements": {
+        "title": "年龄要求",
+        "content": "您必须至少年满13岁才能使用此服务。18岁以下的用户必须获得家长同意。"
+      },
+      "accountTermination": {
+        "title": "账户终止",
+        "content": "我们保留终止违反这些条款或我们社区指南的账户的权利。"
+      }
+    },
+    "contentAndConduct": {
+      "title": "内容和行为",
+      "userContent": {
+        "title": "用户内容",
+        "content": "您保留对所创建内容的所有权。通过发布内容,您授予我们在服务内显示、分发和推广您内容的许可。"
+      },
+      "prohibitedContent": {
+        "title": "禁止内容",
+        "items": {
+          "illegal": "非法、有害或冒犯性内容",
+          "spam": "垃圾邮件、骚扰或滥用行为",
+          "misinformation": "错误信息或故意虚假内容",
+          "intellectual": "侵犯知识产权的内容",
+          "personal": "未经同意的他人个人信息"
+        }
+      }
+    },
+    "privacyAndData": {
+      "title": "隐私和数据",
+      "content": "您的隐私对我们很重要。请查看我们的",
+      "privacyPolicyLink": "隐私政策",
+      "toUnderstand": "以了解我们如何收集、使用和保护您的信息。"
+    },
+    "subscriptionAndPayments": {
+      "title": "订阅和付款",
+      "premiumFeatures": {
+        "title": "高级功能",
+        "content": "某些功能需要付费订阅。订阅费用预先收取,除法律要求外不予退款。"
+      },
+      "cancellation": {
+        "title": "取消",
+        "content": "您可以随时通过账户设置取消订阅。取消将在当前计费周期结束时生效。"
+      }
+    },
+    "disclaimers": {
+      "title": "免责声明",
+      "serviceAvailability": {
+        "title": "服务可用性",
+        "content": "我们力求达到99.9%的正常运行时间,但无法保证不间断的服务。我们可能会暂时暂停服务以进行维护或更新。"
+      },
+      "contentAccuracy": {
+        "title": "内容准确性",
+        "content": "用户生成的内容未经我们验证。请自行判断使用信息,并独立验证重要事实。"
+      }
+    },
+    "legal": {
+      "title": "法律",
+      "limitationOfLiability": {
+        "title": "责任限制",
+        "content": "我们的责任仅限于法律允许的最大范围。我们不对间接、附带或后果性损害负责。"
+      },
+      "governingLaw": {
+        "title": "适用法律",
+        "content": "这些条款受我们公司注册所在司法管辖区的法律管辖。"
+      },
+      "changesToTerms": {
+        "title": "条款变更",
+        "content": "我们可能会定期更新这些条款。继续使用服务即表示接受更新的条款。"
+      }
+    },
+    "contactInformation": {
+      "title": "联系信息",
+      "content": "对这些条款有疑问吗?请联系我们",
+      "email": "legal@localelore.com"
+    }
+  },
+  "privacy": {
+    "title": "隐私政策",
+    "lastUpdated": "最后更新",
+    "intro": "您的隐私对我们很重要。本政策解释我们如何收集、使用和保护您的信息。",
+    "informationWeCollect": {
+      "title": "我们收集的信息",
+      "accountInformation": {
+        "title": "账户信息",
+        "content": "当您创建账户时,我们会收集您的电子邮件地址、姓名以及您提供的任何个人资料信息。"
+      },
+      "contentAndActivity": {
+        "title": "内容和活动",
+        "content": "我们收集您创建、分享或互动的内容,包括故事、事实、投票和评论。"
+      },
+      "locationData": {
+        "title": "位置数据",
+        "content": "经您许可,我们收集位置数据以提供基于位置的发现和内容。"
+      },
+      "usageAnalytics": {
+        "title": "使用分析",
+        "content": "我们收集匿名使用数据以改进我们的服务。您可以在设置中选择退出分析。"
+      }
+    },
+    "howWeUse": {
+      "title": "我们如何使用您的信息",
+      "items": {
+        "provide": "提供和改进我们的服务",
+        "personalize": "个性化您的体验和推荐",
+        "communicate": "就更新和功能与您沟通",
+        "security": "确保安全并防止滥用",
+        "comply": "遵守法律义务"
+      }
+    },
+    "locationData": {
+      "title": "位置数据",
+      "content": "位置数据仅用于基于位置的功能,如发现附近的内容。我们为坐标添加噪声以保护隐私(±1公里精度)。您可以随时在隐私设置中禁用位置共享。"
+    },
+    "cookiesAndTracking": {
+      "title": "Cookie和跟踪",
+      "essentialCookies": {
+        "title": "必需Cookie",
+        "content": "身份验证和基本功能所必需。"
+      },
+      "analyticsCookies": {
+        "title": "分析Cookie",
+        "content": "帮助我们了解使用模式的可选Cookie。您可以通过我们的Cookie横幅选择退出。"
+      }
+    },
+    "yourRights": {
+      "title": "您的权利",
+      "accessAndPortability": {
+        "title": "访问和可移植性",
+        "content": "随时从您的个人资料设置导出您的数据。"
+      },
+      "rectification": {
+        "title": "更正",
+        "content": "在账户设置中更新您的信息。"
+      },
+      "erasure": {
+        "title": "删除",
+        "content": "从您的个人资料设置请求删除账户。"
+      },
+      "optOut": {
+        "title": "选择退出",
+        "content": "在设置中控制跟踪和营销偏好。"
+      }
+    },
+    "contactUs": {
+      "title": "联系我们",
+      "content": "对此隐私政策有疑问吗?请联系我们",
+      "email": "privacy@localelore.com"
+    }
+  }
+}

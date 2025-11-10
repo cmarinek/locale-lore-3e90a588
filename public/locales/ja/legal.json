@@ -1,0 +1,164 @@
+{
+  "terms": {
+    "title": "利用規約",
+    "lastUpdated": "最終更新",
+    "readCarefully": "当サービスをご利用になる前に、これらの規約を注意深くお読みください。",
+    "acceptance": {
+      "title": "規約の承諾",
+      "content": "Locale Lore（「本サービス」）にアクセスし使用することにより、お客様はこれらの利用規約に拘束されることに同意し、承諾します。これらの規約に同意されない場合は、当サービスを使用しないでください。"
+    },
+    "userAccounts": {
+      "title": "ユーザーアカウント",
+      "accountResponsibility": {
+        "title": "アカウントの責任",
+        "content": "お客様は、アカウントとパスワードの機密性を維持する責任があります。お客様のアカウントでのすべての活動について責任を負うことに同意します。"
+      },
+      "ageRequirements": {
+        "title": "年齢要件",
+        "content": "本サービスを使用するには、13歳以上である必要があります。18歳未満のユーザーは、保護者の同意が必要です。"
+      },
+      "accountTermination": {
+        "title": "アカウントの終了",
+        "content": "当社は、これらの規約またはコミュニティガイドラインに違反するアカウントを終了する権利を留保します。"
+      }
+    },
+    "contentAndConduct": {
+      "title": "コンテンツと行動",
+      "userContent": {
+        "title": "ユーザーコンテンツ",
+        "content": "お客様は作成したコンテンツの所有権を保持します。コンテンツを投稿することにより、当社にサービス内でお客様のコンテンツを表示、配信、宣伝するライセンスを付与します。"
+      },
+      "prohibitedContent": {
+        "title": "禁止コンテンツ",
+        "items": {
+          "illegal": "違法、有害、または不快なコンテンツ",
+          "spam": "スパム、ハラスメント、または虐待的な行動",
+          "misinformation": "誤情報または意図的に虚偽のコンテンツ",
+          "intellectual": "知的財産権を侵害するコンテンツ",
+          "personal": "同意なしの他者の個人情報"
+        }
+      }
+    },
+    "privacyAndData": {
+      "title": "プライバシーとデータ",
+      "content": "お客様のプライバシーは当社にとって重要です。当社の",
+      "privacyPolicyLink": "プライバシーポリシー",
+      "toUnderstand": "をご確認いただき、お客様の情報をどのように収集、使用、保護するかをご理解ください。"
+    },
+    "subscriptionAndPayments": {
+      "title": "サブスクリプションと支払い",
+      "premiumFeatures": {
+        "title": "プレミアム機能",
+        "content": "一部の機能には有料のサブスクリプションが必要です。サブスクリプション料金は前払いで請求され、法律で義務付けられている場合を除き、返金されません。"
+      },
+      "cancellation": {
+        "title": "キャンセル",
+        "content": "アカウント設定からいつでもサブスクリプションをキャンセルできます。キャンセルは現在の請求期間の終了時に有効になります。"
+      }
+    },
+    "disclaimers": {
+      "title": "免責事項",
+      "serviceAvailability": {
+        "title": "サービスの可用性",
+        "content": "当社は99.9%のアップタイムを目指していますが、中断のないサービスを保証することはできません。メンテナンスまたは更新のためにサービスを一時的に停止する場合があります。"
+      },
+      "contentAccuracy": {
+        "title": "コンテンツの正確性",
+        "content": "ユーザー生成コンテンツは当社によって検証されていません。情報はご自身の判断で使用し、重要な事実は独自に確認してください。"
+      }
+    },
+    "legal": {
+      "title": "法的事項",
+      "limitationOfLiability": {
+        "title": "責任の制限",
+        "content": "当社の責任は、法律で許可される最大限まで制限されています。当社は、間接的、付随的、または結果的な損害について責任を負いません。"
+      },
+      "governingLaw": {
+        "title": "準拠法",
+        "content": "これらの規約は、当社が登録されている管轄区域の法律に準拠します。"
+      },
+      "changesToTerms": {
+        "title": "規約の変更",
+        "content": "当社はこれらの規約を定期的に更新する場合があります。サービスの継続的な使用は、更新された規約への同意を構成します。"
+      }
+    },
+    "contactInformation": {
+      "title": "連絡先情報",
+      "content": "これらの規約について質問がありますか？お問い合わせください",
+      "email": "legal@localelore.com"
+    }
+  },
+  "privacy": {
+    "title": "プライバシーポリシー",
+    "lastUpdated": "最終更新",
+    "intro": "お客様のプライバシーは当社にとって重要です。このポリシーは、お客様の情報をどのように収集、使用、保護するかを説明します。",
+    "informationWeCollect": {
+      "title": "収集する情報",
+      "accountInformation": {
+        "title": "アカウント情報",
+        "content": "アカウントを作成すると、メールアドレス、名前、および提供されたプロフィール情報を収集します。"
+      },
+      "contentAndActivity": {
+        "title": "コンテンツとアクティビティ",
+        "content": "ストーリー、事実、投票、コメントなど、作成、共有、または対話するコンテンツを収集します。"
+      },
+      "locationData": {
+        "title": "位置データ",
+        "content": "許可を得て、位置ベースの発見とコンテンツを提供するために位置データを収集します。"
+      },
+      "usageAnalytics": {
+        "title": "使用分析",
+        "content": "サービスを改善するために匿名化された使用データを収集します。設定で分析をオプトアウトできます。"
+      }
+    },
+    "howWeUse": {
+      "title": "情報の使用方法",
+      "items": {
+        "provide": "サービスの提供と改善",
+        "personalize": "体験と推奨事項のパーソナライズ",
+        "communicate": "更新と機能についての連絡",
+        "security": "セキュリティの確保と不正使用の防止",
+        "comply": "法的義務の遵守"
+      }
+    },
+    "locationData": {
+      "title": "位置データ",
+      "content": "位置データは、近くのコンテンツの発見などの位置ベースの機能にのみ使用されます。プライバシー保護のために座標にノイズを追加します（±1km精度）。プライバシー設定でいつでも位置共有を無効にできます。"
+    },
+    "cookiesAndTracking": {
+      "title": "Cookieと追跡",
+      "essentialCookies": {
+        "title": "必須Cookie",
+        "content": "認証と基本機能に必要です。"
+      },
+      "analyticsCookies": {
+        "title": "分析Cookie",
+        "content": "使用パターンを理解するのに役立つオプションのCookie。Cookieバナーからオプトアウトできます。"
+      }
+    },
+    "yourRights": {
+      "title": "お客様の権利",
+      "accessAndPortability": {
+        "title": "アクセスと移植性",
+        "content": "プロフィール設定からいつでもデータをエクスポートできます。"
+      },
+      "rectification": {
+        "title": "訂正",
+        "content": "アカウント設定で情報を更新できます。"
+      },
+      "erasure": {
+        "title": "削除",
+        "content": "プロフィール設定からアカウントの削除をリクエストできます。"
+      },
+      "optOut": {
+        "title": "オプトアウト",
+        "content": "設定で追跡とマーケティングの設定を管理できます。"
+      }
+    },
+    "contactUs": {
+      "title": "お問い合わせ",
+      "content": "このプライバシーポリシーについて質問がありますか？お問い合わせください",
+      "email": "privacy@localelore.com"
+    }
+  }
+}

@@ -24,7 +24,7 @@ export const initI18n = async () => {
         debug: false,
         
         // Namespace organization
-        ns: ['common', 'navigation', 'auth', 'lore', 'profile', 'admin', 'errors'],
+        ns: ['common', 'navigation', 'auth', 'lore', 'profile', 'admin', 'errors', 'legal'],
         defaultNS: 'common',
 
         // Language detection

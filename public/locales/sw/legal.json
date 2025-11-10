@@ -1,0 +1,164 @@
+{
+  "terms": {
+    "title": "Masharti ya Huduma",
+    "lastUpdated": "Imesasishwa mwisho",
+    "readCarefully": "Tafadhali soma masharti haya kwa makini kabla ya kutumia huduma yetu.",
+    "acceptance": {
+      "title": "Kukubali Masharti",
+      "content": "Kwa kufikia na kutumia Locale Lore (\"Huduma\"), unakubali na unakubaliana kufuata Masharti haya ya Huduma. Ikiwa hukubaliani na masharti haya, tafadhali usitumie huduma yetu."
+    },
+    "userAccounts": {
+      "title": "Akaunti za Watumiaji",
+      "accountResponsibility": {
+        "title": "Uwajibikaji wa Akaunti",
+        "content": "Unawajibika kudumisha usiri wa akaunti yako na nenosiri. Unakubali kuchukua jukumu la shughuli zote chini ya akaunti yako."
+      },
+      "ageRequirements": {
+        "title": "Mahitaji ya Umri",
+        "content": "Lazima uwe na umri wa angalau miaka 13 kutumia huduma hii. Watumiaji chini ya miaka 18 lazima wawe na idhini ya wazazi."
+      },
+      "accountTermination": {
+        "title": "Kusitisha Akaunti",
+        "content": "Tunahifadhi haki ya kusitisha akaunti zinazokiuka masharti haya au miongozo yetu ya jamii."
+      }
+    },
+    "contentAndConduct": {
+      "title": "Maudhui na Tabia",
+      "userContent": {
+        "title": "Maudhui ya Mtumiaji",
+        "content": "Unabaki na umiliki wa maudhui unayounda. Kwa kuchapisha maudhui, unatupa leseni ya kuonyesha, kusambaza na kukuza maudhui yako ndani ya huduma."
+      },
+      "prohibitedContent": {
+        "title": "Maudhui Yasiyoruhusiwa",
+        "items": {
+          "illegal": "Maudhui yasiyohalali, yenye madhara au ya kukera",
+          "spam": "Spam, udhalimu au tabia ya unyanyasaji",
+          "misinformation": "Habari potovu au maudhui ya uongo makusudi",
+          "intellectual": "Maudhui yanayokiuka haki za mali ya akili",
+          "personal": "Maelezo ya kibinafsi ya wengine bila idhini"
+        }
+      }
+    },
+    "privacyAndData": {
+      "title": "Faragha na Data",
+      "content": "Faragha yako ni muhimu kwetu. Tafadhali angalia",
+      "privacyPolicyLink": "Sera yetu ya Faragha",
+      "toUnderstand": "ili kuelewa jinsi tunavyokusanya, kutumia na kulinda maelezo yako."
+    },
+    "subscriptionAndPayments": {
+      "title": "Usajili na Malipo",
+      "premiumFeatures": {
+        "title": "Vipengele vya Premium",
+        "content": "Baadhi ya vipengele vinahitaji usajili wa malipo. Ada za usajili zinalipiwa mapema na hazirejesheiwi isipokuwa inapohitajika na sheria."
+      },
+      "cancellation": {
+        "title": "Kufuta",
+        "content": "Unaweza kufuta usajili wako wakati wowote kupitia mipangilio ya akaunti yako. Kufuta kunatekelezwa mwishoni mwa kipindi chako cha sasa cha malipo."
+      }
+    },
+    "disclaimers": {
+      "title": "Kanusho",
+      "serviceAvailability": {
+        "title": "Upatikanaji wa Huduma",
+        "content": "Tunajitahidi kupata muda wa kufanya kazi wa 99.9% lakini hatuwezi kuhakikisha huduma isiyo na kukatika. Tunaweza kusimamisha huduma kwa muda kwa matengenezo au masasisho."
+      },
+      "contentAccuracy": {
+        "title": "Usahihi wa Maudhui",
+        "content": "Maudhui yaliyoundwa na watumiaji hayathibitishwi na sisi. Tumia maelezo kwa hiari yako mwenyewe na thibitisha ukweli muhimu kwa kujitegemea."
+      }
+    },
+    "legal": {
+      "title": "Kisheria",
+      "limitationOfLiability": {
+        "title": "Kiwango cha Uwajibikaji",
+        "content": "Uwajibikaji wetu umewekewa kikomo cha kiwango cha juu kinachoruhusiwa na sheria. Hatuwajibiki kwa uharibifu usio wa moja kwa moja, wa bahati mbaya au wa matokeo."
+      },
+      "governingLaw": {
+        "title": "Sheria Inayosimamia",
+        "content": "Masharti haya yanasimamia sheria za mamlaka ambapo kampuni yetu imesajiliwa."
+      },
+      "changesToTerms": {
+        "title": "Mabadiliko ya Masharti",
+        "content": "Tunaweza kusasisha masharti haya mara kwa mara. Matumizi endelevu ya huduma yanajumuisha kukubali masharti yaliyosasishwa."
+      }
+    },
+    "contactInformation": {
+      "title": "Maelezo ya Mawasiliano",
+      "content": "Maswali kuhusu masharti haya? Wasiliana nasi kwa",
+      "email": "legal@localelore.com"
+    }
+  },
+  "privacy": {
+    "title": "Sera ya Faragha",
+    "lastUpdated": "Imesasishwa mwisho",
+    "intro": "Faragha yako ni muhimu kwetu. Sera hii inaelezea jinsi tunavyokusanya, kutumia na kulinda maelezo yako.",
+    "informationWeCollect": {
+      "title": "Maelezo Tunayokusanya",
+      "accountInformation": {
+        "title": "Maelezo ya Akaunti",
+        "content": "Unapounda akaunti, tunakusanya anwani yako ya barua pepe, jina na maelezo yoyote ya wasifu unayotoa."
+      },
+      "contentAndActivity": {
+        "title": "Maudhui na Shughuli",
+        "content": "Tunakusanya maudhui unayounda, kushiriki au kuingiliana nayo, ikijumuisha hadithi, ukweli, kura na maoni."
+      },
+      "locationData": {
+        "title": "Data ya Mahali",
+        "content": "Kwa ruhusa yako, tunakusanya data ya mahali ili kutoa ugunduzi na maudhui kulingana na eneo."
+      },
+      "usageAnalytics": {
+        "title": "Uchanganuzi wa Matumizi",
+        "content": "Tunakusanya data ya matumizi isiyojulikana ili kuboresha huduma yetu. Unaweza kukataa uchanganuzi katika mipangilio yako."
+      }
+    },
+    "howWeUse": {
+      "title": "Jinsi Tunavyotumia Maelezo Yako",
+      "items": {
+        "provide": "Kutoa na kuboresha huduma zetu",
+        "personalize": "Kubinafsisha uzoefu wako na mapendekezo",
+        "communicate": "Kuwasiliana nawe kuhusu masasisho na vipengele",
+        "security": "Kuhakikisha usalama na kuzuia matumizi mabaya",
+        "comply": "Kuzingatia wajibu wa kisheria"
+      }
+    },
+    "locationData": {
+      "title": "Data ya Mahali",
+      "content": "Data ya mahali inatumiwa tu kwa vipengele vya kulingana na eneo kama kugundua maudhui ya karibu. Tunaongeza kelele kwa kuratibu kwa ulinzi wa faragha (usahihi wa ±1km). Unaweza kuzima ushiriki wa mahali wakati wowote katika mipangilio ya faragha."
+    },
+    "cookiesAndTracking": {
+      "title": "Vidakuzi na Ufuatiliaji",
+      "essentialCookies": {
+        "title": "Vidakuzi Muhimu",
+        "content": "Vinahitajika kwa uthibitishaji na utendaji wa kimsingi."
+      },
+      "analyticsCookies": {
+        "title": "Vidakuzi vya Uchanganuzi",
+        "content": "Vidakuzi vya hiari vinavyotusaidia kuelewa mifumo ya matumizi. Unaweza kukataa kupitia bango letu la vidakuzi."
+      }
+    },
+    "yourRights": {
+      "title": "Haki Zako",
+      "accessAndPortability": {
+        "title": "Ufikiaji na Usafirishaji",
+        "content": "Hamisha data yako wakati wowote kutoka mipangilio ya wasifu wako."
+      },
+      "rectification": {
+        "title": "Urekebishaji",
+        "content": "Sasisha maelezo yako katika mipangilio ya akaunti yako."
+      },
+      "erasure": {
+        "title": "Kufuta",
+        "content": "Omba kufutwa kwa akaunti kutoka mipangilio ya wasifu wako."
+      },
+      "optOut": {
+        "title": "Kukataa",
+        "content": "Simamia mapendeleo ya ufuatiliaji na uuzaji katika mipangilio."
+      }
+    },
+    "contactUs": {
+      "title": "Wasiliana Nasi",
+      "content": "Maswali kuhusu sera hii ya faragha? Wasiliana nasi kwa",
+      "email": "privacy@localelore.com"
+    }
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "terms": {
+    "title": "Conditions d'Utilisation",
+    "lastUpdated": "Dernière mise à jour",
+    "readCarefully": "Veuillez lire attentivement ces conditions avant d'utiliser notre service.",
+    "acceptance": {
+      "title": "Acceptation des Conditions",
+      "content": "En accédant et en utilisant Locale Lore (\"le Service\"), vous acceptez et vous engagez à respecter ces Conditions d'Utilisation. Si vous n'êtes pas d'accord avec ces conditions, veuillez ne pas utiliser notre service."
+    },
+    "userAccounts": {
+      "title": "Comptes Utilisateur",
+      "accountResponsibility": {
+        "title": "Responsabilité du Compte",
+        "content": "Vous êtes responsable du maintien de la confidentialité de votre compte et mot de passe. Vous acceptez d'assumer la responsabilité de toutes les activités sous votre compte."
+      },
+      "ageRequirements": {
+        "title": "Conditions d'Âge",
+        "content": "Vous devez avoir au moins 13 ans pour utiliser ce service. Les utilisateurs de moins de 18 ans doivent avoir le consentement parental."
+      },
+      "accountTermination": {
+        "title": "Résiliation du Compte",
+        "content": "Nous nous réservons le droit de résilier les comptes qui violent ces conditions ou nos directives communautaires."
+      }
+    },
+    "contentAndConduct": {
+      "title": "Contenu et Conduite",
+      "userContent": {
+        "title": "Contenu Utilisateur",
+        "content": "Vous conservez la propriété du contenu que vous créez. En publiant du contenu, vous nous accordez une licence pour afficher, distribuer et promouvoir votre contenu au sein du service."
+      },
+      "prohibitedContent": {
+        "title": "Contenu Interdit",
+        "items": {
+          "illegal": "Contenu illégal, nuisible ou offensant",
+          "spam": "Spam, harcèlement ou comportement abusif",
+          "misinformation": "Désinformation ou contenu délibérément faux",
+          "intellectual": "Contenu violant les droits de propriété intellectuelle",
+          "personal": "Informations personnelles d'autrui sans consentement"
+        }
+      }
+    },
+    "privacyAndData": {
+      "title": "Confidentialité et Données",
+      "content": "Votre vie privée est importante pour nous. Veuillez consulter notre",
+      "privacyPolicyLink": "Politique de Confidentialité",
+      "toUnderstand": "pour comprendre comment nous collectons, utilisons et protégeons vos informations."
+    },
+    "subscriptionAndPayments": {
+      "title": "Abonnement et Paiements",
+      "premiumFeatures": {
+        "title": "Fonctionnalités Premium",
+        "content": "Certaines fonctionnalités nécessitent un abonnement payant. Les frais d'abonnement sont facturés à l'avance et ne sont pas remboursables sauf si la loi l'exige."
+      },
+      "cancellation": {
+        "title": "Annulation",
+        "content": "Vous pouvez annuler votre abonnement à tout moment via les paramètres de votre compte. L'annulation prend effet à la fin de votre période de facturation actuelle."
+      }
+    },
+    "disclaimers": {
+      "title": "Avertissements",
+      "serviceAvailability": {
+        "title": "Disponibilité du Service",
+        "content": "Nous visons 99,9% de disponibilité, mais ne pouvons garantir un service ininterrompu. Nous pouvons suspendre temporairement le service pour maintenance ou mises à jour."
+      },
+      "contentAccuracy": {
+        "title": "Exactitude du Contenu",
+        "content": "Le contenu généré par les utilisateurs n'est pas vérifié par nous. Utilisez les informations à votre propre discrétion et vérifiez les faits importants de manière indépendante."
+      }
+    },
+    "legal": {
+      "title": "Légal",
+      "limitationOfLiability": {
+        "title": "Limitation de Responsabilité",
+        "content": "Notre responsabilité est limitée dans la mesure maximale autorisée par la loi. Nous ne sommes pas responsables des dommages indirects, accessoires ou consécutifs."
+      },
+      "governingLaw": {
+        "title": "Loi Applicable",
+        "content": "Ces conditions sont régies par les lois de la juridiction où notre société est enregistrée."
+      },
+      "changesToTerms": {
+        "title": "Modifications des Conditions",
+        "content": "Nous pouvons mettre à jour ces conditions périodiquement. L'utilisation continue du service constitue l'acceptation des conditions mises à jour."
+      }
+    },
+    "contactInformation": {
+      "title": "Informations de Contact",
+      "content": "Des questions sur ces conditions ? Contactez-nous à",
+      "email": "legal@localelore.com"
+    }
+  },
+  "privacy": {
+    "title": "Politique de Confidentialité",
+    "lastUpdated": "Dernière mise à jour",
+    "intro": "Votre vie privée est importante pour nous. Cette politique explique comment nous collectons, utilisons et protégeons vos informations.",
+    "informationWeCollect": {
+      "title": "Informations que Nous Collectons",
+      "accountInformation": {
+        "title": "Informations de Compte",
+        "content": "Lorsque vous créez un compte, nous collectons votre adresse e-mail, nom et toute information de profil que vous fournissez."
+      },
+      "contentAndActivity": {
+        "title": "Contenu et Activité",
+        "content": "Nous collectons le contenu que vous créez, partagez ou avec lequel vous interagissez, y compris les histoires, faits, votes et commentaires."
+      },
+      "locationData": {
+        "title": "Données de Localisation",
+        "content": "Avec votre permission, nous collectons des données de localisation pour fournir des découvertes et du contenu basés sur la localisation."
+      },
+      "usageAnalytics": {
+        "title": "Analyses d'Utilisation",
+        "content": "Nous collectons des données d'utilisation anonymes pour améliorer notre service. Vous pouvez vous désinscrire des analyses dans vos paramètres."
+      }
+    },
+    "howWeUse": {
+      "title": "Comment Nous Utilisons Vos Informations",
+      "items": {
+        "provide": "Fournir et améliorer nos services",
+        "personalize": "Personnaliser votre expérience et recommandations",
+        "communicate": "Communiquer avec vous sur les mises à jour et fonctionnalités",
+        "security": "Assurer la sécurité et prévenir les abus",
+        "comply": "Respecter les obligations légales"
+      }
+    },
+    "locationData": {
+      "title": "Données de Localisation",
+      "content": "Les données de localisation ne sont utilisées que pour les fonctionnalités basées sur la localisation, comme découvrir du contenu à proximité. Nous ajoutons du bruit aux coordonnées pour protéger la vie privée (précision de ±1 km). Vous pouvez désactiver le partage de localisation à tout moment dans vos paramètres de confidentialité."
+    },
+    "cookiesAndTracking": {
+      "title": "Cookies et Suivi",
+      "essentialCookies": {
+        "title": "Cookies Essentiels",
+        "content": "Requis pour l'authentification et la fonctionnalité de base."
+      },
+      "analyticsCookies": {
+        "title": "Cookies Analytiques",
+        "content": "Cookies facultatifs qui nous aident à comprendre les modèles d'utilisation. Vous pouvez vous désinscrire via notre bannière de cookies."
+      }
+    },
+    "yourRights": {
+      "title": "Vos Droits",
+      "accessAndPortability": {
+        "title": "Accès et Portabilité",
+        "content": "Exportez vos données à tout moment depuis vos paramètres de profil."
+      },
+      "rectification": {
+        "title": "Rectification",
+        "content": "Mettez à jour vos informations dans vos paramètres de compte."
+      },
+      "erasure": {
+        "title": "Suppression",
+        "content": "Demandez la suppression du compte depuis vos paramètres de profil."
+      },
+      "optOut": {
+        "title": "Désinscription",
+        "content": "Contrôlez les préférences de suivi et de marketing dans les paramètres."
+      }
+    },
+    "contactUs": {
+      "title": "Contactez-Nous",
+      "content": "Des questions sur cette politique de confidentialité ? Contactez-nous à",
+      "email": "privacy@localelore.com"
+    }
+  }
+}

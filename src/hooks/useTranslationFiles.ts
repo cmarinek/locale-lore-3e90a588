@@ -20,7 +20,7 @@ export const useTranslationFiles = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const namespaces = ['common', 'navigation', 'auth', 'lore', 'profile', 'admin', 'errors'];
+  const namespaces = ['common', 'navigation', 'auth', 'lore', 'profile', 'admin', 'errors', 'legal'];
 
   const loadTranslations = async () => {
     setLoading(true);
