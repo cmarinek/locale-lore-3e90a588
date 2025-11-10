@@ -49,6 +49,7 @@ const Settings = lazy(() => import('@/pages/Settings'));
 const PrivacySettings = lazy(() => import('@/pages/PrivacySettings'));
 const TranslationManager = lazy(() => import('@/pages/admin/TranslationManager').then(m => ({ default: m.TranslationManager })));
 const MakeAdmin = lazy(() => import('@/pages/MakeAdmin'));
+const RBACTesting = lazy(() => import('@/pages/admin/RBACTesting'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -150,6 +151,11 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/make-admin" element={
           <ProtectedRoute requiresAuth>
             <MakeAdmin />
+          </ProtectedRoute>
+        } />
+        <Route path="/rbac-testing" element={
+          <ProtectedRoute adminOnly>
+            <RBACTesting />
           </ProtectedRoute>
         } />
         <Route path="/help" element={<Help />} />
