@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES, SupportedLanguage, updateDocumentDirection } from '@/utils/languages';
 
@@ -20,10 +20,16 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
   const { i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   
-  const currentLanguage: SupportedLanguage = (i18n.language?.split('-')[0] as SupportedLanguage) || 'en';
+  // Safely get current language with fallback
+  const currentLanguage: SupportedLanguage = (i18n?.language?.split('-')[0] as SupportedLanguage) || 'en';
   const isRTL = SUPPORTED_LANGUAGES[currentLanguage]?.rtl || false;
 
-  const setLanguage = async (language: SupportedLanguage) => {
+  const setLanguage = useCallback(async (language: SupportedLanguage) => {
+    if (!i18n) {
+      console.error('i18n not initialized');
+      return;
+    }
+    
     setIsLoading(true);
     try {
       await i18n.changeLanguage(language);
@@ -34,11 +40,13 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [i18n]);
 
   useEffect(() => {
     // Set initial direction
-    updateDocumentDirection(currentLanguage);
+    if (currentLanguage) {
+      updateDocumentDirection(currentLanguage);
+    }
   }, [currentLanguage]);
 
   const value: LanguageContextType = {
