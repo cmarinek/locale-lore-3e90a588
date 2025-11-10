@@ -1,34 +1,137 @@
-# GeoCache Lore
+# LocaleLore 🌍
 
-A production-ready web application with comprehensive monitoring, testing, and deployment automation. Discover and explore local stories, culture, and hidden gems in your area.
+**Discover and share local stories and hidden gems in your area.**
 
-## 🚀 Features
+LocaleLore is a production-ready, full-stack web application that connects communities through location-based storytelling. Share fascinating facts about places you know, explore discoveries from others, and earn rewards for your contributions.
 
-### Core Features
-- ✅ **Authentication & Authorization** - Role-based access control (admin, contributor, free)
-- ✅ **Admin Dashboard** - Complete admin panel with user management, role assignment, and promo codes
-- ✅ **Database Integration** - Supabase with real-time data and Row Level Security
-- ✅ **Payment Processing** - Stripe integration for subscriptions and one-time payments
-- ✅ **AI Features** - Categorization, recommendations, and suggestions
-- ✅ **Mobile Support** - Capacitor integration for iOS and Android
+[![Production Ready](https://img.shields.io/badge/status-production%20ready-brightgreen)](https://github.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-### Production Features
-- ✅ **Performance Monitoring** - Real-time Web Vitals tracking with production dashboard
-- ✅ **Error Tracking** - Sentry integration for comprehensive error monitoring
-- ✅ **CI/CD Pipeline** - Automated testing, linting, and deployment via GitHub Actions
-- ✅ **E2E Testing** - Playwright test suite covering critical user flows
-- ✅ **Accessibility** - Automated a11y testing with axe-core
-- ✅ **PWA** - Service worker for offline functionality
-- ✅ **Internationalization** - Multi-language support with i18n
+## 📖 Table of Contents
 
-### Technology Stack
-- ⚡ **Vite** - Fast build tool and dev server
-- 🔥 **React 18** - Latest React with concurrent features
-- 🏗️ **TypeScript** - Full type safety
-- 🎨 **Tailwind CSS** - Utility-first CSS framework
-- 🔧 **shadcn/ui** - High-quality, accessible components
-- 🔀 **React Router** - Client-side routing
-- 🌐 **React Query** - Data fetching and caching
+- [Features](#-features)
+- [Technology Stack](#-technology-stack)
+- [Getting Started](#-getting-started)
+- [Project Structure](#-project-structure)
+- [Development](#-development)
+- [Testing](#-testing)
+- [Deployment](#-deployment)
+- [Documentation](#-documentation)
+- [Security](#-security)
+- [Support](#-support)
+- [License](#-license)
+
+## ✨ Features
+
+### 🗺️ Discovery & Exploration
+- **Interactive Map** - Explore local facts on a beautiful Mapbox-powered map
+- **Location Search** - Find interesting places and stories near you
+- **Categories** - Filter by History, Culture, Food & Drink, Nature, and more
+- **Trending Content** - Discover popular and recently added facts
+- **Advanced Filters** - Search by keyword, location, or category
+
+### 👥 Social & Community
+- **User Profiles** - Customizable profiles with bio, avatar, and activity history
+- **Friends System** - Connect with other explorers and contributors
+- **Leaderboards** - Compete on global and friend leaderboards
+- **Comments & Likes** - Engage with community content
+- **Direct Messaging** - Chat with other users (coming soon)
+
+### 🎮 Gamification & Rewards
+- **XP System** - Earn experience points for contributions and engagement
+- **User Levels** - Progress from Novice to Legend with increasing benefits
+- **Achievements** - Unlock 50+ achievements for various milestones
+- **Rewards Shop** - Purchase badges, titles, and customizations
+- **Daily Streaks** - Earn bonuses for consistent activity
+
+### 💰 Contributor Economy
+- **Verified Contributors** - Apply to become a paid contributor
+- **Quality Scoring** - Earn more with high-quality, engaging content
+- **Tips** - Receive tips from users who love your content
+- **Premium Content** - Create and sell exclusive guides and tours
+- **Sponsored Partnerships** - Collaborate with brands (Expert tier)
+- **Revenue Analytics** - Track earnings and performance
+
+### 🔐 Authentication & Security
+- **Email/Password Auth** - Traditional authentication with email verification
+- **Google Sign-In** - Quick sign-in with Google OAuth
+- **Role-Based Access** - Admin, Contributor, and Free user roles
+- **Row Level Security** - Database-level access control with Supabase RLS
+- **Privacy Controls** - Granular privacy settings for profile and activity
+
+### 💳 Payment Processing
+- **Stripe Integration** - Secure payment processing
+- **Subscription Plans** - Premium subscriptions with recurring billing
+- **One-Time Purchases** - Buy XP, badges, and other rewards
+- **Promo Codes** - Support for promotional codes and discounts
+- **Refund Management** - Admin-controlled refund processing
+
+### 🤖 AI-Powered Features
+- **Auto-Categorization** - AI categorizes submitted facts automatically
+- **Content Recommendations** - Personalized discovery suggestions
+- **Smart Search** - AI-enhanced search results
+- **Content Moderation** - AI-assisted content quality checks
+
+### 📱 Mobile & PWA
+- **Progressive Web App** - Install on any device
+- **Offline Support** - Access content without internet connection
+- **Native Integrations** - Capacitor for iOS and Android
+- **Responsive Design** - Optimized for all screen sizes
+- **Geolocation** - Automatic location detection
+
+### 🌍 Internationalization
+- **Multi-Language** - Support for multiple languages
+- **RTL Support** - Right-to-left language support
+- **Auto-Detection** - Automatic language detection from browser
+- **Translation Management** - Admin panel for managing translations
+
+### 🛠️ Production-Ready
+- **Performance Monitoring** - Real-time Web Vitals tracking
+- **Error Tracking** - Sentry integration for error monitoring
+- **Load Testing** - Performance testing and optimization
+- **Security Audits** - Automated security scanning
+- **Uptime Monitoring** - 24/7 uptime tracking
+- **Analytics** - Comprehensive user behavior analytics
+
+## 🚀 Technology Stack
+
+### Frontend
+- **React 18** - Latest React with concurrent features
+- **TypeScript** - Full type safety across the codebase
+- **Vite** - Lightning-fast build tool and dev server
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - High-quality, accessible component library
+- **React Router** - Client-side routing with lazy loading
+- **React Query** - Powerful data fetching and caching
+- **Framer Motion** - Smooth animations and transitions
+- **Zustand** - Lightweight state management
+
+### Backend & Infrastructure
+- **Supabase** - PostgreSQL database with real-time features
+- **Edge Functions** - Serverless functions on Deno runtime
+- **Row Level Security** - Database-level access control
+- **Supabase Auth** - Authentication with multiple providers
+- **Supabase Storage** - File storage with CDN
+
+### External Services
+- **Mapbox GL JS** - Interactive maps and geocoding
+- **Stripe** - Payment processing and subscriptions
+- **Sentry** - Error tracking and performance monitoring
+- **Google OAuth** - Social authentication
+
+### Development & Testing
+- **ESLint** - Code linting and formatting
+- **Prettier** - Code formatting
+- **Husky** - Git hooks for quality checks
+- **Jest** - Unit testing framework
+- **Playwright** - End-to-end testing
+- **@axe-core/playwright** - Accessibility testing
+
+### DevOps & Deployment
+- **GitHub Actions** - CI/CD pipeline automation
+- **Lovable.dev** - Production hosting platform
+- **Vercel/Netlify** - Alternative deployment options
+- **Docker** - Containerization (optional)
 
 ## 📁 Project Structure
 
@@ -298,3 +401,80 @@ Access at `/production` to monitor:
 3. Access admin panel at `/admin`
 
 Note: In production, assign admin roles through direct database access for security.
+
+## 📚 Documentation
+
+Comprehensive documentation is available in the project:
+
+### User Documentation
+- **[User Guide](USER_GUIDE.md)** - Complete guide for using LocaleLore
+- **[Contributor Guide](CONTRIBUTOR_GUIDE.md)** - How to become a paid contributor
+- **[FAQ Page](/faq)** - Frequently asked questions
+- **[Content Guidelines](/content-guidelines)** - Content submission standards
+- **[Privacy Policy](/privacy-policy)** - Privacy and data protection
+- **[Terms of Service](/terms-of-service)** - Terms and conditions
+- **[Refund Policy](/refund-policy)** - Refund and cancellation policy
+
+### Technical Documentation
+- **[Architecture](ARCHITECTURE.md)** - System architecture and design
+- **[API Documentation](API_DOCUMENTATION.md)** - Edge functions and API reference
+- **[Deployment Guide](DEPLOYMENT_RUNBOOK.md)** - Deployment procedures
+- **[Security Guide](SECURITY.md)** - Security best practices
+
+### Operational Documentation
+- **[Admin Guide](ADMIN_GUIDE.md)** - Admin dashboard and procedures
+- **[Incident Response](INCIDENT_RESPONSE.md)** - Incident handling procedures
+- **[Backup & Restore](BACKUP_RESTORE.md)** - Backup and recovery procedures
+- **[User Support](USER_SUPPORT.md)** - Support request handling
+
+### Project Status
+- **[Production Readiness Report](PRODUCTION_READINESS_REPORT.md)** - Production status
+- **[Post-Launch Checklist](POST_LAUNCH_CHECKLIST.md)** - Post-launch tasks
+- **[Known Issues](KNOWN_ISSUES.md)** - Known issues and workarounds
+- **[Deployment Report](DEPLOYMENT_REPORT.md)** - Deployment checklist and status
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our contributing guidelines:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Guidelines
+- Follow the existing code style
+- Write tests for new features
+- Update documentation as needed
+- Ensure all tests pass before submitting PR
+- Keep PRs focused and atomic
+
+## 📞 Support
+
+### Getting Help
+- **Email**: support@localelore.com
+- **In-App Support**: Visit `/support` page
+- **GitHub Issues**: Report bugs and request features
+- **Documentation**: Check our comprehensive guides
+
+### Community
+- **Discord** - Join our community (coming soon)
+- **Twitter** - Follow us @localelore (coming soon)
+- **Blog** - Read about updates and tips (coming soon)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Supabase** - Amazing backend infrastructure
+- **Lovable.dev** - Fantastic development platform
+- **Mapbox** - Beautiful maps and geocoding
+- **shadcn/ui** - Excellent component library
+- **All Contributors** - Thank you for making LocaleLore better!
+
+---
+
+**Built with ❤️ using [Lovable.dev](https://lovable.dev)**
