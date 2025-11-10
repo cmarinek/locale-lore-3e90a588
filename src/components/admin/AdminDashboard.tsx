@@ -24,6 +24,8 @@ import { ThemeCustomizer } from './ThemeCustomizer';
 import { SiteConfigurationPanel } from './SiteConfigurationPanel';
 import { TranslationCoverageDashboard } from './TranslationCoverageDashboard';
 import { TranslationManagementTools } from './TranslationManagementTools';
+import { AutoTranslationSync } from './AutoTranslationSync';
+import { TranslationValidator } from './TranslationValidator';
 
 export const AdminDashboard: React.FC = () => {
   const { isAdmin, loading } = useAdmin();
@@ -93,6 +95,8 @@ export const AdminDashboard: React.FC = () => {
         return (
           <div className="space-y-6">
             <TranslationCoverageDashboard />
+            <AutoTranslationSync />
+            <TranslationValidator />
             <TranslationManagementTools />
           </div>
         );
