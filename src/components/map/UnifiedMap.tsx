@@ -881,7 +881,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       <div ref={mapContainer} className="absolute inset-0" />
       
       {/* Loading State */}
-      {((tokenStatus === 'loading' || tokenStatus === 'idle') && !mapboxToken) && (
+      {((tokenStatus === 'loading' || tokenStatus === 'idle') && !mapboxToken && !loadingDismissed) && (
         <div className="absolute inset-0 z-10">
           <MapSkeleton />
         </div>
