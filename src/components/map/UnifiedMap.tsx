@@ -20,6 +20,7 @@ import { MapSkeleton } from './MapSkeleton';
 import { mapboxService } from '@/services/mapboxService';
 import { useMapStore } from '@/stores/mapStore';
 import { MapTokenMissing } from './MapTokenMissing';
+import { supabase } from '@/integrations/supabase/client';
 
 // Types
 interface Fact {
@@ -185,10 +186,43 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     return styles[styleType as keyof typeof styles] || styles.light;
   }, []);
 
-  // Process facts data - use provided facts directly
+  // Process facts data - use provided facts directly + real-time updates
+  const [liveFacts, setLiveFacts] = useState<Fact[]>([]);
+  
   const processedFacts = useMemo(() => {
-    return externalFacts || [];
-  }, [externalFacts]);
+    return externalFacts || liveFacts;
+  }, [externalFacts, liveFacts]);
+
+  // Real-time subscription for new facts
+  useEffect(() => {
+    if (!externalFacts) {
+      // Only subscribe if not using external facts
+      const channel = supabase
+        .channel('facts-realtime')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'facts'
+          },
+          (payload) => {
+            console.log('🔴 New fact added:', payload.new);
+            const newFact = payload.new as Fact;
+            setLiveFacts(prev => [...prev, newFact]);
+            toast({
+              title: "New Story Added!",
+              description: newFact.title,
+            });
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [externalFacts, toast]);
 
   const filteredFacts = processedFacts;
 
