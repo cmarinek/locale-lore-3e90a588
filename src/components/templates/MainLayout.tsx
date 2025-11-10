@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
 import { FeedbackWidget } from '@/components/support/FeedbackWidget';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -16,6 +17,7 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) => {
   const { t, i18n } = useTranslation('navigation');
+  const { branding } = useSiteSettings();
   
   // Get language info directly from i18n - no context dependency
   const currentLanguage = (i18n.language?.split('-')[0] || 'en') as SupportedLanguage;
@@ -33,9 +35,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
-              <img src="/icon-192.png" alt="LocaleLore" className="w-10 h-8" />
+              <img 
+                src={branding?.logo_url || '/icon-192.png'} 
+                alt={branding?.site_name || 'LocaleLore'} 
+                className="w-10 h-8 object-contain" 
+              />
               <span className="font-bold text-xl bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">
-                LocaleLore
+                {branding?.site_name || 'LocaleLore'}
               </span>
             </Link>
 
@@ -58,8 +64,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <img src="/icon-192.png" alt="LocaleLore" className="w-6 h-5" />
-              <span className="font-semibold bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">LocaleLore</span>
+              <img 
+                src={branding?.logo_url || '/icon-192.png'} 
+                alt={branding?.site_name || 'LocaleLore'} 
+                className="w-6 h-5 object-contain" 
+              />
+              <span className="font-semibold bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">
+                {branding?.site_name || 'LocaleLore'}
+              </span>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <Link to="/terms" className="hover:text-primary transition-colors">
