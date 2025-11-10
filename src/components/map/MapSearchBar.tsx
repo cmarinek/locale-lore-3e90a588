@@ -16,9 +16,12 @@ export const MapSearchBar: React.FC<MapSearchBarProps> = ({
 }) => {
   const [query, setQuery] = useState('');
 
-  const handleSearch = () => {
-    if (query.trim() && onSearch) {
-      onSearch(query.trim());
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuery = e.target.value;
+    setQuery(newQuery);
+    // Real-time search as user types
+    if (onSearch) {
+      onSearch(newQuery.trim());
     }
   };
 
@@ -30,8 +33,8 @@ export const MapSearchBar: React.FC<MapSearchBarProps> = ({
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
+    if (e.key === 'Enter' && onSearch) {
+      onSearch(query.trim());
     }
   };
 
@@ -42,7 +45,7 @@ export const MapSearchBar: React.FC<MapSearchBarProps> = ({
           <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
           <Input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             placeholder={placeholder}
             className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"

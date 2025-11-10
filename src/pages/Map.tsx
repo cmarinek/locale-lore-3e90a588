@@ -9,6 +9,7 @@ import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { MapViewSwitcher, MapViewMode } from '@/components/map/MapViewSwitcher';
 import { MapStatsOverlay } from '@/components/map/MapStatsOverlay';
 import { MapSearchBar } from '@/components/map/MapSearchBar';
+import { MapStyleSwitcher, MapStyle } from '@/components/map/MapStyleSwitcher';
 import { FactCard } from '@/components/discovery/FactCard';
 
 export const Map: React.FC = () => {
@@ -16,6 +17,7 @@ export const Map: React.FC = () => {
   const { selectedMarkerId, setSelectedMarkerId } = useMapStore();
   const [viewMode, setViewMode] = useState<MapViewMode>('map');
   const [searchQuery, setSearchQuery] = useState('');
+  const [mapStyle, setMapStyle] = useState<MapStyle>('light');
 
   const handleFactClick = (fact: any) => {
     const enhancedFact = {
@@ -59,8 +61,10 @@ export const Map: React.FC = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // TODO: Implement actual search filtering
-    console.log('Searching for:', query);
+  };
+
+  const handleStyleChange = (style: MapStyle) => {
+    setMapStyle(style);
   };
 
   useEffect(() => {
@@ -79,9 +83,21 @@ export const Map: React.FC = () => {
     }
   }, [selectedMarkerId, setSelectedFact, fetchFactById]);
 
+  // Filter facts based on search query
+  const filteredFacts = React.useMemo(() => {
+    if (!searchQuery.trim()) return facts;
+    
+    const lowerQuery = searchQuery.toLowerCase();
+    return facts.filter(fact => 
+      fact.title.toLowerCase().includes(lowerQuery) ||
+      fact.description?.toLowerCase().includes(lowerQuery) ||
+      fact.location_name?.toLowerCase().includes(lowerQuery)
+    );
+  }, [facts, searchQuery]);
+
   // Calculate stats
-  const totalStories = facts.length;
-  const verifiedStories = facts.filter(f => f.status === 'verified').length;
+  const totalStories = filteredFacts.length;
+  const verifiedStories = filteredFacts.filter(f => f.status === 'verified').length;
 
   return (
     <ErrorBoundary
@@ -115,16 +131,21 @@ export const Map: React.FC = () => {
             <MapViewSwitcher currentView={viewMode} onViewChange={setViewMode} variant="glass" />
           </div>
 
+          {/* Map Style Switcher */}
+          <div className="absolute top-4 left-4 z-20">
+            <MapStyleSwitcher currentStyle={mapStyle} onStyleChange={handleStyleChange} />
+          </div>
+
           {/* Map View */}
           {(viewMode === 'map' || viewMode === 'hybrid') && (
             <>
               <UnifiedMap
-                facts={facts}
+                facts={filteredFacts}
                 useScalableLoading={false}
                 enableClustering={true}
                 center={[0, 20]}
                 zoom={2}
-                style="light"
+                style={mapStyle}
                 onFactClick={handleFactClick}
                 className="w-full h-full"
               />
@@ -146,7 +167,7 @@ export const Map: React.FC = () => {
               <div className="p-4">
                 <h3 className="text-lg font-semibold mb-4">Stories in View</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {facts.slice(0, 6).map(fact => (
+                  {filteredFacts.slice(0, 6).map(fact => (
                     <FactCard key={fact.id} fact={fact} />
                   ))}
                 </div>
@@ -165,7 +186,7 @@ export const Map: React.FC = () => {
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {facts.map(fact => (
+                  {filteredFacts.map(fact => (
                     <FactCard key={fact.id} fact={fact} />
                   ))}
                 </div>
