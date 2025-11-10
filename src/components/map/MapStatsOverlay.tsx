@@ -1,70 +1,59 @@
-import React, { useMemo } from 'react';
-import { Card } from '@/components/ui/card';
+import React from 'react';
+import { MapPin, CheckCircle2, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3 } from 'lucide-react';
-import { useUIStore } from '@/stores/uiStore';
 
 interface MapStatsOverlayProps {
   totalStories: number;
-  storiesInView: number;
-  categoryDistribution: Record<string, { count: number; icon: string; color: string }>;
+  verifiedStories: number;
+  trendingStories?: number;
 }
 
 export const MapStatsOverlay: React.FC<MapStatsOverlayProps> = ({
   totalStories,
-  storiesInView,
-  categoryDistribution,
+  verifiedStories,
+  trendingStories = 0,
 }) => {
-  const showMapStats = useUIStore((state) => state.showMapStats);
-
-  if (!showMapStats) return null;
-  const topCategories = useMemo(() => {
-    return Object.entries(categoryDistribution)
-      .sort(([, a], [, b]) => b.count - a.count)
-      .slice(0, 3);
-  }, [categoryDistribution]);
-
   return (
-    <Card className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-background/95 backdrop-blur-md border-border/50 shadow-lg animate-fade-in">
-      <div className="px-4 py-2 flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 text-primary" />
-          <div className="flex flex-col">
-            <span className="text-xs text-muted-foreground">Total Stories</span>
-            <span className="text-sm font-semibold text-foreground">{totalStories.toLocaleString()}</span>
+    <div className="fixed top-20 left-4 z-20">
+      <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4 space-y-3 min-w-[200px]">
+        <h3 className="text-sm font-semibold text-foreground mb-2">Map Statistics</h3>
+        
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <MapPin className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-foreground">{totalStories}</p>
+            <p className="text-xs text-muted-foreground">Total Stories</p>
           </div>
         </div>
-
-        <div className="h-8 w-px bg-border" />
-
-        <div className="flex flex-col">
-          <span className="text-xs text-muted-foreground">In View</span>
-          <span className="text-sm font-semibold text-primary animate-pulse">{storiesInView.toLocaleString()}</span>
+        
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-success/10 flex items-center justify-center">
+            <CheckCircle2 className="h-5 w-5 text-success" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-foreground">{verifiedStories}</p>
+            <p className="text-xs text-muted-foreground">Verified</p>
+          </div>
         </div>
-
-        {topCategories.length > 0 && (
-          <>
-            <div className="h-8 w-px bg-border" />
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Top:</span>
-              {topCategories.map(([name, data]) => (
-                <Badge
-                  key={name}
-                  variant="secondary"
-                  className="text-xs animate-scale-in"
-                  style={{ 
-                    backgroundColor: `${data.color}20`,
-                    color: data.color,
-                    borderColor: `${data.color}40`
-                  }}
-                >
-                  {data.icon} {data.count}
-                </Badge>
-              ))}
+        
+        {trendingStories > 0 && (
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center">
+              <TrendingUp className="h-5 w-5 text-warning" />
             </div>
-          </>
+            <div>
+              <p className="text-2xl font-bold text-foreground">{trendingStories}</p>
+              <p className="text-xs text-muted-foreground">Trending</p>
+            </div>
+          </div>
         )}
+        
+        <Badge variant="secondary" className="w-full justify-center mt-2">
+          Live Updates Active
+        </Badge>
       </div>
-    </Card>
+    </div>
   );
 };

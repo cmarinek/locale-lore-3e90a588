@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { UnifiedMap } from '@/components/map/UnifiedMap';
@@ -6,10 +6,16 @@ import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useMapStore } from '@/stores/mapStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { MapViewSwitcher, MapViewMode } from '@/components/map/MapViewSwitcher';
+import { MapStatsOverlay } from '@/components/map/MapStatsOverlay';
+import { MapSearchBar } from '@/components/map/MapSearchBar';
+import { FactCard } from '@/components/discovery/FactCard';
 
 export const Map: React.FC = () => {
   const { facts, selectedFact, setSelectedFact, fetchFactById, initializeData } = useDiscoveryStore();
   const { selectedMarkerId, setSelectedMarkerId } = useMapStore();
+  const [viewMode, setViewMode] = useState<MapViewMode>('map');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleFactClick = (fact: any) => {
     const enhancedFact = {
@@ -51,6 +57,12 @@ export const Map: React.FC = () => {
     setSelectedMarkerId(null);
   };
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    // TODO: Implement actual search filtering
+    console.log('Searching for:', query);
+  };
+
   useEffect(() => {
     initializeData();
   }, [initializeData]);
@@ -66,6 +78,10 @@ export const Map: React.FC = () => {
       loadFact();
     }
   }, [selectedMarkerId, setSelectedFact, fetchFactById]);
+
+  // Calculate stats
+  const totalStories = facts.length;
+  const verifiedStories = facts.filter(f => f.status === 'verified').length;
 
   return (
     <ErrorBoundary
@@ -92,27 +108,78 @@ export const Map: React.FC = () => {
           <link rel="canonical" href="/map" />
         </Helmet>
 
-      <div className="fixed inset-0 top-16 z-0">
-        <UnifiedMap
-          facts={facts}
-          useScalableLoading={false}
-          enableClustering={true}
-          center={[0, 20]}
-          zoom={2}
-          style="light"
-          onFactClick={handleFactClick}
-          className="w-full h-full"
-        />
+        <div className="fixed inset-0 top-16 z-0">
+          {/* View Mode Switcher */}
+          <MapViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
 
-        {selectedFact && (
-          <FactPreviewModal
-            fact={selectedFact}
-            open={true}
-            onClose={handleCloseModal}
-          />
-        )}
-      </div>
-    </MainLayout>
+          {/* Map View */}
+          {(viewMode === 'map' || viewMode === 'hybrid') && (
+            <>
+              <UnifiedMap
+                facts={facts}
+                useScalableLoading={false}
+                enableClustering={true}
+                center={[0, 20]}
+                zoom={2}
+                style="light"
+                onFactClick={handleFactClick}
+                className="w-full h-full"
+              />
+
+              {/* Stats Overlay */}
+              <MapStatsOverlay
+                totalStories={totalStories}
+                verifiedStories={verifiedStories}
+              />
+
+              {/* Search Bar */}
+              <MapSearchBar onSearch={handleSearch} />
+            </>
+          )}
+
+          {/* Hybrid View - Split screen */}
+          {viewMode === 'hybrid' && (
+            <div className="fixed bottom-0 left-0 right-0 h-1/3 bg-background border-t border-border overflow-y-auto z-10">
+              <div className="p-4">
+                <h3 className="text-lg font-semibold mb-4">Stories in View</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {facts.slice(0, 6).map(fact => (
+                    <FactCard key={fact.id} fact={fact} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* List View */}
+          {viewMode === 'list' && (
+            <div className="w-full h-full overflow-y-auto bg-background">
+              <div className="container mx-auto px-4 py-8">
+                <div className="mb-6">
+                  <h1 className="text-3xl font-bold mb-2">All Stories</h1>
+                  <p className="text-muted-foreground">
+                    Showing {totalStories} stories ({verifiedStories} verified)
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {facts.map(fact => (
+                    <FactCard key={fact.id} fact={fact} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Fact Preview Modal */}
+          {selectedFact && (
+            <FactPreviewModal
+              fact={selectedFact}
+              open={true}
+              onClose={handleCloseModal}
+            />
+          )}
+        </div>
+      </MainLayout>
     </ErrorBoundary>
   );
 };
