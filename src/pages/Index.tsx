@@ -76,7 +76,23 @@ const Index: React.FC = React.memo(() => {
   return (
     <ErrorBoundary>
       <MainLayout>
-        <div className="min-h-screen">
+        <div className="min-h-screen relative">
+          {/* Star-like floating particles background */}
+          <div className="fixed inset-0 pointer-events-none z-0">
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-1 h-1 bg-primary/20 rounded-full animate-pulse"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 3}s`,
+                  animationDuration: `${2 + Math.random() * 4}s`,
+                }}
+              />
+            ))}
+          </div>
+
           {/* Hero Section */}
           <ErrorBoundary fallback={
             <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center">
