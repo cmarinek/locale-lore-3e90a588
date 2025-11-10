@@ -487,6 +487,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     });
 
     // Cluster circles with category-based coloring
+    // Note: Mapbox can't use CSS variables, so we use actual HSL colors
     map.current.addLayer({
       id: 'clusters',
       type: 'circle',
@@ -496,14 +497,14 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         'circle-color': [
           'case',
           ['>', ['get', 'history_count'], ['max', ['get', 'culture_count'], ['get', 'nature_count'], ['get', 'mystery_count'], ['get', 'legend_count']]],
-          'hsl(var(--primary))',
+          'hsl(203, 85%, 65%)', // primary
           ['>', ['get', 'nature_count'], ['max', ['get', 'culture_count'], ['get', 'mystery_count'], ['get', 'legend_count']]],
-          'hsl(var(--success))',
+          'hsl(120, 45%, 55%)', // secondary/success
           ['>', ['get', 'culture_count'], ['max', ['get', 'mystery_count'], ['get', 'legend_count']]],
-          'hsl(var(--accent))',
+          'hsl(203, 30%, 90%)', // accent
           ['>', ['get', 'mystery_count'], ['get', 'legend_count']],
-          'hsl(var(--destructive))',
-          'hsl(var(--warning))'
+          'hsl(0, 84%, 60%)', // destructive
+          'hsl(45, 100%, 60%)' // warning/legend - default yellow
         ],
         'circle-radius': [
           'step',
@@ -549,6 +550,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     });
 
     // Individual points with animation support
+    // Note: Mapbox can't use CSS variables, so we use actual HSL colors
     map.current.addLayer({
       id: 'unclustered-point',
       type: 'circle',
@@ -558,12 +560,12 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         'circle-color': [
           'match',
           ['get', 'category'],
-          'history', 'hsl(var(--primary))',
-          'nature', 'hsl(var(--success))',
-          'culture', 'hsl(var(--accent))',
-          'mystery', 'hsl(var(--destructive))',
-          'legend', 'hsl(var(--warning))',
-          'hsl(var(--muted-foreground))'
+          'history', 'hsl(203, 85%, 65%)', // primary
+          'nature', 'hsl(120, 45%, 55%)', // secondary/success
+          'culture', 'hsl(203, 30%, 90%)', // accent  
+          'mystery', 'hsl(0, 84%, 60%)', // destructive
+          'legend', 'hsl(45, 100%, 60%)', // warning
+          'hsl(203, 15%, 45%)' // muted-foreground - default
         ],
         'circle-radius': [
           'interpolate',

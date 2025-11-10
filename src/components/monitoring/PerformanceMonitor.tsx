@@ -32,7 +32,7 @@ export const PerformanceMonitor: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [alerts, setAlerts] = useState<PerformanceAlert[]>([]);
   const [overallScore, setOverallScore] = useState<'good' | 'poor' | 'needs-improvement'>('good');
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false); // Starts collapsed, click to expand
   const { isAdmin, loading } = useAdmin();
 
   // Enhanced performance monitoring with alerts
