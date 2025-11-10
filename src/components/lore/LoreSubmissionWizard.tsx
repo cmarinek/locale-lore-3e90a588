@@ -23,6 +23,7 @@ interface LoreSubmissionData {
   latitude: number | null;
   longitude: number | null;
   media_urls: string[];
+  route_drawing?: GeoJSON.Feature | null;
 }
 
 interface LoreSubmissionWizardProps {
@@ -51,7 +52,8 @@ export const LoreSubmissionWizard: React.FC<LoreSubmissionWizardProps> = ({
     location_name: '',
     latitude: null,
     longitude: null,
-    media_urls: []
+    media_urls: [],
+    route_drawing: null
   });
   const [draftId, setDraftId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

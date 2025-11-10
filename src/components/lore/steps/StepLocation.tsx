@@ -1,23 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card } from '@/components/ui/ios-card';
 import { Input } from '@/components/ui/ios-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/ios-badge';
 import { UnifiedMap } from '@/components/map/UnifiedMap';
-import { MapPin, Search } from 'lucide-react';
+import { MapDrawingTools } from '@/components/map/MapDrawingTools';
+import { MapPin, Search, Route, Map as MapIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import mapboxgl from 'mapbox-gl';
 
 interface StepLocationProps {
   data: {
     location_name: string;
     latitude: number | null;
     longitude: number | null;
+    route_drawing?: GeoJSON.Feature | null;
   };
   onChange: (updates: { 
     location_name?: string; 
     latitude?: number | null; 
-    longitude?: number | null; 
+    longitude?: number | null;
+    route_drawing?: GeoJSON.Feature | null;
   }) => void;
   isContributor: boolean;
 }
@@ -28,6 +32,7 @@ export const StepLocation: React.FC<StepLocationProps> = ({
   isContributor
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const mapRef = useRef<mapboxgl.Map | null>(null);
 
   const handleMapClick = (fact: any) => {
     // This would be triggered by map clicks in a real implementation
@@ -42,11 +47,18 @@ export const StepLocation: React.FC<StepLocationProps> = ({
     });
   };
 
+  const handleSaveDrawing = (drawing: GeoJSON.Feature) => {
+    onChange({
+      route_drawing: drawing
+    });
+  };
+
   const clearLocation = () => {
     onChange({
       latitude: null,
       longitude: null,
-      location_name: ''
+      location_name: '',
+      route_drawing: null
     });
   };
 
@@ -97,36 +109,73 @@ export const StepLocation: React.FC<StepLocationProps> = ({
               )}
 
               {isContributor && (
-                <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
+                <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg space-y-3">
+                  <div className="flex items-center gap-2">
                     <Badge variant="default" className="bg-primary/20 text-primary">
                       Contributor
                     </Badge>
-                    <span className="text-sm font-medium text-foreground">Enhanced Map</span>
+                    <span className="text-sm font-medium text-foreground">Enhanced Features</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Click on the map to precisely select your location. Drag to pan and scroll to zoom.
-                  </p>
+                  <div className="space-y-2 text-xs text-muted-foreground">
+                    <div className="flex items-start gap-2">
+                      <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span>Click on the map to precisely select your location</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Route className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span>Use drawing tools to trace routes or highlight areas</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <MapIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span>Drag to pan and scroll to zoom</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
 
             <div className="space-y-2">
               <Label className="text-foreground">Interactive Map</Label>
-              <div className="aspect-square rounded-lg overflow-hidden border border-border">
-              <UnifiedMap
-                className="w-full h-full"
-                center={
-                  data.latitude && data.longitude
-                    ? [data.longitude, data.latitude]
-                    : [-74.0060, 40.7128] // Default to NYC
-                }
-                zoom={data.latitude && data.longitude ? 15 : 10}
-                onFactClick={handleMapClick}
-                enableClustering={false}
-                useScalableLoading={false}
-              />
+              <div className="aspect-square rounded-lg overflow-hidden border border-border relative">
+                <UnifiedMap
+                  className="w-full h-full"
+                  center={
+                    data.latitude && data.longitude
+                      ? [data.longitude, data.latitude]
+                      : [-74.0060, 40.7128] // Default to NYC
+                  }
+                  zoom={data.latitude && data.longitude ? 15 : 10}
+                  onFactClick={handleMapClick}
+                  enableClustering={false}
+                  useScalableLoading={false}
+                />
+                
+                {isContributor && mapRef.current && (
+                  <MapDrawingTools
+                    map={mapRef.current}
+                    onSaveDrawing={handleSaveDrawing}
+                    initialDrawing={data.route_drawing || undefined}
+                  />
+                )}
               </div>
+              
+              {data.route_drawing && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-3 bg-primary/10 border border-primary/20 rounded-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <Route className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">
+                      {data.route_drawing.geometry.type === 'LineString' ? 'Route' : 'Area'} drawn
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Your drawing will be saved with this story
+                  </p>
+                </motion.div>
+              )}
             </div>
           </div>
 
