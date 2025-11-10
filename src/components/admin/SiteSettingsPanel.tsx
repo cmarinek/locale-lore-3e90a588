@@ -4,13 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useSiteSettings } from '@/hooks/useSiteSettings';
+import { useBranding } from '@/components/providers/BrandingProvider';
 import { Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export const SiteSettingsPanel: React.FC = () => {
   const { t } = useTranslation('admin');
-  const { branding, isLoading, uploadLogo, uploadFavicon, isUploading, updateBranding } = useSiteSettings();
+  const { branding, isLoading, uploadLogo, uploadFavicon, isUploading, updateBranding } = useBranding();
 
   const onDropLogo = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
