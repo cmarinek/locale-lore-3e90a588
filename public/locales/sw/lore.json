@@ -1,47 +1,115 @@
 {
   "title": "LocaleLore",
-  "subtitle": "Gundua na shiriki hadithi za mitaa zenye kuvutia",
+  "subtitle": "Gundua na ushiriki hadithi za ndani za kuvutia",
   "submitStory": "Wasilisha Hadithi Yako",
   "exploreStories": "Chunguza Hadithi",
   "featuredStories": "Hadithi Zilizoangaziwa",
-  "recentStories": "Hadithi za Hivi Karibuni",
+  "recentStories": "Hadithi za Karibuni",
   "nearbyStories": "Hadithi za Karibu",
   "popularStories": "Hadithi Maarufu",
+  "welcome": {
+    "title": "Gundua Hadithi Zilizofichwa Ulimwenguni Kote",
+    "subtitle": "Gundua na ushiriki hadithi zisizojulikana na siri zilizofichwa kuhusu maeneo ulimwenguni kote."
+  },
+  "home": {
+    "subtitle": "Gundua hadithi na hadithi za ndani za kuvutia kutoka ulimwenguni kote",
+    "loading": "Inapakia sehemu ya kukaribisha...",
+    "quickActions": {
+      "discoverDaily": {
+        "title": "Gundua Kila Siku",
+        "description": "Pata hadithi za ndani za kuvutia"
+      },
+      "exploreMap": {
+        "title": "Chunguza Ramani",
+        "description": "Piga hadithi kwa eneo"
+      },
+      "trending": {
+        "title": "Hadithi Zinazovuma",
+        "description": "Ona nini kinachopendwa sasa"
+      },
+      "joinCommunity": {
+        "title": "Jiunge na Jumuiya",
+        "description": "Unganisha na wasimuliaji wa ndani"
+      }
+    },
+    "features": {
+      "advancedSearch": {
+        "title": "Utafutaji wa Juu",
+        "description": "Pata hadithi kwa vigezo vingi"
+      },
+      "shareStory": {
+        "title": "Shiriki Hadithi Yako",
+        "description": "Ambia ulimwengu kuhusu eneo lako"
+      },
+      "verifiedContent": {
+        "title": "Maudhui Yaliyothibitishwa",
+        "description": "Amini katika maarifa halisi ya ndani"
+      }
+    },
+    "auth": {
+      "title": "Jiunge na LocaleLore",
+      "description": "Unda akaunti ili kushiriki hadithi zako mwenyewe na kuunganisha na jumuiya",
+      "signUp": "Jisajili",
+      "signIn": "Ingia"
+    },
+    "stats": {
+      "storiesShared": "Hadithi Zilizoshirikiwa",
+      "activeContributors": "Wachangiaji Hai",
+      "locationsCovered": "Maeneo Yaliyofunikwa"
+    }
+  },
+  "features": {
+    "hiddenGems": {
+      "title": "Vitu Vya Thamani Vilivyofichwa Karibu",
+      "description": "Gundua maeneo ya siri na hadithi za ndani ambazo wenyeji tu wanajua"
+    },
+    "communityVerified": {
+      "title": "Imethibitishwa na Jumuiya",
+      "description": "Hadithi zilizothibitishwa na watu halisi waliokuwepo na kupitia"
+    },
+    "locationStories": {
+      "title": "Hadithi za Eneo",
+      "description": "Kila mahali lina hadithi - gundua historia nyuma ya maeneo unayoyafahamu"
+    }
+  },
   "categories": {
     "history": "Historia",
-    "folklore": "Hadithi za Jadi",
-    "legends": "Hadithi za Kubuni",
-    "mystery": "Siri",
+    "folklore": "Hadithi za Jadi", 
+    "legends": "Hadithi za Kale",
+    "mystery": "Fumbo",
     "culture": "Utamaduni",
     "food": "Chakula na Upishi",
     "architecture": "Usanifu",
-    "nature": "Mazingira",
+    "nature": "Asili",
     "events": "Matukio",
     "people": "Watu"
   },
   "storyDetails": {
-    "readTime": "Muda wa Kusoma",
+    "readTime": "Muda wa kusoma",
     "difficulty": "Ugumu",
     "verified": "Imethibitishwa",
     "unverified": "Haijathibitishwa",
     "votes": "kura",
-    "upvote": "Piga Kura",
-    "downvote": "Kataa",
-    "bookmark": "Hifadhi",
+    "upvote": "Piga kura nzuri",
+    "downvote": "Piga kura mbaya",
+    "bookmark": "Alama ya kitabu",
     "report": "Ripoti",
-    "viewOnMap": "Ona kwenye Ramani",
+    "viewOnMap": "Tazama kwenye Ramani",
     "shareStory": "Shiriki Hadithi",
     "relatedStories": "Hadithi Zinazohusiana"
   },
   "submission": {
-    "basicInfo": "Taarifa za Msingi",
+    "checkingPrivileges": "Inakagua ruhusa zako za kuwasilisha...",
+    "backToExplore": "Rudi kwa Kuchunguza",
+    "subtitle": "Shiriki maarifa yako ya kipekee ya ndani na saidia kuhifadhi urithi wa kitamaduni kwa vizazi vijavyo.",
+    "basicInfo": "Maelezo ya Msingi",
     "storyTitle": "Kichwa cha Hadithi",
     "storyDescription": "Maelezo ya Hadithi",
     "category": "Jamii",
     "selectCategory": "Chagua jamii",
-    "location": "Mahali",
-    "addLocation": "Ongeza Mahali",
-    "searchLocation": "Tafuta mahali",
+    "location": "Eneo",
+    "addLocation": "Ongeza Eneo",
+    "searchLocation": "Tafuta eneo",
     "content": "Maudhui ya Hadithi",
     "writeYourStory": "Andika hadithi yako...",
     "media": "Vyombo vya Habari",
@@ -52,34 +120,61 @@
     "draft": "Hifadhi kama Rasimu",
     "publishing": "Inachapisha...",
     "published": "Hadithi imechapishwa kwa mafanikio!",
-    "failed": "Imeshindwa kuchapisha hadithi"
+    "failed": "Imeshindwa kuchapisha hadithi",
+    "benefits": {
+      "preserveHistory": "Hifadhi Historia",
+      "preserveDesc": "Saidia kuhifadhi hadithi za ndani na urithi wa kitamaduni kwa vizazi vijavyo",
+      "buildReputation": "Jenga Sifa",
+      "buildDesc": "Pata utambuzi katika jumuiya na jenga sifa yako kama mchangiaji",
+      "verifiedContent": "Maudhui Yaliyothibitishwa",
+      "verifiedDesc": "Mawasilisho yako yatakaguliwa na kuthibitishwa na jumuiya yetu"
+    }
   },
   "verification": {
-    "communityVerification": "Uthibitisho wa Jamii",
-    "verificationScore": "Alama za Uthibitisho",
-    "votesToVerify": "Kura za Kuthibitisha",
-    "swipeToVote": "Telezesha kupiga kura kwa hadithi hii",
-    "swipeLeft": "Telezesha kushoto kushuku",
+    "communityVerification": "Uthibitishaji wa Jumuiya",
+    "verificationScore": "Alama ya Uthibitishaji",
+    "votesToVerify": "Kura zinazohitajika kwa uthibitishaji",
+    "swipeToVote": "Telezesha kupiga kura kwenye hadithi hii",
+    "swipeLeft": "Telezesha kushoto kushangaa",
     "swipeRight": "Telezesha kulia kuthibitisha",
     "verifyStory": "Thibitisha Hadithi",
-    "doubtStory": "Shuku Hadithi",
-    "alreadyVoted": "Tayari umepiga kura kwa hadithi hii",
+    "doubtStory": "Shangaa Hadithi",
+    "alreadyVoted": "Umeshapiga kura kwenye hadithi hii",
     "thanksForVoting": "Asante kwa kura yako!",
     "discussionThread": "Uzi wa Majadiliano",
     "addComment": "Ongeza maoni...",
-    "viewDiscussion": "Ona Majadiliano"
+    "viewDiscussion": "Tazama Majadiliano"
   },
   "search": {
-    "searchPlaceholder": "Tafuta hadithi, maeneo au mada...",
-    "filterByLocation": "Chuja kwa mahali",
+    "title": "Gundua Hadithi za Ndani",
+    "description": "Tafuta kupitia maelfu ya hadithi za ndani, hadithi za kale, na ukweli wa kihistoria. Tumia utafutaji wa sauti, tekeleza vichujio, na gundua maudhui yanayovuma katika eneo lako.",
+    "searchPlaceholder": "Tafuta hadithi, maeneo, au mada...",
+    "filterByLocation": "Chuja kwa eneo",
     "filterByCategory": "Chuja kwa jamii",
     "sortBy": "Panga kwa",
     "relevance": "Umuhimu",
-    "newest": "Mpya Zaidi",
-    "oldest": "Za Zamani Zaidi",
-    "mostVoted": "Zilizopigwa Kura Zaidi",
-    "nearestFirst": "Za Karibu Kwanza",
+    "newest": "Mpya zaidi",
+    "oldest": "Za zamani zaidi",
+    "mostVoted": "Zilizopigwa kura zaidi",
+    "nearestFirst": "Karibu zaidi kwanza",
     "noResults": "Hakuna hadithi zilizopatikana",
-    "tryDifferentSearch": "Jaribu utafutaji tofauti"
+    "tryDifferentSearch": "Jaribu neno lingine la utafutaji",
+    "quickFilters": "Vichujio vya Haraka",
+    "filters": {
+      "verifiedOnly": "Zilizothibitishwa Tu",
+      "verifiedDesc": "Maudhui rasmi na yaliyothibitishwa",
+      "recentSubmissions": "Mawasilisho ya Hivi Karibuni",
+      "recentDesc": "Michango ya hivi karibuni ya watumiaji",
+      "nearMe": "Karibu Nami",
+      "nearMeDesc": "Maudhui ndani ya km 10"
+    },
+    "tips": {
+      "title": "Vidokezo vya Utafutaji",
+      "exactPhrases": "• Tumia alama za kunukuu kwa maneno halisi: \"hadithi ya mizuka\"",
+      "locationNames": "• Jaribu majina ya maeneo: \"katikati ya mji\", \"daraja la zamani\"",
+      "voiceSearch": "• Tumia utafutaji wa sauti kwa utafutaji bila mikono",
+      "saveSearches": "• Hifadhi utafutaji wa mara kwa mara kwa ufikiaji wa haraka",
+      "qrCodes": "• Changanua misimbo ya QR kugundua maudhui yanayotegemea eneo"
+    }
   }
 }

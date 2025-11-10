@@ -1,15 +1,80 @@
 {
   "title": "LocaleLore",
-  "subtitle": "魅力的な地域のストーリーを発見し、共有する",
-  "submitStory": "ストーリーを投稿",
-  "exploreStories": "ストーリーを探索",
-  "featuredStories": "注目のストーリー",
-  "recentStories": "最近のストーリー",
-  "nearbyStories": "近くのストーリー",
-  "popularStories": "人気のストーリー",
+  "subtitle": "魅力的な地元の物語を発見し共有する",
+  "submitStory": "あなたの物語を投稿",
+  "exploreStories": "物語を探す",
+  "featuredStories": "注目の物語",
+  "recentStories": "最近の物語",
+  "nearbyStories": "近くの物語",
+  "popularStories": "人気の物語",
+  "welcome": {
+    "title": "世界中の隠された物語を発見",
+    "subtitle": "世界中の場所についての未知の物語と隠された秘密を発見し共有しましょう。"
+  },
+  "home": {
+    "subtitle": "世界中の魅力的な地元の物語と伝説を発見",
+    "loading": "ウェルカムセクションを読み込み中...",
+    "quickActions": {
+      "discoverDaily": {
+        "title": "毎日発見",
+        "description": "魅力的な地元の物語を見つける"
+      },
+      "exploreMap": {
+        "title": "地図を探索",
+        "description": "場所別に物語をナビゲート"
+      },
+      "trending": {
+        "title": "トレンド物語",
+        "description": "今人気のものを見る"
+      },
+      "joinCommunity": {
+        "title": "コミュニティに参加",
+        "description": "地元のストーリーテラーとつながる"
+      }
+    },
+    "features": {
+      "advancedSearch": {
+        "title": "高度な検索",
+        "description": "複数の基準で物語を見つける"
+      },
+      "shareStory": {
+        "title": "あなたの物語を共有",
+        "description": "あなたの場所について世界に伝える"
+      },
+      "verifiedContent": {
+        "title": "検証済みコンテンツ",
+        "description": "本物の地元の知識を信頼"
+      }
+    },
+    "auth": {
+      "title": "LocaleLoreに参加",
+      "description": "アカウントを作成して自分の物語を共有し、コミュニティとつながりましょう",
+      "signUp": "サインアップ",
+      "signIn": "サインイン"
+    },
+    "stats": {
+      "storiesShared": "共有された物語",
+      "activeContributors": "アクティブな貢献者",
+      "locationsCovered": "カバーされた場所"
+    }
+  },
+  "features": {
+    "hiddenGems": {
+      "title": "近くの隠れた宝石",
+      "description": "地元の人だけが知っている秘密の場所や地元の伝説を発見"
+    },
+    "communityVerified": {
+      "title": "コミュニティ検証済み",
+      "description": "そこに行って体験した実在の人々によって検証された物語"
+    },
+    "locationStories": {
+      "title": "場所の物語",
+      "description": "すべての場所には物語があります - 馴染みのある場所の背後にある歴史を発見"
+    }
+  },
   "categories": {
     "history": "歴史",
-    "folklore": "民間伝承",
+    "folklore": "民間伝承", 
     "legends": "伝説",
     "mystery": "ミステリー",
     "culture": "文化",
@@ -24,62 +89,92 @@
     "difficulty": "難易度",
     "verified": "検証済み",
     "unverified": "未検証",
-    "votes": "投票",
+    "votes": "票",
     "upvote": "賛成票",
     "downvote": "反対票",
     "bookmark": "ブックマーク",
     "report": "報告",
-    "viewOnMap": "地図で表示",
-    "shareStory": "ストーリーを共有",
-    "relatedStories": "関連ストーリー"
+    "viewOnMap": "地図で見る",
+    "shareStory": "物語を共有",
+    "relatedStories": "関連する物語"
   },
   "submission": {
+    "checkingPrivileges": "投稿権限を確認中...",
+    "backToExplore": "探索に戻る",
+    "subtitle": "あなたのユニークな地元の知識を共有し、将来の世代のために文化遺産を保存するのを手伝いましょう。",
     "basicInfo": "基本情報",
-    "storyTitle": "ストーリーのタイトル",
-    "storyDescription": "ストーリーの説明",
+    "storyTitle": "物語のタイトル",
+    "storyDescription": "物語の説明",
     "category": "カテゴリー",
     "selectCategory": "カテゴリーを選択",
     "location": "場所",
     "addLocation": "場所を追加",
     "searchLocation": "場所を検索",
-    "content": "ストーリーの内容",
-    "writeYourStory": "ストーリーを書く...",
+    "content": "物語の内容",
+    "writeYourStory": "あなたの物語を書く...",
     "media": "メディア",
     "addPhotos": "写真を追加",
-    "addVideos": "動画を追加",
+    "addVideos": "ビデオを追加",
     "preview": "プレビュー",
-    "submit": "ストーリーを投稿",
+    "submit": "物語を投稿",
     "draft": "下書きとして保存",
     "publishing": "公開中...",
-    "published": "ストーリーが正常に公開されました！",
-    "failed": "ストーリーの公開に失敗しました"
+    "published": "物語が正常に公開されました!",
+    "failed": "物語の公開に失敗しました",
+    "benefits": {
+      "preserveHistory": "歴史を保存",
+      "preserveDesc": "将来の世代のために地元の物語と文化遺産を保存するのを手伝う",
+      "buildReputation": "評判を構築",
+      "buildDesc": "コミュニティで認識を得て、貢献者としての評判を構築",
+      "verifiedContent": "検証済みコンテンツ",
+      "verifiedDesc": "あなたの投稿はコミュニティによってレビューされ検証されます"
+    }
   },
   "verification": {
     "communityVerification": "コミュニティ検証",
     "verificationScore": "検証スコア",
-    "votesToVerify": "検証に必要な投票数",
-    "swipeToVote": "スワイプしてこのストーリーに投票",
-    "swipeLeft": "左にスワイプして疑問を表明",
+    "votesToVerify": "検証に必要な票",
+    "swipeToVote": "スワイプしてこの物語に投票",
+    "swipeLeft": "左にスワイプして疑問を投じる",
     "swipeRight": "右にスワイプして検証",
-    "verifyStory": "ストーリーを検証",
-    "doubtStory": "ストーリーに疑問",
-    "alreadyVoted": "すでにこのストーリーに投票しました",
-    "thanksForVoting": "投票ありがとうございます！",
+    "verifyStory": "物語を検証",
+    "doubtStory": "物語を疑う",
+    "alreadyVoted": "この物語にすでに投票しました",
+    "thanksForVoting": "投票ありがとうございます!",
     "discussionThread": "ディスカッションスレッド",
     "addComment": "コメントを追加...",
-    "viewDiscussion": "ディスカッションを表示"
+    "viewDiscussion": "ディスカッションを見る"
   },
   "search": {
-    "searchPlaceholder": "ストーリー、場所、またはトピックを検索...",
-    "filterByLocation": "場所で絞り込む",
-    "filterByCategory": "カテゴリーで絞り込む",
-    "sortBy": "並び替え",
+    "title": "地元の伝承を発見",
+    "description": "何千もの地元の物語、伝説、歴史的事実を検索。音声検索を使用し、フィルターを適用し、あなたの地域でトレンドのコンテンツを発見。",
+    "searchPlaceholder": "物語、場所、またはトピックを検索...",
+    "filterByLocation": "場所でフィルター",
+    "filterByCategory": "カテゴリーでフィルター",
+    "sortBy": "並べ替え",
     "relevance": "関連性",
-    "newest": "新しい順",
-    "oldest": "古い順",
-    "mostVoted": "投票数順",
-    "nearestFirst": "近い順",
-    "noResults": "ストーリーが見つかりませんでした",
-    "tryDifferentSearch": "別の検索語を試してください"
+    "newest": "最新",
+    "oldest": "最古",
+    "mostVoted": "最も投票された",
+    "nearestFirst": "最も近い順",
+    "noResults": "物語が見つかりません",
+    "tryDifferentSearch": "別の検索用語を試してください",
+    "quickFilters": "クイックフィルター",
+    "filters": {
+      "verifiedOnly": "検証済みのみ",
+      "verifiedDesc": "公式および検証済みコンテンツ",
+      "recentSubmissions": "最近の投稿",
+      "recentDesc": "最新のユーザー貢献",
+      "nearMe": "近くの",
+      "nearMeDesc": "10km以内のコンテンツ"
+    },
+    "tips": {
+      "title": "検索のヒント",
+      "exactPhrases": "• 完全一致には引用符を使用:「幽霊物語」",
+      "locationNames": "• 場所名を試す:「ダウンタウン」、「古い橋」",
+      "voiceSearch": "• ハンズフリー検索には音声検索を使用",
+      "saveSearches": "• 頻繁な検索を保存してクイックアクセス",
+      "qrCodes": "• QRコードをスキャンして場所ベースのコンテンツを発見"
+    }
   }
 }

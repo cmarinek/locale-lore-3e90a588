@@ -7,9 +7,74 @@
   "recentStories": "Histórias Recentes",
   "nearbyStories": "Histórias Próximas",
   "popularStories": "Histórias Populares",
+  "welcome": {
+    "title": "Descubra Histórias Ocultas ao Redor do Mundo",
+    "subtitle": "Descubra e compartilhe histórias desconhecidas e segredos ocultos sobre lugares ao redor do mundo."
+  },
+  "home": {
+    "subtitle": "Descubra histórias e lendas locais fascinantes de todo o mundo",
+    "loading": "Carregando seção de boas-vindas...",
+    "quickActions": {
+      "discoverDaily": {
+        "title": "Descobrir Diariamente",
+        "description": "Encontre histórias locais fascinantes"
+      },
+      "exploreMap": {
+        "title": "Explorar Mapa",
+        "description": "Navegue histórias por localização"
+      },
+      "trending": {
+        "title": "Histórias em Tendência",
+        "description": "Veja o que é popular agora"
+      },
+      "joinCommunity": {
+        "title": "Junte-se à Comunidade",
+        "description": "Conecte-se com contadores de histórias locais"
+      }
+    },
+    "features": {
+      "advancedSearch": {
+        "title": "Pesquisa Avançada",
+        "description": "Encontre histórias por múltiplos critérios"
+      },
+      "shareStory": {
+        "title": "Compartilhe Sua História",
+        "description": "Conte ao mundo sobre seu lugar"
+      },
+      "verifiedContent": {
+        "title": "Conteúdo Verificado",
+        "description": "Confie em conhecimento local autêntico"
+      }
+    },
+    "auth": {
+      "title": "Junte-se ao LocaleLore",
+      "description": "Crie uma conta para compartilhar suas próprias histórias e conectar-se com a comunidade",
+      "signUp": "Registrar-se",
+      "signIn": "Entrar"
+    },
+    "stats": {
+      "storiesShared": "Histórias Compartilhadas",
+      "activeContributors": "Contribuidores Ativos",
+      "locationsCovered": "Localizações Cobertas"
+    }
+  },
+  "features": {
+    "hiddenGems": {
+      "title": "Joias Escondidas Próximas",
+      "description": "Descubra lugares secretos e lendas locais que apenas os moradores conhecem"
+    },
+    "communityVerified": {
+      "title": "Verificado pela Comunidade",
+      "description": "Histórias validadas por pessoas reais que estiveram lá e vivenciaram"
+    },
+    "locationStories": {
+      "title": "Histórias de Localização",
+      "description": "Todo lugar tem uma história - descubra a história por trás de locais familiares"
+    }
+  },
   "categories": {
     "history": "História",
-    "folklore": "Folclore",
+    "folklore": "Folclore", 
     "legends": "Lendas",
     "mystery": "Mistério",
     "culture": "Cultura",
@@ -20,20 +85,23 @@
     "people": "Pessoas"
   },
   "storyDetails": {
-    "readTime": "Tempo de Leitura",
+    "readTime": "Tempo de leitura",
     "difficulty": "Dificuldade",
     "verified": "Verificado",
-    "unverified": "Não Verificado",
+    "unverified": "Não verificado",
     "votes": "votos",
-    "upvote": "Votar",
-    "downvote": "Desaprovar",
-    "bookmark": "Salvar",
-    "report": "Denunciar",
+    "upvote": "Votar positivo",
+    "downvote": "Votar negativo",
+    "bookmark": "Marcar",
+    "report": "Reportar",
     "viewOnMap": "Ver no Mapa",
     "shareStory": "Compartilhar História",
     "relatedStories": "Histórias Relacionadas"
   },
   "submission": {
+    "checkingPrivileges": "Verificando seus privilégios de envio...",
+    "backToExplore": "Voltar para Explorar",
+    "subtitle": "Compartilhe seu conhecimento local único e ajude a preservar o patrimônio cultural para as gerações futuras.",
     "basicInfo": "Informações Básicas",
     "storyTitle": "Título da História",
     "storyDescription": "Descrição da História",
@@ -41,7 +109,7 @@
     "selectCategory": "Selecione uma categoria",
     "location": "Localização",
     "addLocation": "Adicionar Localização",
-    "searchLocation": "Pesquisar localização",
+    "searchLocation": "Procurar por uma localização",
     "content": "Conteúdo da História",
     "writeYourStory": "Escreva sua história...",
     "media": "Mídia",
@@ -52,12 +120,20 @@
     "draft": "Salvar como Rascunho",
     "publishing": "Publicando...",
     "published": "História publicada com sucesso!",
-    "failed": "Falha ao publicar história"
+    "failed": "Falha ao publicar história",
+    "benefits": {
+      "preserveHistory": "Preservar História",
+      "preserveDesc": "Ajude a preservar histórias locais e patrimônio cultural para as gerações futuras",
+      "buildReputation": "Construir Reputação",
+      "buildDesc": "Ganhe reconhecimento na comunidade e construa sua reputação de contribuidor",
+      "verifiedContent": "Conteúdo Verificado",
+      "verifiedDesc": "Seus envios serão revisados e verificados por nossa comunidade"
+    }
   },
   "verification": {
     "communityVerification": "Verificação da Comunidade",
     "verificationScore": "Pontuação de Verificação",
-    "votesToVerify": "Votos para Verificar",
+    "votesToVerify": "Votos necessários para verificação",
     "swipeToVote": "Deslize para votar nesta história",
     "swipeLeft": "Deslize para a esquerda para duvidar",
     "swipeRight": "Deslize para a direita para verificar",
@@ -66,20 +142,39 @@
     "alreadyVoted": "Você já votou nesta história",
     "thanksForVoting": "Obrigado pelo seu voto!",
     "discussionThread": "Tópico de Discussão",
-    "addComment": "Adicionar comentário...",
+    "addComment": "Adicione um comentário...",
     "viewDiscussion": "Ver Discussão"
   },
   "search": {
-    "searchPlaceholder": "Pesquisar histórias, lugares ou temas...",
+    "title": "Descubra Lore Local",
+    "description": "Pesquise através de milhares de histórias locais, lendas e fatos históricos. Use pesquisa por voz, aplique filtros e descubra conteúdo em tendência na sua área.",
+    "searchPlaceholder": "Pesquisar histórias, localizações ou tópicos...",
     "filterByLocation": "Filtrar por localização",
     "filterByCategory": "Filtrar por categoria",
     "sortBy": "Ordenar por",
     "relevance": "Relevância",
-    "newest": "Mais Recentes",
-    "oldest": "Mais Antigas",
-    "mostVoted": "Mais Votadas",
-    "nearestFirst": "Mais Próximas Primeiro",
+    "newest": "Mais Recente",
+    "oldest": "Mais Antigo",
+    "mostVoted": "Mais Votado",
+    "nearestFirst": "Mais Próximo Primeiro",
     "noResults": "Nenhuma história encontrada",
-    "tryDifferentSearch": "Tente uma pesquisa diferente"
+    "tryDifferentSearch": "Tente um termo de pesquisa diferente",
+    "quickFilters": "Filtros Rápidos",
+    "filters": {
+      "verifiedOnly": "Apenas Verificado",
+      "verifiedDesc": "Conteúdo oficial e verificado",
+      "recentSubmissions": "Envios Recentes",
+      "recentDesc": "Últimas contribuições de usuários",
+      "nearMe": "Perto de Mim",
+      "nearMeDesc": "Conteúdo dentro de 10km"
+    },
+    "tips": {
+      "title": "Dicas de Pesquisa",
+      "exactPhrases": "• Use aspas para frases exatas: \"história de fantasma\"",
+      "locationNames": "• Tente nomes de locais: \"centro da cidade\", \"ponte velha\"",
+      "voiceSearch": "• Use pesquisa por voz para pesquisar sem as mãos",
+      "saveSearches": "• Salve pesquisas frequentes para acesso rápido",
+      "qrCodes": "• Escaneie códigos QR para descobrir conteúdo baseado em localização"
+    }
   }
 }

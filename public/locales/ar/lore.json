@@ -1,19 +1,84 @@
 {
   "title": "LocaleLore",
   "subtitle": "اكتشف وشارك القصص المحلية الرائعة",
-  "submitStory": "قدم قصتك",
-  "exploreStories": "استكشاف القصص",
+  "submitStory": "أرسل قصتك",
+  "exploreStories": "استكشف القصص",
   "featuredStories": "القصص المميزة",
   "recentStories": "القصص الأخيرة",
   "nearbyStories": "القصص القريبة",
   "popularStories": "القصص الشائعة",
+  "welcome": {
+    "title": "اكتشف القصص المخفية حول العالم",
+    "subtitle": "اكتشف وشارك القصص غير المعروفة والأسرار المخفية حول الأماكن في جميع أنحاء العالم."
+  },
+  "home": {
+    "subtitle": "اكتشف القصص والأساطير المحلية الرائعة من جميع أنحاء العالم",
+    "loading": "جاري تحميل قسم الترحيب...",
+    "quickActions": {
+      "discoverDaily": {
+        "title": "اكتشف يوميًا",
+        "description": "اعثر على قصص محلية رائعة"
+      },
+      "exploreMap": {
+        "title": "استكشف الخريطة",
+        "description": "تصفح القصص حسب الموقع"
+      },
+      "trending": {
+        "title": "القصص الرائجة",
+        "description": "شاهد ما هو شائع الآن"
+      },
+      "joinCommunity": {
+        "title": "انضم للمجتمع",
+        "description": "تواصل مع رواة القصص المحليين"
+      }
+    },
+    "features": {
+      "advancedSearch": {
+        "title": "بحث متقدم",
+        "description": "ابحث عن القصص بمعايير متعددة"
+      },
+      "shareStory": {
+        "title": "شارك قصتك",
+        "description": "أخبر العالم عن مكانك"
+      },
+      "verifiedContent": {
+        "title": "محتوى موثق",
+        "description": "ثق بالمعرفة المحلية الأصيلة"
+      }
+    },
+    "auth": {
+      "title": "انضم إلى LocaleLore",
+      "description": "أنشئ حسابًا لمشاركة قصصك الخاصة والتواصل مع المجتمع",
+      "signUp": "التسجيل",
+      "signIn": "تسجيل الدخول"
+    },
+    "stats": {
+      "storiesShared": "القصص المشاركة",
+      "activeContributors": "المساهمون النشطون",
+      "locationsCovered": "المواقع المغطاة"
+    }
+  },
+  "features": {
+    "hiddenGems": {
+      "title": "الكنوز المخفية القريبة",
+      "description": "اكتشف الأماكن السرية والأساطير المحلية التي يعرفها السكان المحليون فقط"
+    },
+    "communityVerified": {
+      "title": "موثق من المجتمع",
+      "description": "قصص تم التحقق منها من قبل أشخاص حقيقيين كانوا هناك وعاشوا التجربة"
+    },
+    "locationStories": {
+      "title": "قصص الموقع",
+      "description": "كل مكان له قصة - اكتشف التاريخ وراء المواقع المألوفة"
+    }
+  },
   "categories": {
     "history": "التاريخ",
-    "folklore": "الفولكلور",
+    "folklore": "الفولكلور", 
     "legends": "الأساطير",
     "mystery": "الغموض",
     "culture": "الثقافة",
-    "food": "الطعام والمطبخ",
+    "food": "الطعام والمأكولات",
     "architecture": "العمارة",
     "nature": "الطبيعة",
     "events": "الأحداث",
@@ -22,19 +87,22 @@
   "storyDetails": {
     "readTime": "وقت القراءة",
     "difficulty": "الصعوبة",
-    "verified": "محقق",
-    "unverified": "غير محقق",
-    "votes": "الأصوات",
+    "verified": "موثق",
+    "unverified": "غير موثق",
+    "votes": "أصوات",
     "upvote": "تصويت إيجابي",
     "downvote": "تصويت سلبي",
-    "bookmark": "حفظ",
+    "bookmark": "إشارة مرجعية",
     "report": "إبلاغ",
     "viewOnMap": "عرض على الخريطة",
     "shareStory": "مشاركة القصة",
     "relatedStories": "القصص ذات الصلة"
   },
   "submission": {
-    "basicInfo": "المعلومات الأساسية",
+    "checkingPrivileges": "جاري التحقق من امتيازات الإرسال الخاصة بك...",
+    "backToExplore": "العودة إلى الاستكشاف",
+    "subtitle": "شارك معرفتك المحلية الفريدة وساعد في الحفاظ على التراث الثقافي للأجيال القادمة.",
+    "basicInfo": "معلومات أساسية",
     "storyTitle": "عنوان القصة",
     "storyDescription": "وصف القصة",
     "category": "الفئة",
@@ -44,7 +112,7 @@
     "searchLocation": "البحث عن موقع",
     "content": "محتوى القصة",
     "writeYourStory": "اكتب قصتك...",
-    "media": "الوسائط",
+    "media": "وسائط",
     "addPhotos": "إضافة صور",
     "addVideos": "إضافة فيديوهات",
     "preview": "معاينة",
@@ -52,34 +120,61 @@
     "draft": "حفظ كمسودة",
     "publishing": "جاري النشر...",
     "published": "تم نشر القصة بنجاح!",
-    "failed": "فشل نشر القصة"
+    "failed": "فشل نشر القصة",
+    "benefits": {
+      "preserveHistory": "الحفاظ على التاريخ",
+      "preserveDesc": "ساعد في الحفاظ على القصص المحلية والتراث الثقافي للأجيال القادمة",
+      "buildReputation": "بناء السمعة",
+      "buildDesc": "احصل على التقدير في المجتمع وابن سمعتك كمساهم",
+      "verifiedContent": "محتوى موثق",
+      "verifiedDesc": "سيتم مراجعة مساهماتك والتحقق منها من قبل مجتمعنا"
+    }
   },
   "verification": {
-    "communityVerification": "التحقق المجتمعي",
+    "communityVerification": "التحقق من المجتمع",
     "verificationScore": "نقاط التحقق",
     "votesToVerify": "الأصوات المطلوبة للتحقق",
-    "swipeToVote": "اسحب للتصويت على هذه القصة",
-    "swipeLeft": "اسحب لليسار للشك",
-    "swipeRight": "اسحب لليمين للتحقق",
-    "verifyStory": "تحقق من القصة",
-    "doubtStory": "شك في القصة",
-    "alreadyVoted": "لقد صوت بالفعل على هذه القصة",
-    "thanksForVoting": "شكراً على تصويتك!",
-    "discussionThread": "سلسلة النقاش",
+    "swipeToVote": "مرر للتصويت على هذه القصة",
+    "swipeLeft": "مرر لليسار للشك",
+    "swipeRight": "مرر لليمين للتحقق",
+    "verifyStory": "التحقق من القصة",
+    "doubtStory": "الشك في القصة",
+    "alreadyVoted": "لقد صوّت بالفعل على هذه القصة",
+    "thanksForVoting": "شكرًا لتصويتك!",
+    "discussionThread": "موضوع المناقشة",
     "addComment": "إضافة تعليق...",
-    "viewDiscussion": "عرض النقاش"
+    "viewDiscussion": "عرض المناقشة"
   },
   "search": {
-    "searchPlaceholder": "البحث عن قصص أو مواقع أو مواضيع...",
+    "title": "اكتشف التراث المحلي",
+    "description": "ابحث في آلاف القصص المحلية والأساطير والحقائق التاريخية. استخدم البحث الصوتي، وطبق المرشحات، واكتشف المحتوى الرائج في منطقتك.",
+    "searchPlaceholder": "ابحث عن القصص أو المواقع أو المواضيع...",
     "filterByLocation": "تصفية حسب الموقع",
     "filterByCategory": "تصفية حسب الفئة",
     "sortBy": "ترتيب حسب",
-    "relevance": "الصلة",
+    "relevance": "الملاءمة",
     "newest": "الأحدث",
     "oldest": "الأقدم",
-    "mostVoted": "الأكثر تصويتاً",
+    "mostVoted": "الأكثر تصويتًا",
     "nearestFirst": "الأقرب أولاً",
     "noResults": "لم يتم العثور على قصص",
-    "tryDifferentSearch": "جرب مصطلح بحث مختلف"
+    "tryDifferentSearch": "جرب مصطلح بحث مختلف",
+    "quickFilters": "مرشحات سريعة",
+    "filters": {
+      "verifiedOnly": "موثق فقط",
+      "verifiedDesc": "محتوى رسمي وموثق",
+      "recentSubmissions": "الإرسالات الأخيرة",
+      "recentDesc": "أحدث مساهمات المستخدمين",
+      "nearMe": "بالقرب مني",
+      "nearMeDesc": "محتوى ضمن 10 كم"
+    },
+    "tips": {
+      "title": "نصائح البحث",
+      "exactPhrases": "• استخدم علامات الاقتباس للعبارات الدقيقة: \"قصة أشباح\"",
+      "locationNames": "• جرب أسماء المواقع: \"وسط المدينة\"، \"الجسر القديم\"",
+      "voiceSearch": "• استخدم البحث الصوتي للبحث دون استخدام اليدين",
+      "saveSearches": "• احفظ عمليات البحث المتكررة للوصول السريع",
+      "qrCodes": "• امسح رموز QR لاكتشاف المحتوى المستند إلى الموقع"
+    }
   }
 }

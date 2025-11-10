@@ -1,19 +1,84 @@
 {
   "title": "LocaleLore",
-  "subtitle": "发现和分享引人入胜的本地故事",
+  "subtitle": "发现和分享迷人的本地故事",
   "submitStory": "提交您的故事",
   "exploreStories": "探索故事",
   "featuredStories": "精选故事",
-  "recentStories": "最近的故事",
-  "nearbyStories": "附近的故事",
+  "recentStories": "最近故事",
+  "nearbyStories": "附近故事",
   "popularStories": "热门故事",
+  "welcome": {
+    "title": "发现世界各地的隐藏故事",
+    "subtitle": "发现并分享世界各地关于地方的未知故事和隐藏秘密。"
+  },
+  "home": {
+    "subtitle": "发现来自世界各地迷人的本地故事和传说",
+    "loading": "正在加载欢迎部分...",
+    "quickActions": {
+      "discoverDaily": {
+        "title": "每日发现",
+        "description": "寻找迷人的本地故事"
+      },
+      "exploreMap": {
+        "title": "探索地图",
+        "description": "按位置浏览故事"
+      },
+      "trending": {
+        "title": "热门故事",
+        "description": "查看现在流行的内容"
+      },
+      "joinCommunity": {
+        "title": "加入社区",
+        "description": "与本地故事讲述者联系"
+      }
+    },
+    "features": {
+      "advancedSearch": {
+        "title": "高级搜索",
+        "description": "按多个标准查找故事"
+      },
+      "shareStory": {
+        "title": "分享您的故事",
+        "description": "向世界讲述您的地方"
+      },
+      "verifiedContent": {
+        "title": "已验证内容",
+        "description": "信任真实的本地知识"
+      }
+    },
+    "auth": {
+      "title": "加入LocaleLore",
+      "description": "创建账户以分享您自己的故事并与社区联系",
+      "signUp": "注册",
+      "signIn": "登录"
+    },
+    "stats": {
+      "storiesShared": "分享的故事",
+      "activeContributors": "活跃贡献者",
+      "locationsCovered": "覆盖的位置"
+    }
+  },
+  "features": {
+    "hiddenGems": {
+      "title": "附近的隐藏宝石",
+      "description": "发现只有当地人知道的秘密地点和本地传说"
+    },
+    "communityVerified": {
+      "title": "社区验证",
+      "description": "由去过那里并体验过的真实人验证的故事"
+    },
+    "locationStories": {
+      "title": "位置故事",
+      "description": "每个地方都有故事 - 发现熟悉地点背后的历史"
+    }
+  },
   "categories": {
     "history": "历史",
-    "folklore": "民间传说",
+    "folklore": "民间传说", 
     "legends": "传奇",
     "mystery": "神秘",
     "culture": "文化",
-    "food": "美食与烹饪",
+    "food": "美食",
     "architecture": "建筑",
     "nature": "自然",
     "events": "事件",
@@ -24,16 +89,19 @@
     "difficulty": "难度",
     "verified": "已验证",
     "unverified": "未验证",
-    "votes": "投票",
+    "votes": "票",
     "upvote": "赞成",
     "downvote": "反对",
-    "bookmark": "收藏",
-    "report": "举报",
+    "bookmark": "书签",
+    "report": "报告",
     "viewOnMap": "在地图上查看",
     "shareStory": "分享故事",
     "relatedStories": "相关故事"
   },
   "submission": {
+    "checkingPrivileges": "正在检查您的提交权限...",
+    "backToExplore": "返回探索",
+    "subtitle": "分享您独特的本地知识,帮助为子孙后代保存文化遗产。",
     "basicInfo": "基本信息",
     "storyTitle": "故事标题",
     "storyDescription": "故事描述",
@@ -51,28 +119,38 @@
     "submit": "提交故事",
     "draft": "保存为草稿",
     "publishing": "正在发布...",
-    "published": "故事发布成功！",
-    "failed": "故事发布失败"
+    "published": "故事发布成功!",
+    "failed": "故事发布失败",
+    "benefits": {
+      "preserveHistory": "保存历史",
+      "preserveDesc": "帮助为子孙后代保存本地故事和文化遗产",
+      "buildReputation": "建立声誉",
+      "buildDesc": "在社区中获得认可并建立您的贡献者声誉",
+      "verifiedContent": "已验证内容",
+      "verifiedDesc": "您的提交将由我们的社区审查和验证"
+    }
   },
   "verification": {
     "communityVerification": "社区验证",
     "verificationScore": "验证分数",
-    "votesToVerify": "验证所需投票",
-    "swipeToVote": "滑动为此故事投票",
+    "votesToVerify": "验证所需的票数",
+    "swipeToVote": "滑动为这个故事投票",
     "swipeLeft": "向左滑动表示怀疑",
-    "swipeRight": "向右滑动表示验证",
+    "swipeRight": "向右滑动进行验证",
     "verifyStory": "验证故事",
     "doubtStory": "怀疑故事",
-    "alreadyVoted": "您已经为此故事投过票了",
-    "thanksForVoting": "感谢您的投票！",
-    "discussionThread": "讨论帖",
+    "alreadyVoted": "您已经为这个故事投票了",
+    "thanksForVoting": "感谢您的投票!",
+    "discussionThread": "讨论话题",
     "addComment": "添加评论...",
     "viewDiscussion": "查看讨论"
   },
   "search": {
-    "searchPlaceholder": "搜索故事、地点或主题...",
-    "filterByLocation": "按位置筛选",
-    "filterByCategory": "按类别筛选",
+    "title": "发现本地传说",
+    "description": "搜索数千个本地故事、传说和历史事实。使用语音搜索,应用过滤器,并发现您所在地区的热门内容。",
+    "searchPlaceholder": "搜索故事、位置或话题...",
+    "filterByLocation": "按位置过滤",
+    "filterByCategory": "按类别过滤",
     "sortBy": "排序方式",
     "relevance": "相关性",
     "newest": "最新",
@@ -80,6 +158,23 @@
     "mostVoted": "最多投票",
     "nearestFirst": "最近优先",
     "noResults": "未找到故事",
-    "tryDifferentSearch": "尝试不同的搜索"
+    "tryDifferentSearch": "尝试不同的搜索词",
+    "quickFilters": "快速过滤器",
+    "filters": {
+      "verifiedOnly": "仅已验证",
+      "verifiedDesc": "官方和已验证的内容",
+      "recentSubmissions": "最近提交",
+      "recentDesc": "最新用户贡献",
+      "nearMe": "靠近我",
+      "nearMeDesc": "10公里内的内容"
+    },
+    "tips": {
+      "title": "搜索提示",
+      "exactPhrases": "• 使用引号进行精确短语搜索:\"鬼故事\"",
+      "locationNames": "• 尝试位置名称:\"市中心\",\"旧桥\"",
+      "voiceSearch": "• 使用语音搜索进行免提搜索",
+      "saveSearches": "• 保存常用搜索以便快速访问",
+      "qrCodes": "• 扫描二维码发现基于位置的内容"
+    }
   }
 }
