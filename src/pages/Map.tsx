@@ -127,8 +127,9 @@ export const Map: React.FC = () => {
         {/* Map container - takes viewport height minus header, footer stays below naturally */}
         <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
           {/* View Mode Switcher - always visible */}
-          <div className="absolute top-4 right-4 z-20">
+          <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
             <MapViewSwitcher currentView={viewMode} onViewChange={setViewMode} variant="glass" />
+            <MapStyleSwitcher currentStyle={mapStyle} onStyleChange={handleStyleChange} />
           </div>
 
           {/* Map View */}
@@ -144,11 +145,6 @@ export const Map: React.FC = () => {
                 onFactClick={handleFactClick}
                 className="w-full h-full"
               />
-
-              {/* Map Style Switcher - overlays on map */}
-              <div className="absolute top-4 left-4 z-30">
-                <MapStyleSwitcher currentStyle={mapStyle} onStyleChange={handleStyleChange} />
-              </div>
 
               {/* Stats Overlay */}
               <MapStatsOverlay
