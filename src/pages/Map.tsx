@@ -108,7 +108,8 @@ export const Map: React.FC = () => {
           <link rel="canonical" href="/map" />
         </Helmet>
 
-        <div className="fixed inset-x-0 top-16 bottom-0 z-0">
+        {/* Map container takes full viewport height minus header */}
+        <div className="h-[calc(100vh-4rem)] relative">
           {/* View Mode Switcher */}
           <div className="absolute top-4 right-4 z-20">
             <MapViewSwitcher currentView={viewMode} onViewChange={setViewMode} variant="glass" />
