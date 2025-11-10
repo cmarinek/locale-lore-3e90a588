@@ -92,26 +92,27 @@ export const Map: React.FC = () => {
           <link rel="canonical" href="/map" />
         </Helmet>
 
-        <div className="h-[calc(100vh-4rem)] w-full relative z-0">
-          <UnifiedMap
-            facts={facts}
-            useScalableLoading={false}
-            enableClustering={true}
-            center={[0, 20]}
-            zoom={2}
-            style="light"
-            onFactClick={handleFactClick}
-          />
+      <div className="fixed inset-0 top-16 z-0">
+        <UnifiedMap
+          facts={facts}
+          useScalableLoading={false}
+          enableClustering={true}
+          center={[0, 20]}
+          zoom={2}
+          style="light"
+          onFactClick={handleFactClick}
+          className="w-full h-full"
+        />
 
-          {selectedFact && (
-            <FactPreviewModal
-              fact={selectedFact}
-              open={true}
-              onClose={handleCloseModal}
-            />
-          )}
-        </div>
-      </MainLayout>
+        {selectedFact && (
+          <FactPreviewModal
+            fact={selectedFact}
+            open={true}
+            onClose={handleCloseModal}
+          />
+        )}
+      </div>
+    </MainLayout>
     </ErrorBoundary>
   );
 };
