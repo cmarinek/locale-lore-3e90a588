@@ -460,7 +460,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       map.current?.remove();
       isInitialized.current = false;
     };
-  }, [mapboxToken, getMapStyleUrl, mapStyle, center, zoom, enableClustering]);
+  }, [mapboxToken, getMapStyleUrl, center, zoom, enableClustering]);
 
   // Setup clustered map using Mapbox GL native clustering with category distribution
   const setupClusteredMap = useCallback(() => {
