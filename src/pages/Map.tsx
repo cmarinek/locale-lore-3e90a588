@@ -109,8 +109,10 @@ export const Map: React.FC = () => {
         </Helmet>
 
         <div className="fixed inset-0 top-16 z-0">
-          {/* View Mode Switcher */}
-          <MapViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
+          {/* View Mode Switcher - positioned to match Explore and Hybrid pages */}
+          <div className="absolute top-4 right-4 z-20">
+            <MapViewSwitcher currentView={viewMode} onViewChange={setViewMode} variant="glass" />
+          </div>
 
           {/* Map View */}
           {(viewMode === 'map' || viewMode === 'hybrid') && (
