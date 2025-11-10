@@ -23,7 +23,7 @@ export const MapStyleSwitcher: React.FC<MapStyleSwitcherProps> = ({
   ];
 
   return (
-    <div className={cn('bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-1 flex gap-1', className)}>
+    <div className={cn('bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-1 flex gap-1 w-fit ml-auto', className)}>
       {styles.map((style) => (
         <Button
           key={style.value}
