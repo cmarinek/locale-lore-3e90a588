@@ -11,6 +11,7 @@ import { User, LogOut, Settings, UserCog } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigationConfig } from '@/hooks/useNavigationItems';
 import type { UserRole } from '@/types/navigation';
+import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 
 export const Navigation: React.FC = () => {
   const location = useLocation();
@@ -79,6 +80,9 @@ export const Navigation: React.FC = () => {
           </SmartLink>
         );
       })}
+      
+      {/* Notification Center for logged-in users */}
+      {user && <NotificationCenter />}
       
       {/* User Dropdown Menu for logged-in users */}
       {user && (

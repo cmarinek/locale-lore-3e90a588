@@ -8,6 +8,7 @@ import { LanguageProvider } from '@/contexts/LanguageProvider';
 import { TranslationDebugProvider } from '@/contexts/TranslationDebugContext';
 import { OfflineProvider } from '@/components/offline/OfflineProvider';
 import { BrandingProvider } from './BrandingProvider';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import i18n, { initI18n } from '@/utils/i18n';
 
@@ -53,11 +54,13 @@ export const ProviderChain: React.FC<ProviderChainProps> = ({ children }) => {
                     <ContextErrorBoundary contextName="LanguageProvider">
                       <LanguageProvider>
                         <TranslationDebugProvider>
-          <OfflineProvider>
-            <BrandingProvider>
-              {children}
-            </BrandingProvider>
-          </OfflineProvider>
+                          <NotificationProvider>
+                            <OfflineProvider>
+                              <BrandingProvider>
+                                {children}
+                              </BrandingProvider>
+                            </OfflineProvider>
+                          </NotificationProvider>
                         </TranslationDebugProvider>
                       </LanguageProvider>
                     </ContextErrorBoundary>
