@@ -23,30 +23,30 @@ const Index: React.FC = React.memo(() => {
   // Memoized quick actions to prevent re-renders
   const quickActions = React.useMemo(() => [
     {
-      title: t?.('discover_daily') || 'Discover Daily',
+      title: t('home.quickActions.discoverDaily.title', 'Discover Daily'),
       icon: Star,
-      description: t?.('discover_daily_desc') || 'Find fascinating local stories',
+      description: t('home.quickActions.discoverDaily.description', 'Find fascinating local stories'),
       action: () => navigate('/explore'),
       gradient: 'from-purple-500 to-pink-500'
     },
     {
-      title: t?.('explore_map') || 'Explore Map',
+      title: t('home.quickActions.exploreMap.title', 'Explore Map'),
       icon: MapPin,
-      description: t?.('explore_map_desc') || 'Navigate stories by location',
+      description: t('home.quickActions.exploreMap.description', 'Navigate stories by location'),
       action: () => navigate('/map'),
       gradient: 'from-blue-500 to-teal-500'
     },
     {
-      title: t?.('trending_stories') || 'Trending Stories',
+      title: t('home.quickActions.trending.title', 'Trending Stories'),
       icon: TrendingUp,
-      description: t?.('trending_stories_desc') || 'See what\'s popular right now',
+      description: t('home.quickActions.trending.description', 'See what\'s popular right now'),
       action: () => navigate('/explore?filter=trending'),
       gradient: 'from-orange-500 to-red-500'
     },
     {
-      title: t?.('join_community') || 'Join Community',
+      title: t('home.quickActions.joinCommunity.title', 'Join Community'),
       icon: Users,
-      description: t?.('join_community_desc') || 'Connect with local storytellers',
+      description: t('home.quickActions.joinCommunity.description', 'Connect with local storytellers'),
       action: () => navigate('/social'),
       gradient: 'from-green-500 to-emerald-500'
     }
@@ -54,20 +54,20 @@ const Index: React.FC = React.memo(() => {
 
   const featureCards = React.useMemo(() => [
     {
-      title: t?.('advanced_search') || 'Advanced Search',
-      description: t?.('advanced_search_desc') || 'Find stories by multiple criteria',
+      title: t('home.features.advancedSearch.title', 'Advanced Search'),
+      description: t('home.features.advancedSearch.description', 'Find stories by multiple criteria'),
       icon: Search,
       action: () => navigate('/search')
     },
     {
-      title: t?.('share_your_story') || 'Share Your Story',
-      description: t?.('share_your_story_desc') || 'Tell the world about your place',
+      title: t('home.features.shareStory.title', 'Share Your Story'),
+      description: t('home.features.shareStory.description', 'Tell the world about your place'),
       icon: BookOpen,
       action: () => navigate('/submit')
     },
     {
-      title: t?.('verified_content') || 'Verified Content',
-      description: t?.('verified_content_desc') || 'Trust in authentic local knowledge',
+      title: t('home.features.verifiedContent.title', 'Verified Content'),
+      description: t('home.features.verifiedContent.description', 'Trust in authentic local knowledge'),
       icon: Shield,
       action: () => navigate('/explore?filter=verified')
     }
@@ -82,7 +82,7 @@ const Index: React.FC = React.memo(() => {
             <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center">
               <div className="text-center space-y-4">
                 <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
-                <p className="text-muted-foreground">Loading welcome section...</p>
+                <p className="text-muted-foreground">{t('home.loading', 'Loading welcome section...')}</p>
               </div>
             </div>
           }>
@@ -93,7 +93,7 @@ const Index: React.FC = React.memo(() => {
           <div className="container mx-auto px-4 py-12">
             <div className="text-center mb-12 animate-fade-in-fast">
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                {t('subtitle', 'Discover fascinating local stories and legends from around the world')}
+                {t('home.subtitle', 'Discover fascinating local stories and legends from around the world')}
               </p>
 
               {/* Quick Actions */}
@@ -129,16 +129,16 @@ const Index: React.FC = React.memo(() => {
             {/* User Authentication Section */}
             {!user && (
               <div className="text-center py-12 border-t border-border/40">
-                <h2 className="text-2xl font-bold mb-4">{t('join_localelore', 'Join LocaleLore')}</h2>
+                <h2 className="text-2xl font-bold mb-4">{t('home.auth.title', 'Join LocaleLore')}</h2>
                 <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
-                  {t('join_description', 'Create an account to share your own stories and connect with the community')}
+                  {t('home.auth.description', 'Create an account to share your own stories and connect with the community')}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button onClick={() => navigate('/auth')} size="lg" className="min-h-[44px]">
-                    {t('sign_up', 'Sign Up')}
+                    {t('home.auth.signUp', 'Sign Up')}
                   </Button>
                   <Button variant="outline" onClick={() => navigate('/auth')} size="lg" className="min-h-[44px]">
-                    {t('sign_in', 'Sign In')}
+                    {t('home.auth.signIn', 'Sign In')}
                   </Button>
                 </div>
               </div>
@@ -156,7 +156,7 @@ const Index: React.FC = React.memo(() => {
                     storiesShared?.toLocaleString() || '1,000+'
                   )}
                 </div>
-                <p className="text-muted-foreground">{t('stories_shared', 'Stories Shared')}</p>
+                <p className="text-muted-foreground">{t('home.stats.storiesShared', 'Stories Shared')}</p>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-secondary mb-2">
@@ -168,7 +168,7 @@ const Index: React.FC = React.memo(() => {
                     activeContributors?.toLocaleString() || '500+'
                   )}
                 </div>
-                <p className="text-muted-foreground">{t('active_contributors', 'Active Contributors')}</p>
+                <p className="text-muted-foreground">{t('home.stats.activeContributors', 'Active Contributors')}</p>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-accent mb-2">
@@ -180,7 +180,7 @@ const Index: React.FC = React.memo(() => {
                     locationsCovered?.toLocaleString() || '100+'
                   )}
                 </div>
-                <p className="text-muted-foreground">{t('locations_covered', 'Locations Covered')}</p>
+                <p className="text-muted-foreground">{t('home.stats.locationsCovered', 'Locations Covered')}</p>
               </div>
             </div>
           </div>

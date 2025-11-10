@@ -12,6 +12,7 @@ export const WelcomeHeroOptimized = () => {
   const { t } = useTranslation('lore');
   const { user } = useAuth();
   const navigate = useNavigate();
+  const features = getFeatures(t);
   
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5 min-h-screen">
@@ -51,20 +52,20 @@ export const WelcomeHeroOptimized = () => {
   );
 };
 
-const features = [
+const getFeatures = (t: any) => [
   {
     icon: "🗺️",
-    title: "Hidden Gems Nearby",
-    description: "Uncover secret spots and local legends that only locals know about"
+    title: t('features.hiddenGems.title', 'Hidden Gems Nearby'),
+    description: t('features.hiddenGems.description', 'Uncover secret spots and local legends that only locals know about')
   },
   {
     icon: "🤝",
-    title: "Community Verified", 
-    description: "Stories validated by real people who've been there and experienced it"
+    title: t('features.communityVerified.title', 'Community Verified'), 
+    description: t('features.communityVerified.description', 'Stories validated by real people who\'ve been there and experienced it')
   },
   {
     icon: "📍",
-    title: "Location Stories",
-    description: "Every place has a story - discover the history behind familiar locations"
+    title: t('features.locationStories.title', 'Location Stories'),
+    description: t('features.locationStories.description', 'Every place has a story - discover the history behind familiar locations')
   }
 ];
