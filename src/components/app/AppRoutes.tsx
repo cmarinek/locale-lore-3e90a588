@@ -22,6 +22,7 @@ const Fact = lazy(() => import('@/pages/Fact').then(m => ({ default: m.Fact })))
 const ComponentShowcase = lazy(() => import('@/pages/ComponentShowcase'));
 const Gamification = lazy(() => import('@/pages/Gamification').then(m => ({ default: m.Gamification })));
 const Notifications = lazy(() => import('@/pages/Notifications').then(m => ({ default: m.Notifications })));
+const Friends = lazy(() => import('@/pages/Friends').then(m => ({ default: m.Friends })));
 const Hybrid = lazy(() => import('@/pages/Hybrid').then(m => ({ default: m.Hybrid })));
 const MediaManagement = lazy(() => import('@/pages/MediaManagement'));
 const Billing = lazy(() => import('@/pages/Billing').then(m => ({ default: m.Billing })));
@@ -106,6 +107,11 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/notifications" element={
           <ProtectedRoute requiresAuth>
             <Notifications />
+          </ProtectedRoute>
+        } />
+        <Route path="/friends" element={
+          <ProtectedRoute requiresAuth>
+            <Friends />
           </ProtectedRoute>
         } />
         <Route path="/gamification" element={

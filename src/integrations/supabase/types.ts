@@ -1307,6 +1307,33 @@ export type Database = {
         }
         Relationships: []
       }
+      friendships: {
+        Row: {
+          friend_id: string
+          id: string
+          requested_at: string | null
+          responded_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          friend_id: string
+          id?: string
+          requested_at?: string | null
+          responded_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          friend_id?: string
+          id?: string
+          requested_at?: string | null
+          responded_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       leaderboards: {
         Row: {
           created_at: string
