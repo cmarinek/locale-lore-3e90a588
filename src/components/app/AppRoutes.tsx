@@ -46,6 +46,7 @@ const RefundPolicy = lazy(() => import('@/pages/RefundPolicy'));
 const BillingSuccess = lazy(() => import('@/pages/BillingSuccess').then(m => ({ default: m.BillingSuccess })));
 const BillingCanceled = lazy(() => import('@/pages/BillingCanceled').then(m => ({ default: m.BillingCanceled })));
 const Settings = lazy(() => import('@/pages/Settings'));
+const PrivacySettings = lazy(() => import('@/pages/PrivacySettings'));
 const TranslationManager = lazy(() => import('@/pages/admin/TranslationManager').then(m => ({ default: m.TranslationManager })));
 const MakeAdmin = lazy(() => import('@/pages/MakeAdmin'));
 
@@ -163,6 +164,11 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/settings" element={
           <ProtectedRoute requiresAuth>
             <Settings />
+          </ProtectedRoute>
+        } />
+        <Route path="/privacy-settings" element={
+          <ProtectedRoute requiresAuth>
+            <PrivacySettings />
           </ProtectedRoute>
         } />
         <Route path="/support" element={<Support />} />

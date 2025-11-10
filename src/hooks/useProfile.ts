@@ -192,29 +192,53 @@ export const useProfile = () => {
   };
 
   const exportUserData = async () => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Not authenticated",
+        description: "Please log in to export your data.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('export-user-data');
+      console.log('Starting data export for user:', user.id);
       
-      if (error) throw error;
+      const { data, error } = await supabase.functions.invoke('export-user-data', {
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        }
+      });
+      
+      if (error) {
+        console.error('Export error:', error);
+        throw error;
+      }
 
-      // Create download link
+      if (!data?.download_url) {
+        throw new Error('No download URL received from export');
+      }
+
+      console.log('Export successful, downloading file...');
+
+      // Create download link with proper filename
       const link = document.createElement('a');
       link.href = data.download_url;
-      link.download = `locale-lore-data-${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `localelore-data-export-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
 
       toast({
         title: "Data export completed",
-        description: "Your data has been downloaded successfully.",
+        description: `Your data has been downloaded successfully. ${data.expires_at ? 'Download link expires in 7 days.' : ''}`,
       });
     } catch (error: any) {
       console.error('Error exporting data:', error);
       toast({
         title: "Export failed",
-        description: "Failed to export your data. Please try again.",
+        description: error.message || "Failed to export your data. Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -223,29 +247,68 @@ export const useProfile = () => {
   };
 
   const requestAccountDeletion = async (reason?: string, feedback?: string) => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Not authenticated",
+        description: "Please log in to request account deletion.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
+      console.log('Requesting account deletion for user:', user.id);
+
+      // Check if there's already a pending deletion request
+      const { data: existing, error: checkError } = await supabase
+        .from('account_deletion_requests')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'pending')
+        .maybeSingle();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+
+      if (existing) {
+        toast({
+          title: "Deletion already requested",
+          description: `Your account is scheduled for deletion on ${new Date(existing.scheduled_deletion).toLocaleDateString()}. You can cancel this request from your profile.`,
+          variant: "default",
+        });
+        return;
+      }
+
+      // Create new deletion request with 30-day grace period
+      const scheduledDeletion = new Date();
+      scheduledDeletion.setDate(scheduledDeletion.getDate() + 30);
+
       const { error } = await supabase
         .from('account_deletion_requests')
         .insert({
           user_id: user.id,
           reason: reason || null,
           feedback: feedback || null,
+          status: 'pending',
+          scheduled_deletion: scheduledDeletion.toISOString(),
         });
 
       if (error) throw error;
 
+      console.log('Deletion request created successfully');
+
       toast({
         title: "Account deletion requested",
-        description: "Your account will be deleted in 30 days. You can cancel this request anytime before then.",
+        description: `Your account will be permanently deleted on ${scheduledDeletion.toLocaleDateString()}. You can cancel this request anytime before then.`,
+        duration: 7000,
       });
     } catch (error: any) {
       console.error('Error requesting account deletion:', error);
       toast({
         title: "Request failed",
-        description: "Failed to process deletion request. Please try again.",
+        description: error.message || "Failed to process deletion request. Please try again.",
         variant: "destructive",
       });
     } finally {

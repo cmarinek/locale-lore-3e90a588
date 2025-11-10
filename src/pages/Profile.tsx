@@ -10,6 +10,7 @@ import { StatisticsCard } from '@/components/profile/StatisticsCard';
 import { AchievementShowcase } from '@/components/profile/AchievementShowcase';
 import { DataExportPanel } from '@/components/profile/DataExportPanel';
 import { DataDeletionPanel } from '@/components/profile/DataDeletionPanel';
+import { DeletionCancellation } from '@/components/profile/DeletionCancellation';
 import { FavoriteCitiesManager } from '@/components/profile/FavoriteCitiesManager';
 import { SavedLocations } from '@/components/profile/SavedLocations';
 import { UserContributions } from '@/components/profile/UserContributions';
@@ -194,6 +195,7 @@ export const Profile: React.FC = () => {
               <TabsContent value="data">
                 <ErrorBoundary>
                   <div className="space-y-6">
+                    <DeletionCancellation />
                     <DataExportPanel
                       onExportData={exportUserData}
                       loading={loading}

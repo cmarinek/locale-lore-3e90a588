@@ -42,13 +42,19 @@ serve(async (req) => {
 
     if (createError) throw createError;
 
-    // Collect user data from various tables
-    const userData_export = {
+    // Collect comprehensive user data from all relevant tables
+    const userData_export: any = {
       user_info: {
         id: user.id,
         email: user.email,
         created_at: user.created_at,
-        updated_at: user.updated_at
+        updated_at: user.updated_at,
+        export_date: new Date().toISOString(),
+      },
+      export_metadata: {
+        version: "1.0",
+        exported_at: new Date().toISOString(),
+        data_types: [],
       }
     };
 
@@ -57,60 +63,114 @@ serve(async (req) => {
       .from("profiles")
       .select("*")
       .eq("id", user.id)
-      .single();
-    if (profile) userData_export.profile = profile;
+      .maybeSingle();
+    if (profile) {
+      userData_export.profile = profile;
+      userData_export.export_metadata.data_types.push("profile");
+    }
 
     // Fetch user settings
     const { data: settings } = await supabaseClient
       .from("user_settings")
       .select("*")
       .eq("user_id", user.id)
-      .single();
-    if (settings) userData_export.settings = settings;
+      .maybeSingle();
+    if (settings) {
+      userData_export.settings = settings;
+      userData_export.export_metadata.data_types.push("settings");
+    }
 
     // Fetch user statistics
     const { data: statistics } = await supabaseClient
       .from("user_statistics")
       .select("*")
       .eq("user_id", user.id)
-      .single();
-    if (statistics) userData_export.statistics = statistics;
+      .maybeSingle();
+    if (statistics) {
+      userData_export.statistics = statistics;
+      userData_export.export_metadata.data_types.push("statistics");
+    }
+
+    // Fetch user levels
+    const { data: levels } = await supabaseClient
+      .from("user_levels")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (levels) {
+      userData_export.levels = levels;
+      userData_export.export_metadata.data_types.push("levels");
+    }
 
     // Fetch facts submitted by user
     const { data: facts } = await supabaseClient
       .from("facts")
       .select("*")
       .eq("author_id", user.id);
-    if (facts) userData_export.facts = facts;
+    if (facts && facts.length > 0) {
+      userData_export.facts = facts;
+      userData_export.export_metadata.data_types.push("facts");
+    }
 
     // Fetch comments made by user
     const { data: comments } = await supabaseClient
       .from("comments")
       .select("*")
       .eq("author_id", user.id);
-    if (comments) userData_export.comments = comments;
+    if (comments && comments.length > 0) {
+      userData_export.comments = comments;
+      userData_export.export_metadata.data_types.push("comments");
+    }
 
-    // Fetch votes cast by user
-    const { data: votes } = await supabaseClient
-      .from("votes")
+    // Fetch fact comments
+    const { data: factComments } = await supabaseClient
+      .from("fact_comments")
+      .select("*")
+      .eq("author_id", user.id);
+    if (factComments && factComments.length > 0) {
+      userData_export.fact_comments = factComments;
+      userData_export.export_metadata.data_types.push("fact_comments");
+    }
+
+    // Fetch likes/votes
+    const { data: likes } = await supabaseClient
+      .from("likes")
       .select("*")
       .eq("user_id", user.id);
-    if (votes) userData_export.votes = votes;
+    if (likes && likes.length > 0) {
+      userData_export.likes = likes;
+      userData_export.export_metadata.data_types.push("likes");
+    }
 
     // Fetch user achievements
     const { data: achievements } = await supabaseClient
       .from("user_achievements")
       .select("*, achievements(*)")
       .eq("user_id", user.id);
-    if (achievements) userData_export.achievements = achievements;
+    if (achievements && achievements.length > 0) {
+      userData_export.achievements = achievements;
+      userData_export.export_metadata.data_types.push("achievements");
+    }
 
-    // Fetch activity log (last 90 days for privacy)
-    const { data: activityLog } = await supabaseClient
-      .from("user_activity_log")
+    // Fetch social connections
+    const { data: following } = await supabaseClient
+      .from("user_follows")
       .select("*")
-      .eq("user_id", user.id)
-      .gte("created_at", new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString());
-    if (activityLog) userData_export.activity_log = activityLog;
+      .eq("follower_id", user.id);
+    if (following && following.length > 0) {
+      userData_export.following = following;
+      userData_export.export_metadata.data_types.push("following");
+    }
+
+    // Fetch fact reactions
+    const { data: reactions } = await supabaseClient
+      .from("fact_reactions")
+      .select("*")
+      .eq("user_id", user.id);
+    if (reactions && reactions.length > 0) {
+      userData_export.reactions = reactions;
+      userData_export.export_metadata.data_types.push("reactions");
+    }
 
     // Create JSON blob
     const exportData = JSON.stringify(userData_export, null, 2);
