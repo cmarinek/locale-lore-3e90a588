@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
 import { ContextErrorBoundary } from './ContextErrorBoundary';
 import { HelmetProvider } from 'react-helmet-async';
 import { I18nextProvider } from 'react-i18next';
@@ -26,9 +26,9 @@ interface ProviderChainProps {
 }
 
 export const ProviderChain: React.FC<ProviderChainProps> = ({ children }) => {
-  const [i18nReady, setI18nReady] = useState(false);
+  const [i18nReady, setI18nReady] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     initI18n().then(() => {
       setI18nReady(true);
     });
