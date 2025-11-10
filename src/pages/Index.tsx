@@ -79,15 +79,31 @@ const Index: React.FC = React.memo(() => {
         <div className="min-h-screen relative">
           {/* Star-like floating particles background */}
           <div className="fixed inset-0 pointer-events-none z-0">
-            {[...Array(20)].map((_, i) => {
+            {[...Array(35)].map((_, i) => {
               const animations = ['animate-twinkle', 'animate-twinkle-slow', 'animate-float', 'animate-float-slow'];
               const randomAnimation = animations[i % animations.length];
               const randomDelay = `${Math.random() * 3}s`;
               
+              // Size variations for depth
+              const sizes = ['w-0.5 h-0.5', 'w-1 h-1', 'w-1.5 h-1.5', 'w-2 h-2'];
+              const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+              
+              // Color variations using semantic tokens
+              const colors = [
+                'bg-primary/30',
+                'bg-primary/20',
+                'bg-primary/15',
+                'bg-secondary/25',
+                'bg-secondary/15',
+                'bg-accent/20',
+                'bg-accent/15',
+              ];
+              const randomColor = colors[Math.floor(Math.random() * colors.length)];
+              
               return (
                 <div
                   key={i}
-                  className={`absolute w-1 h-1 bg-primary/20 rounded-full ${randomAnimation}`}
+                  className={`absolute ${randomSize} ${randomColor} rounded-full ${randomAnimation}`}
                   style={{
                     left: `${Math.random() * 100}%`,
                     top: `${Math.random() * 100}%`,
