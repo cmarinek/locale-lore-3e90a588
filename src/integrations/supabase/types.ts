@@ -2116,6 +2116,45 @@ export type Database = {
         }
         Relationships: []
       }
+      rewards_catalog: {
+        Row: {
+          cost_points: number
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          is_one_time: boolean | null
+          metadata: Json | null
+          name: string
+          reward_type: string
+        }
+        Insert: {
+          cost_points: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          is_one_time?: boolean | null
+          metadata?: Json | null
+          name: string
+          reward_type: string
+        }
+        Update: {
+          cost_points?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          is_one_time?: boolean | null
+          metadata?: Json | null
+          name?: string
+          reward_type?: string
+        }
+        Relationships: []
+      }
       saved_facts: {
         Row: {
           created_at: string
@@ -3255,6 +3294,7 @@ export type Database = {
       }
       user_levels: {
         Row: {
+          available_points: number | null
           created_at: string
           current_level: number
           current_xp: number
@@ -3264,6 +3304,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          available_points?: number | null
           created_at?: string
           current_level?: number
           current_xp?: number
@@ -3273,6 +3314,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          available_points?: number | null
           created_at?: string
           current_level?: number
           current_xp?: number
@@ -3507,6 +3549,38 @@ export type Database = {
           votes_received?: number | null
         }
         Relationships: []
+      }
+      user_rewards: {
+        Row: {
+          id: string
+          points_spent: number
+          redeemed_at: string | null
+          reward_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          points_spent: number
+          redeemed_at?: string | null
+          reward_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          points_spent?: number
+          redeemed_at?: string | null
+          reward_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_rewards_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

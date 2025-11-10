@@ -34,6 +34,7 @@ import { ContributionLevelSystem } from '@/components/gamification/ContributionL
 import { SeasonalChallenges } from '@/components/gamification/SeasonalChallenges';
 import { SocialSharing } from '@/components/gamification/SocialSharing';
 import { VisualProgressIndicators } from '@/components/gamification/VisualProgressIndicators';
+import { RewardsShop } from '@/components/gamification/RewardsShop';
 
 interface UserLevel {
   current_level: number;
@@ -241,6 +242,10 @@ export const Gamification: React.FC = () => {
                   <Target className="w-4 h-4" />
                   Challenges
                 </TabsTrigger>
+                <TabsTrigger value="rewards" className="flex items-center gap-2">
+                  <Star className="w-4 h-4" />
+                  Rewards Shop
+                </TabsTrigger>
                 <TabsTrigger value="leaderboard" className="flex items-center gap-2">
                   <Crown className="w-4 h-4" />
                   Leaderboard
@@ -414,6 +419,17 @@ export const Gamification: React.FC = () => {
                     />
                   ))}
                 </div>
+              </TabsContent>
+
+              <TabsContent value="rewards" className="space-y-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold">Rewards Shop</h2>
+                  <Badge variant="outline" className="text-lg">
+                    <Star className="w-4 h-4 mr-1" />
+                    Redeem your points
+                  </Badge>
+                </div>
+                <RewardsShop />
               </TabsContent>
 
               <TabsContent value="leaderboard" className="space-y-6">
