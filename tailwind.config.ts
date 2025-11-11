@@ -33,7 +33,8 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					glow: 'hsl(var(--primary-glow, var(--primary)))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -106,6 +107,14 @@ export default {
 					},
 					to: {
 						height: '0'
+					}
+				},
+				'shimmer': {
+					'0%': {
+						transform: 'translateX(-100%)'
+					},
+					'100%': {
+						transform: 'translateX(100%)'
 					}
 				},
 				'fade-in': {
@@ -193,6 +202,7 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
+				'shimmer': 'shimmer 2s infinite',
 				'fade-in': 'fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
 				'scale-in': 'scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
 				'slide-up': 'slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1)',

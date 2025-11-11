@@ -3,6 +3,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { CookieConsent } from '@/components/compliance/CookieConsent';
 import { PerformanceMonitor } from '@/components/monitoring/PerformanceMonitor';
 import { TranslationDebugToggle } from '@/components/admin/TranslationDebugToggle';
+import { NavigationLoadingBar } from '@/components/loading/NavigationLoadingBar';
 import { useAdmin } from '@/hooks/useAdmin';
 import { AnnouncementBanner } from '@/components/site/AnnouncementBanner';
 
@@ -15,6 +16,7 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ children }) => 
 
   return (
     <div className="App">
+      <NavigationLoadingBar />
       <AnnouncementBanner />
       {children}
       <Toaster />
