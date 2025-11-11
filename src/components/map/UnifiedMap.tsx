@@ -114,69 +114,39 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   const [retryTrigger, setRetryTrigger] = useState(0);
 
-  // Fetch Mapbox token - with timeout and debug logging
+  // Fetch Mapbox token - simplified with immediate rendering
   useEffect(() => {
     let mounted = true;
-    let timeoutId: NodeJS.Timeout;
 
     const fetchToken = async () => {
-      console.log('🗺️ [UnifiedMap] Starting token fetch, status:', tokenStatus);
+      console.log('🗺️ [UnifiedMap] Fetching token...');
       setTokenStatus('loading');
-      setTokenError(null);
-      setLoadingDismissed(false);
-
-      // Set timeout to prevent infinite loading
-      timeoutId = setTimeout(() => {
-        if (mounted && tokenStatus === 'loading') {
-          console.error('⏱️ [UnifiedMap] Token fetch timeout - forcing dismissal');
-          setLoadingDismissed(true);
-        }
-      }, 8000); // 8 second timeout
 
       try {
         const token = await mapboxService.getToken();
-        clearTimeout(timeoutId);
 
-        console.log('🗺️ [UnifiedMap] Token fetch result:', { 
-          mounted, 
-          hasToken: !!token,
-          tokenLength: token?.length || 0,
-          tokenPreview: token ? `${token.substring(0, 20)}...` : 'null'
-        });
-
-        if (!mounted) {
-          console.log('⏭️ [UnifiedMap] Component unmounted, skipping token set');
-          return;
-        }
-
-        if (!token) {
-          console.error('❌ [UnifiedMap] No token received');
-          setTokenStatus('missing');
-          setTokenError('Failed to fetch Mapbox token');
-          return;
-        }
-
-        // CRITICAL: Set the global mapboxgl token BEFORE updating state
-        mapboxgl.accessToken = token;
-        console.log('🔑 [UnifiedMap] Set mapboxgl.accessToken globally');
-        
-        setMapboxToken(token);
-        setTokenStatus('ready');
-        console.log('✅ [UnifiedMap] Token state updated, status: ready');
-
-      } catch (error: any) {
-        clearTimeout(timeoutId);
-        
-        console.error('❌ [UnifiedMap] Token fetch error:', {
-          error,
-          message: error?.message,
-          mounted
-        });
+        console.log('🗺️ [UnifiedMap] Token received:', !!token);
 
         if (!mounted) return;
 
-        setTokenStatus('error');
-        setTokenError(error?.message || 'Unknown error');
+        if (!token) {
+          console.error('❌ [UnifiedMap] No token');
+          setTokenStatus('error');
+          setTokenError('No Mapbox token available');
+          return;
+        }
+
+        mapboxgl.accessToken = token;
+        setMapboxToken(token);
+        setTokenStatus('ready');
+        console.log('✅ [UnifiedMap] Ready to render map');
+
+      } catch (error: any) {
+        console.error('❌ [UnifiedMap] Token error:', error);
+        if (mounted) {
+          setTokenStatus('error');
+          setTokenError(error?.message || 'Failed to load map');
+        }
       }
     };
 
@@ -184,7 +154,6 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
     return () => {
       mounted = false;
-      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [retryTrigger]);
 
@@ -485,26 +454,18 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // Initialize map
   useEffect(() => {
-    console.log('🔄 Map init useEffect triggered:', {
+    console.log('🔄 Map init check:', {
       hasContainer: !!mapContainer.current,
       hasToken: !!mapboxToken,
-      tokenLength: mapboxToken?.length || 0,
-      tokenPreview: mapboxToken ? `${mapboxToken.substring(0, 10)}...` : 'null',
-      isInitialized: isInitialized.current,
-      tokenStatus
+      isInitialized: isInitialized.current
     });
 
     if (!mapContainer.current || !mapboxToken || isInitialized.current) {
-      console.log('⏭️ Skipping map init:', {
-        hasContainer: !!mapContainer.current,
-        hasToken: !!mapboxToken,
-        tokenLength: mapboxToken?.length || 0,
-        isInitialized: isInitialized.current
-      });
+      console.log('⏭️ Skipping init');
       return;
     }
 
-    console.log('🗺️ Initializing Mapbox map with token:', `${mapboxToken.substring(0, 20)}...`);
+    console.log('🗺️ Initializing map...');
     mapboxgl.accessToken = mapboxToken;
     isInitialized.current = true;
 
@@ -520,13 +481,10 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         logoPosition: 'bottom-right'
       });
 
-      // Native controls disabled - using custom EnhancedMapControls instead
-
       map.current.on('load', () => {
-        console.log('✅ Map loaded successfully');
+        console.log('✅ Map loaded');
         setIsLoaded(true);
         
-        // Force resize to ensure tiles render
         setTimeout(() => {
           map.current?.resize();
         }, 100);
@@ -542,57 +500,50 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         console.error('❌ Map error:', e);
       });
 
-      // Event handlers
       const handleMove = debounce(() => {
         if (!map.current) return;
-        
         const bounds = map.current.getBounds();
         const currentZoom = map.current.getZoom();
         setCurrentZoom(currentZoom);
         setMapBounds(bounds);
-        
         onBoundsChange?.(bounds);
       }, 150);
 
       map.current.on('moveend', handleMove);
       map.current.on('zoomend', handleMove);
 
-      // Map click handler for creating stories
       map.current.on('click', (e) => {
         const zoom = map.current?.getZoom() || 0;
         
-        // Only allow creation when zoomed in enough (zoom level 12+)
         if (zoom < 12) {
           toast({
             title: 'Zoom in closer',
-            description: 'Please zoom in further to accurately place your story on the map',
+            description: 'Please zoom in further to accurately place your story',
           });
           return;
         }
 
-        // Check if clicked on a feature
         const features = map.current?.queryRenderedFeatures(e.point, {
           layers: ['unclustered-point', 'clusters']
         });
 
-        // Only open create modal if not clicking on an existing marker
         if (!features || features.length === 0) {
           setCreateLocation({ lat: e.lngLat.lat, lng: e.lngLat.lng });
           setCreateModalOpen(true);
         }
       });
     } catch (error) {
-      console.error('❌ Failed to initialize map:', error);
+      console.error('❌ Map init failed:', error);
       setTokenStatus('error');
-      setTokenError(error instanceof Error ? error.message : 'Failed to initialize map');
+      setTokenError(error instanceof Error ? error.message : 'Init failed');
     }
 
     return () => {
-      console.log('🧹 Cleaning up map');
+      console.log('🧹 Cleanup');
       map.current?.remove();
       isInitialized.current = false;
     };
-  }, [mapboxToken, getMapStyleUrl, center, zoom, enableClustering]);
+  }, [mapboxToken]);
 
   // Setup clustered map using Mapbox GL native clustering with category distribution
   const setupClusteredMap = useCallback(() => {
