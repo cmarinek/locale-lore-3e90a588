@@ -203,8 +203,6 @@ export const useProfile = () => {
 
     setLoading(true);
     try {
-      console.log('Starting data export for user:', user.id);
-      
       const { data, error } = await supabase.functions.invoke('export-user-data', {
         headers: {
           Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
@@ -219,8 +217,6 @@ export const useProfile = () => {
       if (!data?.download_url) {
         throw new Error('No download URL received from export');
       }
-
-      console.log('Export successful, downloading file...');
 
       // Create download link with proper filename
       const link = document.createElement('a');
@@ -258,8 +254,6 @@ export const useProfile = () => {
 
     setLoading(true);
     try {
-      console.log('Requesting account deletion for user:', user.id);
-
       // Check if there's already a pending deletion request
       const { data: existing, error: checkError } = await supabase
         .from('account_deletion_requests')
@@ -296,8 +290,6 @@ export const useProfile = () => {
         });
 
       if (error) throw error;
-
-      console.log('Deletion request created successfully');
 
       toast({
         title: "Account deletion requested",

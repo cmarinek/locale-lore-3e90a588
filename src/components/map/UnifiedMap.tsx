@@ -119,7 +119,6 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   useEffect(() => {
     if (tokenStatus === 'ready' && !isLoaded) {
       const timer = setTimeout(() => {
-        console.log('⏰ Loading timeout - dismissing skeleton');
         setLoadingTimeout(true);
       }, 10000); // 10 second timeout
 
@@ -132,13 +131,10 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     let mounted = true;
 
     const fetchToken = async () => {
-      console.log('🗺️ [UnifiedMap] Fetching token...');
       setTokenStatus('loading');
 
       try {
         const token = await mapboxService.getToken();
-
-        console.log('🗺️ [UnifiedMap] Token received:', !!token);
 
         if (!mounted) return;
 
@@ -152,7 +148,6 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         mapboxgl.accessToken = token;
         setMapboxToken(token);
         setTokenStatus('ready');
-        console.log('✅ [UnifiedMap] Ready to render map');
 
       } catch (error: any) {
         console.error('❌ [UnifiedMap] Token error:', error);
@@ -172,7 +167,6 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // Handle loading state dismissal
   const handleDismissLoading = useCallback(() => {
-    console.log('🗺️ [UnifiedMap] Loading state dismissed by user');
     setLoadingDismissed(true);
   }, []);
 
@@ -468,7 +462,6 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         0.9
       ]);
 
-      console.log('✅ Updated marker selection styles');
     } catch (error) {
       console.error('❌ Error updating marker styles:', error);
     }
@@ -513,18 +506,10 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // Initialize map
   useEffect(() => {
-    console.log('🔄 Map init check:', {
-      hasContainer: !!mapContainer.current,
-      hasToken: !!mapboxToken,
-      isInitialized: isInitialized.current
-    });
-
     if (!mapContainer.current || !mapboxToken || isInitialized.current) {
-      console.log('⏭️ Skipping init');
       return;
     }
 
-    console.log('🗺️ Initializing map...');
     mapboxgl.accessToken = mapboxToken;
     isInitialized.current = true;
 

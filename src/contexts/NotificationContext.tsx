@@ -70,8 +70,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user?.id) return;
 
-    console.log('Setting up notification subscription for user:', user.id);
-
     const channel = supabase
       .channel(`notifications:${user.id}`)
       .on(
@@ -83,8 +81,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          console.log('New notification received:', payload);
-          
           const newNotification = payload.new as Notification;
 
           // Show toast notification
@@ -110,8 +106,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          console.log('Notification updated:', payload);
-          
           const updatedNotification = payload.new as Notification;
 
           // Update notification in list
@@ -126,12 +120,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           });
         }
       )
-      .subscribe((status) => {
-        console.log('Notification subscription status:', status);
-      });
+      .subscribe();
 
     return () => {
-      console.log('Cleaning up notification subscription');
       supabase.removeChannel(channel);
     };
   }, [user?.id, toast, queryClient]);
