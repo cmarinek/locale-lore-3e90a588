@@ -1,6 +1,7 @@
 /**
  * Unified Initialization System
  * Consolidates all app initialization into a single, robust manager
+ * Fixes: duplicate systems, incomplete methods, missing error handling
  */
 import { initI18n } from '@/utils/i18n';
 import { analytics } from '@/utils/analytics';
@@ -32,7 +33,6 @@ class UnifiedInitializer {
   }
 
   private registerModules(): void {
-    // Register all initialization modules
     this.initModules = [
       {
         name: 'DOM',
@@ -97,16 +97,15 @@ class UnifiedInitializer {
     console.log('🚀 Starting unified app initialization...');
 
     try {
-      // Initialize all modules
       for (const module of this.initModules) {
         try {
           console.log(`  ⏳ Initializing ${module.name}...`);
           await module.init();
           console.log(`  ✅ ${module.name} initialized`);
         } catch (error) {
-          const errorMsg = `${module.name} initialization failed: ${error}`;
+          const errorMsg = `${module.name} initialization failed: ${error instanceof Error ? error.message : String(error)}`;
           console.error(`  ❌ ${errorMsg}`);
-          
+
           if (module.critical) {
             throw new Error(errorMsg);
           } else {
@@ -118,8 +117,7 @@ class UnifiedInitializer {
       this.isReady = true;
       this.isInitializing = false;
 
-      // Execute ready callbacks
-      this.readyCallbacks.forEach(callback => {
+      this.readyCallbacks.forEach((callback) => {
         try {
           callback();
         } catch (error) {
@@ -130,16 +128,16 @@ class UnifiedInitializer {
 
       const duration = performance.now() - this.initStartTime;
       console.log(`✅ Initialization completed in ${duration.toFixed(2)}ms`);
-      
+
       if (issues.length > 0) {
         console.warn(`⚠️ ${issues.length} non-critical issues encountered:`, issues);
       }
 
       return { success: true, issues, duration };
-
     } catch (error) {
       this.isInitializing = false;
-      issues.push(String(error));
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      issues.push(errorMsg);
       const duration = performance.now() - this.initStartTime;
       console.error(`❌ Critical initialization failure after ${duration.toFixed(2)}ms:`, error);
       return { success: false, issues, duration };
@@ -149,8 +147,8 @@ class UnifiedInitializer {
   // Module initialization methods
   private async checkDOMReady(): Promise<void> {
     if (document.readyState === 'loading') {
-      await new Promise(resolve => {
-        document.addEventListener('DOMContentLoaded', resolve, { once: true });
+      await new Promise<void>((resolve) => {
+        document.addEventListener('DOMContentLoaded', () => resolve(), { once: true });
       });
     }
   }
@@ -159,53 +157,78 @@ class UnifiedInitializer {
     if (typeof window === 'undefined') {
       throw new Error('Window not available');
     }
-    
+
     if (!document.getElementById('root')) {
       throw new Error('Root element not found');
     }
 
     // Validate required environment variables
     const requiredEnvVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'];
-    const missing = requiredEnvVars.filter(key => !import.meta.env[key]);
-    
+    const missing = requiredEnvVars.filter((key) => !import.meta.env[key]);
+
     if (missing.length > 0) {
       console.warn(`Missing environment variables: ${missing.join(', ')}`);
     }
   }
 
   private async setupBrowserAPIs(): Promise<void> {
+    // Safely detect browser API availability
     if (!navigator.geolocation) {
       console.warn('Geolocation API not available');
     }
-    
+
+    if (!('localStorage' in window)) {
+      console.warn('LocalStorage not available');
+    }
+
     if (!('serviceWorker' in navigator)) {
       console.warn('Service Worker not supported');
     }
   }
 
   private async initializeI18n(): Promise<void> {
-    await initI18n();
+    try {
+      await initI18n();
+    } catch (error) {
+      throw new Error(`i18n initialization failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   private async initializeErrorTracking(): Promise<void> {
-    if (config.enableErrorTracking) {
-      initializeErrorTracking();
+    try {
+      if (config.enableErrorTracking) {
+        initializeErrorTracking();
+      }
+    } catch (error) {
+      throw new Error(`Error tracking setup failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   private async initializePerformanceMonitoring(): Promise<void> {
-    initializePerformanceMonitoring();
+    try {
+      initializePerformanceMonitoring();
+    } catch (error) {
+      throw new Error(`Performance monitoring setup failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   private async initializeAnalytics(): Promise<void> {
-    if (config.enableAnalytics) {
-      analytics.initialize();
+    try {
+      if (config.enableAnalytics && analytics && typeof analytics.initialize === 'function') {
+        analytics.initialize();
+      }
+    } catch (error) {
+      throw new Error(`Analytics initialization failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   private async initializeServiceWorker(): Promise<void> {
-    if ('serviceWorker' in navigator && config.environment === 'production') {
-      registerServiceWorker();
+    try {
+      if ('serviceWorker' in navigator && config.environment === 'production') {
+        registerServiceWorker();
+      }
+    } catch (error) {
+      throw new Error(`Service Worker registration failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -236,7 +259,7 @@ class UnifiedInitializer {
         (position) => {
           resolve({
             latitude: position.coords.latitude,
-            longitude: position.coords.longitude
+            longitude: position.coords.longitude,
           });
         },
         () => {
@@ -254,10 +277,10 @@ class UnifiedInitializer {
   } {
     return {
       isReady: this.isReady,
-      modules: this.initModules.map(m => ({
+      modules: this.initModules.map((m) => ({
         name: m.name,
-        status: this.isReady ? 'initialized' : 'pending'
-      }))
+        status: this.isReady ? 'initialized' : 'pending',
+      })),
     };
   }
 }
@@ -279,9 +302,9 @@ export const bootstrapApp = () => {
   }
 
   (window as any).__APP_BOOTSTRAPPED__ = true;
-  
+
   // Initialize asynchronously without blocking render
-  initializer.initialize().catch(error => {
+  initializer.initialize().catch((error) => {
     console.error('Bootstrap failed:', error);
   });
 };
