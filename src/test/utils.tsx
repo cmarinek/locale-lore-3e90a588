@@ -4,12 +4,23 @@ import { screen } from '@testing-library/dom';
 import { fireEvent } from '@testing-library/dom';
 import { waitFor } from '@testing-library/dom';
 import { BrowserRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return (
-    <BrowserRouter>
-      {children}
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        {children}
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 };
 

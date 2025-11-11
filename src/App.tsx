@@ -8,14 +8,14 @@ import { HreflangTags } from '@/components/seo/HreflangTags';
 function App() {
   return (
     <ChunkErrorBoundary>
-      <BrowserRouter>
-        <AppProviders>
+      <AppProviders>
+        <BrowserRouter>
           <HreflangTags />
           <AppLayout>
             <AppRoutes />
           </AppLayout>
-        </AppProviders>
-      </BrowserRouter>
+        </BrowserRouter>
+      </AppProviders>
     </ChunkErrorBoundary>
   );
 }
