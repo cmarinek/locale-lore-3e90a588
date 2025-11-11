@@ -18,7 +18,7 @@ export const MapStatsOverlay: React.FC<MapStatsOverlayProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="fixed top-20 left-4 z-20">
+    <div className="fixed top-24 left-4 z-20">
       <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg w-[180px] overflow-hidden">
         {/* Header with toggle */}
         <div className="flex items-center justify-between p-3 border-b border-border">
