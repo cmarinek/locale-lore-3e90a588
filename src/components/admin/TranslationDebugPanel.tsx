@@ -18,15 +18,19 @@ import {
   Download,
   Upload,
   FileJson,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Wand2,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export const TranslationDebugPanel: React.FC = () => {
   const { i18n } = useTranslation();
   const { currentLanguage, setLanguage, supportedLanguages, isRTL } = useLanguage();
   const { debugMode, toggleDebugMode, missingKeys } = useTranslationDebug();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isAutoTranslating, setIsAutoTranslating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadedNamespaces = i18n.options.ns as string[] || [];
@@ -173,6 +177,92 @@ export const TranslationDebugPanel: React.FC = () => {
     }
   };
 
+  const handleAutoTranslate = async () => {
+    if (missingKeys.size === 0) {
+      toast.info('No missing keys to translate');
+      return;
+    }
+
+    setIsAutoTranslating(true);
+    const toastId = toast.loading('Starting auto-translation...');
+
+    try {
+      // Get English translations as source
+      const sourceLanguage = 'en';
+      const sourceData = i18n.store.data[sourceLanguage] || {};
+      
+      // Group missing keys by namespace
+      const missingByNamespace: Record<string, string[]> = {};
+      Array.from(missingKeys).forEach(key => {
+        const [namespace, ...keyParts] = key.split(':');
+        const actualKey = keyParts.join(':');
+        
+        if (!missingByNamespace[namespace]) {
+          missingByNamespace[namespace] = [];
+        }
+        missingByNamespace[namespace].push(actualKey);
+      });
+
+      let totalTranslated = 0;
+      const targetLanguages = Object.keys(supportedLanguages).filter(lang => lang !== sourceLanguage);
+
+      // Process each namespace
+      for (const [namespace, keys] of Object.entries(missingByNamespace)) {
+        const sourceNamespaceData = sourceData[namespace] || {};
+        
+        // Build translation object with only missing keys
+        const translationsToSync: Record<string, string> = {};
+        keys.forEach(key => {
+          const value = sourceNamespaceData[key];
+          if (value && typeof value === 'string') {
+            translationsToSync[key] = value;
+          }
+        });
+
+        if (Object.keys(translationsToSync).length === 0) continue;
+
+        toast.loading(`Translating ${namespace} namespace...`, { id: toastId });
+
+        // Translate to each target language
+        for (const targetLang of targetLanguages) {
+          try {
+            const { data, error } = await supabase.functions.invoke('translation-sync', {
+              body: {
+                sourceLanguage,
+                targetLanguage: targetLang,
+                translations: translationsToSync,
+                namespace
+              }
+            });
+
+            if (error) throw error;
+
+            if (data?.success && data.translations) {
+              // Add translations to i18n
+              Object.entries(data.translations).forEach(([key, value]) => {
+                i18n.addResource(targetLang, namespace, key, value as string);
+                totalTranslated++;
+              });
+            }
+          } catch (error) {
+            console.error(`Failed to translate ${namespace} to ${targetLang}:`, error);
+          }
+        }
+      }
+
+      await i18n.reloadResources();
+      toast.success(`Auto-translated ${totalTranslated} keys across all languages!`, { id: toastId });
+      
+      // Clear missing keys as they should now be translated
+      window.location.reload();
+    } catch (error) {
+      console.error('Auto-translation error:', error);
+      toast.error('Failed to complete auto-translation', { id: toastId });
+    } finally {
+      setIsAutoTranslating(false);
+    }
+  };
+
   return (
     <div className="fixed bottom-20 right-4 z-50 w-96 max-w-[calc(100vw-2rem)]">
       <Card className="shadow-2xl border-primary/20">
@@ -291,6 +381,29 @@ export const TranslationDebugPanel: React.FC = () => {
                     </div>
                   </ScrollArea>
                   
+                  {/* Auto-Translate Button */}
+                  <div className="pt-2">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={handleAutoTranslate}
+                      disabled={isAutoTranslating || missingKeys.size === 0}
+                      className="w-full gap-2"
+                    >
+                      {isAutoTranslating ? (
+                        <>
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          Translating...
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="w-3 h-3" />
+                          Auto-Translate All Missing Keys
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
                   {/* Export/Import Actions */}
                   <div className="grid grid-cols-2 gap-2 pt-2">
                     <Button
