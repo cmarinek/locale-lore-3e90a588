@@ -9,7 +9,6 @@ import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { MapViewMode } from '@/components/map/MapViewSwitcher';
 import { MapSearchBar } from '@/components/map/MapSearchBar';
 import { FactCard } from '@/components/discovery/FactCard';
-import { ProductionHeader } from '@/components/layout/ProductionHeader';
 
 export const Map: React.FC = () => {
   const { facts, selectedFact, setSelectedFact, fetchFactById, initializeData } = useDiscoveryStore();
@@ -111,20 +110,20 @@ export const Map: React.FC = () => {
         </div>
       }
     >
-      <>
-        <ProductionHeader mapViewMode={viewMode} onMapViewChange={setViewMode} />
-        <MainLayout
-          totalStories={totalStories}
-          verifiedStories={verifiedStories}
-        >
-          <Helmet>
-            <title>Explore Map - Discover Stories Around You</title>
-            <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
-            <link rel="canonical" href="/map" />
-          </Helmet>
+      <MainLayout
+        totalStories={totalStories}
+        verifiedStories={verifiedStories}
+        mapViewMode={viewMode}
+        onMapViewChange={setViewMode}
+      >
+        <Helmet>
+          <title>Explore Map - Discover Stories Around You</title>
+          <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
+          <link rel="canonical" href="/map" />
+        </Helmet>
 
-          {/* Map container - takes full viewport height minus header */}
-          <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
+        {/* Map container - takes full viewport height minus header */}
+        <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
 
           {/* Map View */}
           {(viewMode === 'map' || viewMode === 'hybrid') && (
@@ -184,10 +183,9 @@ export const Map: React.FC = () => {
               open={true}
               onClose={handleCloseModal}
             />
-          )}
-          </div>
-        </MainLayout>
-      </>
+        )}
+        </div>
+      </MainLayout>
     </ErrorBoundary>
   );
 };
