@@ -14,8 +14,6 @@ import { FeedbackWidget } from '@/components/support/FeedbackWidget';
 import { useBranding } from '@/components/providers/BrandingProvider';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { MapViewSwitcher, MapViewMode } from '@/components/map/MapViewSwitcher';
-import { Search, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -94,20 +92,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
           {/* Right: Map View Switcher (if on map page), Navigation and Language Selector */}
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
             {mapViewMode && onMapViewChange && (
-              <>
-                <MapViewSwitcher 
-                  currentView={mapViewMode} 
-                  onViewChange={onMapViewChange}
-                  variant="default"
-                  className="hidden md:flex"
-                />
-                <Button variant="ghost" size="sm" className="p-2">
-                  <Search className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="sm" className="p-2">
-                  <Filter className="h-5 w-5" />
-                </Button>
-              </>
+              <MapViewSwitcher 
+                currentView={mapViewMode} 
+                onViewChange={onMapViewChange}
+                variant="default"
+                className="hidden md:flex"
+              />
             )}
             <Navigation />
             <LanguageSelector variant="compact" />
