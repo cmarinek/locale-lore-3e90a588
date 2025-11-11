@@ -31,7 +31,7 @@ export const ScrollToTop: React.FC = () => {
       onClick={scrollToTop}
       size="icon"
       className={cn(
-        "fixed bottom-24 md:bottom-8 right-4 z-50 rounded-full shadow-lg transition-all duration-300",
+        "fixed bottom-24 md:bottom-8 left-4 z-50 rounded-full shadow-lg transition-all duration-300",
         "bg-primary hover:bg-primary/90 text-primary-foreground",
         "hover:scale-110 hover:shadow-xl",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16 pointer-events-none"

@@ -157,6 +157,78 @@ export const useAuthActions = () => {
     }
   }, [cleanupAuthState]);
 
+  const signInWithApple = useCallback(async (): Promise<AuthResult> => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          scopes: 'email name',
+        }
+      });
+
+      if (error) throw error;
+      return { user: null, session: null };
+    } catch (error: any) {
+      toast({
+        title: "Apple sign in failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      setLoading(false);
+      return { error };
+    }
+  }, [cleanupAuthState]);
+
+  const signInWithFacebook = useCallback(async (): Promise<AuthResult> => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          scopes: 'email,public_profile',
+        }
+      });
+
+      if (error) throw error;
+      return { user: null, session: null };
+    } catch (error: any) {
+      toast({
+        title: "Facebook sign in failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      setLoading(false);
+      return { error };
+    }
+  }, [cleanupAuthState]);
+
+  const signInWithGitHub = useCallback(async (): Promise<AuthResult> => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          scopes: 'user:email',
+        }
+      });
+
+      if (error) throw error;
+      return { user: null, session: null };
+    } catch (error: any) {
+      toast({
+        title: "GitHub sign in failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      setLoading(false);
+      return { error };
+    }
+  }, [cleanupAuthState]);
+
   const resetPassword = useCallback(async (email: string): Promise<{ error?: AuthError }> => {
     setLoading(true);
     try {
@@ -313,6 +385,9 @@ export const useAuthActions = () => {
     signUpWithEmail,
     signInWithMagicLink,
     signInWithGoogle,
+    signInWithApple,
+    signInWithFacebook,
+    signInWithGitHub,
     resetPassword,
     updatePassword,
     verifyOtp,

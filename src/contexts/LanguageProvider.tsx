@@ -17,8 +17,17 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider = ({ children }: LanguageProviderProps) => {
-  const { i18n } = useTranslation();
+  const { i18n, ready } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Wait for i18n to be ready before proceeding
+  if (!ready || !i18n) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
   
   // Safely get current language with fallback
   const currentLanguage: SupportedLanguage = (i18n?.language?.split('-')[0] as SupportedLanguage) || 'en';

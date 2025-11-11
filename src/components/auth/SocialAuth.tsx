@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useAuthActions } from '@/hooks/useAuthActions';
-import { Apple, Loader2 } from 'lucide-react';
+import { Apple, Loader2, Github } from 'lucide-react';
 import { log } from '@/utils/logger';
 
 interface SocialAuthProps {
@@ -8,7 +8,7 @@ interface SocialAuthProps {
 }
 
 export const SocialAuth = ({ onSuccess }: SocialAuthProps) => {
-  const { signInWithGoogle, loading } = useAuthActions();
+  const { signInWithGoogle, signInWithApple, signInWithFacebook, signInWithGitHub, loading } = useAuthActions();
 
   const handleGoogleSignIn = async () => {
     try {
@@ -23,28 +23,34 @@ export const SocialAuth = ({ onSuccess }: SocialAuthProps) => {
 
   const handleAppleSignIn = async () => {
     try {
-      log.info('Initiating Apple sign in', { component: 'SocialAuth', action: 'appleSignIn' });
-      
-      const { supabase } = await import('@/integrations/supabase/client');
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          scopes: 'email name',
-        },
-      });
-
-      if (error) {
-        log.error('Apple sign in error', error, { component: 'SocialAuth', action: 'appleSignIn' });
-        throw error;
-      }
-
-      if (data) {
-        log.info('Apple sign in initiated successfully', { component: 'SocialAuth', action: 'appleSignIn' });
+      const { error } = await signInWithApple();
+      if (!error) {
         onSuccess?.();
       }
     } catch (error) {
-      log.error('Apple sign in exception', error, { component: 'SocialAuth', action: 'appleSignIn' });
+      log.error('Apple sign in error', error, { component: 'SocialAuth', action: 'appleSignIn' });
+    }
+  };
+
+  const handleFacebookSignIn = async () => {
+    try {
+      const { error } = await signInWithFacebook();
+      if (!error) {
+        onSuccess?.();
+      }
+    } catch (error) {
+      log.error('Facebook sign in error', error, { component: 'SocialAuth', action: 'facebookSignIn' });
+    }
+  };
+
+  const handleGitHubSignIn = async () => {
+    try {
+      const { error } = await signInWithGitHub();
+      if (!error) {
+        onSuccess?.();
+      }
+    } catch (error) {
+      log.error('GitHub sign in error', error, { component: 'SocialAuth', action: 'githubSignIn' });
     }
   };
 
@@ -89,6 +95,28 @@ export const SocialAuth = ({ onSuccess }: SocialAuthProps) => {
       >
         <Apple className="mr-2 h-4 w-4" />
         Continue with Apple
+      </Button>
+      
+      <Button
+        variant="outline"
+        onClick={handleFacebookSignIn}
+        disabled={loading}
+        className="w-full h-12 transition-all duration-200 hover:scale-[1.02] border-border/50"
+      >
+        <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+        Continue with Facebook
+      </Button>
+      
+      <Button
+        variant="outline"
+        onClick={handleGitHubSignIn}
+        disabled={loading}
+        className="w-full h-12 transition-all duration-200 hover:scale-[1.02] border-border/50"
+      >
+        <Github className="mr-2 h-4 w-4" />
+        Continue with GitHub
       </Button>
     </div>
   );

@@ -21,7 +21,7 @@ const features: Feature[] = [
       { name: 'Email Verification', status: 'complete' },
       { name: 'Session Persistence', status: 'complete' },
       { name: 'Protected Routes', status: 'complete' },
-      { name: 'OAuth Providers (Google, GitHub)', status: 'planned' },
+      { name: 'OAuth Providers (Google, Apple, Facebook, GitHub)', status: 'complete' },
     ],
   },
   {
