@@ -12,8 +12,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthProvider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { MapViewSwitcher, MapViewMode } from '@/components/map/MapViewSwitcher';
 
-export const ProductionHeader: React.FC = () => {
+interface ProductionHeaderProps {
+  mapViewMode?: MapViewMode;
+  onMapViewChange?: (view: MapViewMode) => void;
+}
+
+export const ProductionHeader: React.FC<ProductionHeaderProps> = ({ mapViewMode, onMapViewChange }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, signOut } = useAuth();
@@ -64,6 +70,14 @@ export const ProductionHeader: React.FC = () => {
         <div className="ml-auto flex items-center space-x-2">
           {(location.pathname === '/map' || location.pathname === '/hybrid') && (
             <>
+              {mapViewMode && onMapViewChange && (
+                <MapViewSwitcher 
+                  currentView={mapViewMode} 
+                  onViewChange={onMapViewChange}
+                  variant="default"
+                  className="hidden md:flex"
+                />
+              )}
               <Button variant="ghost" size="sm" className="p-2">
                 <Search className="h-5 w-5" />
               </Button>

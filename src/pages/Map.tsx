@@ -6,9 +6,10 @@ import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useMapStore } from '@/stores/mapStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
-import { MapViewSwitcher, MapViewMode } from '@/components/map/MapViewSwitcher';
+import { MapViewMode } from '@/components/map/MapViewSwitcher';
 import { MapSearchBar } from '@/components/map/MapSearchBar';
 import { FactCard } from '@/components/discovery/FactCard';
+import { ProductionHeader } from '@/components/layout/ProductionHeader';
 
 export const Map: React.FC = () => {
   const { facts, selectedFact, setSelectedFact, fetchFactById, initializeData } = useDiscoveryStore();
@@ -110,22 +111,20 @@ export const Map: React.FC = () => {
         </div>
       }
     >
-      <MainLayout
-        totalStories={totalStories}
-        verifiedStories={verifiedStories}
-      >
-        <Helmet>
-          <title>Explore Map - Discover Stories Around You</title>
-          <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
-          <link rel="canonical" href="/map" />
-        </Helmet>
+      <>
+        <ProductionHeader mapViewMode={viewMode} onMapViewChange={setViewMode} />
+        <MainLayout
+          totalStories={totalStories}
+          verifiedStories={verifiedStories}
+        >
+          <Helmet>
+            <title>Explore Map - Discover Stories Around You</title>
+            <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
+            <link rel="canonical" href="/map" />
+          </Helmet>
 
-        {/* Map container - takes full viewport height minus header */}
-        <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
-          {/* View Mode Switcher - always visible */}
-          <div className="absolute top-4 right-4 z-20">
-            <MapViewSwitcher currentView={viewMode} onViewChange={setViewMode} variant="glass" />
-          </div>
+          {/* Map container - takes full viewport height minus header */}
+          <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
 
           {/* Map View */}
           {(viewMode === 'map' || viewMode === 'hybrid') && (
@@ -186,8 +185,9 @@ export const Map: React.FC = () => {
               onClose={handleCloseModal}
             />
           )}
-        </div>
-      </MainLayout>
+          </div>
+        </MainLayout>
+      </>
     </ErrorBoundary>
   );
 };
