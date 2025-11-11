@@ -18,21 +18,21 @@ export const MapStatsOverlay: React.FC<MapStatsOverlayProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="fixed top-24 left-4 z-20">
-      <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg w-[180px] overflow-hidden">
+    <div className="fixed top-36 left-4 z-20">
+      <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg w-[90px] overflow-hidden">
         {/* Header with toggle */}
-        <div className="flex items-center justify-between p-3 border-b border-border">
-          <h3 className="text-sm font-semibold text-foreground">Map Statistics</h3>
+        <div className="flex items-center justify-between p-1.5 border-b border-border">
+          <h3 className="text-xs font-semibold text-foreground">Stats</h3>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="h-6 w-6"
+            className="h-4 w-4"
           >
             {isExpanded ? (
-              <ChevronUp className="h-4 w-4" />
+              <ChevronUp className="h-3 w-3" />
             ) : (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-3 w-3" />
             )}
           </Button>
         </div>
@@ -44,40 +44,40 @@ export const MapStatsOverlay: React.FC<MapStatsOverlayProps> = ({
             isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
           )}
         >
-          <div className="p-3 space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <MapPin className="h-4 w-4 text-primary" />
+          <div className="p-1.5 space-y-1">
+            <div className="flex items-center gap-1">
+              <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
+                <MapPin className="h-3 w-3 text-primary" />
               </div>
               <div>
-                <p className="text-xl font-bold text-foreground">{totalStories}</p>
-                <p className="text-[10px] text-muted-foreground">Total</p>
+                <p className="text-sm font-bold text-foreground">{totalStories}</p>
+                <p className="text-[8px] text-muted-foreground">Total</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-success/10 flex items-center justify-center">
-                <CheckCircle2 className="h-4 w-4 text-success" />
+            <div className="flex items-center gap-1">
+              <div className="h-4 w-4 rounded-full bg-success/10 flex items-center justify-center">
+                <CheckCircle2 className="h-3 w-3 text-success" />
               </div>
               <div>
-                <p className="text-xl font-bold text-foreground">{verifiedStories}</p>
-                <p className="text-[10px] text-muted-foreground">Verified</p>
+                <p className="text-sm font-bold text-foreground">{verifiedStories}</p>
+                <p className="text-[8px] text-muted-foreground">Verified</p>
               </div>
             </div>
             
             {trendingStories > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-warning/10 flex items-center justify-center">
-                  <TrendingUp className="h-4 w-4 text-warning" />
+              <div className="flex items-center gap-1">
+                <div className="h-4 w-4 rounded-full bg-warning/10 flex items-center justify-center">
+                  <TrendingUp className="h-3 w-3 text-warning" />
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-foreground">{trendingStories}</p>
-                  <p className="text-[10px] text-muted-foreground">Trending</p>
+                  <p className="text-sm font-bold text-foreground">{trendingStories}</p>
+                  <p className="text-[8px] text-muted-foreground">Trending</p>
                 </div>
               </div>
             )}
             
-            <Badge variant="secondary" className="w-full justify-center text-[10px] py-0.5 animate-fade-in">
+            <Badge variant="secondary" className="w-full justify-center text-[8px] py-0 animate-fade-in">
               Live
             </Badge>
           </div>
