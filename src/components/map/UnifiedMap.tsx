@@ -1032,10 +1032,12 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     }
   }, [mapStyle, isLoaded, getMapStyleUrl, enableClustering, setupClusteredMap, setupMarkerMap]);
 
-  if (!isVisible) return null;
+  const containerClass = isVisible 
+    ? 'relative w-full h-full' 
+    : 'relative w-full h-full invisible pointer-events-none';
 
   return (
-    <div className={`relative w-full h-full ${className}`}>
+    <div className={`${containerClass} ${className || ''}`}>
       {/* Map Container - always render to attach ref */}
       <div ref={mapContainer} className="absolute inset-0 z-0" />
       
