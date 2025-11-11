@@ -12,14 +12,19 @@ interface InfiniteFactListProps {
   className?: string;
   viewMode?: 'grid' | 'list';
   useProgressiveLoading?: boolean;
+  selectedFactId?: string | null;
+  onFactClick?: (fact: any) => void;
 }
 
 export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({ 
   className, 
   viewMode = 'grid',
-  useProgressiveLoading = true 
+  useProgressiveLoading = true,
+  selectedFactId = null,
+  onFactClick
 }) => {
   const observerRef = useRef<HTMLDivElement>(null);
+  const selectedCardRef = useRef<HTMLDivElement>(null);
   
   const { 
     facts, 
@@ -27,6 +32,16 @@ export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({
     hasMore, 
     loadMoreFacts 
   } = useDiscoveryStore();
+
+  // Auto-scroll to selected fact
+  useEffect(() => {
+    if (selectedFactId && selectedCardRef.current) {
+      selectedCardRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center'
+      });
+    }
+  }, [selectedFactId]);
 
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
     const [target] = entries;
@@ -87,18 +102,34 @@ export const InfiniteFactList: React.FC<InfiniteFactListProps> = ({
           : "flex flex-col space-y-4"
       )}>
         {facts.map((fact, index) => {
-          const FactComponent = useProgressiveLoading ? FactCardProgressive : FactCard;
+          const isSelected = fact.id === selectedFactId;
           return (
-            <FactComponent
+            <div 
               key={fact.id}
-              fact={fact as any}
-              viewMode={viewMode}
-              className={cn(
-                !useProgressiveLoading && "animate-fade-in",
-                // Stagger animation
-                `animation-delay-${(index % 6) * 100}`
+              ref={isSelected ? selectedCardRef : null}
+            >
+              {useProgressiveLoading ? (
+                <FactCardProgressive
+                  fact={fact as any}
+                  viewMode={viewMode}
+                  className={cn(
+                    "animate-fade-in",
+                    `animation-delay-${(index % 6) * 100}`
+                  )}
+                />
+              ) : (
+                <FactCard
+                  fact={fact as any}
+                  viewMode={viewMode}
+                  isSelected={isSelected}
+                  onLocationClick={onFactClick}
+                  className={cn(
+                    "animate-fade-in",
+                    `animation-delay-${(index % 6) * 100}`
+                  )}
+                />
               )}
-            />
+            </div>
           );
         })}
       </div>

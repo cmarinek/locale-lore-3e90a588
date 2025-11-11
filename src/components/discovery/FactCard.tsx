@@ -13,26 +13,34 @@ interface FactCardProps {
   fact: EnhancedFact;
   className?: string;
   viewMode?: 'grid' | 'list';
+  isSelected?: boolean;
+  onLocationClick?: (fact: EnhancedFact) => void;
 }
 export const FactCard: React.FC<FactCardProps> = ({
   fact,
   className,
-  viewMode = 'grid'
+  viewMode = 'grid',
+  isSelected = false,
+  onLocationClick
 }) => {
   const { setSelectedFact } = useDiscoveryStore();
   const { savedFacts, toggleSavedFact } = useUserStore();
   const isSaved = savedFacts.includes(fact.id);
-  const isHighlighted = false; // Remove sync functionality for now
   const voteScore = fact.vote_count_up - fact.vote_count_down;
   const categoryName = fact.categories?.category_translations?.find(t => t.language_code === 'en')?.name || fact.categories?.slug || 'Unknown';
+  
   const handleSaveToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     toggleSavedFact(fact.id);
   };
-  const handleQuickView = (e: React.MouseEvent) => {
+  
+  const handleCardClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setSelectedFact(fact);
-    // Remove modal functionality for now - will use router navigation
+    if (onLocationClick) {
+      onLocationClick(fact);
+    } else {
+      setSelectedFact(fact);
+    }
   };
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -46,9 +54,12 @@ export const FactCard: React.FC<FactCardProps> = ({
     return `${Math.floor(diffDays / 365)} years ago`;
   };
   if (viewMode === 'list') {
-    return <Card variant="elevated" className={cn("overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg group", "w-full max-w-none",
-    // Ensure full width responsiveness
-    isHighlighted && "ring-2 ring-primary shadow-lg shadow-primary/20 bg-primary/5 dark:bg-primary/10", className)} onClick={handleQuickView}>
+    return <Card variant="elevated" className={cn(
+      "overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg group",
+      "w-full max-w-none",
+      isSelected && "ring-2 ring-primary shadow-lg shadow-primary/20 bg-primary/5 dark:bg-primary/10 scale-[1.01]",
+      className
+    )} onClick={handleCardClick}>
         <CardContent className="p-0">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-2 sm:p-3 py-0 px-0">
             {/* Media Preview - Show if image_url or media_urls exists */}
@@ -164,9 +175,12 @@ export const FactCard: React.FC<FactCardProps> = ({
         </CardContent>
       </Card>;
   }
-  return <Card variant="elevated" className={cn("overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg group", "w-full max-w-sm mx-auto",
-  // Responsive max width with auto centering
-  isHighlighted && "ring-2 ring-primary shadow-lg shadow-primary/20 bg-primary/5 dark:bg-primary/10 scale-[1.02]", className)} onClick={handleQuickView}>
+  return <Card variant="elevated" className={cn(
+    "overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg group",
+    "w-full max-w-sm mx-auto",
+    isSelected && "ring-2 ring-primary shadow-lg shadow-primary/20 bg-primary/5 dark:bg-primary/10 scale-[1.02]",
+    className
+  )} onClick={handleCardClick}>
       <CardContent className="p-0">
         {/* Media Preview - Show if image_url or media_urls exists */}
         {(fact.image_url || (fact.media_urls && fact.media_urls.length > 0)) && <div className="relative h-44 sm:h-48 md:h-52 overflow-hidden">
