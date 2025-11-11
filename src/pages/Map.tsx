@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { MainLayout } from '@/components/templates/MainLayout';
 import { UnifiedMap } from '@/components/map/UnifiedMap';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useMapStore } from '@/stores/mapStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
-import { MapViewMode } from '@/components/map/MapViewSwitcher';
 import { MapSearchBar } from '@/components/map/MapSearchBar';
 import { FactCard } from '@/components/discovery/FactCard';
 
 export const Map: React.FC = () => {
   const { facts, selectedFact, setSelectedFact, fetchFactById, initializeData } = useDiscoveryStore();
   const { selectedMarkerId, setSelectedMarkerId } = useMapStore();
-  const [viewMode, setViewMode] = useState<MapViewMode>('map');
+  const [viewMode, setViewMode] = useState<'map' | 'list' | 'hybrid'>('map');
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleFactClick = (fact: any) => {
@@ -110,83 +108,76 @@ export const Map: React.FC = () => {
         </div>
       }
     >
-      <MainLayout
-        totalStories={totalStories}
-        verifiedStories={verifiedStories}
-        mapViewMode={viewMode}
-        onMapViewChange={setViewMode}
-      >
-        <Helmet>
-          <title>Explore Map - Discover Stories Around You</title>
-          <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
-          <link rel="canonical" href="/map" />
-        </Helmet>
+      <Helmet>
+        <title>Explore Map - Discover Stories Around You</title>
+        <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
+        <link rel="canonical" href="/map" />
+      </Helmet>
 
-        {/* FIX: Map container with explicit full-height and flex layout */}
-        <div className="w-full flex-1 flex flex-col" style={{ height: 'calc(100vh - 4rem)' }}>
+      {/* Full-height map container - no MainLayout wrapper to avoid circular dependency */}
+      <div className="w-full h-screen bg-background overflow-hidden">
 
-          {/* Map View */}
-          {(viewMode === 'map' || viewMode === 'hybrid') && (
-            <div className="relative w-full h-full flex-1">
-              <UnifiedMap
-                facts={filteredFacts}
-                useScalableLoading={false}
-                enableClustering={true}
-                center={[0, 20]}
-                zoom={2}
-                onFactClick={handleFactClick}
-                isVisible={true}
-                className="w-full h-full"
-              />
-
-              {/* Search Bar */}
-              <MapSearchBar onSearch={handleSearch} />
-            </div>
-          )}
-
-          {/* Hybrid View - Split screen */}
-          {viewMode === 'hybrid' && (
-            <div className="fixed bottom-0 left-0 right-0 h-1/3 bg-background border-t border-border overflow-y-auto z-10">
-              <div className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Stories in View</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredFacts.slice(0, 6).map(fact => (
-                    <FactCard key={fact.id} fact={fact} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* List View */}
-          {viewMode === 'list' && (
-            <div className="w-full h-full overflow-y-auto bg-background flex-1">
-              <div className="container mx-auto px-4 py-8">
-                <div className="mb-6">
-                  <h1 className="text-3xl font-bold mb-2">All Stories</h1>
-                  <p className="text-muted-foreground">
-                    Showing {totalStories} stories ({verifiedStories} verified)
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {filteredFacts.map(fact => (
-                    <FactCard key={fact.id} fact={fact} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Fact Preview Modal */}
-          {selectedFact && (
-            <FactPreviewModal
-              fact={selectedFact}
-              open={true}
-              onClose={handleCloseModal}
+        {/* Map View */}
+        {(viewMode === 'map' || viewMode === 'hybrid') && (
+          <div className="relative w-full h-full flex flex-col">
+            <UnifiedMap
+              facts={filteredFacts}
+              useScalableLoading={false}
+              enableClustering={true}
+              center={[0, 20]}
+              zoom={2}
+              onFactClick={handleFactClick}
+              isVisible={true}
+              className="w-full flex-1"
             />
-          )}
-        </div>
-      </MainLayout>
+
+            {/* Search Bar - Overlays map */}
+            <MapSearchBar onSearch={handleSearch} />
+          </div>
+        )}
+
+        {/* Hybrid View - Split screen */}
+        {viewMode === 'hybrid' && (
+          <div className="fixed bottom-0 left-0 right-0 h-1/3 bg-background border-t border-border overflow-y-auto z-10">
+            <div className="p-4">
+              <h3 className="text-lg font-semibold mb-4">Stories in View</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredFacts.slice(0, 6).map(fact => (
+                  <FactCard key={fact.id} fact={fact} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* List View */}
+        {viewMode === 'list' && (
+          <div className="w-full h-full overflow-y-auto bg-background">
+            <div className="container mx-auto px-4 py-8">
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold mb-2">All Stories</h1>
+                <p className="text-muted-foreground">
+                  Showing {totalStories} stories ({verifiedStories} verified)
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredFacts.map(fact => (
+                  <FactCard key={fact.id} fact={fact} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Fact Preview Modal */}
+        {selectedFact && (
+          <FactPreviewModal
+            fact={selectedFact}
+            open={true}
+            onClose={handleCloseModal}
+          />
+        )}
+      </div>
     </ErrorBoundary>
   );
 };
