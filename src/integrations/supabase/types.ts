@@ -2394,6 +2394,36 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          created_at: string
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown
+          table_name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown
+          table_name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown
+          table_name?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       security_scan_history: {
         Row: {
           categories: Json
@@ -4122,7 +4152,6 @@ export type Database = {
       check_rls_status: {
         Args: never
         Returns: {
-          is_system_table: boolean
           rls_enabled: boolean
           table_name: string
         }[]

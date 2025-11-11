@@ -81,7 +81,7 @@ declare module "std/http/server.ts" {
 }
 
 declare module "https://esm.sh/stripe@14.21.0" {
-  namespace Stripe {
+  export namespace Stripe {
     interface SubscriptionUpdateParams {
       items?: any[];
       cancel_at_period_end?: boolean;
@@ -118,9 +118,13 @@ declare module "https://esm.sh/stripe@14.21.0" {
     interface Invoice {
       id: string;
       customer: string;
+      subscription?: string;
     }
     interface Price {
       id: string;
+    }
+    interface Checkout {
+      Session: any;
     }
   }
   
@@ -139,7 +143,9 @@ declare module "https://esm.sh/stripe@14.21.0" {
     };
     invoices: any;
     paymentMethods: any;
-    webhooks: any;
+    webhooks: {
+      constructEvent: (payload: any, signature: string, secret: string) => any;
+    };
     prices: any;
   }
   

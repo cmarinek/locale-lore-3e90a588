@@ -78,10 +78,8 @@ export const auditRLSStatus = async () => {
     
     console.log('[SECURITY] RLS audit completed', data);
     
-    // Check for any tables with RLS disabled (excluding known system tables)
-    const disabledRLS = data?.filter(table => 
-      !table.rls_enabled && !table.is_system_table
-    );
+    // Check for any tables with RLS disabled (system tables already filtered)
+    const disabledRLS = data?.filter(table => !table.rls_enabled);
     
     if (disabledRLS && disabledRLS.length > 0) {
       console.error('[SECURITY] Tables with RLS disabled:', disabledRLS);
