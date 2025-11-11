@@ -36,7 +36,7 @@ export function useFriendship(otherUserId: string | undefined) {
     enabled: !!user?.id && !!otherUserId && user.id !== otherUserId,
   });
 
-  // Send friend request
+  // Send friend request with optimistic update
   const sendRequestMutation = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke('send-friend-request', {
@@ -47,12 +47,32 @@ export function useFriendship(otherUserId: string | undefined) {
       if (data.error) throw new Error(data.error);
       return data;
     },
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['friendship', user?.id, otherUserId] });
+      
+      // Snapshot previous value
+      const previousFriendship = queryClient.getQueryData(['friendship', user?.id, otherUserId]);
+      
+      // Optimistically update to pending state
+      queryClient.setQueryData(['friendship', user?.id, otherUserId], {
+        id: 'temp-id',
+        user_id: user?.id,
+        friend_id: otherUserId,
+        status: 'pending',
+        requested_at: new Date().toISOString(),
+      });
+      
+      return { previousFriendship };
+    },
     onSuccess: () => {
       toast({ title: 'Friend request sent!' });
       queryClient.invalidateQueries({ queryKey: ['friendship'] });
       queryClient.invalidateQueries({ queryKey: ['friend-requests'] });
     },
-    onError: (error: Error) => {
+    onError: (error: Error, _, context) => {
+      // Revert on error
+      queryClient.setQueryData(['friendship', user?.id, otherUserId], context?.previousFriendship);
       toast({
         title: 'Error',
         description: error.message,
@@ -61,7 +81,7 @@ export function useFriendship(otherUserId: string | undefined) {
     },
   });
 
-  // Respond to friend request
+  // Respond to friend request with optimistic update
   const respondMutation = useMutation({
     mutationFn: async (accept: boolean) => {
       if (!friendship?.id) throw new Error('No friendship found');
@@ -74,13 +94,30 @@ export function useFriendship(otherUserId: string | undefined) {
       if (data.error) throw new Error(data.error);
       return data;
     },
+    onMutate: async (accept) => {
+      await queryClient.cancelQueries({ queryKey: ['friendship', user?.id, otherUserId] });
+      
+      const previousFriendship = queryClient.getQueryData(['friendship', user?.id, otherUserId]);
+      
+      // Optimistically update status
+      if (friendship) {
+        queryClient.setQueryData(['friendship', user?.id, otherUserId], {
+          ...friendship,
+          status: accept ? 'accepted' : 'rejected',
+          responded_at: new Date().toISOString(),
+        });
+      }
+      
+      return { previousFriendship };
+    },
     onSuccess: (_, accept) => {
       toast({ title: accept ? 'Friend request accepted!' : 'Friend request rejected' });
       queryClient.invalidateQueries({ queryKey: ['friendship'] });
       queryClient.invalidateQueries({ queryKey: ['friend-requests'] });
       queryClient.invalidateQueries({ queryKey: ['friends'] });
     },
-    onError: (error: Error) => {
+    onError: (error: Error, _, context) => {
+      queryClient.setQueryData(['friendship', user?.id, otherUserId], context?.previousFriendship);
       toast({
         title: 'Error',
         description: error.message,
@@ -89,7 +126,7 @@ export function useFriendship(otherUserId: string | undefined) {
     },
   });
 
-  // Remove friend
+  // Remove friend with optimistic update
   const removeMutation = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke('remove-friend', {
@@ -100,12 +137,23 @@ export function useFriendship(otherUserId: string | undefined) {
       if (data.error) throw new Error(data.error);
       return data;
     },
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['friendship', user?.id, otherUserId] });
+      
+      const previousFriendship = queryClient.getQueryData(['friendship', user?.id, otherUserId]);
+      
+      // Optimistically remove friendship
+      queryClient.setQueryData(['friendship', user?.id, otherUserId], null);
+      
+      return { previousFriendship };
+    },
     onSuccess: () => {
       toast({ title: 'Friend removed' });
       queryClient.invalidateQueries({ queryKey: ['friendship'] });
       queryClient.invalidateQueries({ queryKey: ['friends'] });
     },
-    onError: (error: Error) => {
+    onError: (error: Error, _, context) => {
+      queryClient.setQueryData(['friendship', user?.id, otherUserId], context?.previousFriendship);
       toast({
         title: 'Error',
         description: error.message,
@@ -114,7 +162,7 @@ export function useFriendship(otherUserId: string | undefined) {
     },
   });
 
-  // Block user
+  // Block user with optimistic update
   const blockMutation = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke('block-user', {
@@ -125,11 +173,25 @@ export function useFriendship(otherUserId: string | undefined) {
       if (data.error) throw new Error(data.error);
       return data;
     },
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['friendship', user?.id, otherUserId] });
+      
+      const previousFriendship = queryClient.getQueryData(['friendship', user?.id, otherUserId]);
+      
+      // Optimistically set to blocked
+      queryClient.setQueryData(['friendship', user?.id, otherUserId], {
+        ...friendship,
+        status: 'blocked',
+      });
+      
+      return { previousFriendship };
+    },
     onSuccess: () => {
       toast({ title: 'User blocked' });
       queryClient.invalidateQueries({ queryKey: ['friendship'] });
     },
-    onError: (error: Error) => {
+    onError: (error: Error, _, context) => {
+      queryClient.setQueryData(['friendship', user?.id, otherUserId], context?.previousFriendship);
       toast({
         title: 'Error',
         description: error.message,

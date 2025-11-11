@@ -55,9 +55,14 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
   const handleFollowToggle = async () => {
     if (!user || user.id === userId) return;
 
+    const previousState = isFollowing;
+    
+    // Optimistic update
+    setIsFollowing(!isFollowing);
     setIsLoading(true);
+
     try {
-      if (isFollowing) {
+      if (previousState) {
         // Unfollow
         const { error } = await supabase
           .from('user_follows')
@@ -67,7 +72,6 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
 
         if (error) throw error;
 
-        setIsFollowing(false);
         toast({
           title: "Unfollowed",
           description: "You are no longer following this user.",
@@ -83,14 +87,15 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
 
         if (error) throw error;
 
-        setIsFollowing(true);
         toast({
           title: "Following",
           description: "You are now following this user.",
         });
       }
     } catch (error: any) {
-      log.error('Failed to toggle follow status', error, { component: 'FollowButton', userId, action: isFollowing ? 'unfollow' : 'follow' });
+      // Revert on error
+      setIsFollowing(previousState);
+      log.error('Failed to toggle follow status', error, { component: 'FollowButton', userId, action: previousState ? 'unfollow' : 'follow' });
       toast({
         title: "Error",
         description: error.message || "Failed to update follow status",
