@@ -7,8 +7,6 @@ import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { ScrollToTop } from '@/components/ui/scroll-to-top';
 import { ModernFooter } from '@/components/templates/ModernFooter';
-import { AppSidebar } from '@/components/AppSidebar';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/utils/languages';
@@ -43,27 +41,19 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   const isMapPage = ['/map', '/explore', '/hybrid'].includes(location.pathname);
   
   return (
-    <SidebarProvider>
-      <div className={cn(
-        "min-h-screen bg-background transition-all duration-300 flex w-full",
-        isRTL && "rtl",
-        className
-      )}>
-        {/* Collapsible Sidebar - Mobile */}
-        <AppSidebar />
-
-        <div className="flex-1 flex flex-col w-full">
-          {/* Header */}
-          <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background/90 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm">
-            <div className="container mx-auto px-4">
-              {/* Main Header Row */}
-              <div className="flex h-16 items-center justify-between gap-4">
-                {/* Left: Mobile Menu Trigger + Logo + Breadcrumbs */}
-                <div className="flex items-center gap-4 min-w-0 flex-1">
-                  {/* Mobile Menu Trigger */}
-                  <SidebarTrigger className="md:hidden" />
-                  
-                  <Link to="/" className="flex items-center gap-2 shrink-0">
+    <div className={cn(
+      "min-h-screen bg-background transition-all duration-300",
+      isRTL && "rtl",
+      className
+    )}>
+      {/* Header */}
+      <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background/90 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm">
+        <div className="container mx-auto px-4">
+          {/* Main Header Row */}
+          <div className="flex h-16 items-center justify-between gap-4">
+            {/* Left: Logo + Breadcrumbs */}
+            <div className="flex items-center gap-4 min-w-0 flex-1">
+              <Link to="/" className="flex items-center gap-2 shrink-0">
                     {isLoading ? (
                       <>
                         <EnhancedSkeleton className="w-10 h-8" showShimmer={false} />
@@ -80,57 +70,55 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                           {branding?.site_name || 'LocaleLore'}
                         </span>
                       </>
-                    )}
-                  </Link>
-                  
-                  {/* Breadcrumbs - Desktop Only */}
-                  <div className="hidden md:block border-l border-border/30 pl-4 min-w-0">
-                    <Breadcrumb />
-                  </div>
-                </div>
-
-                {/* Center: View Mode Toggle */}
-                <div className="hidden lg:flex flex-1 justify-center max-w-md">
-                  <ViewModeToggle compact className="w-full max-w-xs" />
-                </div>
-
-                {/* Right: Navigation and Language Selector */}
-                <div className="flex items-center gap-2 md:gap-4 shrink-0">
-                  <Navigation />
-                  <LanguageSelector variant="compact" />
-                </div>
-              </div>
+              )}
+            </Link>
+            
+            {/* Breadcrumbs - Desktop Only */}
+            <div className="hidden md:block border-l border-border/30 pl-4 min-w-0">
+              <Breadcrumb />
             </div>
-          </header>
-
-          {/* Main Content */}
-          <main className="relative flex-1" style={{ padding: 0 }}>
-            {children}
-          </main>
-
-          {/* Modern Footer */}
-          <div className={cn(
-            "mb-20 md:mb-0 safe-area-padding-bottom",
-            isMapPage ? "mt-0" : "mt-12"
-          )}>
-            <ModernFooter 
-              totalStories={totalStories}
-              verifiedStories={verifiedStories}
-              trendingStories={trendingStories}
-              isMapPage={isMapPage}
-            />
           </div>
 
-          {/* Bottom Navigation - Mobile Only */}
-          <BottomNavigation />
-          
-          {/* Scroll to Top Button */}
-          <ScrollToTop />
-          
-          {/* Feedback Widget - Always Visible */}
-          <FeedbackWidget />
+          {/* Center: View Mode Toggle */}
+          <div className="hidden lg:flex flex-1 justify-center max-w-md">
+            <ViewModeToggle compact className="w-full max-w-xs" />
+          </div>
+
+          {/* Right: Navigation and Language Selector */}
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
+            <Navigation />
+            <LanguageSelector variant="compact" />
+          </div>
         </div>
       </div>
-    </SidebarProvider>
+    </header>
+
+    {/* Main Content */}
+    <main className="relative flex-1" style={{ padding: 0 }}>
+      {children}
+    </main>
+
+    {/* Modern Footer */}
+    <div className={cn(
+      "mb-20 md:mb-0 safe-area-padding-bottom",
+      isMapPage ? "mt-0" : "mt-12"
+    )}>
+      <ModernFooter 
+        totalStories={totalStories}
+        verifiedStories={verifiedStories}
+        trendingStories={trendingStories}
+        isMapPage={isMapPage}
+      />
+    </div>
+
+    {/* Bottom Navigation - Mobile Only */}
+    <BottomNavigation />
+    
+    {/* Scroll to Top Button */}
+    <ScrollToTop />
+    
+    {/* Feedback Widget - Always Visible */}
+    <FeedbackWidget />
+  </div>
   );
 };
