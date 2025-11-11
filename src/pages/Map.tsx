@@ -114,7 +114,7 @@ export const Map: React.FC = () => {
         <link rel="canonical" href="/map" />
       </Helmet>
 
-      {/* Full-height map container - no MainLayout wrapper to avoid circular dependency */}
+      {/* Full-height map container */}
       <div className="w-full h-screen bg-background overflow-hidden">
 
         {/* Map View */}
