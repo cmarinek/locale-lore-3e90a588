@@ -36,46 +36,24 @@ export default defineConfig(({ mode }) => ({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // Optimized code splitting for contexts
         manualChunks: (id) => {
-          // Vendor chunks
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react/jsx-runtime')) {
+            if (id.includes('react') || id.includes('react-dom')) {
               return 'react-vendor';
             }
-            if (id.includes('@radix-ui') || id.includes('framer-motion')) {
+            if (id.includes('@radix-ui')) {
               return 'ui-vendor';
             }
-            if (id.includes('mapbox') || id.includes('supercluster')) {
+            if (id.includes('mapbox')) {
               return 'map-vendor';
             }
-            if (id.includes('i18next') || id.includes('date-fns')) {
-              return 'i18n-vendor';
-            }
             return 'vendor';
-          }
-          
-          // Context and provider chunks (keep together for better context resolution)
-          if (id.includes('/contexts/') || id.includes('/providers/')) {
-            return 'contexts';
-          }
-          
-          // Feature chunks
-          if (id.includes('/pages/Admin') || id.includes('/components/admin/')) {
-            return 'admin';
-          }
-          if (id.includes('/pages/Map') || id.includes('/components/map/')) {
-            return 'map';
-          }
-          if (id.includes('/pages/Auth') || id.includes('/components/auth/')) {
-            return 'auth';
           }
         }
       },
     },
-    // Performance optimizations
     chunkSizeWarningLimit: 500,
-    reportCompressedSize: false, // Faster builds
+    reportCompressedSize: false,
   },
   optimizeDeps: {
     include: [
