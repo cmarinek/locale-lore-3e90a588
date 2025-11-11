@@ -410,56 +410,78 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // FlyTo selected fact with smooth animation
   useEffect(() => {
-    if (!map.current || !selectedFactId) return;
+    if (!map.current || !selectedFactId || !isLoaded) return;
 
     const selectedFact = filteredFacts.find(f => f.id === selectedFactId);
     if (!selectedFact) return;
 
-    // Smooth flyTo animation
-    map.current.flyTo({
-      center: [selectedFact.longitude, selectedFact.latitude],
-      zoom: 14,
-      duration: 1500,
-      essential: true,
-      curve: 1.42,
-      easing: (t) => t * (2 - t) // Ease out quad
-    });
-  }, [selectedFactId, filteredFacts]);
+    // Ensure coordinates are valid numbers
+    const lng = Number(selectedFact.longitude);
+    const lat = Number(selectedFact.latitude);
+    
+    if (isNaN(lng) || isNaN(lat)) {
+      console.error('Invalid coordinates:', { lng, lat });
+      return;
+    }
+
+    // Wait a tick to ensure map is ready
+    setTimeout(() => {
+      if (!map.current) return;
+      
+      try {
+        map.current.flyTo({
+          center: { lng, lat },
+          zoom: 14,
+          duration: 1500,
+          essential: true,
+          curve: 1.42,
+          easing: (t) => t * (2 - t) // Ease out quad
+        });
+      } catch (error) {
+        console.error('Error flying to location:', error);
+      }
+    }, 100);
+  }, [selectedFactId, filteredFacts, isLoaded]);
 
   // Update marker styles when selectedFactId changes
   useEffect(() => {
-    const allMarkerElements = document.querySelectorAll('.fact-marker');
-    allMarkerElements.forEach((el) => {
-      const factId = el.getAttribute('data-fact-id');
-      const isSelected = factId === selectedFactId;
-      const htmlEl = el as HTMLElement;
-      
-      if (isSelected) {
-        htmlEl.style.width = '48px';
-        htmlEl.style.height = '48px';
-        htmlEl.style.border = '3px solid hsl(var(--primary))';
-        htmlEl.style.boxShadow = `
-          0 8px 32px rgba(0,0,0,0.12),
-          0 2px 8px rgba(0,0,0,0.08),
-          inset 0 1px 0 rgba(255,255,255,0.3),
-          0 0 0 6px hsl(var(--primary) / 0.2)
-        `;
-        htmlEl.style.zIndex = '30';
-        htmlEl.style.animation = 'pulse-marker 2s cubic-bezier(0.4, 0, 0.6, 1) infinite';
-      } else {
-        htmlEl.style.width = '40px';
-        htmlEl.style.height = '40px';
-        htmlEl.style.border = '3px solid rgba(255,255,255,0.9)';
-        htmlEl.style.boxShadow = `
-          0 8px 32px rgba(0,0,0,0.12),
-          0 2px 8px rgba(0,0,0,0.08),
-          inset 0 1px 0 rgba(255,255,255,0.3)
-        `;
-        htmlEl.style.zIndex = '10';
-        htmlEl.style.animation = '';
-      }
-    });
-  }, [selectedFactId]);
+    if (!isLoaded) return;
+    
+    // Small delay to ensure markers are rendered
+    setTimeout(() => {
+      const allMarkerElements = document.querySelectorAll('.fact-marker');
+      allMarkerElements.forEach((el) => {
+        const factId = el.getAttribute('data-fact-id');
+        const isSelected = factId === selectedFactId;
+        const htmlEl = el as HTMLElement;
+        
+        if (isSelected) {
+          htmlEl.style.width = '48px';
+          htmlEl.style.height = '48px';
+          htmlEl.style.border = '3px solid hsl(var(--primary))';
+          htmlEl.style.boxShadow = `
+            0 8px 32px rgba(0,0,0,0.12),
+            0 2px 8px rgba(0,0,0,0.08),
+            inset 0 1px 0 rgba(255,255,255,0.3),
+            0 0 0 6px hsl(var(--primary) / 0.2)
+          `;
+          htmlEl.style.zIndex = '30';
+          htmlEl.style.animation = 'pulse-marker 2s cubic-bezier(0.4, 0, 0.6, 1) infinite';
+        } else {
+          htmlEl.style.width = '40px';
+          htmlEl.style.height = '40px';
+          htmlEl.style.border = '3px solid rgba(255,255,255,0.9)';
+          htmlEl.style.boxShadow = `
+            0 8px 32px rgba(0,0,0,0.12),
+            0 2px 8px rgba(0,0,0,0.08),
+            inset 0 1px 0 rgba(255,255,255,0.3)
+          `;
+          htmlEl.style.zIndex = '10';
+          htmlEl.style.animation = '';
+        }
+      });
+    }, 50);
+  }, [selectedFactId, isLoaded]);
 
   // Initialize map
   useEffect(() => {
@@ -706,28 +728,40 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
           'hsl(203, 15%, 45%)' // muted-foreground - default
         ],
         'circle-radius': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          8, 5,
-          16, 10
+          'case',
+          ['==', ['get', 'id'], selectedFactId || ''],
+          16, // Larger when selected
+          [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            8, 5,
+            16, 10
+          ]
         ],
         'circle-stroke-width': [
           'case',
-          ['==', ['get', 'id'], selectedMarkerId || ''],
-          4, 2
+          ['==', ['get', 'id'], selectedFactId || ''],
+          4, // Thicker stroke when selected
+          2
         ],
         'circle-stroke-color': [
           'case',
-          ['==', ['get', 'id'], selectedMarkerId || ''],
-          '#FFD700', '#fff'
+          ['==', ['get', 'id'], selectedFactId || ''],
+          'hsl(203, 85%, 65%)', // Primary color when selected
+          '#fff'
         ],
         'circle-opacity': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          8, 0.7,
-          16, 0.95
+          'case',
+          ['==', ['get', 'id'], selectedFactId || ''],
+          1, // Full opacity when selected
+          [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            8, 0.7,
+            16, 0.95
+          ]
         ]
       }
     });
@@ -835,7 +869,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         if (fact) onFactClick(fact);
       }
     });
-  }, [isLoaded, filteredFacts, maxZoom, clusterRadius, selectedMarkerId, onFactClick]);
+  }, [isLoaded, filteredFacts, maxZoom, clusterRadius, selectedMarkerId, selectedFactId, onFactClick]);
 
   // Setup marker-based map
   const setupMarkerMap = useCallback(() => {
@@ -856,13 +890,14 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     });
   }, [isLoaded, processedFacts, createMarkerElement]);
 
-  // Update map when facts change
+  // Update map when facts change or selection changes
   useEffect(() => {
     if (!map.current || !isLoaded) return;
 
     if (enableClustering) {
       const source = map.current.getSource('facts') as mapboxgl.GeoJSONSource;
       if (source) {
+        // Update data with new facts
         source.setData({
           type: 'FeatureCollection',
           features: processedFacts.map(fact => ({
@@ -880,11 +915,27 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
             }
           }))
         });
+        
+        // Force map to repaint to update selection styling
+        if (selectedFactId) {
+          map.current.setPaintProperty('unclustered-point', 'circle-radius', [
+            'case',
+            ['==', ['get', 'id'], selectedFactId],
+            16,
+            [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              8, 5,
+              16, 10
+            ]
+          ]);
+        }
       }
     } else {
       setupMarkerMap();
     }
-  }, [processedFacts, isLoaded, enableClustering, setupMarkerMap]);
+  }, [processedFacts, isLoaded, enableClustering, setupMarkerMap, selectedFactId]);
 
   // Map control handlers
   const handleZoomIn = useCallback(() => map.current?.zoomIn(), []);
