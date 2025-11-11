@@ -111,8 +111,21 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const [currentZoom, setCurrentZoom] = useState(zoom);
   const [mapStyle, setMapStyle] = useState(style);
   const [loadingDismissed, setLoadingDismissed] = useState(false);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   const [retryTrigger, setRetryTrigger] = useState(0);
+
+  // Add timeout to dismiss loading skeleton if map doesn't load
+  useEffect(() => {
+    if (tokenStatus === 'ready' && !isLoaded) {
+      const timer = setTimeout(() => {
+        console.log('⏰ Loading timeout - dismissing skeleton');
+        setLoadingTimeout(true);
+      }, 10000); // 10 second timeout
+
+      return () => clearTimeout(timer);
+    }
+  }, [tokenStatus, isLoaded]);
 
   // Fetch Mapbox token - simplified with immediate rendering
   useEffect(() => {
@@ -412,45 +425,91 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     }, 100);
   }, [selectedFactId, filteredFacts, isLoaded]);
 
-  // Update marker styles when selectedFactId changes
+  // Update marker styles when selectedFactId changes (for Mapbox GL layers)
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || !map.current || !enableClustering) return;
     
-    // Small delay to ensure markers are rendered
-    setTimeout(() => {
-      const allMarkerElements = document.querySelectorAll('.fact-marker');
-      allMarkerElements.forEach((el) => {
-        const factId = el.getAttribute('data-fact-id');
-        const isSelected = factId === selectedFactId;
-        const htmlEl = el as HTMLElement;
-        
-        if (isSelected) {
-          htmlEl.style.width = '48px';
-          htmlEl.style.height = '48px';
-          htmlEl.style.border = '3px solid hsl(var(--primary))';
-          htmlEl.style.boxShadow = `
-            0 8px 32px rgba(0,0,0,0.12),
-            0 2px 8px rgba(0,0,0,0.08),
-            inset 0 1px 0 rgba(255,255,255,0.3),
-            0 0 0 6px hsl(var(--primary) / 0.2)
-          `;
-          htmlEl.style.zIndex = '30';
-          htmlEl.style.animation = 'pulse-marker 2s cubic-bezier(0.4, 0, 0.6, 1) infinite';
-        } else {
-          htmlEl.style.width = '40px';
-          htmlEl.style.height = '40px';
-          htmlEl.style.border = '3px solid rgba(255,255,255,0.9)';
-          htmlEl.style.boxShadow = `
-            0 8px 32px rgba(0,0,0,0.12),
-            0 2px 8px rgba(0,0,0,0.08),
-            inset 0 1px 0 rgba(255,255,255,0.3)
-          `;
-          htmlEl.style.zIndex = '10';
-          htmlEl.style.animation = '';
-        }
-      });
-    }, 50);
-  }, [selectedFactId, isLoaded]);
+    try {
+      const layer = map.current.getLayer('unclustered-point');
+      if (!layer) return;
+
+      // Update paint properties for selection highlighting
+      map.current.setPaintProperty('unclustered-point', 'circle-radius', [
+        'case',
+        ['==', ['get', 'id'], selectedFactId || ''],
+        16, // Larger when selected
+        [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          8, 5,
+          16, 10
+        ]
+      ]);
+
+      map.current.setPaintProperty('unclustered-point', 'circle-stroke-width', [
+        'case',
+        ['==', ['get', 'id'], selectedFactId || ''],
+        5, // Much thicker stroke when selected
+        2
+      ]);
+
+      map.current.setPaintProperty('unclustered-point', 'circle-stroke-color', [
+        'case',
+        ['==', ['get', 'id'], selectedFactId || ''],
+        'hsl(45, 100%, 60%)', // Bright yellow when selected
+        '#fff'
+      ]);
+
+      map.current.setPaintProperty('unclustered-point', 'circle-opacity', [
+        'case',
+        ['==', ['get', 'id'], selectedFactId || ''],
+        1, // Full opacity when selected
+        0.9
+      ]);
+
+      console.log('✅ Updated marker selection styles');
+    } catch (error) {
+      console.error('❌ Error updating marker styles:', error);
+    }
+
+    // Also update DOM markers if using marker-based rendering
+    const allMarkerElements = document.querySelectorAll('.fact-marker');
+    if (allMarkerElements.length > 0) {
+      setTimeout(() => {
+        allMarkerElements.forEach((el) => {
+          const factId = el.getAttribute('data-fact-id');
+          const isSelected = factId === selectedFactId;
+          const htmlEl = el as HTMLElement;
+          
+          if (isSelected) {
+            htmlEl.style.width = '48px';
+            htmlEl.style.height = '48px';
+            htmlEl.style.border = '3px solid hsl(var(--primary))';
+            htmlEl.style.boxShadow = `
+              0 8px 32px rgba(0,0,0,0.12),
+              0 2px 8px rgba(0,0,0,0.08),
+              inset 0 1px 0 rgba(255,255,255,0.3),
+              0 0 0 6px hsl(var(--primary) / 0.2)
+            `;
+            htmlEl.style.zIndex = '30';
+            htmlEl.style.animation = 'pulse-marker 2s cubic-bezier(0.4, 0, 0.6, 1) infinite';
+          } else {
+            htmlEl.style.width = '40px';
+            htmlEl.style.height = '40px';
+            htmlEl.style.border = '3px solid rgba(255,255,255,0.9)';
+            htmlEl.style.boxShadow = `
+              0 8px 32px rgba(0,0,0,0.12),
+              0 2px 8px rgba(0,0,0,0.08),
+              inset 0 1px 0 rgba(255,255,255,0.3)
+            `;
+            htmlEl.style.zIndex = '10';
+            htmlEl.style.animation = '';
+          }
+        });
+      }, 50);
+    }
+  }, [selectedFactId, isLoaded, enableClustering]);
 
   // Initialize map
   useEffect(() => {
@@ -549,17 +608,20 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const setupClusteredMap = useCallback(() => {
     if (!map.current) return;
 
-    // Remove existing layers and source if they exist
-    const layersToRemove = ['unclustered-point-labels', 'unclustered-point', 'cluster-count', 'clusters'];
-    layersToRemove.forEach(layerId => {
-      if (map.current?.getLayer(layerId)) {
-        map.current.removeLayer(layerId);
-      }
-    });
+    try {
+      console.log('🗺️ Setting up clustered map...');
 
-    if (map.current.getSource('facts')) {
-      map.current.removeSource('facts');
-    }
+      // Remove existing layers and source if they exist
+      const layersToRemove = ['unclustered-point-labels', 'unclustered-point', 'cluster-count', 'clusters'];
+      layersToRemove.forEach(layerId => {
+        if (map.current?.getLayer(layerId)) {
+          map.current.removeLayer(layerId);
+        }
+      });
+
+      if (map.current.getSource('facts')) {
+        map.current.removeSource('facts');
+      }
 
     // Add facts source with clustering and category tracking
     map.current.addSource('facts', {
@@ -679,37 +741,27 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
           'hsl(203, 15%, 45%)' // muted-foreground - default
         ],
         'circle-radius': [
-          'case',
-          ['==', ['get', 'id'], selectedFactId || ''],
-          16, // Larger when selected
-          [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            8, 5,
-            16, 10
-          ]
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          8, 5,
+          16, 10
         ],
-        'circle-stroke-width': [
-          'case',
-          ['==', ['get', 'id'], selectedFactId || ''],
-          5, // Much thicker stroke when selected
-          2
-        ],
-        'circle-stroke-color': [
-          'case',
-          ['==', ['get', 'id'], selectedFactId || ''],
-          'hsl(45, 100%, 60%)', // Bright yellow when selected
-          '#fff'
-        ],
-        'circle-opacity': [
-          'case',
-          ['==', ['get', 'id'], selectedFactId || ''],
-          1, // Full opacity when selected
-          0.9
-        ]
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#fff',
+        'circle-opacity': 0.9
       }
     });
+
+      console.log('✅ Clustered map setup complete');
+    } catch (error) {
+      console.error('❌ Error setting up clustered map:', error);
+      toast({
+        title: 'Map Error',
+        description: 'Failed to set up map layers. Please refresh the page.',
+        variant: 'destructive'
+      });
+    }
     
     // Add symbol layer for marker icons with animation data
     map.current.addLayer({
@@ -1042,8 +1094,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         />
       )}
       
-      {/* Loading Skeleton while map initializes - hide when loaded */}
-      {!isLoaded && mapboxToken && tokenStatus === 'ready' && (
+      {/* Loading Skeleton while map initializes - hide when loaded or timeout */}
+      {!isLoaded && !loadingTimeout && mapboxToken && tokenStatus === 'ready' && (
         <div className="absolute inset-0 z-10 bg-background">
           <MapSkeleton />
         </div>
