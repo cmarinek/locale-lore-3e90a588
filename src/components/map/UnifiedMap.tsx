@@ -21,6 +21,8 @@ import { mapboxService } from '@/services/mapboxService';
 import { useMapStore } from '@/stores/mapStore';
 import { MapTokenMissing } from './MapTokenMissing';
 import { supabase } from '@/integrations/supabase/client';
+import { MiniMap } from './MiniMap';
+import { CreateStoryModal } from './CreateStoryModal';
 
 // Types
 interface Fact {
@@ -98,6 +100,9 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // State
   const [mapboxToken, setMapboxToken] = useState<string>('');
+  const [mapBounds, setMapBounds] = useState<mapboxgl.LngLatBounds | undefined>();
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createLocation, setCreateLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [tokenStatus, setTokenStatus] = useState<'idle' | 'loading' | 'ready' | 'missing' | 'error'>('idle');
   const [tokenError, setTokenError] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -438,12 +443,38 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         const bounds = map.current.getBounds();
         const currentZoom = map.current.getZoom();
         setCurrentZoom(currentZoom);
+        setMapBounds(bounds);
         
         onBoundsChange?.(bounds);
       }, 150);
 
       map.current.on('moveend', handleMove);
       map.current.on('zoomend', handleMove);
+
+      // Map click handler for creating stories
+      map.current.on('click', (e) => {
+        const zoom = map.current?.getZoom() || 0;
+        
+        // Only allow creation when zoomed in enough (zoom level 12+)
+        if (zoom < 12) {
+          toast({
+            title: 'Zoom in closer',
+            description: 'Please zoom in further to accurately place your story on the map',
+          });
+          return;
+        }
+
+        // Check if clicked on a feature
+        const features = map.current?.queryRenderedFeatures(e.point, {
+          layers: ['unclustered-point', 'clusters']
+        });
+
+        // Only open create modal if not clicking on an existing marker
+        if (!features || features.length === 0) {
+          setCreateLocation({ lat: e.lngLat.lat, lng: e.lngLat.lng });
+          setCreateModalOpen(true);
+        }
+      });
     } catch (error) {
       console.error('❌ Failed to initialize map:', error);
       setTokenStatus('error');
@@ -914,6 +945,26 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
             </Card>
           </div>
         </div>
+      )}
+
+      {/* Mini Map Overview */}
+      {isLoaded && mapboxToken && mapBounds && (
+        <div className="absolute bottom-4 right-4 z-20 w-40 h-32 animate-fade-in">
+          <MiniMap mainMapBounds={mapBounds} mapboxToken={mapboxToken} />
+        </div>
+      )}
+
+      {/* Create Story Modal */}
+      {createLocation && (
+        <CreateStoryModal
+          open={createModalOpen}
+          onClose={() => {
+            setCreateModalOpen(false);
+            setCreateLocation(null);
+          }}
+          latitude={createLocation.lat}
+          longitude={createLocation.lng}
+        />
       )}
       
       {/* Loading Skeleton while map initializes - hide when loaded */}
