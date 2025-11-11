@@ -40,7 +40,16 @@ const TranslationTest = lazy(() => import('@/pages/TranslationTest'));
 const Monitoring = lazy(() => import('@/pages/Monitoring'));
 const SecurityAudit = lazy(() => import('@/pages/SecurityAudit'));
 const PerformanceMonitor = lazy(() => import('@/pages/PerformanceMonitor'));
-const LazyMap = lazy(() => import('@/pages/Map'));
+// FIX: Corrected LazyMap import - only return default, not m
+const LazyMap = lazy(() => 
+  import('@/pages/Map').then(m => {
+    const component = m.default;
+    if (!component) {
+      throw new Error('Map component not found - ensure Map.tsx exports default');
+    }
+    return { default: component };
+  })
+);
 const Help = lazy(() => import('@/pages/Help'));
 const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
