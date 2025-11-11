@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Navigation } from '@/components/ui/navigation';
 import { BottomNavigation } from '@/components/ui/bottom-navigation';
 import { LanguageSelector } from '@/components/ui/language-selector';
@@ -20,10 +20,14 @@ interface MainLayoutProps {
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) => {
   const { t, i18n } = useTranslation('navigation');
   const { branding, isLoading } = useBranding();
+  const location = useLocation();
   
   // Get language info directly from i18n - no context dependency
   const currentLanguage = (i18n.language?.split('-')[0] || 'en') as SupportedLanguage;
   const isRTL = SUPPORTED_LANGUAGES[currentLanguage]?.rtl || false;
+  
+  // Check if current page is a full-height map page
+  const isMapPage = ['/map', '/explore', '/hybrid'].includes(location.pathname);
   
   return (
     <div className={cn(
@@ -76,7 +80,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border/50 bg-muted/30 py-8 mt-12 mb-20 md:mb-0 safe-area-padding-bottom relative z-10">
+      <footer className={cn(
+        "border-t border-border/50 bg-muted/30 py-8 mb-20 md:mb-0 safe-area-padding-bottom relative z-10",
+        isMapPage ? "mt-0" : "mt-12"
+      )}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
