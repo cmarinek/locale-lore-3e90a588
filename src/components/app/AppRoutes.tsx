@@ -62,6 +62,7 @@ const TranslationManager = lazy(() => import('@/pages/admin/TranslationManager')
 const MakeAdmin = lazy(() => import('@/pages/MakeAdmin'));
 const RBACTesting = lazy(() => import('@/pages/admin/RBACTesting'));
 const FAQ = lazy(() => import('@/pages/FAQ'));
+const ImplementationStatus = lazy(() => import('@/pages/ImplementationStatus'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -202,6 +203,7 @@ export const AppRoutes: React.FC = React.memo(() => {
         <Route path="/support" element={<Support />} />
         <Route path="/content-guidelines" element={<ContentGuidelines />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route path="/implementation-status" element={<ImplementationStatus />} />
         {process.env.NODE_ENV === 'development' && (
           <>
             <Route path="/production-readiness" element={<ProductionReadiness />} />
