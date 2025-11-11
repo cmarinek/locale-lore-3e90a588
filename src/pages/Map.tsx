@@ -9,7 +9,6 @@ import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { MapViewSwitcher, MapViewMode } from '@/components/map/MapViewSwitcher';
 import { MapStatsOverlay } from '@/components/map/MapStatsOverlay';
 import { MapSearchBar } from '@/components/map/MapSearchBar';
-import { MapStyleSwitcher, MapStyle } from '@/components/map/MapStyleSwitcher';
 import { FactCard } from '@/components/discovery/FactCard';
 
 export const Map: React.FC = () => {
@@ -17,7 +16,6 @@ export const Map: React.FC = () => {
   const { selectedMarkerId, setSelectedMarkerId } = useMapStore();
   const [viewMode, setViewMode] = useState<MapViewMode>('map');
   const [searchQuery, setSearchQuery] = useState('');
-  const [mapStyle, setMapStyle] = useState<MapStyle>('light');
 
   const handleFactClick = (fact: any) => {
     const enhancedFact = {
@@ -61,10 +59,6 @@ export const Map: React.FC = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-  };
-
-  const handleStyleChange = (style: MapStyle) => {
-    setMapStyle(style);
   };
 
   useEffect(() => {
@@ -127,9 +121,8 @@ export const Map: React.FC = () => {
         {/* Map container - takes viewport height minus header, footer stays below naturally */}
         <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
           {/* View Mode Switcher - always visible */}
-          <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+          <div className="absolute top-4 right-4 z-20">
             <MapViewSwitcher currentView={viewMode} onViewChange={setViewMode} variant="glass" />
-            <MapStyleSwitcher currentStyle={mapStyle} onStyleChange={handleStyleChange} />
           </div>
 
           {/* Map View */}
@@ -141,7 +134,6 @@ export const Map: React.FC = () => {
                 enableClustering={true}
                 center={[0, 20]}
                 zoom={2}
-                style={mapStyle}
                 onFactClick={handleFactClick}
                 className="w-full h-full"
               />
