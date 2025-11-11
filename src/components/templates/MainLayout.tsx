@@ -49,30 +49,38 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background/90 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm">
         <div className="container mx-auto px-4">
+          {/* Main Header Row */}
           <div className="flex h-16 items-center justify-between gap-4">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 shrink-0">
-              {isLoading ? (
-                <>
-                  <EnhancedSkeleton className="w-10 h-8" showShimmer={false} />
-                  <EnhancedSkeleton className="w-32 h-6 hidden sm:block" showShimmer={false} />
-                </>
-              ) : (
-                <>
-                  <img 
-                    src={branding?.logo_url || '/icon-192.png'} 
-                    alt={branding?.site_name || 'LocaleLore'} 
-                    className="w-10 h-8 object-contain" 
-                  />
-                  <span className="hidden sm:inline font-bold text-xl bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">
-                    {branding?.site_name || 'LocaleLore'}
-                  </span>
-                </>
-              )}
-            </Link>
+            {/* Logo + Breadcrumbs */}
+            <div className="flex items-center gap-4 min-w-0 flex-1">
+              <Link to="/" className="flex items-center gap-2 shrink-0">
+                {isLoading ? (
+                  <>
+                    <EnhancedSkeleton className="w-10 h-8" showShimmer={false} />
+                    <EnhancedSkeleton className="w-32 h-6 hidden sm:block" showShimmer={false} />
+                  </>
+                ) : (
+                  <>
+                    <img 
+                      src={branding?.logo_url || '/icon-192.png'} 
+                      alt={branding?.site_name || 'LocaleLore'} 
+                      className="w-10 h-8 object-contain" 
+                    />
+                    <span className="hidden lg:inline font-bold text-xl bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">
+                      {branding?.site_name || 'LocaleLore'}
+                    </span>
+                  </>
+                )}
+              </Link>
+              
+              {/* Breadcrumbs - Desktop Only */}
+              <div className="hidden md:block border-l border-border/30 pl-4 min-w-0">
+                <Breadcrumb />
+              </div>
+            </div>
 
             {/* Center: View Mode Toggle */}
-            <div className="flex-1 flex justify-center max-w-md">
+            <div className="hidden lg:flex flex-1 justify-center max-w-md">
               <ViewModeToggle compact className="w-full max-w-xs" />
             </div>
 
@@ -81,11 +89,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
               <Navigation />
               <LanguageSelector variant="compact" />
             </div>
-          </div>
-
-          {/* Breadcrumb Navigation */}
-          <div className="container mx-auto px-4 py-2 border-t border-border/30">
-            <Breadcrumb />
           </div>
         </div>
       </header>

@@ -121,7 +121,7 @@ export const Map: React.FC = () => {
         </Helmet>
 
         {/* Map container - takes full viewport height minus header */}
-        <div className="relative w-full" style={{ height: 'calc(100vh - 9rem)' }}>
+        <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
           {/* View Mode Switcher - always visible */}
           <div className="absolute top-4 right-4 z-20">
             <MapViewSwitcher currentView={viewMode} onViewChange={setViewMode} variant="glass" />
