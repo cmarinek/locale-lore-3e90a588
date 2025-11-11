@@ -1039,7 +1039,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   return (
     <div className={`relative w-full h-full ${className}`}>
       {/* Map Container - always render to attach ref */}
-      <div ref={mapContainer} className="absolute inset-0 z-0" style={{ minHeight: '400px' }} />
+      <div ref={mapContainer} className="absolute inset-0 z-0" />
       
       {/* Loading State */}
       {((tokenStatus === 'loading' || tokenStatus === 'idle') && !mapboxToken && !loadingDismissed) && (
@@ -1082,12 +1082,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         </div>
       )}
 
-      {/* Mini Map Overview */}
-      {isLoaded && mapboxToken && mapBounds && (
-        <div className="absolute bottom-4 right-4 z-20 w-40 h-32 animate-fade-in">
-          <MiniMap mainMapBounds={mapBounds} mapboxToken={mapboxToken} />
-        </div>
-      )}
+      {/* Mini Map Overview - Removed for better space utilization */}
 
       {/* Create Story Modal */}
       {createLocation && (
