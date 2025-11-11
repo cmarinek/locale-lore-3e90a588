@@ -122,12 +122,12 @@ export const Map: React.FC = () => {
           <link rel="canonical" href="/map" />
         </Helmet>
 
-        {/* Map container - takes full viewport height minus header */}
-        <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
+        {/* FIX: Map container with explicit full-height and flex layout */}
+        <div className="w-full flex-1 flex flex-col" style={{ height: 'calc(100vh - 4rem)' }}>
 
           {/* Map View */}
           {(viewMode === 'map' || viewMode === 'hybrid') && (
-            <div className="relative w-full h-full">
+            <div className="relative w-full h-full flex-1">
               <UnifiedMap
                 facts={filteredFacts}
                 useScalableLoading={false}
@@ -135,6 +135,7 @@ export const Map: React.FC = () => {
                 center={[0, 20]}
                 zoom={2}
                 onFactClick={handleFactClick}
+                isVisible={true}
                 className="w-full h-full"
               />
 
@@ -159,7 +160,7 @@ export const Map: React.FC = () => {
 
           {/* List View */}
           {viewMode === 'list' && (
-            <div className="w-full h-full overflow-y-auto bg-background">
+            <div className="w-full h-full overflow-y-auto bg-background flex-1">
               <div className="container mx-auto px-4 py-8">
                 <div className="mb-6">
                   <h1 className="text-3xl font-bold mb-2">All Stories</h1>
@@ -183,7 +184,7 @@ export const Map: React.FC = () => {
               open={true}
               onClose={handleCloseModal}
             />
-        )}
+          )}
         </div>
       </MainLayout>
     </ErrorBoundary>
