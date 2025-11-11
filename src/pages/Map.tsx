@@ -7,7 +7,6 @@ import { useMapStore } from '@/stores/mapStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { MapViewSwitcher, MapViewMode } from '@/components/map/MapViewSwitcher';
-import { MapStatsOverlay } from '@/components/map/MapStatsOverlay';
 import { MapSearchBar } from '@/components/map/MapSearchBar';
 import { FactCard } from '@/components/discovery/FactCard';
 
@@ -111,7 +110,10 @@ export const Map: React.FC = () => {
         </div>
       }
     >
-      <MainLayout>
+      <MainLayout
+        totalStories={totalStories}
+        verifiedStories={verifiedStories}
+      >
         <Helmet>
           <title>Explore Map - Discover Stories Around You</title>
           <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
@@ -136,12 +138,6 @@ export const Map: React.FC = () => {
                 zoom={2}
                 onFactClick={handleFactClick}
                 className="w-full h-full"
-              />
-
-              {/* Stats Overlay */}
-              <MapStatsOverlay
-                totalStories={totalStories}
-                verifiedStories={verifiedStories}
               />
 
               {/* Search Bar */}

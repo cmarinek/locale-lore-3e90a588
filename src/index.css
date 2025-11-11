@@ -542,3 +542,10 @@
   animation: fade-in 0.4s ease-out;
 }
 
+/* Grid pattern background */
+.bg-grid-pattern {
+  background-image: linear-gradient(hsl(var(--border)) 1px, transparent 1px),
+                    linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
