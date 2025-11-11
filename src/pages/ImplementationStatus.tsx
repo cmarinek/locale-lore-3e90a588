@@ -346,8 +346,6 @@ export default function ImplementationStatus() {
             </div>
           </CardContent>
         </Card>
-        </Card>
-        </div>
       </div>
     </div>
   );
