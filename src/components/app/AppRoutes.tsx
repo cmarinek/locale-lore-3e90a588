@@ -40,7 +40,7 @@ const TranslationTest = lazy(() => import('@/pages/TranslationTest'));
 const Monitoring = lazy(() => import('@/pages/Monitoring'));
 const SecurityAudit = lazy(() => import('@/pages/SecurityAudit'));
 const PerformanceMonitor = lazy(() => import('@/pages/PerformanceMonitor'));
-// FIX: Corrected LazyMap import - only return default, not m
+// FIX: Proper lazy loading with error handling for Map
 const LazyMap = lazy(() => 
   import('@/pages/Map').then(m => {
     const component = m.default;
