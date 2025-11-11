@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Comment {
   id: string;
@@ -28,6 +29,7 @@ interface Comment {
   } | null;
   user_vote?: boolean | null;
   replies?: Comment[];
+  isOptimistic?: boolean;
 }
 
 interface DiscussionThreadProps {
@@ -186,28 +188,112 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({
       return;
     }
 
+    // Optimistic comment
+    const optimisticId = `optimistic-${Date.now()}`;
+    const optimisticComment: Comment = {
+      id: optimisticId,
+      content: newComment.trim(),
+      author_id: user.id,
+      parent_id: replyTo,
+      depth: replyTo ? 1 : 0,
+      vote_count_up: 0,
+      vote_count_down: 0,
+      reply_count: 0,
+      created_at: new Date().toISOString(),
+      profiles: {
+        username: user.user_metadata?.username || user.email?.split('@')[0] || 'User',
+        avatar_url: user.user_metadata?.avatar_url,
+      },
+      user_vote: null,
+      isOptimistic: true,
+      replies: []
+    };
+
+    // Add optimistically
+    if (replyTo) {
+      // Add as a reply
+      const updateCommentsWithReply = (comments: Comment[]): Comment[] => {
+        return comments.map(comment => {
+          if (comment.id === replyTo) {
+            return {
+              ...comment,
+              replies: [optimisticComment, ...(comment.replies || [])]
+            };
+          }
+          if (comment.replies) {
+            return {
+              ...comment,
+              replies: updateCommentsWithReply(comment.replies)
+            };
+          }
+          return comment;
+        });
+      };
+      setComments(updateCommentsWithReply(comments));
+    } else {
+      // Add as top-level comment
+      setComments([optimisticComment, ...comments]);
+    }
+
+    const commentText = newComment.trim();
+    setNewComment('');
+    setReplyTo(null);
     setSubmitting(true);
+
     try {
-      const { error } = await supabase
+      const { data: insertedComment, error } = await supabase
         .from('fact_comments')
         .insert({
           fact_id: factId,
           author_id: user.id,
-          content: newComment.trim(),
+          content: commentText,
           parent_id: replyTo,
           depth: replyTo ? 1 : 0
-        });
+        })
+        .select(`
+          *,
+          profiles!fact_comments_author_id_fkey(
+            username,
+            avatar_url
+          )
+        `)
+        .single();
 
       if (error) throw error;
 
-      setNewComment('');
-      setReplyTo(null);
+      // Replace optimistic with real comment
+      const replaceOptimistic = (comments: Comment[]): Comment[] => {
+        return comments.map(comment => {
+          if (comment.id === optimisticId) {
+            return { ...insertedComment, replies: [] } as Comment;
+          }
+          if (comment.replies) {
+            return {
+              ...comment,
+              replies: replaceOptimistic(comment.replies)
+            };
+          }
+          return comment;
+        });
+      };
+      setComments(replaceOptimistic(comments));
       
       toast({
         title: "Comment Added",
         description: "Your comment has been posted successfully",
       });
     } catch (error: any) {
+      // Remove optimistic comment on error
+      const removeOptimistic = (comments: Comment[]): Comment[] => {
+        return comments
+          .filter(c => c.id !== optimisticId)
+          .map(comment => ({
+            ...comment,
+            replies: comment.replies ? removeOptimistic(comment.replies) : []
+          }));
+      };
+      setComments(removeOptimistic(comments));
+
       console.error('Error submitting comment:', error);
       toast({
         title: "Error",
@@ -222,6 +308,43 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({
   const voteOnComment = async (commentId: string, isUpvote: boolean) => {
     if (!user) return;
 
+    // Optimistic update first
+    const updateCommentVoteOptimistic = (comments: Comment[]): Comment[] => {
+      return comments.map(comment => {
+        if (comment.id === commentId) {
+          const oldVote = comment.user_vote;
+          const newVote = oldVote === isUpvote ? null : isUpvote;
+          
+          let upDelta = 0;
+          let downDelta = 0;
+          
+          if (oldVote === true && newVote !== true) upDelta = -1;
+          if (oldVote === false && newVote !== false) downDelta = -1;
+          if (newVote === true && oldVote !== true) upDelta = 1;
+          if (newVote === false && oldVote !== false) downDelta = 1;
+
+          return {
+            ...comment,
+            user_vote: newVote,
+            vote_count_up: comment.vote_count_up + upDelta,
+            vote_count_down: comment.vote_count_down + downDelta
+          };
+        }
+        
+        if (comment.replies) {
+          return {
+            ...comment,
+            replies: updateCommentVoteOptimistic(comment.replies)
+          };
+        }
+        
+        return comment;
+      });
+    };
+
+    const previousComments = [...comments];
+    setComments(updateCommentVoteOptimistic(comments));
+
     try {
       const { error } = await supabase
         .from('comment_votes')
@@ -232,43 +355,9 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({
         });
 
       if (error) throw error;
-
-      // Update local state optimistically
-      const updateCommentVote = (comments: Comment[]): Comment[] => {
-        return comments.map(comment => {
-          if (comment.id === commentId) {
-            const oldVote = comment.user_vote;
-            const newVote = oldVote === isUpvote ? null : isUpvote;
-            
-            let upDelta = 0;
-            let downDelta = 0;
-            
-            if (oldVote === true && newVote !== true) upDelta = -1;
-            if (oldVote === false && newVote !== false) downDelta = -1;
-            if (newVote === true && oldVote !== true) upDelta = 1;
-            if (newVote === false && oldVote !== false) downDelta = 1;
-
-            return {
-              ...comment,
-              user_vote: newVote,
-              vote_count_up: comment.vote_count_up + upDelta,
-              vote_count_down: comment.vote_count_down + downDelta
-            };
-          }
-          
-          if (comment.replies) {
-            return {
-              ...comment,
-              replies: updateCommentVote(comment.replies)
-            };
-          }
-          
-          return comment;
-        });
-      };
-
-      setComments(updateCommentVote(comments));
     } catch (error) {
+      // Revert on error
+      setComments(previousComments);
       console.error('Error voting on comment:', error);
       toast({
         title: "Error",
@@ -328,6 +417,12 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({
               <p className="text-sm text-foreground leading-relaxed">
                 {comment.content}
               </p>
+              
+              {comment.isOptimistic && (
+                <Badge variant="secondary" className="text-xs">
+                  Posting...
+                </Badge>
+              )}
 
               <div className="flex items-center space-x-4">
                 {/* Vote buttons */}
@@ -482,9 +577,20 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({
   if (loading) {
     return (
       <Card className={`p-6 ${className}`}>
-        <div className="text-center">
-          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          <p className="text-sm text-muted-foreground">Loading discussion...</p>
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex gap-3">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-16 w-full" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-7 w-16" />
+                  <Skeleton className="h-7 w-16" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </Card>
     );

@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { log } from '@/utils/logger';
+import { ProfileSkeleton } from '@/components/loading/ProfileSkeleton';
 
 export const Profile: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
@@ -66,14 +67,11 @@ export const Profile: React.FC = () => {
     checkSubscription();
   }, [user]);
 
-  if (loading) {
+  if (loading || checkingSubscription) {
     return (
       <MainLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">{t('loading', { defaultValue: 'Loading profile...' })}</p>
-          </div>
+        <div className="container mx-auto px-4 py-8">
+          <ProfileSkeleton />
         </div>
       </MainLayout>
     );

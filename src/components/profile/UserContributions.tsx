@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { motion } from 'framer-motion';
 import { log } from '@/utils/logger';
+import { ContributionsSkeleton } from '@/components/loading/ProfileSkeleton';
 
 interface Fact {
   id: string;
@@ -85,21 +86,7 @@ export const UserContributions: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            My Contributions
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <ContributionsSkeleton />;
   }
 
   return (

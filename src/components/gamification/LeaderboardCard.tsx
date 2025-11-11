@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { log } from '@/utils/logger';
 import { useAuth } from '@/contexts/AuthProvider';
+import { LeaderboardSkeleton } from '@/components/loading/LeaderboardSkeleton';
 
 interface LeaderboardEntry {
   user_id: string;
@@ -295,11 +296,7 @@ export const LeaderboardCard: React.FC<LeaderboardCardProps> = ({ className }) =
 
         {/* Leaderboard List */}
         {loading ? (
-          <div className="space-y-3">
-            {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
-              <div key={i} className="h-16 bg-muted/30 rounded-lg animate-pulse" />
-            ))}
-          </div>
+          <LeaderboardSkeleton />
         ) : leaderboard.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Trophy className="h-12 w-12 mx-auto mb-2 opacity-50" />
