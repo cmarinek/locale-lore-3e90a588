@@ -40,7 +40,11 @@ const TranslationTest = lazy(() => import('@/pages/TranslationTest'));
 const Monitoring = lazy(() => import('@/pages/Monitoring'));
 const SecurityAudit = lazy(() => import('@/pages/SecurityAudit'));
 const PerformanceMonitor = lazy(() => import('@/pages/PerformanceMonitor'));
-const LazyMap = lazy(() => import('@/pages/Map'));
+const LazyMap = lazy(() => 
+  import('@/pages/Map').then(m => {
+    return { default: m.default || m.Map || m };
+  })
+);
 const Help = lazy(() => import('@/pages/Help'));
 const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
