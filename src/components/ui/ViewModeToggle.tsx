@@ -8,14 +8,12 @@ type ViewMode = 'explore' | 'hybrid' | 'map';
 
 interface ViewModeToggleProps {
   className?: string;
-  size?: 'sm' | 'default';
-  variant?: 'default' | 'outline' | 'glass';
+  compact?: boolean;
 }
 
 export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
   className,
-  size = 'sm',
-  variant = 'outline'
+  compact = false
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,16 +23,6 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
     if (location.pathname === '/hybrid') return 'hybrid';
     if (location.pathname === '/map') return 'map';
     return 'explore';
-  };
-
-  const getOtherModes = (): ViewMode[] => {
-    const current = getCurrentMode();
-    switch (current) {
-      case 'explore': return ['hybrid', 'map'];
-      case 'hybrid': return ['explore', 'map'];
-      case 'map': return ['explore', 'hybrid'];
-      default: return ['hybrid', 'map'];
-    }
   };
 
   const handleModeClick = (mode: ViewMode) => {
@@ -51,42 +39,46 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
 
   const getModeLabel = (mode: ViewMode) => {
     switch (mode) {
-      case 'explore': return 'List View';
-      case 'hybrid': return 'Hybrid View';
-      case 'map': return 'Map View';
-    }
-  };
-
-  const getModeShortLabel = (mode: ViewMode) => {
-    switch (mode) {
       case 'explore': return 'List';
       case 'hybrid': return 'Hybrid';
       case 'map': return 'Map';
     }
   };
 
-  const otherModes = getOtherModes();
+  const currentMode = getCurrentMode();
+  const allModes: ViewMode[] = ['explore', 'hybrid', 'map'];
 
   return (
-    <div className={cn("flex gap-2", className)}>
-      {otherModes.map((mode) => {
+    <div className={cn(
+      "flex bg-muted/50 backdrop-blur-sm rounded-full p-1 border border-border/20",
+      className
+    )}>
+      {allModes.map((mode) => {
         const Icon = getModeIcon(mode);
+        const isActive = mode === currentMode;
+        
         return (
           <Button
             key={mode}
-            variant={variant === 'glass' ? 'secondary' : variant}
-            size={size}
+            variant="ghost"
+            size="sm"
             onClick={() => handleModeClick(mode)}
             className={cn(
-              "min-h-[44px] min-w-[44px]", // Ensure touch targets
-              variant === 'glass' && "glass border-0 shadow-lg bg-background/90 backdrop-blur-sm",
-              "touch-manipulation" // Improves touch responsiveness
+              "h-8 rounded-full transition-all touch-manipulation",
+              compact ? "px-2 min-w-[44px]" : "px-3 min-w-[44px]",
+              isActive 
+                ? "bg-background text-foreground shadow-sm" 
+                : "text-muted-foreground hover:text-foreground"
             )}
             aria-label={`Switch to ${getModeLabel(mode)}`}
+            aria-current={isActive ? 'page' : undefined}
           >
-            <Icon className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">{getModeLabel(mode)}</span>
-            <span className="sr-only sm:hidden">{getModeShortLabel(mode)}</span>
+            <Icon className={cn("h-4 w-4", !compact && "md:mr-1.5")} />
+            {!compact && (
+              <span className="hidden md:inline text-xs font-medium">
+                {getModeLabel(mode)}
+              </span>
+            )}
           </Button>
         );
       })}

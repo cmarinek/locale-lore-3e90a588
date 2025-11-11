@@ -4,7 +4,6 @@ import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useSearchStore } from '@/stores/searchStore';
 import { UnifiedMap } from '@/components/map/UnifiedMap';
 import { InfiniteFactList } from '@/components/discovery/InfiniteFactList';
-import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { CleanSearchBar } from '@/components/ui/clean-search-bar';
 import { Button } from '@/components/ui/button';
 import { X, Map as MapIcon, List as ListIcon } from 'lucide-react';
@@ -119,11 +118,6 @@ export const Hybrid: React.FC = () => {
         {/* Mobile: Tab-based navigation */}
         <div className="lg:hidden">
           <div className="container mx-auto p-4 space-y-4">
-            {/* View Mode Toggle */}
-            <div className="absolute top-4 right-4 z-20">
-              <ViewModeToggle variant="glass" />
-            </div>
-
             {/* Search */}
             <CleanSearchBar 
               onQueryChange={handleSearch}
@@ -199,11 +193,6 @@ export const Hybrid: React.FC = () => {
         {/* Desktop/Tablet: Side-by-side layout */}
         <div className="hidden lg:block">
           <div className="container mx-auto p-4 space-y-4">
-            {/* View Mode Toggle */}
-            <div className="flex justify-end mb-4">
-              <ViewModeToggle variant="glass" />
-            </div>
-
             {/* Search */}
             <CleanSearchBar 
               onQueryChange={handleSearch}

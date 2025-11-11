@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Navigation } from '@/components/ui/navigation';
 import { BottomNavigation } from '@/components/ui/bottom-navigation';
 import { LanguageSelector } from '@/components/ui/language-selector';
+import { ViewModeToggle } from '@/components/ui/ViewModeToggle';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
@@ -33,13 +34,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background/90 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm">
         <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
+          <div className="flex h-16 items-center justify-between gap-4">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2 shrink-0">
               {isLoading ? (
                 <>
                   <EnhancedSkeleton className="w-10 h-8" showShimmer={false} />
-                  <EnhancedSkeleton className="w-32 h-6" showShimmer={false} />
+                  <EnhancedSkeleton className="w-32 h-6 hidden sm:block" showShimmer={false} />
                 </>
               ) : (
                 <>
@@ -48,15 +49,20 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, className }) =
                     alt={branding?.site_name || 'LocaleLore'} 
                     className="w-10 h-8 object-contain" 
                   />
-                  <span className="font-bold text-xl bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">
+                  <span className="hidden sm:inline font-bold text-xl bg-gradient-to-r from-logo-blue to-logo-green bg-clip-text text-transparent">
                     {branding?.site_name || 'LocaleLore'}
                   </span>
                 </>
               )}
             </Link>
 
-            {/* Navigation and Language Selector */}
-            <div className="flex items-center gap-4">
+            {/* Center: View Mode Toggle */}
+            <div className="flex-1 flex justify-center max-w-md">
+              <ViewModeToggle compact className="w-full max-w-xs" />
+            </div>
+
+            {/* Right: Navigation and Language Selector */}
+            <div className="flex items-center gap-2 md:gap-4 shrink-0">
               <Navigation />
               <LanguageSelector variant="compact" />
             </div>
