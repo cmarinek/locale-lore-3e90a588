@@ -288,13 +288,14 @@ async function getJobs(supabase: any, params: any) {
 async function processJobInBackground(supabase: any, job: any) {
   console.log('Starting background processing for job:', job.id);
   
+  let processedCount = 0;
+  let successCount = 0;
+  let errorCount = 0;
+  
   try {
     const { configuration } = job;
     const { categories = ['general'], target_count = 10, include_images = true, require_coordinates = false, quality_filter = true } = configuration;
     const batchSize = 3; // Process fewer items at once to improve reliability
-    let processedCount = 0;
-    let successCount = 0;
-    let errorCount = 0;
 
     console.log('Job configuration:', { categories, target_count, include_images, require_coordinates, quality_filter });
 

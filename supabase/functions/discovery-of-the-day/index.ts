@@ -187,7 +187,7 @@ serve(async (req) => {
       if (userPref.notification_preferences?.enabled !== false) {
         const optimalTimes = userPref.discovery_time_preferences || {};
         const bestTime = Object.entries(optimalTimes)
-          .sort(([,a], [,b]) => b - a)[0]?.[0] || 'morning';
+          .sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || 'morning';
 
         notifications.push({
           user_id: userPref.user_id,
