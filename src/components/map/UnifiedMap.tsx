@@ -69,6 +69,7 @@ interface UnifiedMapProps {
   // UI options
   className?: string;
   isVisible?: boolean;
+  selectedFactId?: string | null;
 }
 
 export const UnifiedMap: React.FC<UnifiedMapProps> = ({
@@ -84,7 +85,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   onFactClick,
   onBoundsChange,
   className,
-  isVisible = true
+  isVisible = true,
+  selectedFactId = null
 }) => {
   // Refs
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -279,8 +281,10 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   const createMarkerElement = useCallback((fact: Fact) => {
     const el = document.createElement('div');
     el.className = 'fact-marker';
+    el.setAttribute('data-fact-id', fact.id);
     
     const isVerified = fact.status === 'verified';
+    const isSelected = fact.id === selectedFactId;
     const category = fact.categories?.slug || fact.category || 'general';
     
     // Category colors
@@ -296,23 +300,50 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     const color = categoryColors[category as keyof typeof categoryColors] || categoryColors.default;
     
     el.style.cssText = `
-      width: 40px;
-      height: 40px;
+      width: ${isSelected ? '48px' : '40px'};
+      height: ${isSelected ? '48px' : '40px'};
       border-radius: 50%;
       background: linear-gradient(135deg, ${color} 0%, ${color}/0.8 100%);
-      border: 3px solid rgba(255,255,255,0.9);
+      border: 3px solid ${isSelected ? 'hsl(var(--primary))' : 'rgba(255,255,255,0.9)'};
       cursor: pointer;
       box-shadow: 
         0 8px 32px rgba(0,0,0,0.12),
         0 2px 8px rgba(0,0,0,0.08),
-        inset 0 1px 0 rgba(255,255,255,0.3);
+        inset 0 1px 0 rgba(255,255,255,0.3),
+        ${isSelected ? '0 0 0 6px hsl(var(--primary) / 0.2)' : ''};
       backdrop-filter: blur(8px);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 10;
+      z-index: ${isSelected ? '30' : '10'};
+      ${isSelected ? 'animation: pulse-marker 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : ''}
     `;
+    
+    // Add pulsing animation keyframes to document if not exists
+    if (isSelected && !document.getElementById('marker-pulse-animation')) {
+      const style = document.createElement('style');
+      style.id = 'marker-pulse-animation';
+      style.textContent = `
+        @keyframes pulse-marker {
+          0%, 100% {
+            box-shadow: 
+              0 8px 32px rgba(0,0,0,0.12),
+              0 2px 8px rgba(0,0,0,0.08),
+              inset 0 1px 0 rgba(255,255,255,0.3),
+              0 0 0 6px hsl(var(--primary) / 0.2);
+          }
+          50% {
+            box-shadow: 
+              0 8px 32px rgba(0,0,0,0.12),
+              0 2px 8px rgba(0,0,0,0.08),
+              inset 0 1px 0 rgba(255,255,255,0.3),
+              0 0 0 12px hsl(var(--primary) / 0.1);
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
     
     // Category icon
     const categoryIcons = {
@@ -375,7 +406,60 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     });
     
     return el;
-  }, [onFactClick]);
+  }, [onFactClick, selectedFactId]);
+
+  // FlyTo selected fact with smooth animation
+  useEffect(() => {
+    if (!map.current || !selectedFactId) return;
+
+    const selectedFact = filteredFacts.find(f => f.id === selectedFactId);
+    if (!selectedFact) return;
+
+    // Smooth flyTo animation
+    map.current.flyTo({
+      center: [selectedFact.longitude, selectedFact.latitude],
+      zoom: 14,
+      duration: 1500,
+      essential: true,
+      curve: 1.42,
+      easing: (t) => t * (2 - t) // Ease out quad
+    });
+  }, [selectedFactId, filteredFacts]);
+
+  // Update marker styles when selectedFactId changes
+  useEffect(() => {
+    const allMarkerElements = document.querySelectorAll('.fact-marker');
+    allMarkerElements.forEach((el) => {
+      const factId = el.getAttribute('data-fact-id');
+      const isSelected = factId === selectedFactId;
+      const htmlEl = el as HTMLElement;
+      
+      if (isSelected) {
+        htmlEl.style.width = '48px';
+        htmlEl.style.height = '48px';
+        htmlEl.style.border = '3px solid hsl(var(--primary))';
+        htmlEl.style.boxShadow = `
+          0 8px 32px rgba(0,0,0,0.12),
+          0 2px 8px rgba(0,0,0,0.08),
+          inset 0 1px 0 rgba(255,255,255,0.3),
+          0 0 0 6px hsl(var(--primary) / 0.2)
+        `;
+        htmlEl.style.zIndex = '30';
+        htmlEl.style.animation = 'pulse-marker 2s cubic-bezier(0.4, 0, 0.6, 1) infinite';
+      } else {
+        htmlEl.style.width = '40px';
+        htmlEl.style.height = '40px';
+        htmlEl.style.border = '3px solid rgba(255,255,255,0.9)';
+        htmlEl.style.boxShadow = `
+          0 8px 32px rgba(0,0,0,0.12),
+          0 2px 8px rgba(0,0,0,0.08),
+          inset 0 1px 0 rgba(255,255,255,0.3)
+        `;
+        htmlEl.style.zIndex = '10';
+        htmlEl.style.animation = '';
+      }
+    });
+  }, [selectedFactId]);
 
   // Initialize map
   useEffect(() => {

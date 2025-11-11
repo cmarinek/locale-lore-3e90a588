@@ -184,6 +184,7 @@ export const Hybrid: React.FC = () => {
                   clusterRadius={50}
                   useScalableLoading={true}
                   enableViewportLoading={true}
+                  selectedFactId={selectedFactId}
                   onFactClick={handleMapFactClick}
                 />
               </div>
@@ -247,6 +248,7 @@ export const Hybrid: React.FC = () => {
                   clusterRadius={50}
                   useScalableLoading={true}
                   enableViewportLoading={true}
+                  selectedFactId={selectedFactId}
                   onFactClick={handleMapFactClick}
                 />
               </div>
