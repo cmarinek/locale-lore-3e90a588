@@ -66,6 +66,13 @@ declare module "https://deno.land/std@0.168.0/http/server.ts" {
   ): void;
 }
 
+declare module "https://deno.land/std@0.208.0/http/server.ts" {
+  export function serve(
+    handler: (request: Request) => Response | Promise<Response>,
+    options?: any
+  ): void;
+}
+
 declare module "std/http/server.ts" {
   export function serve(
     handler: (request: Request) => Response | Promise<Response>,
@@ -74,12 +81,50 @@ declare module "std/http/server.ts" {
 }
 
 declare module "https://esm.sh/stripe@14.21.0" {
-  interface StripeConstructor {
-    new (apiKey: string, config?: any): StripeInstance;
-    (apiKey: string, config?: any): StripeInstance;
+  namespace Stripe {
+    interface SubscriptionUpdateParams {
+      items?: any[];
+      cancel_at_period_end?: boolean;
+      payment_behavior?: string;
+      proration_behavior?: string;
+    }
+    interface Customer {
+      id: string;
+      email?: string;
+      metadata?: Record<string, any>;
+    }
+    interface Subscription {
+      id: string;
+      status: string;
+      customer?: string;
+      items: {
+        data: Array<{
+          price: {
+            id: string;
+          };
+        }>;
+      };
+    }
+    interface Event {
+      type: string;
+      data: {
+        object: any;
+      };
+    }
+    interface PaymentMethod {
+      id: string;
+      type: string;
+    }
+    interface Invoice {
+      id: string;
+      customer: string;
+    }
+    interface Price {
+      id: string;
+    }
   }
   
-  interface StripeInstance {
+  interface Stripe {
     customers: any;
     checkout: {
       sessions: any;
@@ -98,27 +143,9 @@ declare module "https://esm.sh/stripe@14.21.0" {
     prices: any;
   }
   
-  namespace Stripe {
-    interface SubscriptionUpdateParams {
-      items?: any[];
-      cancel_at_period_end?: boolean;
-      payment_behavior?: string;
-      proration_behavior?: string;
-    }
-    interface Customer {
-      id: string;
-      email?: string;
-    }
-    interface Subscription {
-      id: string;
-      status: string;
-    }
-    interface Event {
-      type: string;
-      data: {
-        object: any;
-      };
-    }
+  interface StripeConstructor {
+    new (apiKey: string, config?: any): Stripe;
+    (apiKey: string, config?: any): Stripe;
   }
   
   const Stripe: StripeConstructor;
@@ -141,13 +168,6 @@ declare module "https://esm.sh/@supabase/supabase-js@2.7.1" {
   export function createClient(url: string, key: string, options?: any): any;
   export type User = any;
   export type Session = any;
-}
-
-declare module "https://deno.land/std@0.208.0/http/server.ts" {
-  export function serve(
-    handler: (request: Request) => Response | Promise<Response>,
-    options?: any
-  ): void;
 }
 
 declare module "npm:resend@4.0.0" {

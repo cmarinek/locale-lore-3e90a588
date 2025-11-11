@@ -2011,6 +2011,51 @@ export type Database = {
           },
         ]
       }
+      privacy_settings: {
+        Row: {
+          allow_direct_messages: boolean
+          allow_friend_requests: boolean
+          created_at: string
+          discoverable: boolean
+          id: string
+          profile_visibility: string
+          show_achievements: boolean
+          show_activity: boolean
+          show_location: boolean
+          show_stats: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allow_direct_messages?: boolean
+          allow_friend_requests?: boolean
+          created_at?: string
+          discoverable?: boolean
+          id?: string
+          profile_visibility?: string
+          show_achievements?: boolean
+          show_activity?: boolean
+          show_location?: boolean
+          show_stats?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allow_direct_messages?: boolean
+          allow_friend_requests?: boolean
+          created_at?: string
+          discoverable?: boolean
+          id?: string
+          profile_visibility?: string
+          show_achievements?: boolean
+          show_activity?: boolean
+          show_location?: boolean
+          show_stats?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
