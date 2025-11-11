@@ -754,14 +754,6 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     });
 
       console.log('✅ Clustered map setup complete');
-    } catch (error) {
-      console.error('❌ Error setting up clustered map:', error);
-      toast({
-        title: 'Map Error',
-        description: 'Failed to set up map layers. Please refresh the page.',
-        variant: 'destructive'
-      });
-    }
     
     // Add symbol layer for marker icons with animation data
     map.current.addLayer({
@@ -866,6 +858,15 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         if (fact) onFactClick(fact);
       }
     });
+    
+    } catch (error) {
+      console.error('❌ Error setting up clustered map:', error);
+      toast({
+        title: "Map Error",
+        description: "Failed to initialize map clustering. Please refresh the page.",
+        variant: "destructive"
+      });
+    }
   }, [isLoaded, filteredFacts, maxZoom, clusterRadius, selectedMarkerId, selectedFactId, onFactClick]);
 
   // Setup marker-based map
