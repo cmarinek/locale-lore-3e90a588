@@ -547,7 +547,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // Setup clustered map using Mapbox GL native clustering with category distribution
   const setupClusteredMap = useCallback(() => {
-    if (!map.current || !isLoaded) return;
+    if (!map.current) return;
 
     // Remove existing layers and source if they exist
     const layersToRemove = ['unclustered-point-labels', 'unclustered-point', 'cluster-count', 'clusters'];
@@ -824,7 +824,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // Setup marker-based map
   const setupMarkerMap = useCallback(() => {
-    if (!map.current || !isLoaded) return;
+    if (!map.current) return;
 
     // Clear existing markers
     markersRef.current.forEach(marker => marker.remove());
