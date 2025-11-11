@@ -53,7 +53,7 @@ class BatchedApiClient {
     const batch = Array.from(this.queue.values());
     this.queue.clear();
 
-    console.log(`[BatchedApi] Executing ${batch.length} batched requests`);
+    
 
     // Execute all requests in parallel
     await Promise.all(

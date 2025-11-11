@@ -81,12 +81,18 @@ declare module "std/http/server.ts" {
 }
 
 declare module "https://esm.sh/stripe@14.21.0" {
-  export namespace Stripe {
+  namespace Stripe {
     interface SubscriptionUpdateParams {
       items?: any[];
       cancel_at_period_end?: boolean;
       payment_behavior?: string;
       proration_behavior?: string;
+    }
+    interface SubscriptionItem {
+      id: string;
+      price: {
+        id: string;
+      };
     }
     interface Customer {
       id: string;
@@ -98,12 +104,13 @@ declare module "https://esm.sh/stripe@14.21.0" {
       status: string;
       customer?: string;
       items: {
-        data: Array<{
-          price: {
-            id: string;
-          };
-        }>;
+        data: SubscriptionItem[];
       };
+      current_period_end: number;
+      current_period_start: number;
+      cancel_at_period_end: boolean;
+      trial_end?: number | null;
+      metadata?: Record<string, any>;
     }
     interface Event {
       type: string;
@@ -114,17 +121,39 @@ declare module "https://esm.sh/stripe@14.21.0" {
     interface PaymentMethod {
       id: string;
       type: string;
+      card?: {
+        brand: string;
+        last4: string;
+        exp_month: number;
+        exp_year: number;
+      };
     }
     interface Invoice {
       id: string;
       customer: string;
       subscription?: string;
+      amount_paid: number;
+      currency: string;
+      status: string;
+      payment_intent?: string;
     }
     interface Price {
       id: string;
+      unit_amount?: number;
+      currency?: string;
     }
-    interface Checkout {
-      Session: any;
+    namespace Checkout {
+      interface Session {
+        id: string;
+        customer?: string;
+        payment_status: string;
+        mode: string;
+        subscription?: string;
+        metadata?: Record<string, any>;
+        amount_total?: number;
+        payment_intent?: string;
+        currency?: string;
+      }
     }
   }
   
@@ -144,7 +173,7 @@ declare module "https://esm.sh/stripe@14.21.0" {
     invoices: any;
     paymentMethods: any;
     webhooks: {
-      constructEvent: (payload: any, signature: string, secret: string) => any;
+      constructEvent: (payload: any, signature: string, secret: string) => Stripe.Event;
     };
     prices: any;
   }
@@ -154,7 +183,7 @@ declare module "https://esm.sh/stripe@14.21.0" {
     (apiKey: string, config?: any): Stripe;
   }
   
-  const Stripe: StripeConstructor;
+  const Stripe: StripeConstructor & typeof Stripe;
   export = Stripe;
 }
 

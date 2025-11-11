@@ -58,7 +58,6 @@ class UltraFastGeoService {
   clearCache(): void {
     this.cache = null;
     this.cacheTimestamp = 0;
-    console.log('🗑️ Cache cleared - will fetch fresh data with images');
     // Also clear any stored fact data to ensure fresh data with images
     localStorage.removeItem('discovery_facts_cache');
   }

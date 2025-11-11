@@ -76,7 +76,7 @@ export const auditRLSStatus = async () => {
       return;
     }
     
-    console.log('[SECURITY] RLS audit completed', data);
+    
     
     // Check for any tables with RLS disabled (system tables already filtered)
     const disabledRLS = data?.filter(table => !table.rls_enabled);
@@ -97,7 +97,7 @@ export const auditRLSStatus = async () => {
         .limit(1);
       
       if (!testError) {
-        console.log('[SECURITY] Fallback audit - database accessible');
+        
       }
     } catch (fallbackError) {
       console.error('Database connectivity test failed:', fallbackError);

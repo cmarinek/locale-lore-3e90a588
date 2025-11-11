@@ -61,18 +61,14 @@ class UnifiedGeoService {
     // Check cache first
     const cached = this.cache.get(cacheKey);
     if (cached && this.isValidCache(cached.timestamp)) {
-      console.log('🎯 Cache hit for bounds:', cacheKey);
       this.preloadAdjacentAreas(bounds, zoom);
       return cached.data;
     }
 
     // Check if request is already in flight
     if (this.activeRequests.has(cacheKey)) {
-      console.log('⏳ Request already in flight for:', cacheKey);
       return this.activeRequests.get(cacheKey)!;
     }
-
-    console.log('🌍 Fetching facts for bounds:', cacheKey);
     
     // Create and cache the request promise
     const requestPromise = this.fetchOptimizedFacts(bounds, zoom);
@@ -92,7 +88,6 @@ class UnifiedGeoService {
       // Preload adjacent areas
       this.preloadAdjacentAreas(bounds, zoom);
       
-      console.log(`✅ Loaded ${facts.length} facts for bounds:`, cacheKey);
       return facts;
     } catch (error) {
       console.error('❌ Error fetching facts:', error);
@@ -268,7 +263,6 @@ class UnifiedGeoService {
     this.cache.clear();
     this.activeRequests.clear();
     this.preloadQueue.clear();
-    console.log('🧹 Cache cleared');
   }
 }
 

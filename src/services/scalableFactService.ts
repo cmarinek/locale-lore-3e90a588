@@ -95,11 +95,8 @@ class ScalableFactService {
     const cached = this.cache[cacheKey];
     
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
-      console.log(`📦 Cache hit for viewport (${cached.data.length} facts)`);
       return cached.data;
     }
-
-    console.log(`🌍 Loading facts for viewport (zoom: ${zoom.toFixed(1)}, limit: ${limit})`);
     
     try {
       // Build optimized geographic query
@@ -164,7 +161,6 @@ class ScalableFactService {
         bounds
       };
 
-      console.log(`✅ Loaded ${facts.length} facts for viewport`);
       return facts;
 
     } catch (error) {
@@ -250,7 +246,6 @@ class ScalableFactService {
    */
   clearCache(): void {
     this.cache = {};
-    console.log('🧹 Fact cache cleared');
   }
 
   /**

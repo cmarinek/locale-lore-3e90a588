@@ -128,7 +128,6 @@ const FactAcquisitionManager: React.FC = () => {
 
     setCreating(true);
     try {
-      console.log('Creating job with:', newJobForm);
       const { data, error } = await supabase.functions.invoke('fact-acquisition', {
         body: {
           action: 'create_job',
@@ -144,7 +143,6 @@ const FactAcquisitionManager: React.FC = () => {
       });
 
       if (error) throw error;
-      console.log('Job created successfully:', data);
 
       toast({
         title: "Job created successfully",
@@ -163,7 +161,6 @@ const FactAcquisitionManager: React.FC = () => {
       
       // Force refresh with small delay to ensure DB is updated
       setTimeout(async () => {
-        console.log('Refreshing jobs after creation...');
         await loadData();
       }, 500);
     } catch (error) {

@@ -5,47 +5,27 @@ class MapboxService {
   private tokenPromise: Promise<string | null> | null = null;
 
   async getToken(): Promise<string | null> {
-    console.log('🔑 MapboxService: getToken called', {
-      hasCachedToken: !!this.token,
-      isCurrentlyFetching: !!this.tokenPromise
-    });
-
     // Return cached token if available
     if (this.token) {
-      console.log('✅ Returning cached token');
       return this.token;
     }
 
     // Return existing promise if already fetching
     if (this.tokenPromise) {
-      console.log('⏳ Token fetch in progress, waiting...');
       return this.tokenPromise;
     }
 
     // Fetch token from Supabase Edge Function
-    console.log('🌐 Fetching token from Supabase...');
     this.tokenPromise = this.fetchTokenFromSupabase();
     this.token = await this.tokenPromise;
     this.tokenPromise = null;
 
-    console.log('🔑 Token fetch complete:', this.token ? `${this.token.substring(0, 15)}...` : 'null');
     return this.token;
   }
 
   private async fetchTokenFromSupabase(): Promise<string | null> {
     try {
-      console.log('📡 [MapboxService] Calling get-mapbox-token edge function...');
-      console.log('📡 [MapboxService] Supabase client configured:', !!supabase);
-      
       const { data, error } = await supabase.functions.invoke('get-mapbox-token');
-      
-      console.log('📡 [MapboxService] Edge function response:', { 
-        hasData: !!data, 
-        hasError: !!error,
-        dataKeys: data ? Object.keys(data) : [],
-        dataContent: data,
-        errorDetails: error 
-      });
 
       if (error) {
         console.error('❌ [MapboxService] Failed to fetch Mapbox token:', error);
@@ -60,14 +40,6 @@ class MapboxService {
           .replace(/[\r\n\t\f\v\s]/g, '')
           .replace(/[^\x20-\x7E]/g, '')
           .trim();
-        
-        console.log('✅ [MapboxService] Token received and cleaned:', {
-          originalLength: data.token.length,
-          cleanedLength: cleanToken.length,
-          preview: cleanToken ? `${cleanToken.substring(0, 15)}...` : 'empty',
-          isValid: cleanToken.length > 0,
-          startsWithPk: cleanToken.startsWith('pk.') || cleanToken.startsWith('sk.')
-        });
         
         if (cleanToken.length > 0) {
           return cleanToken;

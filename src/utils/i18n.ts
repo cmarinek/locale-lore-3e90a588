@@ -74,7 +74,7 @@ export const initI18n = async () => {
       });
       
     i18nInitialized = true;
-    console.log('[i18n] Initialized successfully');
+    
   } catch (error) {
     console.warn('[i18n] Initialization failed:', error);
     // Fallback to English if initialization fails

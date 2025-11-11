@@ -43,7 +43,6 @@ export const TranslationManager: React.FC = () => {
     setIsGenerating(true);
     try {
       const results = await TranslationGenerator.generateMissingTranslations('en');
-      console.log('Generated translations:', results);
       
       // Generate download files
       await TranslationGenerator.generateTranslationFiles(results);
