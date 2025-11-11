@@ -703,16 +703,11 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
           '#fff'
         ],
         'circle-opacity': [
-          'case',
-          ['==', ['get', 'id'], selectedFactId || ''],
-          1, // Full opacity when selected
-          [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            8, 0.7,
-            16, 0.95
-          ]
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          8, 0.7,
+          16, 0.95
         ]
       }
     });
