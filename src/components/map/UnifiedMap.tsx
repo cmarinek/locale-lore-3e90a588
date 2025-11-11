@@ -132,28 +132,44 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
         console.log('🗺️ [UnifiedMap] Token fetch result:', { 
           mounted, 
-          hasToken: !!token, 
-          tokenLength: token?.length 
+          hasToken: !!token,
+          tokenLength: token?.length || 0,
+          tokenPreview: token ? `${token.substring(0, 20)}...` : 'null'
+        });
+
+        if (!mounted) {
+          console.log('⏭️ [UnifiedMap] Component unmounted, skipping token set');
+          return;
+        }
+
+        if (!token) {
+          console.error('❌ [UnifiedMap] No token received');
+          setTokenStatus('missing');
+          setTokenError('Failed to fetch Mapbox token');
+          return;
+        }
+
+        // CRITICAL: Set the global mapboxgl token BEFORE updating state
+        mapboxgl.accessToken = token;
+        console.log('🔑 [UnifiedMap] Set mapboxgl.accessToken globally');
+        
+        setMapboxToken(token);
+        setTokenStatus('ready');
+        console.log('✅ [UnifiedMap] Token state updated, status: ready');
+
+      } catch (error: any) {
+        clearTimeout(timeoutId);
+        
+        console.error('❌ [UnifiedMap] Token fetch error:', {
+          error,
+          message: error?.message,
+          mounted
         });
 
         if (!mounted) return;
 
-        if (token && token.length > 0) {
-          setMapboxToken(token);
-          setTokenStatus('ready');
-          console.log('✅ [UnifiedMap] Token status set to READY');
-        } else {
-          setTokenStatus('missing');
-          setTokenError('A Mapbox public token is required to display the interactive map.');
-          console.log('❌ [UnifiedMap] Token status set to MISSING');
-        }
-      } catch (error) {
-        clearTimeout(timeoutId);
-        if (!mounted) return;
-        
-        console.error('❌ [UnifiedMap] Failed to load Mapbox token:', error);
         setTokenStatus('error');
-        setTokenError(error instanceof Error ? error.message : 'Unknown error while fetching Mapbox token.');
+        setTokenError(error?.message || 'Unknown error');
       }
     };
 
@@ -424,6 +440,11 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       map.current.on('load', () => {
         console.log('✅ Map loaded successfully');
         setIsLoaded(true);
+        
+        // Force resize to ensure tiles render
+        setTimeout(() => {
+          map.current?.resize();
+        }, 100);
         
         if (enableClustering) {
           setupClusteredMap();
@@ -878,7 +899,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   return (
     <div className={`relative w-full h-full ${className}`}>
       {/* Map Container - always render to attach ref */}
-      <div ref={mapContainer} className="absolute inset-0 z-0" />
+      <div ref={mapContainer} className="absolute inset-0 z-0" style={{ minHeight: '400px' }} />
       
       {/* Loading State */}
       {((tokenStatus === 'loading' || tokenStatus === 'idle') && !mapboxToken && !loadingDismissed) && (
