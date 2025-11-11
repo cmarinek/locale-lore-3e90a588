@@ -129,9 +129,6 @@ export const MiniMap: React.FC<MiniMapProps> = ({ mainMapBounds, mapboxToken, cl
 
   return (
     <div className={`bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg overflow-hidden ${className}`}>
-      <div className="p-2 border-b border-border bg-muted/30">
-        <p className="text-[10px] font-semibold text-muted-foreground">Overview</p>
-      </div>
       <div ref={containerRef} className="w-full h-full" />
     </div>
   );

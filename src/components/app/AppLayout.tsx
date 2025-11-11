@@ -20,7 +20,7 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ children }) => 
       <Toaster />
       <CookieConsent />
       {isAdmin && <PerformanceMonitor />}
-      {import.meta.env.DEV && <TranslationDebugToggle />}
+      {isAdmin && <TranslationDebugToggle />}
     </div>
   );
 });
