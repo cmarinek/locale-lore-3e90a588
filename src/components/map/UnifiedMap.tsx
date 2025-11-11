@@ -693,21 +693,20 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         'circle-stroke-width': [
           'case',
           ['==', ['get', 'id'], selectedFactId || ''],
-          4, // Thicker stroke when selected
+          5, // Much thicker stroke when selected
           2
         ],
         'circle-stroke-color': [
           'case',
           ['==', ['get', 'id'], selectedFactId || ''],
-          'hsl(203, 85%, 65%)', // Primary color when selected
+          'hsl(45, 100%, 60%)', // Bright yellow when selected
           '#fff'
         ],
         'circle-opacity': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          8, 0.7,
-          16, 0.95
+          'case',
+          ['==', ['get', 'id'], selectedFactId || ''],
+          1, // Full opacity when selected
+          0.9
         ]
       }
     });
