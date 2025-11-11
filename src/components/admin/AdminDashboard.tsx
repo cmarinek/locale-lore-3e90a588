@@ -26,6 +26,8 @@ import { TranslationCoverageDashboard } from './TranslationCoverageDashboard';
 import { TranslationManagementTools } from './TranslationManagementTools';
 import { AutoTranslationSync } from './AutoTranslationSync';
 import { TranslationValidator } from './TranslationValidator';
+import { TranslationDebugToggle } from './TranslationDebugToggle';
+import { TranslationDebugPanel } from './TranslationDebugPanel';
 
 export const AdminDashboard: React.FC = () => {
   const { isAdmin, loading } = useAdmin();
@@ -155,6 +157,14 @@ export const AdminDashboard: React.FC = () => {
           </main>
         </div>
       </div>
+      
+      {/* Admin-only debug tools */}
+      {isAdmin && (
+        <>
+          <TranslationDebugToggle />
+          <TranslationDebugPanel />
+        </>
+      )}
     </SidebarProvider>
   );
 };
