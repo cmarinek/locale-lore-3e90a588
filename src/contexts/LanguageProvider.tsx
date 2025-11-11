@@ -17,7 +17,7 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider = ({ children }: LanguageProviderProps) => {
-  const { i18n, ready } = useTranslation();
+  const { i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   
   // Safely get current language with fallback
@@ -48,15 +48,6 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
       updateDocumentDirection(currentLanguage);
     }
   }, [currentLanguage]);
-
-  // Wait for i18n to be ready before proceeding
-  if (!ready || !i18n) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   const value: LanguageContextType = {
     currentLanguage,

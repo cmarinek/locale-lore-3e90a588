@@ -23,8 +23,11 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Enforce single React instance
+      "react": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
-    // Optimize React context resolution
+    // Optimize React context resolution - prevent multiple React instances
     dedupe: ["react", "react-dom", "react/jsx-runtime"],
     // Ensure contexts are resolved consistently
     conditions: ['import', 'module', 'browser', 'default'],

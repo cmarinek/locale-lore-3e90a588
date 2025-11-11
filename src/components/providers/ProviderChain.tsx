@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { ContextErrorBoundary } from './ContextErrorBoundary';
 import { HelmetProvider } from 'react-helmet-async';
 import { I18nextProvider } from 'react-i18next';
@@ -10,7 +10,7 @@ import { OfflineProvider } from '@/components/offline/OfflineProvider';
 import { BrandingProvider } from './BrandingProvider';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import i18n, { initI18n } from '@/utils/i18n';
+import i18n from '@/utils/i18n';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,51 +25,36 @@ interface ProviderChainProps {
   children: React.ReactNode;
 }
 
+/**
+ * Simplified provider chain - no async state, i18n is pre-initialized in bootstrap
+ */
 export const ProviderChain: React.FC<ProviderChainProps> = ({ children }) => {
-  const [i18nReady, setI18nReady] = React.useState(false);
-
-  React.useEffect(() => {
-    initI18n().then(() => {
-      setI18nReady(true);
-    });
-  }, []);
-
-  if (!i18nReady) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
-        <ContextErrorBoundary contextName="HelmetProvider">
-          <HelmetProvider>
-            <ContextErrorBoundary contextName="AuthProvider">
-              <AuthProvider>
-                <ContextErrorBoundary contextName="ThemeProvider">
-                  <ThemeProvider>
-                    <ContextErrorBoundary contextName="LanguageProvider">
-                      <LanguageProvider>
-                        <TranslationDebugProvider>
-                          <NotificationProvider>
-                            <OfflineProvider>
-                              <BrandingProvider>
-                                {children}
-                              </BrandingProvider>
-                            </OfflineProvider>
-                          </NotificationProvider>
-                        </TranslationDebugProvider>
-                      </LanguageProvider>
-                    </ContextErrorBoundary>
-                  </ThemeProvider>
-                </ContextErrorBoundary>
-              </AuthProvider>
-            </ContextErrorBoundary>
-          </HelmetProvider>
-        </ContextErrorBoundary>
+        <HelmetProvider>
+          <ContextErrorBoundary contextName="AuthProvider">
+            <AuthProvider>
+              <ContextErrorBoundary contextName="ThemeProvider">
+                <ThemeProvider>
+                  <ContextErrorBoundary contextName="LanguageProvider">
+                    <LanguageProvider>
+                      <TranslationDebugProvider>
+                        <NotificationProvider>
+                          <OfflineProvider>
+                            <BrandingProvider>
+                              {children}
+                            </BrandingProvider>
+                          </OfflineProvider>
+                        </NotificationProvider>
+                      </TranslationDebugProvider>
+                    </LanguageProvider>
+                  </ContextErrorBoundary>
+                </ThemeProvider>
+              </ContextErrorBoundary>
+            </AuthProvider>
+          </ContextErrorBoundary>
+        </HelmetProvider>
       </I18nextProvider>
     </QueryClientProvider>
   );
