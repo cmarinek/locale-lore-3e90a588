@@ -36,18 +36,19 @@ export default defineConfig(({ mode }) => ({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
+        // Don't manually chunk React - keep it in main bundle to prevent initialization errors
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor';
+            if (id.includes('mapbox')) {
+              return 'map-vendor';
             }
             if (id.includes('@radix-ui')) {
               return 'ui-vendor';
             }
-            if (id.includes('mapbox')) {
-              return 'map-vendor';
+            // Only split non-React vendor code
+            if (!id.includes('react')) {
+              return 'vendor';
             }
-            return 'vendor';
           }
         }
       },
