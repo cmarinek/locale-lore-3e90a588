@@ -67,7 +67,9 @@ export default defineConfig(({ mode }) => ({
       "react", 
       "react-dom", 
       "react/jsx-runtime",
-      "react-router-dom", 
+      "react-router-dom",
+      // CRITICAL: Include react-query to prevent React null errors
+      "@tanstack/react-query",
       "clsx",
       "tailwind-merge",
       "@supabase/supabase-js",
