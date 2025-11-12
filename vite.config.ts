@@ -63,6 +63,8 @@ export default defineConfig(({ mode }) => ({
     reportCompressedSize: false,
   },
   optimizeDeps: {
+    // CRITICAL: Force dependency rebuild to fix React null errors
+    force: true,
     include: [
       "react", 
       "react-dom", 
@@ -94,7 +96,9 @@ export default defineConfig(({ mode }) => ({
       // Optimize React context creation
       define: {
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
-      }
+      },
+      // CRITICAL: Prevent React instance duplication
+      external: []
     }
   },
   ssr: {
