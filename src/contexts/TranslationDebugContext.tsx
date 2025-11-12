@@ -12,12 +12,26 @@ export const TranslationDebugContext = createContext<TranslationDebugContextType
 
 export const TranslationDebugProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [debugMode, setDebugMode] = useState(() => {
-    return localStorage.getItem('translation-debug-mode') === 'true';
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    try {
+      return localStorage.getItem('translation-debug-mode') === 'true';
+    } catch {
+      return false;
+    }
   });
   const [missingKeys, setMissingKeys] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    localStorage.setItem('translation-debug-mode', debugMode.toString());
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      localStorage.setItem('translation-debug-mode', debugMode.toString());
+    } catch {
+      // Ignore errors when localStorage is unavailable (e.g., SSR/tests)
+    }
   }, [debugMode]);
 
   const toggleDebugMode = () => {
