@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 export const RoleCacheDebug: React.FC = () => {
   const { user } = useAuth();
-  const role = useUserRole();
+  const { role } = useUserRole();
   const roleCache = useRoleCache();
   const queryClient = useQueryClient();
 
@@ -46,7 +46,7 @@ export const RoleCacheDebug: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           Role Cache Debug
-          <Badge variant="outline">{role}</Badge>
+          <Badge variant="outline">{role ?? 'loading'}</Badge>
         </CardTitle>
         <CardDescription>
           Monitor and manage role caching behavior
@@ -60,7 +60,7 @@ export const RoleCacheDebug: React.FC = () => {
           </div>
           <div className="flex justify-between">
             <span className="font-medium">Current Role:</span>
-            <Badge>{role}</Badge>
+            <Badge>{role ?? 'loading'}</Badge>
           </div>
           {cacheState && (
             <>

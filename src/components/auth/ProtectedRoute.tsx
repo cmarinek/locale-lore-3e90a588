@@ -29,7 +29,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   fallbackPath = '/auth',
 }) => {
   const location = useLocation();
-  const userRole = useUserRole();
+  const { role: userRole, isLoading: roleLoading } = useUserRole();
 
   // Build guard from legacy props if guard not provided
   const routeGuard: RouteGuard = guard || {
@@ -43,6 +43,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     requireAll,
     allowPreview: false, // No preview bypass for security
   };
+
+  if (roleLoading) {
+    return (
+      <div className="flex w-full items-center justify-center p-6 text-sm text-muted-foreground">
+        Checking access...
+      </div>
+    );
+  }
 
   // Check access
   const { allowed, reason } = canAccessRoute(userRole, routeGuard);

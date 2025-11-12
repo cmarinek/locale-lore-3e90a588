@@ -48,65 +48,87 @@ async function fetchUserRole(userId: string | undefined): Promise<Role> {
 /**
  * Get current user's role from database with React Query caching
  */
-export function useUserRole(): Role {
-  const { user } = useAuth();
-  
-  const { data: role } = useQuery({
+export interface UseUserRoleResult {
+  role: Role | null;
+  isLoading: boolean;
+}
+
+export function useUserRole(): UseUserRoleResult {
+  const { user, loading: authLoading } = useAuth();
+
+  const queryEnabled = Boolean(user?.id);
+
+  const {
+    data: role,
+    isPending,
+    isFetching,
+  } = useQuery<Role>({
     queryKey: roleQueryKeys.user(user?.id),
     queryFn: () => fetchUserRole(user?.id),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-    enabled: true, // Always fetch, will return ROLES.PUBLIC if no user
+    enabled: queryEnabled,
   });
 
-  return role || ROLES.PUBLIC;
+  const roleLoading = queryEnabled ? isPending || (isFetching && !role) : false;
+  const isLoading = authLoading || roleLoading;
+
+  if (isLoading) {
+    return { role: null, isLoading };
+  }
+
+  if (!user) {
+    return { role: ROLES.PUBLIC, isLoading: false };
+  }
+
+  return { role: role || ROLES.AUTHENTICATED, isLoading: false };
 }
 
 /**
  * Check if user has a specific permission
  */
 export function usePermission(permission: Permission): boolean {
-  const role = useUserRole();
-  return useMemo(() => hasPermission(role, permission), [role, permission]);
+  const { role } = useUserRole();
+  return useMemo(() => (role ? hasPermission(role, permission) : false), [role, permission]);
 }
 
 /**
  * Check if user has any of the specified permissions
  */
 export function useAnyPermission(permissions: Permission[]): boolean {
-  const role = useUserRole();
-  return useMemo(() => hasAnyPermission(role, permissions), [role, permissions]);
+  const { role } = useUserRole();
+  return useMemo(() => (role ? hasAnyPermission(role, permissions) : false), [role, permissions]);
 }
 
 /**
  * Check if user has all specified permissions
  */
 export function useAllPermissions(permissions: Permission[]): boolean {
-  const role = useUserRole();
-  return useMemo(() => hasAllPermissions(role, permissions), [role, permissions]);
+  const { role } = useUserRole();
+  return useMemo(() => (role ? hasAllPermissions(role, permissions) : false), [role, permissions]);
 }
 
 /**
  * Check if user is admin
  */
 export function useIsAdmin(): boolean {
-  const role = useUserRole();
-  return useMemo(() => isAdmin(role), [role]);
+  const { role } = useUserRole();
+  return useMemo(() => (role ? isAdmin(role) : false), [role]);
 }
 
 /**
  * Check if user is contributor
  */
 export function useIsContributor(): boolean {
-  const role = useUserRole();
-  return useMemo(() => isContributor(role), [role]);
+  const { role } = useUserRole();
+  return useMemo(() => (role ? isContributor(role) : false), [role]);
 }
 
 /**
  * Check if user can access route with guard
  */
 export function useCanAccessRoute(guard: RouteGuard): { allowed: boolean; reason?: string } {
-  const role = useUserRole();
+  const { role } = useUserRole();
   return useMemo(() => canAccessRoute(role, guard), [role, guard]);
 }
 
@@ -114,7 +136,7 @@ export function useCanAccessRoute(guard: RouteGuard): { allowed: boolean; reason
  * Get all user permissions
  */
 export function useUserPermissions(): Permission[] {
-  const role = useUserRole();
+  const { role } = useUserRole();
   const { ROLE_PERMISSIONS } = require('@/config');
-  return useMemo(() => ROLE_PERMISSIONS[role] || [], [role]);
+  return useMemo(() => (role ? ROLE_PERMISSIONS[role] || [] : []), [role]);
 }
