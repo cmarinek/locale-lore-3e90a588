@@ -63,14 +63,11 @@ export default defineConfig(({ mode }) => ({
     reportCompressedSize: false,
   },
   optimizeDeps: {
-    // CRITICAL: Force dependency rebuild to fix React null errors
-    force: true,
     include: [
       "react", 
       "react-dom", 
       "react/jsx-runtime",
       "react-router-dom",
-      // CRITICAL: Include react-query to prevent React null errors
       "@tanstack/react-query",
       "clsx",
       "tailwind-merge",
@@ -80,26 +77,12 @@ export default defineConfig(({ mode }) => ({
       "framer-motion",
       "lucide-react",
       "mapbox-gl",
-      // Context-related dependencies
       "react-helmet-async",
       "next-themes"
     ],
     exclude: [
-      "@capacitor/core" // Mobile-specific
+      "@capacitor/core"
     ],
-    esbuildOptions: {
-      mainFields: ['module', 'main'],
-      target: 'esnext',
-      loader: {
-        '.js': 'jsx',
-      },
-      // Optimize React context creation
-      define: {
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
-      },
-      // CRITICAL: Prevent React instance duplication
-      external: []
-    }
   },
   ssr: {
     noExternal: ["framer-motion"],
