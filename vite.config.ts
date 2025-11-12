@@ -64,10 +64,6 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     include: [
-      "react", 
-      "react-dom", 
-      "react/jsx-runtime",
-      "react-router-dom",
       "@tanstack/react-query",
       "clsx",
       "tailwind-merge",
@@ -77,11 +73,16 @@ export default defineConfig(({ mode }) => ({
       "framer-motion",
       "lucide-react",
       "mapbox-gl",
-      "react-helmet-async",
-      "next-themes"
     ],
     exclude: [
-      "@capacitor/core"
+      "@capacitor/core",
+      // CRITICAL: Exclude React to prevent multiple instances
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "react-router-dom",
+      "react-helmet-async",
+      "next-themes"
     ],
   },
   ssr: {
