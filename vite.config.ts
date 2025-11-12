@@ -76,7 +76,6 @@ export default defineConfig(({ mode }) => ({
     ],
     exclude: [
       "@capacitor/core",
-      // CRITICAL: Exclude React to prevent multiple instances
       "react",
       "react-dom",
       "react/jsx-runtime",
@@ -84,6 +83,9 @@ export default defineConfig(({ mode }) => ({
       "react-helmet-async",
       "next-themes"
     ],
+    esbuildOptions: {
+      resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.mjs'],
+    },
   },
   ssr: {
     noExternal: ["framer-motion"],
