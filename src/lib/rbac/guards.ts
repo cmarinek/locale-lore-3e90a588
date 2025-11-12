@@ -3,7 +3,7 @@
  * Centralized route protection logic
  */
 
-import { type Role, type Permission } from '@/config';
+import { type Role, type Permission, ROLES } from '@/config';
 import { hasPermission, hasAnyPermission, hasAllPermissions, isRoleHigherThan } from './roles';
 
 /**
@@ -24,19 +24,32 @@ export function canAccessRoute(
   userRole: Role | null,
   guard: RouteGuard
 ): { allowed: boolean; reason?: string } {
+  const isAuthenticated = !!userRole && userRole !== ROLES.PUBLIC;
+
   // Check auth requirement
-  if (guard.requiresAuth && !userRole) {
+  if (guard.requiresAuth && !isAuthenticated) {
     return {
       allowed: false,
       reason: 'Authentication required',
     };
   }
-  
-  // If no role and no auth required, allow
-  if (!userRole && !guard.requiresAuth) {
+
+  // If route is public and has no additional requirements, allow immediately
+  if (
+    !guard.requiresAuth &&
+    (!guard.requiredRole || guard.requiredRole === ROLES.PUBLIC) &&
+    (!guard.requiredPermissions || guard.requiredPermissions.length === 0)
+  ) {
     return { allowed: true };
   }
-  
+
+  if (!userRole) {
+    return {
+      allowed: false,
+      reason: 'Role information unavailable',
+    };
+  }
+
   // Check role requirement
   if (guard.requiredRole && userRole) {
     const roleMatch = userRole === guard.requiredRole || isRoleHigherThan(userRole, guard.requiredRole);
