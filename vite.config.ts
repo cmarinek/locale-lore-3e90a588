@@ -64,6 +64,9 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     include: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
       "@tanstack/react-query",
       "clsx",
       "tailwind-merge",
@@ -76,16 +79,7 @@ export default defineConfig(({ mode }) => ({
     ],
     exclude: [
       "@capacitor/core",
-      "react",
-      "react-dom",
-      "react/jsx-runtime",
-      "react-router-dom",
-      "react-helmet-async",
-      "next-themes"
     ],
-    esbuildOptions: {
-      resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.mjs'],
-    },
   },
   ssr: {
     noExternal: ["framer-motion"],
