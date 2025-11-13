@@ -19,7 +19,7 @@
     "monitor:production": "node scripts/monitoring/run-production-monitoring.mjs"
   },
   "dependencies": {
-    "@axe-core/playwright": "^4.10.2",
+    "@axe-core/playwright": "^4.11.0",
     "@capacitor/android": "^7.4.3",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
