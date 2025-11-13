@@ -235,21 +235,37 @@ export function SubscriptionDashboard() {
           <Separator />
 
           <div className="flex gap-2 flex-wrap">
-            <Button onClick={handleManageSubscription} variant="outline">
+            <Button
+              onClick={handleManageSubscription}
+              variant="outline"
+              aria-label="Manage subscription settings in Stripe portal"
+            >
               <Settings className="mr-2 h-4 w-4" />
               Manage Subscription
             </Button>
-            <Button onClick={() => setShowUpgradeDialog(true)} variant="outline">
+            <Button
+              onClick={() => setShowUpgradeDialog(true)}
+              variant="outline"
+              aria-label="Change subscription tier"
+            >
               <TrendingUp className="mr-2 h-4 w-4" />
               Change Tier
             </Button>
             {subscription?.status === 'active' && !subscription?.cancel_at_period_end ? (
-              <Button variant="destructive" onClick={() => setShowCancelDialog(true)}>
+              <Button
+                variant="destructive"
+                onClick={() => setShowCancelDialog(true)}
+                aria-label="Cancel subscription"
+              >
                 <X className="mr-2 h-4 w-4" />
                 Cancel Subscription
               </Button>
             ) : subscription?.cancel_at_period_end ? (
-              <Button onClick={handleReactivate} className="bg-green-600 hover:bg-green-700">
+              <Button
+                onClick={handleReactivate}
+                className="bg-green-600 hover:bg-green-700"
+                aria-label="Reactivate cancelled subscription"
+              >
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Reactivate Subscription
               </Button>
@@ -268,7 +284,11 @@ export function SubscriptionDashboard() {
           <PaymentMethodDisplay />
           
           {!managingPayment ? (
-            <Button variant="outline" onClick={() => setManagingPayment(true)}>
+            <Button
+              variant="outline"
+              onClick={() => setManagingPayment(true)}
+              aria-label="Update payment method"
+            >
               <CreditCard className="mr-2 h-4 w-4" />
               Update Payment Method
             </Button>
