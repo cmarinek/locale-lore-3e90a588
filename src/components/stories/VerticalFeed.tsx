@@ -23,11 +23,15 @@ export const VerticalFeed: React.FC<VerticalFeedProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleSwipeUp = () => {
     if (currentIndex < stories.length - 1) {
+      setIsTransitioning(true);
       setCurrentIndex(prev => prev + 1);
+      // Clear transition state after animation
+      setTimeout(() => setIsTransitioning(false), 300);
       if (currentIndex >= stories.length - 3) {
         onLoadMore();
       }
@@ -36,7 +40,10 @@ export const VerticalFeed: React.FC<VerticalFeedProps> = ({
 
   const handleSwipeDown = () => {
     if (currentIndex > 0) {
+      setIsTransitioning(true);
       setCurrentIndex(prev => prev - 1);
+      // Clear transition state after animation
+      setTimeout(() => setIsTransitioning(false), 300);
     }
   };
 
@@ -65,10 +72,17 @@ export const VerticalFeed: React.FC<VerticalFeedProps> = ({
   }
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="h-screen bg-black overflow-hidden relative"
+      role="region"
+      aria-label="Stories feed"
     >
+      {/* Screen reader announcement */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        Viewing story {currentIndex + 1} of {stories.length}
+      </div>
+
       <GestureHandler
         onSwipeUp={handleSwipeUp}
         onSwipeDown={handleSwipeDown}
@@ -84,7 +98,7 @@ export const VerticalFeed: React.FC<VerticalFeedProps> = ({
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className="h-full"
           >
-            <StoryCard 
+            <StoryCard
               story={currentStory}
               isActive={true}
               onNext={handleSwipeUp}
@@ -92,6 +106,15 @@ export const VerticalFeed: React.FC<VerticalFeedProps> = ({
             />
           </motion.div>
         </AnimatePresence>
+
+        {/* Transition loading indicator */}
+        {isTransitioning && (
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 pointer-events-none">
+            <div className="bg-white/10 rounded-full p-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            </div>
+          </div>
+        )}
 
         {/* Pull to refresh indicator */}
         {refreshing && (
@@ -120,8 +143,26 @@ export const VerticalFeed: React.FC<VerticalFeedProps> = ({
         </div>
 
         {/* Navigation hints */}
-        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-white/70 text-sm text-center z-40">
+        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-white/70 text-sm text-center z-40" aria-hidden="true">
           <p>Swipe up for next • Swipe down for previous</p>
+        </div>
+
+        {/* Keyboard navigation support */}
+        <div className="sr-only">
+          <button
+            onClick={handleSwipeUp}
+            disabled={currentIndex >= stories.length - 1}
+            aria-label="Next story"
+          >
+            Next
+          </button>
+          <button
+            onClick={handleSwipeDown}
+            disabled={currentIndex === 0}
+            aria-label="Previous story"
+          >
+            Previous
+          </button>
         </div>
       </GestureHandler>
     </div>

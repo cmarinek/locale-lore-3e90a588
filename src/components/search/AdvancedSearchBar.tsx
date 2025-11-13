@@ -288,6 +288,10 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({
             onFocus={() => setShowSuggestions(true)}
             className="pl-10 pr-4 h-12 text-base bg-background/50 backdrop-blur border-border focus:border-primary"
             disabled={loading}
+            aria-label="Search input"
+            aria-autocomplete="list"
+            aria-controls="search-suggestions"
+            aria-expanded={showSuggestions}
           />
           
           {query && (
@@ -300,6 +304,7 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({
                 setShowSuggestions(false);
               }}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+              aria-label="Clear search query"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -314,6 +319,7 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({
             onClick={isRecording ? stopVoiceSearch : startVoiceSearch}
             className="h-12 w-12"
             disabled={loading}
+            aria-label={isRecording ? "Stop voice recording" : "Start voice search"}
           >
             <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
           </Button>
@@ -327,6 +333,7 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({
             onClick={onQRScan}
             className="h-12 w-12"
             disabled={loading}
+            aria-label="Scan QR code"
           >
             <QrCode className="w-4 h-4" />
           </Button>
@@ -339,10 +346,11 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({
               variant="outline"
               size="icon"
               className="h-12 w-12"
+              aria-label={`Open search filters${(filters.categories.length > 0 || filters.status || filters.verified) ? ` (${filters.categories.length + (filters.status ? 1 : 0) + (filters.verified ? 1 : 0)} active)` : ''}`}
             >
               <Filter className="w-4 h-4" />
               {(filters.categories.length > 0 || filters.status || filters.verified) && (
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs">
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs" aria-hidden="true">
                   {filters.categories.length + (filters.status ? 1 : 0) + (filters.verified ? 1 : 0)}
                 </Badge>
               )}
@@ -361,6 +369,7 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({
           onClick={handleSearch}
           disabled={loading || !query.trim()}
           className="h-12 px-6"
+          aria-label={loading ? "Searching" : "Execute search"}
         >
           {loading ? 'Searching...' : 'Search'}
         </Button>
@@ -372,6 +381,7 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({
             size="icon"
             onClick={saveCurrentSearch}
             className="h-12 w-12"
+            aria-label="Save this search"
           >
             <Star className="w-4 h-4" />
           </Button>
@@ -387,6 +397,9 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className="absolute z-50 w-full mt-2"
+            id="search-suggestions"
+            role="listbox"
+            aria-label="Search suggestions"
           >
             <Card className="p-2 bg-background/95 backdrop-blur border-border shadow-lg">
               {/* Search History */}
