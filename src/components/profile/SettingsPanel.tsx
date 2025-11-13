@@ -96,6 +96,8 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
                     }}
                     className="flex flex-col items-center gap-2 h-auto py-3"
                     disabled={loading}
+                    aria-label={`Set theme to ${theme.label} mode`}
+                    aria-pressed={localSettings.theme === theme.value}
                   >
                     <Icon className="h-4 w-4" />
                     <span className="text-xs">{theme.label}</span>
@@ -153,6 +155,7 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
               checked={localSettings.email_notifications}
               onCheckedChange={(checked) => updateSetting('email_notifications', checked)}
               disabled={loading}
+              aria-label="Toggle email notifications"
             />
           </div>
 
@@ -167,6 +170,7 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
               checked={localSettings.push_notifications}
               onCheckedChange={(checked) => updateSetting('push_notifications', checked)}
               disabled={loading}
+              aria-label="Toggle push notifications"
             />
           </div>
 
@@ -181,6 +185,7 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
               checked={localSettings.in_app_notifications}
               onCheckedChange={(checked) => updateSetting('in_app_notifications', checked)}
               disabled={loading}
+              aria-label="Toggle in-app notifications"
             />
           </div>
 
@@ -195,6 +200,7 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
               checked={localSettings.marketing_emails}
               onCheckedChange={(checked) => updateSetting('marketing_emails', checked)}
               disabled={loading}
+              aria-label="Toggle marketing emails"
             />
           </div>
         </CardContent>
@@ -256,6 +262,7 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
               checked={localSettings.location_sharing}
               onCheckedChange={(checked) => updateSetting('location_sharing', checked)}
               disabled={loading}
+              aria-label="Toggle location sharing"
             />
           </div>
 
@@ -272,6 +279,7 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
               step={1}
               className="w-full"
               disabled={loading}
+              aria-label={`Set discovery radius to ${localSettings.discovery_radius} kilometers`}
             />
           </div>
 
@@ -288,6 +296,7 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
               checked={localSettings.activity_tracking}
               onCheckedChange={(checked) => updateSetting('activity_tracking', checked)}
               disabled={loading}
+              aria-label="Toggle activity tracking"
             />
           </div>
 
@@ -302,6 +311,7 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
               checked={localSettings.data_processing_consent}
               onCheckedChange={(checked) => updateSetting('data_processing_consent', checked)}
               disabled={loading}
+              aria-label="Toggle data processing consent"
             />
           </div>
         </CardContent>
@@ -332,11 +342,12 @@ export const SettingsPanel = ({ settings, onUpdate, loading }: SettingsPanelProp
             <Separator />
             
             <div className="flex flex-col gap-3">
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 onClick={signOut}
                 className="w-full flex items-center gap-2"
                 disabled={loading}
+                aria-label="Sign out of your account"
               >
                 <LogOut className="h-4 w-4" />
                 Sign Out
