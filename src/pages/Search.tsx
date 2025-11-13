@@ -139,15 +139,6 @@ export const Search: React.FC = () => {
     handleSearch(transcript, filters);
   };
 
-  const handleQRScan = () => {
-    // QR scanner would typically open camera modal
-    // For now, we'll show a placeholder
-    toast({
-      title: "QR Scanner",
-      description: "QR code scanning feature would open here",
-    });
-  };
-
   const handleLoadMore = () => {
     performSearch(query, filters, page + 1, sortBy);
   };
@@ -190,7 +181,6 @@ export const Search: React.FC = () => {
             <AdvancedSearchBar
               onSearch={handleSearch}
               onVoiceSearch={handleVoiceSearch}
-              onQRScan={handleQRScan}
               initialQuery={query}
               loading={loading}
             />
@@ -274,7 +264,6 @@ export const Search: React.FC = () => {
                   <p>{t('search.tips.locationNames', '• Try location names: "downtown", "old bridge"')}</p>
                   <p>{t('search.tips.voiceSearch', '• Use voice search for hands-free searching')}</p>
                   <p>{t('search.tips.saveSearches', '• Save frequent searches for quick access')}</p>
-                  <p>{t('search.tips.qrCodes', '• Scan QR codes to discover location-based content')}</p>
                 </div>
               </Card>
             </div>
