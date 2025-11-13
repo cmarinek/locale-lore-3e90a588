@@ -16,7 +16,14 @@
     "test:e2e": "playwright test",
     "preview": "vite preview",
     "deploy:production": "bash scripts/production-deploy.sh",
-    "monitor:production": "node scripts/monitoring/run-production-monitoring.mjs"
+    "monitor:production": "node scripts/monitoring/run-production-monitoring.mjs",
+    "verify:env": "node scripts/verify-environment.mjs",
+    "verify:env:prod": "node scripts/verify-environment.mjs --production",
+    "verify:stripe": "node scripts/verify-stripe.mjs",
+    "verify:stripe:prod": "node scripts/verify-stripe.mjs --production",
+    "pre-deploy": "node scripts/pre-deployment-check.mjs",
+    "production-ready": "node scripts/production-ready.mjs",
+    "production-ready:quick": "node scripts/production-ready.mjs --quick"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.11.0",
