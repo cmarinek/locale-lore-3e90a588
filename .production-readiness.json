@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-11-13T23:23:50.656Z",
+  "overallScore": 15,
+  "results": {
+    "environment": {
+      "passed": 0,
+      "failed": 10,
+      "warnings": 0,
+      "score": 0
+    },
+    "stripe": {
+      "passed": 0,
+      "failed": 10,
+      "warnings": 0,
+      "score": 0
+    },
+    "deployment": {
+      "passed": 9,
+      "failed": 4,
+      "warnings": 5,
+      "score": 50
+    }
+  },
+  "status": "NOT READY"
+}

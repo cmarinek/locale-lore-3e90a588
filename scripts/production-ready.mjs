@@ -13,6 +13,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const execAsync = promisify(exec);
 const __filename = fileURLToPath(import.meta.url);
@@ -294,7 +295,6 @@ function printFinalReport(overallScore) {
   };
 
   try {
-    const fs = await import('fs');
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
     console.log(`${colors.blue}📊 Report saved to: .production-readiness.json${colors.reset}\n`);
   } catch (error) {
