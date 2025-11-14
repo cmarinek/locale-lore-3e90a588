@@ -37,8 +37,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
+  const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const lastTapTimeRef = useRef<number>(0);
   const { likeStory, unlikeStory, checkIfLiked, trackView, shareStory, addComment, fetchComments } = useStories();
 
   useEffect(() => {
@@ -71,16 +73,28 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   };
 
   const handleLike = async () => {
+    // Optimistic UI update - update immediately for instant feedback
+    const previousLiked = isLiked;
+    const previousCount = story.like_count || 0;
+
+    setIsLiked(!isLiked);
+
+    // Trigger haptic feedback on mobile
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+
     try {
-      if (isLiked) {
+      if (previousLiked) {
         await unlikeStory(story.id);
-        setIsLiked(false);
       } else {
         await likeStory(story.id);
-        setIsLiked(true);
       }
     } catch (error) {
+      // Revert optimistic update on failure
+      setIsLiked(previousLiked);
       console.error('Failed to toggle like:', error);
+      // TODO: Show toast notification
     }
   };
 
@@ -113,10 +127,29 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 
   const previousMedia = () => {
     if (story.media_type === 'carousel' && story.media_urls.length > 1) {
-      setCurrentMediaIndex((prev) => 
+      setCurrentMediaIndex((prev) =>
         prev > 0 ? prev - 1 : story.media_urls.length - 1
       );
     }
+  };
+
+  // Double-tap to like (TikTok/Instagram pattern)
+  const handleDoubleTap = (e: React.MouseEvent | React.TouchEvent) => {
+    const currentTime = Date.now();
+    const tapGap = currentTime - lastTapTimeRef.current;
+
+    if (tapGap < 300 && tapGap > 0) {
+      // It's a double tap!
+      if (!isLiked) {
+        handleLike();
+      }
+
+      // Show heart animation
+      setShowDoubleTapHeart(true);
+      setTimeout(() => setShowDoubleTapHeart(false), 1000);
+    }
+
+    lastTapTimeRef.current = currentTime;
   };
 
   const renderMedia = () => {
@@ -181,10 +214,27 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 
   return (
     <div className="relative h-full w-full bg-black">
-      {renderMedia()}
-      
+      <div onClick={handleDoubleTap} onTouchEnd={handleDoubleTap}>
+        {renderMedia()}
+      </div>
+
       {/* Overlay gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+
+      {/* Double-tap heart animation */}
+      <AnimatePresence>
+        {showDoubleTapHeart && (
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1.2, opacity: 1 }}
+            exit={{ scale: 1.5, opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
+          >
+            <Heart className="w-32 h-32 fill-red-500 text-red-500 drop-shadow-2xl" />
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* User info */}
       <div className="absolute top-4 left-4 flex items-center gap-3 z-30">
@@ -209,9 +259,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           size="sm"
           className="flex flex-col items-center gap-1 text-white hover:bg-white/10"
           onClick={handleLike}
+          aria-label={isLiked ? "Unlike this story" : "Like this story"}
         >
           <Heart className={`w-6 h-6 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-          <span className="text-xs">{story.like_count}</span>
+          <span className="text-xs" aria-hidden="true">{story.like_count}</span>
         </Button>
 
         <Button
@@ -219,9 +270,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           size="sm"
           className="flex flex-col items-center gap-1 text-white hover:bg-white/10"
           onClick={handleComment}
+          aria-label={`View and add comments. ${story.comment_count} comments`}
         >
           <MessageCircle className="w-6 h-6" />
-          <span className="text-xs">{story.comment_count}</span>
+          <span className="text-xs" aria-hidden="true">{story.comment_count}</span>
         </Button>
 
         <Button
@@ -229,6 +281,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           size="sm"
           className="flex flex-col items-center gap-1 text-white hover:bg-white/10"
           onClick={handleShare}
+          aria-label="Share this story"
         >
           <Share className="w-6 h-6" />
         </Button>
@@ -237,6 +290,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           variant="ghost"
           size="sm"
           className="text-white hover:bg-white/10"
+          aria-label="More options"
         >
           <MoreHorizontal className="w-6 h-6" />
         </Button>
@@ -297,6 +351,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
                 size="sm"
                 onClick={() => setShowComments(false)}
                 className="text-white hover:bg-white/10"
+                aria-label="Close comments"
               >
                 <X className="w-5 h-5" />
               </Button>
@@ -337,6 +392,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Add a comment..."
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                  aria-label="Comment text"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -348,6 +404,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
                   onClick={handleAddComment}
                   disabled={!newComment.trim()}
                   className="bg-primary hover:bg-primary/90"
+                  aria-label="Send comment"
                 >
                   <Send className="w-4 h-4" />
                 </Button>

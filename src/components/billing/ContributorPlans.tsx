@@ -154,6 +154,7 @@ export const ContributorPlans: React.FC = () => {
               onClick={() => handleSubscribe(7)}
               disabled={loading}
               className="w-full"
+              aria-label="Start 7-day free trial for contributor subscription"
             >
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

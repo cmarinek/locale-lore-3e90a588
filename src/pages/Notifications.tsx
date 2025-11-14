@@ -5,29 +5,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, Trash2, Check, CheckCheck, Filter } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Bell, Trash2, Check, CheckCheck, Filter, Heart, MessageCircle, Trophy, TrendingUp, Gift, UserPlus, Star } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const getNotificationIcon = (type: string) => {
+  const iconClass = "h-5 w-5";
+
   switch (type) {
     case 'like':
-      return '❤️';
+      return <Heart className={cn(iconClass, "text-red-500")} />;
     case 'comment':
-      return '💬';
+      return <MessageCircle className={cn(iconClass, "text-blue-500")} />;
     case 'achievement':
-      return '🏆';
+      return <Trophy className={cn(iconClass, "text-yellow-500")} />;
     case 'level_up':
-      return '⬆️';
+      return <TrendingUp className={cn(iconClass, "text-green-500")} />;
     case 'reward_redeemed':
-      return '🎁';
+      return <Gift className={cn(iconClass, "text-purple-500")} />;
     case 'friend_request':
-      return '👋';
+      return <UserPlus className={cn(iconClass, "text-indigo-500")} />;
     case 'fact_featured':
-      return '⭐';
+      return <Star className={cn(iconClass, "text-amber-500")} />;
     default:
-      return '🔔';
+      return <Bell className={cn(iconClass, "text-muted-foreground")} />;
   }
 };
 
@@ -97,17 +100,18 @@ export function Notifications() {
 
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="border rounded-md px-3 py-1 text-sm bg-background"
-              >
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat === 'all' ? 'All Categories' : cat}
-                  </option>
-                ))}
-              </select>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-[180px]" aria-label="Filter notifications by category">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat === 'all' ? 'All Categories' : cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -131,7 +135,7 @@ export function Notifications() {
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
-                      <div className="text-3xl flex-shrink-0">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-muted flex-shrink-0">
                         {getNotificationIcon(notification.type)}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -203,7 +207,7 @@ export function Notifications() {
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
-                      <div className="text-3xl flex-shrink-0">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-muted flex-shrink-0">
                         {getNotificationIcon(notification.type)}
                       </div>
                       <div className="flex-1 min-w-0">

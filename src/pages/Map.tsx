@@ -7,12 +7,14 @@ import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { MapSearchBar } from '@/components/map/MapSearchBar';
 import { FactCard } from '@/components/discovery/FactCard';
+import { MapSkeleton } from '@/components/ui/skeleton-loader';
 
 export const Map: React.FC = () => {
   const { facts, selectedFact, setSelectedFact, fetchFactById, initializeData } = useDiscoveryStore();
   const { selectedMarkerId, setSelectedMarkerId } = useMapStore();
   const [viewMode, setViewMode] = useState<'map' | 'list' | 'hybrid'>('map');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMapLoading, setIsMapLoading] = useState(true);
 
   const handleFactClick = (fact: any) => {
     const enhancedFact = {
@@ -38,7 +40,7 @@ export const Map: React.FC = () => {
       categories: fact.categories || {
         slug: fact.category || 'unknown',
         icon: '📍',
-        color: '#3B82F6',
+        color: 'hsl(var(--primary))',
         category_translations: [{
           name: fact.category || 'Unknown',
           language_code: 'en'
@@ -59,7 +61,13 @@ export const Map: React.FC = () => {
   };
 
   useEffect(() => {
-    initializeData();
+    const loadData = async () => {
+      setIsMapLoading(true);
+      await initializeData();
+      // Simulate minimum loading time for smooth UX
+      setTimeout(() => setIsMapLoading(false), 800);
+    };
+    loadData();
   }, [initializeData]);
 
   useEffect(() => {
@@ -120,19 +128,23 @@ export const Map: React.FC = () => {
         {/* Map View */}
         {(viewMode === 'map' || viewMode === 'hybrid') && (
           <div className="relative w-full h-full flex flex-col">
-            <UnifiedMap
-              facts={filteredFacts}
-              useScalableLoading={false}
-              enableClustering={true}
-              center={[0, 20]}
-              zoom={2}
-              onFactClick={handleFactClick}
-              isVisible={true}
-              className="w-full flex-1"
-            />
+            {isMapLoading ? (
+              <MapSkeleton className="w-full h-full" />
+            ) : (
+              <UnifiedMap
+                facts={filteredFacts}
+                useScalableLoading={false}
+                enableClustering={true}
+                center={[0, 20]}
+                zoom={2}
+                onFactClick={handleFactClick}
+                isVisible={true}
+                className="w-full flex-1"
+              />
+            )}
 
             {/* Search Bar - Overlays map */}
-            <MapSearchBar onSearch={handleSearch} />
+            {!isMapLoading && <MapSearchBar onSearch={handleSearch} />}
           </div>
         )}
 

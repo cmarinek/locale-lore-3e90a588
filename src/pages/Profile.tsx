@@ -22,6 +22,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { log } from '@/utils/logger';
 import { ProfileSkeleton } from '@/components/loading/ProfileSkeleton';
+import { PublicProfileView } from '@/components/profile/PublicProfileView';
 
 export const Profile: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
@@ -29,7 +30,7 @@ export const Profile: React.FC = () => {
   const { t } = useTranslation('profile');
   const [isContributor, setIsContributor] = useState(false);
   const [checkingSubscription, setCheckingSubscription] = useState(true);
-  
+
   const {
     settings,
     statistics,
@@ -77,16 +78,11 @@ export const Profile: React.FC = () => {
     );
   }
 
-  // For now, we'll only show own profile since we don't have profile data from useProfile
-  if (!isOwnProfile) {
+  // Show public profile view for other users
+  if (!isOwnProfile && id) {
     return (
       <MainLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold mb-2">{t('profileNotAvailable', 'Profile not available')}</h2>
-            <p className="text-muted-foreground mb-4">{t('ownProfileOnly', 'You can only view your own profile for now.')}</p>
-          </div>
-        </div>
+        <PublicProfileView userId={id} />
       </MainLayout>
     );
   }

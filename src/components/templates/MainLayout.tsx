@@ -14,6 +14,7 @@ import { FeedbackWidget } from '@/components/support/FeedbackWidget';
 import { useBranding } from '@/components/providers/BrandingProvider';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { MapViewSwitcher, MapViewMode } from '@/components/map/MapViewSwitcher';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -25,8 +26,8 @@ interface MainLayoutProps {
   onMapViewChange?: (view: MapViewMode) => void;
 }
 
-export const MainLayout: React.FC<MainLayoutProps> = ({ 
-  children, 
+export const MainLayout: React.FC<MainLayoutProps> = ({
+  children,
   className,
   totalStories,
   verifiedStories,
@@ -37,11 +38,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   const { t, i18n } = useTranslation('navigation');
   const { branding, isLoading } = useBranding();
   const location = useLocation();
-  
+
+  // Enable global keyboard shortcuts
+  useKeyboardShortcuts();
+
   // Get language info directly from i18n - no context dependency
   const currentLanguage = (i18n.language?.split('-')[0] || 'en') as SupportedLanguage;
   const isRTL = SUPPORTED_LANGUAGES[currentLanguage]?.rtl || false;
-  
+
   // Check if current page is a full-height map page
   const isMapPage = ['/map', '/explore', '/hybrid'].includes(location.pathname);
   

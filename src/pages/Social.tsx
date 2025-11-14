@@ -29,22 +29,16 @@ import { UserProfile as SocialUserProfile } from '@/types/social';
 export const Social: React.FC = () => {
   const { user } = useAuth();
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [showMessaging, setShowMessaging] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<SocialUserProfile[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [quickStats, setQuickStats] = useState({ following: 0, followers: 0, unreadMessages: 0 });
+  const [quickStats, setQuickStats] = useState({ following: 0, followers: 0 });
   const [sidebarLoading, setSidebarLoading] = useState(true);
   const [suggestedPeople, setSuggestedPeople] = useState<SocialUserProfile[]>([]);
   const [trendingTopics, setTrendingTopics] = useState<Array<{ title: string; posts: number }>>([]);
 
   const handleUserClick = (userId: string) => {
     setSelectedUserId(userId);
-  };
-
-  const handleMessageClick = (userId: string) => {
-    setSelectedUserId(userId);
-    setShowMessaging(true);
   };
 
   const normalizeProfile = (profile: any): SocialUserProfile => ({
@@ -110,10 +104,6 @@ export const Social: React.FC = () => {
       const followingIds = (followingResult.data ?? []).map((row: any) => row.following_id);
       const followingCount = followingResult.count ?? followingIds.length;
       const followersCount = followersResult.count ?? (followersResult.data ?? []).length;
-      const unreadMessages = (messageThreadsResult.data ?? []).reduce(
-        (sum: number, thread: any) => sum + Number(thread.unread_count ?? 0),
-        0
-      );
 
       const suggestedProfiles = (suggestedResult.data ?? [])
         .map((profile: any) => normalizeProfile(profile))
@@ -128,7 +118,6 @@ export const Social: React.FC = () => {
       setQuickStats({
         following: followingCount,
         followers: followersCount,
-        unreadMessages,
       });
       setSuggestedPeople(suggestedProfiles);
       setTrendingTopics(trending);
@@ -190,11 +179,11 @@ export const Social: React.FC = () => {
               </div>
               
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" aria-label="View notifications">
                   <Bell className="w-4 h-4 mr-2" />
                   Notifications
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" aria-label="Open privacy settings">
                   <Settings className="w-4 h-4 mr-2" />
                   Privacy
                 </Button>
@@ -211,23 +200,29 @@ export const Social: React.FC = () => {
                     onChange={(event) => handleSearchChange(event.target.value)}
                     placeholder="Search users, locations, or discoveries..."
                     className="pl-10"
+                    aria-label="Search for users and content"
+                    aria-autocomplete="list"
+                    aria-controls={searchTerm ? "search-results" : undefined}
+                    aria-expanded={searchTerm && searchResults.length > 0}
                   />
                 </div>
 
                 {searchTerm && (
-                  <div className="mt-4 space-y-2">
+                  <div id="search-results" role="listbox" aria-label="Search results" className="mt-4 space-y-2">
                     {searchLoading ? (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground" role="status" aria-live="polite">
                         <Loader2 className="w-4 h-4 animate-spin" /> Searching…
                       </div>
                     ) : searchResults.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">No matching people yet.</p>
+                      <p className="text-sm text-muted-foreground" role="status">No matching people yet.</p>
                     ) : (
                       searchResults.slice(0, 5).map((profile) => (
                         <button
                           key={profile.id}
                           onClick={() => handleUserClick(profile.id)}
                           className="w-full flex items-center gap-3 p-2 rounded-md hover:bg-muted/60 transition-colors text-left"
+                          role="option"
+                          aria-label={`View profile of ${profile.username}, ${profile.followers_count} followers, reputation ${profile.reputation_score}`}
                         >
                           <div className="flex items-center gap-3">
                             <Avatar className="w-8 h-8">
@@ -250,34 +245,7 @@ export const Social: React.FC = () => {
             </Card>
           </motion.div>
 
-          {showMessaging ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="space-y-6"
-            >
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Messages</h2>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowMessaging(false)}
-                >
-                  Back to Social
-                </Button>
-              </div>
-              
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">Direct messaging feature temporarily unavailable</p>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowMessaging(false)}
-                  className="mt-4"
-                >
-                  Back to Social
-                </Button>
-              </div>
-            </motion.div>
-          ) : selectedUserId ? (
+          {selectedUserId ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -287,20 +255,14 @@ export const Social: React.FC = () => {
                 <Button
                   variant="outline"
                   onClick={() => setSelectedUserId(null)}
+                  aria-label="Return to social feed"
                 >
                   Back to Feed
                 </Button>
-                <Button
-                  onClick={() => handleMessageClick(selectedUserId)}
-                >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Message
-                </Button>
               </div>
-              
-              <UserProfile 
+
+              <UserProfile
                 userId={selectedUserId}
-                onMessageClick={handleMessageClick}
               />
             </motion.div>
           ) : (
@@ -370,12 +332,7 @@ export const Social: React.FC = () => {
                                   </p>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <FollowButton userId={profile.id} />
-                                <Button size="sm" variant="ghost" onClick={() => handleMessageClick(profile.id)}>
-                                  <MessageCircle className="w-4 h-4 mr-1" /> Message
-                                </Button>
-                              </div>
+                              <FollowButton userId={profile.id} />
                             </div>
                           ))
                         )}
@@ -408,10 +365,6 @@ export const Social: React.FC = () => {
                             <span className="text-sm text-muted-foreground">Followers</span>
                             <span className="font-semibold">{quickStats.followers.toLocaleString()}</span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Unread messages</span>
-                            <span className="font-semibold">{quickStats.unreadMessages.toLocaleString()}</span>
-                          </div>
                         </>
                       )}
                     </CardContent>
@@ -426,15 +379,8 @@ export const Social: React.FC = () => {
                       <Button
                         variant="outline"
                         className="w-full justify-start"
-                        onClick={() => setShowMessaging(true)}
-                      >
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Open Messages
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
                         onClick={loadSidebarData}
+                        aria-label="Discover and find new friends"
                       >
                         <UserPlus className="w-4 h-4 mr-2" />
                         Find Friends
@@ -442,6 +388,7 @@ export const Social: React.FC = () => {
                       <Button
                         variant="outline"
                         className="w-full justify-start"
+                        aria-label="Manage privacy and security settings"
                       >
                         <Settings className="w-4 h-4 mr-2" />
                         Privacy Settings
