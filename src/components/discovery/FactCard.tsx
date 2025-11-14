@@ -9,6 +9,7 @@ import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useUserStore } from '@/stores/userStore';
 import { EnhancedFact } from '@/types/fact';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 interface FactCardProps {
   fact: EnhancedFact;
   className?: string;
@@ -25,13 +26,27 @@ export const FactCard: React.FC<FactCardProps> = ({
 }) => {
   const { setSelectedFact } = useDiscoveryStore();
   const { savedFacts, toggleSavedFact } = useUserStore();
+  const { toast } = useToast();
   const isSaved = savedFacts.includes(fact.id);
   const voteScore = fact.vote_count_up - fact.vote_count_down;
   const categoryName = fact.categories?.category_translations?.find(t => t.language_code === 'en')?.name || fact.categories?.slug || 'Unknown';
-  
+
   const handleSaveToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
+    const wasSaved = isSaved;
     toggleSavedFact(fact.id);
+
+    // Show toast notification
+    toast({
+      title: wasSaved ? "Removed from saved" : "Saved",
+      description: wasSaved ? "Story removed from your saved collection" : "Story added to your saved collection",
+      duration: 2000,
+    });
+
+    // Optional: Haptic feedback on mobile
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
+    }
   };
   
   const handleCardClick = (e: React.MouseEvent) => {
