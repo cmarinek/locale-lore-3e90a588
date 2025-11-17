@@ -1,7 +1,36 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@4.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
+// Input validation helpers
+function validateSecurityAlert(data: any): { valid: boolean; error?: string } {
+  const validSeverities = ["critical", "high", "medium", "low"];
+  
+  if (!data.severity || !validSeverities.includes(data.severity)) {
+    return { valid: false, error: "Invalid severity level" };
+  }
+  if (!data.title || data.title.length > 200) {
+    return { valid: false, error: "Invalid title" };
+  }
+  if (!data.description || data.description.length > 2000) {
+    return { valid: false, error: "Invalid description" };
+  }
+  if (!Array.isArray(data.findings) || data.findings.length > 50) {
+    return { valid: false, error: "Invalid findings array" };
+  }
+  for (const finding of data.findings) {
+    if (!finding.id || !finding.category || !finding.details) {
+      return { valid: false, error: "Invalid finding structure" };
+    }
+  }
+  if (!data.recipientEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.recipientEmail)) {
+    return { valid: false, error: "Invalid email address" };
+  }
+  
+  return { valid: true };
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,7 +57,76 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const alert: SecurityAlert = await req.json();
+    // Verify authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - Authentication required" }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      {
+        global: {
+          headers: { Authorization: authHeader },
+        },
+      }
+    );
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      console.error("Authentication error:", authError);
+      return new Response(
+        JSON.stringify({ error: "Invalid or expired token" }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Verify admin role
+    const { data: roles, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id);
+
+    if (roleError || !roles?.some((r) => r.role === "admin")) {
+      console.error("Authorization check failed:", roleError);
+      return new Response(
+        JSON.stringify({ error: "Forbidden - Admin access required" }),
+        {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Validate input
+    const rawData = await req.json();
+    const validation = validateSecurityAlert(rawData);
+    
+    if (!validation.valid) {
+      return new Response(
+        JSON.stringify({ error: `Invalid input: ${validation.error}` }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+    
+    const alert: SecurityAlert = rawData;
     
     console.log("Processing security alert:", alert.severity);
 
