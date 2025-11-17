@@ -1,11 +1,33 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Zod validation schemas
+const HarvestJobSchema = z.object({
+  jobId: z.string().uuid(),
+  categories: z.array(z.string().min(1).max(50)).min(1).max(20),
+  targetCount: z.number().int().min(1).max(1000),
+  regions: z.array(z.string().min(1).max(100)).optional(),
+});
+
+const ProcessBatchSchema = z.object({
+  jobId: z.string().uuid(),
+  batchSize: z.number().int().min(1).max(50).optional().default(10),
+});
+
+const GetStatusSchema = z.object({
+  jobId: z.string().uuid(),
+});
+
+const RequestSchema = z.object({
+  action: z.enum(['start_harvest', 'process_batch', 'get_status']),
+}).passthrough(); // Allow additional properties
 
 interface WikipediaPage {
   title: string;
@@ -34,17 +56,64 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { action, ...params } = await req.json();
-    
+    const requestBody = await req.json();
+
+    // Validate request structure
+    const requestValidation = RequestSchema.safeParse(requestBody);
+    if (!requestValidation.success) {
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid request',
+          details: requestValidation.error.format(),
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { action, ...params } = requestValidation.data;
     console.log('Fact harvester action:', action, params);
 
+    // Validate action-specific parameters
     switch (action) {
-      case 'start_harvest':
-        return await startHarvest(supabase, params);
-      case 'process_batch':
-        return await processBatch(supabase, params);
-      case 'get_status':
-        return await getStatus(supabase, params);
+      case 'start_harvest': {
+        const validation = HarvestJobSchema.safeParse(params);
+        if (!validation.success) {
+          return new Response(
+            JSON.stringify({
+              error: 'Invalid start_harvest parameters',
+              details: validation.error.format(),
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        return await startHarvest(supabase, validation.data);
+      }
+      case 'process_batch': {
+        const validation = ProcessBatchSchema.safeParse(params);
+        if (!validation.success) {
+          return new Response(
+            JSON.stringify({
+              error: 'Invalid process_batch parameters',
+              details: validation.error.format(),
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        return await processBatch(supabase, validation.data);
+      }
+      case 'get_status': {
+        const validation = GetStatusSchema.safeParse(params);
+        if (!validation.success) {
+          return new Response(
+            JSON.stringify({
+              error: 'Invalid get_status parameters',
+              details: validation.error.format(),
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        return await getStatus(supabase, validation.data);
+      }
       default:
         throw new Error('Invalid action');
     }

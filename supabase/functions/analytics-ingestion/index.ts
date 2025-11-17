@@ -1,11 +1,28 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Zod validation schemas for input validation
+const AnalyticsEventSchema = z.object({
+  type: z.enum(['engagement', 'content_performance', 'geographic', 'ab_test', 'revenue', 'retention']),
+  action: z.string().min(1).max(100),
+  properties: z.record(z.unknown()).default({}),
+  timestamp: z.string().datetime(),
+  sessionId: z.string().uuid(),
+  userId: z.string().uuid().optional(),
+  url: z.string().url().optional(),
+});
+
+const RequestSchema = z.object({
+  events: z.array(AnalyticsEventSchema).min(1).max(100), // Limit to 100 events per batch
+  sessionId: z.string().uuid(),
+});
 
 interface AnalyticsEvent {
   type: string;
@@ -31,7 +48,21 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { events, sessionId } = await req.json();
+    const requestBody = await req.json();
+
+    // Validate input with Zod
+    const validationResult = RequestSchema.safeParse(requestBody);
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid input',
+          details: validationResult.error.format(),
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { events, sessionId } = validationResult.data;
 
     // Validate and process events
     const processedEvents = events.map((event: AnalyticsEvent) => ({
