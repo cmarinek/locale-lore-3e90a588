@@ -739,26 +739,6 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     });
 
       console.log('✅ Clustered map setup complete');
-    
-    // Add symbol layer for marker icons with animation data
-    map.current.addLayer({
-      id: 'unclustered-point-icon',
-      type: 'symbol',
-      source: 'facts',
-      filter: ['!', ['has', 'point_count']],
-      layout: {
-        'icon-image': 'custom-marker',
-        'icon-size': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          8, 0.5,
-          16, 1
-        ],
-        'icon-allow-overlap': true,
-        'icon-ignore-placement': true
-      }
-    });
 
     // Click handlers with smooth expansion animation
     map.current.on('click', 'clusters', (e) => {

@@ -8,8 +8,6 @@ export interface PublicProfile {
   username: string;
   avatar_url?: string;
   bio?: string;
-  location?: string;
-  website?: string;
   created_at: string;
 }
 
@@ -34,7 +32,7 @@ export const usePublicProfile = (userId?: string) => {
       // Fetch profile data
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('id, username, avatar_url, bio, location, website, created_at')
+        .select('id, username, avatar_url, bio, created_at')
         .eq('id', userId)
         .single();
 
@@ -67,12 +65,9 @@ export const usePublicProfile = (userId?: string) => {
       // Fetch user's public stories
       const { data: storiesData } = await supabase
         .from('stories')
-        .select(`
-          *,
-          author:profiles!stories_author_id_fkey(id, username, avatar_url)
-        `)
-        .eq('author_id', userId)
-        .eq('is_public', true)
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(12);
 
@@ -99,7 +94,7 @@ export const usePublicProfile = (userId?: string) => {
     if (!userId) return;
 
     try {
-      const { user } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
 
       // Get follower count
       const { count: followerCount } = await supabase
@@ -115,11 +110,11 @@ export const usePublicProfile = (userId?: string) => {
 
       // Check if current user is following
       let isFollowing = false;
-      if (user?.data?.user) {
+      if (user) {
         const { data } = await supabase
           .from('user_follows')
           .select('id')
-          .eq('follower_id', user.data.user.id)
+          .eq('follower_id', user.id)
           .eq('following_id', userId)
           .maybeSingle();
 
