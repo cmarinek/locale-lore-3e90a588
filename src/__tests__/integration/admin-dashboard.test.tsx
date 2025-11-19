@@ -66,6 +66,14 @@ jest.mock('@/pages/MediaManagement', () => ({
   default: () => <div>Media Management</div>,
 }));
 
+jest.mock('@/components/admin/TranslationDebugToggle', () => ({
+  TranslationDebugToggle: () => null,
+}));
+
+jest.mock('@/components/admin/TranslationDebugPanel', () => ({
+  TranslationDebugPanel: () => null,
+}));
+
 const { AdminDashboard } = require('@/components/admin/AdminDashboard') as typeof import('@/components/admin/AdminDashboard');
 const { useAdmin } = jest.requireMock('@/hooks/useAdmin') as { useAdmin: jest.Mock };
 

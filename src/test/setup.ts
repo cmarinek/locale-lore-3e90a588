@@ -21,6 +21,68 @@ jest.mock('@/config/environments', () => ({
   },
 }));
 
+// Mock Supabase client to avoid environment variable issues
+jest.mock('@/integrations/supabase/client', () => {
+  const chainable = () => ({
+    select: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    order: jest.fn().mockReturnThis(),
+    range: jest.fn().mockReturnThis(),
+    single: jest.fn().mockResolvedValue({ data: null, error: null }),
+    maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
+    insert: jest.fn().mockReturnThis(),
+    update: jest.fn().mockReturnThis(),
+    delete: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
+    ilike: jest.fn().mockReturnThis(),
+    in: jest.fn().mockReturnThis(),
+    neq: jest.fn().mockReturnThis(),
+    gte: jest.fn().mockReturnThis(),
+    lte: jest.fn().mockReturnThis(),
+  });
+
+  return {
+    __esModule: true,
+    supabase: {
+      from: jest.fn(() => chainable()),
+      rpc: jest.fn().mockResolvedValue({ data: null, error: null }),
+      channel: jest.fn(() => ({
+        on: jest.fn().mockReturnThis(),
+        subscribe: jest.fn().mockReturnValue({}),
+      })),
+      removeChannel: jest.fn(),
+      auth: {
+        signOut: jest.fn().mockResolvedValue({ error: null }),
+        onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } })),
+        getSession: jest.fn().mockResolvedValue({ data: { session: null }, error: null }),
+        getUser: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),
+        signInWithPassword: jest.fn().mockResolvedValue({
+          data: { user: { id: 'user-1' }, session: { access_token: 'token' } },
+          error: null,
+        }),
+        signUp: jest.fn().mockResolvedValue({
+          data: { user: { id: 'user-2' }, session: null },
+          error: null,
+        }),
+        signInWithOtp: jest.fn().mockResolvedValue({ data: { user: null, session: null }, error: null }),
+        signInWithOAuth: jest.fn().mockResolvedValue({ data: { user: null, session: null }, error: null }),
+        resetPasswordForEmail: jest.fn().mockResolvedValue({ error: null }),
+        updateUser: jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null }),
+      },
+      storage: {
+        from: jest.fn(() => ({
+          upload: jest.fn().mockResolvedValue({ data: { path: 'test-path' }, error: null }),
+          getPublicUrl: jest.fn().mockReturnValue({ data: { publicUrl: 'https://example.com/test.jpg' } }),
+          remove: jest.fn().mockResolvedValue({ data: null, error: null }),
+        })),
+      },
+      functions: {
+        invoke: jest.fn().mockResolvedValue({ data: null, error: null }),
+      },
+    },
+  };
+});
+
 // Mock web-vitals to avoid performance.getEntriesByType errors in JSDOM
 jest.mock('web-vitals', () => ({
   onCLS: jest.fn(),
