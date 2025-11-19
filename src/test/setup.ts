@@ -7,7 +7,19 @@ import React from 'react';
 import { TextEncoder, TextDecoder } from 'util';
 import { TransformStream } from 'stream/web';
 
-jest.mock('@/config/environments');
+jest.mock('@/config/environments', () => ({
+  __esModule: true,
+  default: {
+    DEV: false,
+    PROD: true,
+    MODE: 'test',
+  },
+  environments: {
+    DEV: false,
+    PROD: true,
+    MODE: 'test',
+  },
+}));
 
 // Mock web-vitals to avoid performance.getEntriesByType errors in JSDOM
 jest.mock('web-vitals', () => ({
@@ -19,6 +31,29 @@ jest.mock('web-vitals', () => ({
   onTTFB: jest.fn(),
 }));
 
+// Mock useToast hook
+jest.mock('@/hooks/use-toast', () => ({
+  __esModule: true,
+  useToast: jest.fn(() => ({
+    toast: jest.fn(),
+    dismiss: jest.fn(),
+    toasts: [],
+  })),
+}));
+
+// Mock TranslationDebugContext
+jest.mock('@/contexts/TranslationDebugContext', () => ({
+  __esModule: true,
+  TranslationDebugProvider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children),
+  useTranslationDebug: () => ({
+    isDebugMode: false,
+    setDebugMode: jest.fn(),
+    missingKeys: [],
+    addMissingKey: jest.fn(),
+  }),
+}));
+
 // Mock performance API methods not available in JSDOM
 if (typeof performance !== 'undefined') {
   if (!performance.getEntriesByType) {
@@ -26,6 +61,18 @@ if (typeof performance !== 'undefined') {
   }
   if (!performance.getEntriesByName) {
     performance.getEntriesByName = jest.fn().mockReturnValue([]);
+  }
+  if (!performance.mark) {
+    performance.mark = jest.fn();
+  }
+  if (!performance.measure) {
+    performance.measure = jest.fn();
+  }
+  if (!performance.clearMarks) {
+    performance.clearMarks = jest.fn();
+  }
+  if (!performance.clearMeasures) {
+    performance.clearMeasures = jest.fn();
   }
 }
 
