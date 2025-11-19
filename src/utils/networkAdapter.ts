@@ -92,7 +92,7 @@ class NetworkAdapter {
     if (!this.currentInfo) {
       this.detectConnection();
     }
-    return this.currentInfo!;
+    return this.currentInfo;
   }
 
   /**
@@ -181,7 +181,7 @@ class NetworkAdapter {
    */
   private notifyListeners(): void {
     if (this.currentInfo) {
-      this.listeners.forEach((cb) => cb(this.currentInfo!));
+      this.listeners.forEach((cb) => cb(this.currentInfo));
     }
   }
 

@@ -81,7 +81,7 @@ class Logger {
     if (!this.shouldLog(LogLevel.DEBUG)) return;
     
     if (this.isDevelopment) {
-      // eslint-disable-next-line no-console
+       
       console.debug(this.formatMessage('DEBUG', message, context));
     }
   }
@@ -90,7 +90,7 @@ class Logger {
     if (!this.shouldLog(LogLevel.INFO)) return;
     
     if (this.isDevelopment) {
-      // eslint-disable-next-line no-console
+       
       console.info(this.formatMessage('INFO', message, context));
     }
   }
@@ -98,7 +98,7 @@ class Logger {
   warn(message: string, context?: LogContext) {
     if (!this.shouldLog(LogLevel.WARN)) return;
     
-    // eslint-disable-next-line no-console
+     
     console.warn(this.formatMessage('WARN', message, context));
     this.sendToMonitoring(LogLevel.WARN, message, context);
   }
@@ -113,7 +113,7 @@ class Logger {
       errorMessage: errorObj.message,
     };
 
-    // eslint-disable-next-line no-console
+     
     console.error(this.formatMessage('ERROR', message, fullContext), errorObj);
     this.sendToMonitoring(LogLevel.ERROR, message, fullContext, errorObj);
   }
@@ -121,14 +121,14 @@ class Logger {
   // Performance logging
   time(label: string) {
     if (this.isDevelopment) {
-      // eslint-disable-next-line no-console
+       
       console.time(label);
     }
   }
 
   timeEnd(label: string) {
     if (this.isDevelopment) {
-      // eslint-disable-next-line no-console
+       
       console.timeEnd(label);
     }
   }
@@ -136,14 +136,14 @@ class Logger {
   // Group logging for related operations
   group(label: string) {
     if (this.isDevelopment) {
-      // eslint-disable-next-line no-console
+       
       console.group(label);
     }
   }
 
   groupEnd() {
     if (this.isDevelopment) {
-      // eslint-disable-next-line no-console
+       
       console.groupEnd();
     }
   }

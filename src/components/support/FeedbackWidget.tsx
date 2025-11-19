@@ -39,7 +39,7 @@ export const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({ className }) => 
       const feedbackData = {
         feedback_type: feedbackType,
         message: feedback.trim(),
-        rating: rating,
+        rating,
         page_url: window.location.href,
         user_agent: navigator.userAgent,
         user_id: user?.id || null

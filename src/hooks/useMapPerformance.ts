@@ -53,7 +53,7 @@ export const useMapPerformance = () => {
     // Update metrics based on operation type
     setMetrics(prev => ({
       ...prev,
-      [operation + 'Time']: duration,
+      [`${operation  }Time`]: duration,
       ...(details?.markerCount && { markerCount: details.markerCount }),
       ...(details?.factCount && { factCount: details.factCount })
     }));

@@ -73,7 +73,7 @@ export function measureWebVitals(): Promise<Partial<WebVitals>> {
       observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
       
       // Get navigation timing
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      const navigation = performance.getEntriesByType('navigation')[0];
       if (navigation) {
         vitals.TTFB = navigation.responseStart - navigation.requestStart;
         vitals.FCP = navigation.domContentLoadedEventEnd - navigation.fetchStart;
@@ -91,7 +91,7 @@ export function measureWebVitals(): Promise<Partial<WebVitals>> {
  * Analyze resource performance
  */
 export function analyzeResources(): PerformanceMetrics['resourceTiming'] {
-  const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+  const resources = performance.getEntriesByType('resource');
   
   const timing = {
     totalResources: resources.length,
@@ -128,7 +128,7 @@ export function formatBytes(bytes: number): string {
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  return `${Math.round((bytes / Math.pow(k, i)) * 100) / 100  } ${  sizes[i]}`;
 }
 
 /**
@@ -195,7 +195,7 @@ export function checkRenderBlocking(): {
   blocking: Array<{ url: string; type: string; size: number }>;
   recommendations: string[];
 } {
-  const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+  const resources = performance.getEntriesByType('resource');
   const blocking: Array<{ url: string; type: string; size: number }> = [];
   const recommendations: string[] = [];
 
@@ -234,7 +234,7 @@ export function analyzeBundleSize(): {
   appSize: number;
   recommendations: string[];
 } {
-  const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+  const resources = performance.getEntriesByType('resource');
   const recommendations: string[] = [];
   
   let totalJSSize = 0;

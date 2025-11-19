@@ -144,4 +144,4 @@ if (!uiIndexContent.includes('modern-bottom-bar')) {
   fs.writeFileSync(uiIndexPath, uiIndexContent);
 }
 
-console.log('✅ Bottom bar modernization complete');`
+console.log('✅ Bottom bar modernization complete');

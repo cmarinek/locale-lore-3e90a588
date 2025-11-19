@@ -92,7 +92,7 @@ export class SEOManager {
     if (!content) return;
 
     if (type === 'link') {
-      let link = document.querySelector(`link[rel="${name}"]`) as HTMLLinkElement;
+      let link = document.querySelector(`link[rel="${name}"]`);
       if (!link) {
         link = document.createElement('link');
         link.rel = name;
@@ -103,7 +103,7 @@ export class SEOManager {
     }
 
     const attribute = type === 'property' ? 'property' : 'name';
-    let meta = document.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement;
+    let meta = document.querySelector(`meta[${attribute}="${name}"]`);
     
     if (!meta) {
       meta = document.createElement('meta');

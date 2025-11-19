@@ -98,7 +98,7 @@ export class ImageProcessor {
     const maxWidth = 1920;
     const maxHeight = 1080;
     
-    let { width, height } = this.calculateDimensions(
+    const { width, height } = this.calculateDimensions(
       img.width,
       img.height,
       maxWidth,
@@ -217,7 +217,7 @@ export class ImageProcessor {
     // Convert to blob
     const blob = await new Promise<Blob>((resolve) => {
       this.canvas.toBlob(
-        (blob) => resolve(blob!),
+        (blob) => resolve(blob),
         `image/${format}`,
         quality / 100
       );

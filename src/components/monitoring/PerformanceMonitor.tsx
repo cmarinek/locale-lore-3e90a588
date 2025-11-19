@@ -120,7 +120,7 @@ export const PerformanceMonitor: React.FC = () => {
       });
 
       // Get navigation timing metrics
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      const navigation = performance.getEntriesByType('navigation')[0];
       if (navigation) {
         newMetrics.fcp = navigation.responseStart - navigation.fetchStart;
         newMetrics.ttfb = navigation.responseStart - navigation.requestStart;

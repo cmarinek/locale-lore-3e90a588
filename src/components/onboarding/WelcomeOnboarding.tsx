@@ -148,7 +148,7 @@ export const WelcomeOnboarding: React.FC<WelcomeOnboardingProps> = ({
               {currentStepData.action && (
                 <div className="mb-6">
                   <Button
-                    onClick={() => handleActionClick(currentStepData.action!.path)}
+                    onClick={() => handleActionClick(currentStepData.action.path)}
                     className="w-full h-12 text-lg"
                     size="lg"
                   >

@@ -161,8 +161,8 @@ export const LoreSubmissionWizard: React.FC<LoreSubmissionWizardProps> = ({
           title: submissionData.title,
           description: submissionData.description,
           location_name: submissionData.location_name,
-          latitude: submissionData.latitude!,
-          longitude: submissionData.longitude!,
+          latitude: submissionData.latitude,
+          longitude: submissionData.longitude,
           category_id: submissionData.category_id,
           media_urls: submissionData.media_urls,
           status: 'pending'

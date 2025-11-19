@@ -106,4 +106,4 @@ mapContent = mapContent.replace(
 
 fs.writeFileSync(advancedMapPath, mapContent);
 
-console.log('✅ Marker modernization complete');`
+console.log('✅ Marker modernization complete');

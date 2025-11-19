@@ -219,7 +219,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
                             <Badge
                               variant="secondary"
                               className="ml-auto"
-                              style={{ backgroundColor: result.categories.color + '20' }}
+                              style={{ backgroundColor: `${result.categories.color  }20` }}
                             >
                               {result.categories.icon} {result.categories.slug}
                             </Badge>

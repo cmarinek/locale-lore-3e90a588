@@ -110,7 +110,7 @@ export const HistoricalAnimation: React.FC<HistoricalAnimationProps> = ({
       t => t.language_code === 'en'
     )?.name || event.categories?.slug || 'location';
 
-    const narrationText = `${event.title}. ${event.description || 'Exploring this ' + categoryName}.`;
+    const narrationText = `${event.title}. ${event.description || `Exploring this ${  categoryName}`}.`;
 
     const utterance = new SpeechSynthesisUtterance(narrationText);
     utterance.rate = 1.0;

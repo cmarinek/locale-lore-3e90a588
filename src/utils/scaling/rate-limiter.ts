@@ -65,7 +65,7 @@ export class AdvancedRateLimiter {
       this.requests.set(identifier, []);
     }
 
-    const requestHistory = this.requests.get(identifier)!;
+    const requestHistory = this.requests.get(identifier);
     const windowStart = now - rule.windowMs;
 
     // Filter requests in current window
@@ -120,7 +120,7 @@ export class AdvancedRateLimiter {
       this.requests.set(identifier, []);
     }
 
-    const requestHistory = this.requests.get(identifier)!;
+    const requestHistory = this.requests.get(identifier);
     const recentRequests = requestHistory.filter(
       req => req.timestamp > now - windowMs
     );

@@ -106,7 +106,7 @@ export const useOffline = () => {
           // Remove synced action
           const deleteTx = db.transaction(['pending_actions'], 'readwrite');
           const deleteStore = deleteTx.objectStore('pending_actions');
-          await deleteStore.delete(action.id!);
+          await deleteStore.delete(action.id);
           
           setPendingActions(prev => prev.filter(a => a.id !== action.id));
         } catch (error) {

@@ -87,7 +87,7 @@ export class PerformanceMonitor {
 
   // Resource monitoring
   getResourceMetrics() {
-    const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+    const resources = performance.getEntriesByType('resource');
     return resources.map(resource => ({
       name: resource.name,
       duration: resource.duration,

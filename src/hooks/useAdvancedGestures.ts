@@ -136,7 +136,7 @@ export const useAdvancedGestures = (
     // Update touch positions
     Array.from(e.changedTouches).forEach(touch => {
       if (touches.current.has(touch.identifier)) {
-        const prevTouch = touches.current.get(touch.identifier)!;
+        const prevTouch = touches.current.get(touch.identifier);
         const deltaX = touch.clientX - prevTouch.x;
         const deltaY = touch.clientY - prevTouch.y;
         
@@ -218,7 +218,7 @@ export const useAdvancedGestures = (
 
     // Momentum scrolling
     if (speed > 100 && touches.current.size === 0) {
-      let currentVelocity = { ...velocity };
+      const currentVelocity = { ...velocity };
       const friction = 0.95;
       
       const animateMomentum = () => {

@@ -234,7 +234,7 @@ const ExperimentalMapV2 = memo(({ onFactClick, className = "", isVisible = true 
           const el = createMarkerElement(fact);
           const marker = new mapboxgl.Marker(el)
             .setLngLat([fact.longitude, fact.latitude])
-            .addTo(map.current!);
+            .addTo(map.current);
           
           markersRef.current.push(marker);
         } catch (error) {

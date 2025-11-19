@@ -242,7 +242,7 @@ export function usePerformanceAwareLoading(threshold: number = 2000) {
 
   useEffect(() => {
     const checkPerformance = () => {
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      const navigation = performance.getEntriesByType('navigation')[0];
       const loadTime = navigation.loadEventEnd - navigation.loadEventStart;
       
       if (loadTime > threshold) {

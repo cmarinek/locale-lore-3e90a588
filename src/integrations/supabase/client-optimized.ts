@@ -21,7 +21,7 @@ export const optimizedSupabase = {
    * Fetch with automatic deduplication
    */
   from: (table: any) => {
-    const builder = supabase.from(table as any);
+    const builder = supabase.from(table);
     
     return {
       select: (columns?: string) => {

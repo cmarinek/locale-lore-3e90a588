@@ -128,7 +128,7 @@ export const ExpertBadgeManager: React.FC = () => {
         body: {
           badge_type: badgeType,
           location_area: locationArea,
-          specialization: specialization,
+          specialization,
         }
       });
 

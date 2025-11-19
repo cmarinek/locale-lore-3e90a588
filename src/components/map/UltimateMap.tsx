@@ -138,8 +138,8 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: getMapStyleUrl(mapStyle),
-      center: center,
-      zoom: zoom,
+      center,
+      zoom,
       antialias: false,
       attributionControl: false,
       logoPosition: 'bottom-right'
@@ -227,7 +227,7 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
         // Add marker to map
         const marker = new mapboxgl.Marker(el)
           .setLngLat([fact.longitude, fact.latitude])
-          .addTo(map.current!);
+          .addTo(map.current);
         
         markers.current.push(marker);
       }
@@ -303,7 +303,7 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
       // Restore map state and markers after style loads
       map.current.once('styledata', () => {
         // Restore view state
-        map.current!.jumpTo({
+        map.current.jumpTo({
           center: currentCenter,
           zoom: currentZoom,
           bearing: currentBearing,
@@ -333,7 +333,7 @@ const UltimateMap: React.FC<UltimateMapProps> = ({
 
           const newMarker = new mapboxgl.Marker(el)
             .setLngLat([fact.longitude, fact.latitude])
-            .addTo(map.current!);
+            .addTo(map.current);
           
           markers.current.push(newMarker);
         });

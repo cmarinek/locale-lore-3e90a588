@@ -93,7 +93,7 @@ export const DrawingTools: React.FC<DrawingToolsProps> = ({ map, className }) =>
     }
 
     if (map.getSource(sourceId)) {
-      (map.getSource(sourceId) as mapboxgl.GeoJSONSource).setData({
+      (map.getSource(sourceId)).setData({
         type: 'Feature',
         properties: {},
         geometry: activeDrawingType === 'line' 

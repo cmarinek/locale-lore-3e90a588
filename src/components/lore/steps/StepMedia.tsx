@@ -76,7 +76,7 @@ export const StepMedia: React.FC<StepMediaProps> = ({
     });
 
     const uploadedUrls = await Promise.all(uploadPromises);
-    const validUrls = uploadedUrls.filter(url => url !== null) as string[];
+    const validUrls = uploadedUrls.filter(url => url !== null);
     
     if (validUrls.length > 0) {
       onChange({ media_urls: [...data.media_urls, ...validUrls] });
@@ -242,7 +242,7 @@ export const StepMedia: React.FC<StepMediaProps> = ({
                           }`} />
                           <div className="text-center">
                             <p className="text-xs font-medium text-foreground truncate w-full">
-                              {fileName.length > 8 ? fileName.substring(0, 8) + '...' : fileName}
+                              {fileName.length > 8 ? `${fileName.substring(0, 8)  }...` : fileName}
                             </p>
                             <p className="text-xs text-muted-foreground">{extension}</p>
                           </div>

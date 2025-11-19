@@ -96,4 +96,4 @@ if (!uiIndexContent.includes('modern-search-bar')) {
   fs.writeFileSync(uiIndexPath, uiIndexContent);
 }
 
-console.log('✅ Search modernization complete');`
+console.log('✅ Search modernization complete');

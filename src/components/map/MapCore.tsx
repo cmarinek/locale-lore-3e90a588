@@ -44,7 +44,7 @@ const MapCore = memo(({ onFactClick, facts, isLoading, isVisible }: MapCoreProps
           // Optimize tile requests
           if (resourceType === 'Tile' && url.includes('mapbox://')) {
             return {
-              url: url,
+              url,
               credentials: 'same-origin'
             };
           }

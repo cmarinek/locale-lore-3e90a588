@@ -1,25 +1,27 @@
 import { renderHook, waitFor } from '@/test/utils';
 import { usePrivacySettings } from '../usePrivacySettings';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock dependencies
 jest.mock('@/integrations/supabase/client');
-jest.mock('@/contexts/AuthProvider');
 jest.mock('@/hooks/use-toast');
 
+// Get auth mock helpers from setup
+const { __setMockAuthState } = require('@/contexts/AuthProvider') as {
+  __setMockAuthState: (state: any) => void;
+};
+
 const mockSupabase = supabase as jest.Mocked<typeof supabase>;
-const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockUseToast = useToast as jest.MockedFunction<typeof useToast>;
 
 describe('usePrivacySettings', () => {
-  const mockUser = { id: 'test-user-id' };
+  const mockUser = { id: 'test-user-id', email: 'test@example.com' };
   const mockToast = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseAuth.mockReturnValue({ user: mockUser } as any);
+    __setMockAuthState({ user: mockUser });
     mockUseToast.mockReturnValue({ toast: mockToast } as any);
   });
 
