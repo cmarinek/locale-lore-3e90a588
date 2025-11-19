@@ -20,7 +20,7 @@ const MapControls = memo(({ isVisible }: MapControlsProps) => {
 
   const handleZoomIn = useCallback(() => {
     // Find map instance and zoom in
-    const mapContainer = document.querySelector('.mapboxgl-map') as any;
+    const mapContainer = document.querySelector('.mapboxgl-map');
     if (mapContainer?._map) {
       mapContainer._map.zoomIn();
     }
@@ -28,7 +28,7 @@ const MapControls = memo(({ isVisible }: MapControlsProps) => {
 
   const handleZoomOut = useCallback(() => {
     // Find map instance and zoom out
-    const mapContainer = document.querySelector('.mapboxgl-map') as any;
+    const mapContainer = document.querySelector('.mapboxgl-map');
     if (mapContainer?._map) {
       mapContainer._map.zoomOut();
     }
@@ -36,7 +36,7 @@ const MapControls = memo(({ isVisible }: MapControlsProps) => {
 
   const handleResetView = useCallback(() => {
     // Reset map to default view
-    const mapContainer = document.querySelector('.mapboxgl-map') as any;
+    const mapContainer = document.querySelector('.mapboxgl-map');
     if (mapContainer?._map) {
       mapContainer._map.flyTo({
         center: [-74.5, 40],

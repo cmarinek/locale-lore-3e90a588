@@ -67,7 +67,7 @@ class UnifiedGeoService {
 
     // Check if request is already in flight
     if (this.activeRequests.has(cacheKey)) {
-      return this.activeRequests.get(cacheKey)!;
+      return this.activeRequests.get(cacheKey);
     }
     
     // Create and cache the request promise
@@ -225,7 +225,7 @@ class UnifiedGeoService {
       const clusterKey = `${gridX},${gridY}`;
 
       if (clusters.has(clusterKey)) {
-        const cluster = clusters.get(clusterKey)!;
+        const cluster = clusters.get(clusterKey);
         cluster.count++;
         cluster.facts.push(fact);
         // Update cluster center (weighted average)

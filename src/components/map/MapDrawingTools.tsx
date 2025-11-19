@@ -104,7 +104,7 @@ export const MapDrawingTools: React.FC<DrawingToolsProps> = ({
     setCurrentPoints(newPoints);
 
     // Update the drawing on the map
-    const source = map.getSource('drawing') as mapboxgl.GeoJSONSource;
+    const source = map.getSource('drawing');
     if (!source) return;
 
     if (drawingMode === 'line' && newPoints.length >= 2) {
@@ -161,7 +161,7 @@ export const MapDrawingTools: React.FC<DrawingToolsProps> = ({
   const finishDrawing = () => {
     if (!map) return;
 
-    const source = map.getSource('drawing') as mapboxgl.GeoJSONSource;
+    const source = map.getSource('drawing');
     if (!source) return;
 
     const data = source._data as GeoJSON.FeatureCollection;
@@ -177,7 +177,7 @@ export const MapDrawingTools: React.FC<DrawingToolsProps> = ({
   const clearDrawing = () => {
     if (!map) return;
 
-    const source = map.getSource('drawing') as mapboxgl.GeoJSONSource;
+    const source = map.getSource('drawing');
     if (source) {
       source.setData({
         type: 'FeatureCollection',

@@ -124,7 +124,7 @@ export const useAdmin = () => {
           : (role as 'admin' | 'contributor' | 'free');
     const { error } = await supabase
       .from('user_roles')
-      .insert({ user_id: userId, role: mappedRole as 'admin' | 'contributor' | 'free' });
+      .insert({ user_id: userId, role: mappedRole });
 
     if (error) throw error;
   };

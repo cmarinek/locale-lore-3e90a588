@@ -105,7 +105,7 @@ export const initializePerformanceMonitoring = () => {
       // Navigation timing
       window.addEventListener('load', () => {
         try {
-          const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+          const navigation = performance.getEntriesByType('navigation')[0];
           
           const metrics = {
             fcp: navigation.responseStart - navigation.fetchStart,

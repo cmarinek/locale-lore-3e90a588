@@ -116,7 +116,7 @@ export const DirectMessaging: React.FC = () => {
             unread_count: isUnread ? 1 : 0,
           });
         } else {
-          const conv = conversationMap.get(partnerId)!;
+          const conv = conversationMap.get(partnerId);
           if (msg.recipient_id === user.id && !msg.read_at) {
             conv.unread_count++;
           }

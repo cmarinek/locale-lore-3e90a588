@@ -113,7 +113,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
             {currentStepData.action && (
               <div className="mb-6">
                 <Button
-                  onClick={() => handleActionClick(currentStepData.action!.path)}
+                  onClick={() => handleActionClick(currentStepData.action.path)}
                   className="w-full"
                   size="lg"
                 >

@@ -84,7 +84,7 @@ export function PerformanceMetrics({ compact }: PerformanceMetricsProps) {
       setTimeout(() => {
         if (vitalsData.length === 0) {
           // Use navigation timing as fallback
-          const perfData = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+          const perfData = performance.getEntriesByType('navigation')[0];
           if (perfData) {
             setWebVitals([
               {

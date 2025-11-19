@@ -248,7 +248,7 @@ export function generateTestReport(results: TestResult[]): string {
 
   if (failed > 0) {
     report += '\n❌ FAILED TESTS:\n';
-    report += '═'.repeat(60) + '\n';
+    report += `${'═'.repeat(60)  }\n`;
     
     results.filter(r => !r.passed).forEach(result => {
       report += `
@@ -264,7 +264,7 @@ ${'─'.repeat(60)}
   }
 
   report += '\n✅ TEST SUMMARY BY ROLE:\n';
-  report += '═'.repeat(60) + '\n';
+  report += `${'═'.repeat(60)  }\n`;
   
   const roles = ['public', 'authenticated', 'contributor', 'admin'];
   roles.forEach(role => {

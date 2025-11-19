@@ -107,17 +107,17 @@ export const Gamification: React.FC = () => {
         supabase
           .from('user_levels')
           .select('*')
-          .eq('user_id', user!.id)
+          .eq('user_id', user.id)
           .single(),
         supabase
           .from('user_statistics')
           .select('*')
-          .eq('user_id', user!.id)
+          .eq('user_id', user.id)
           .single(),
         supabase
           .from('profiles')
           .select('reputation_score')
-          .eq('id', user!.id)
+          .eq('id', user.id)
           .single(),
         supabase
           .from('achievements')
@@ -129,11 +129,11 @@ export const Gamification: React.FC = () => {
             *,
             achievements (*)
           `)
-          .eq('user_id', user!.id),
+          .eq('user_id', user.id),
         supabase
           .from('user_challenge_progress')
           .select('*')
-          .eq('user_id', user!.id),
+          .eq('user_id', user.id),
         supabase
           .from('challenges')
           .select('*')

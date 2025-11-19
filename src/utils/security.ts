@@ -279,7 +279,7 @@ export class RateLimiter {
       this.requests.set(key, []);
     }
     
-    const requests = this.requests.get(key)!;
+    const requests = this.requests.get(key);
     
     // Remove old requests
     const validRequests = requests.filter(time => time > windowStart);

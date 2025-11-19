@@ -173,11 +173,12 @@ self.onmessage = function(e) {
         result = data.facts.filter((fact: FactMarker) => isInBounds(fact, data.bounds));
         break;
         
-      case 'buildSpatialIndex':
+      case 'buildSpatialIndex': {
         const index = new SpatialIndex(data.gridSize);
         data.facts.forEach((fact: FactMarker) => index.addFact(fact));
         result = { success: true, factsIndexed: data.facts.length };
         break;
+      }
         
       default:
         throw new Error(`Unknown task type: ${type}`);

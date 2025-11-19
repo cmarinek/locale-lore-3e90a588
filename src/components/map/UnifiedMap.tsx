@@ -517,8 +517,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: getMapStyleUrl(mapStyle),
-        center: center,
-        zoom: zoom,
+        center,
+        zoom,
         projection: { name: 'globe' },
         antialias: true,
         attributionControl: false,
@@ -632,7 +632,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       },
       cluster: true,
       clusterMaxZoom: maxZoom - 1,
-      clusterRadius: clusterRadius,
+      clusterRadius,
       clusterProperties: {
         sum_votes: ['+', ['get', 'vote_count_up']],
         // Track category distribution in clusters
@@ -742,10 +742,10 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
     // Click handlers with smooth expansion animation
     map.current.on('click', 'clusters', (e) => {
-      const features = map.current!.queryRenderedFeatures(e.point, { layers: ['clusters'] });
+      const features = map.current.queryRenderedFeatures(e.point, { layers: ['clusters'] });
       if (features[0]) {
         const clusterId = features[0].properties.cluster_id;
-        const source = map.current!.getSource('facts') as mapboxgl.GeoJSONSource;
+        const source = map.current.getSource('facts');
         
         // Get cluster children for animation
         source.getClusterLeaves(clusterId, 100, 0, (err, leaves) => {
@@ -770,11 +770,11 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
               z-index: 1000;
             `;
             
-            const point = map.current!.project((features[0].geometry as any).coordinates);
+            const point = map.current.project((features[0].geometry as any).coordinates);
             tempCircle.style.left = `${point.x - 30}px`;
             tempCircle.style.top = `${point.y - 30}px`;
             
-            map.current!.getContainer().appendChild(tempCircle);
+            map.current.getContainer().appendChild(tempCircle);
             setTimeout(() => tempCircle.remove(), 600);
           }
         });
@@ -785,9 +785,9 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
             if (err) return;
             
             // Smooth zoom with longer duration
-            map.current!.easeTo({
+            map.current.easeTo({
               center: (features[0].geometry as any).coordinates,
-              zoom: zoom,
+              zoom,
               duration: 800,
               easing: (t) => t * (2 - t) // easeOutQuad
             });
@@ -795,7 +795,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
             // After zoom completes, trigger staggered marker reveal
             setTimeout(() => {
               // Get newly visible markers
-              const visibleFeatures = map.current!.querySourceFeatures('facts', {
+              const visibleFeatures = map.current.querySourceFeatures('facts', {
                 sourceLayer: 'facts',
                 filter: ['!', ['has', 'point_count']]
               });
@@ -847,7 +847,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       const el = createMarkerElement(fact);
       const marker = new mapboxgl.Marker(el)
         .setLngLat([fact.longitude, fact.latitude])
-        .addTo(map.current!);
+        .addTo(map.current);
       
       markersRef.current.set(fact.id, marker);
     });
@@ -858,7 +858,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
     if (!map.current || !isLoaded) return;
 
     if (enableClustering) {
-      const source = map.current.getSource('facts') as mapboxgl.GeoJSONSource;
+      const source = map.current.getSource('facts');
       if (source) {
         // Update data with new facts
         source.setData({

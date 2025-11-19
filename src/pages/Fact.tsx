@@ -336,8 +336,8 @@ export const Fact: React.FC = () => {
                     <Badge
                       variant="outline"
                       style={{ 
-                        backgroundColor: fact.categories.color + '20',
-                        borderColor: fact.categories.color + '40'
+                        backgroundColor: `${fact.categories.color  }20`,
+                        borderColor: `${fact.categories.color  }40`
                       }}
                     >
                       {fact.categories.icon} {fact.categories.slug}

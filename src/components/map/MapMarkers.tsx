@@ -85,7 +85,7 @@ const MapMarkers = memo(({ onFactClick, facts = [], isLoading, isVisible }: MapM
           const el = createMarkerElement(fact);
           const marker = new mapboxgl.Marker(el)
             .setLngLat([fact.longitude, fact.latitude])
-            .addTo(mapRef.current!);
+            .addTo(mapRef.current);
           
           markersRef.current.push(marker);
         } catch (error) {

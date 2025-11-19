@@ -74,7 +74,7 @@ export class LRUCache<T = any> {
   set(key: string, value: T, size?: number): void {
     // If key exists, update it
     if (this.cache.has(key)) {
-      const entry = this.cache.get(key)!;
+      const entry = this.cache.get(key);
       entry.value = value;
       entry.timestamp = Date.now();
       entry.lastAccessed = Date.now();

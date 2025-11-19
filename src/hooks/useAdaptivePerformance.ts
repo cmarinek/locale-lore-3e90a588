@@ -140,7 +140,7 @@ export const useAdaptivePerformance = () => {
       return performanceSettings;
     }
 
-    let settings: PerformanceSettings = {
+    const settings: PerformanceSettings = {
       clusterDistance: 40,
       maxMarkers: 100,
       tileQuality: 'medium',

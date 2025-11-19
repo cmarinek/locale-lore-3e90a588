@@ -222,7 +222,7 @@ if (!globalThis.navigator.vibrate) {
 }
 
 // Lazy load server after fetch polyfills are registered
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+ 
 const { server } = require('./mocks/server');
 
 // Extend Jest matchers with axe-core

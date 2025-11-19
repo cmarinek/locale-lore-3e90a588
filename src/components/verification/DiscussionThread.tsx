@@ -145,7 +145,7 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({
 
     // Build the nested structure
     flatComments.forEach(comment => {
-      const commentWithReplies = commentMap.get(comment.id)!;
+      const commentWithReplies = commentMap.get(comment.id);
       
       if (comment.parent_id) {
         const parent = commentMap.get(comment.parent_id);

@@ -10,10 +10,10 @@ export const formatRelativeTime = (date: string | Date): string => {
 
 export const formatNumber = (num: number): string => {
   if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + 'M';
+    return `${(num / 1000000).toFixed(1)  }M`;
   }
   if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K';
+    return `${(num / 1000).toFixed(1)  }K`;
   }
   return num.toString();
 };
@@ -31,5 +31,5 @@ export const formatCoordinates = (lat: number, lng: number): string => {
 
 export const truncateText = (text: string, maxLength: number): string => {
   if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength).trim() + '...';
+  return `${text.substring(0, maxLength).trim()  }...`;
 };

@@ -22,7 +22,7 @@ if (typeof window !== 'undefined') {
     console.warn('⚠️ POLYFILL: navigator.geolocation not available, creating polyfill');
     
     const geolocationPolyfill = {
-      getCurrentPosition: function(success: PositionCallback, error?: PositionErrorCallback, options?: PositionOptions) {
+      getCurrentPosition(success: PositionCallback, error?: PositionErrorCallback, options?: PositionOptions) {
         console.warn('⚠️ POLYFILL: Geolocation getCurrentPosition called but not available');
         if (error) {
           setTimeout(() => {
@@ -36,7 +36,7 @@ if (typeof window !== 'undefined') {
           }, 0);
         }
       },
-      watchPosition: function(success: PositionCallback, error?: PositionErrorCallback, options?: PositionOptions) {
+      watchPosition(success: PositionCallback, error?: PositionErrorCallback, options?: PositionOptions) {
         console.warn('⚠️ POLYFILL: Geolocation watchPosition called but not available');
         if (error) {
           setTimeout(() => {
@@ -51,7 +51,7 @@ if (typeof window !== 'undefined') {
         }
         return -1;
       },
-      clearWatch: function(watchId: number) {
+      clearWatch(watchId: number) {
         console.warn('⚠️ POLYFILL: Geolocation clearWatch called but not available');
       }
     };

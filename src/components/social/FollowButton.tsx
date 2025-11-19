@@ -36,7 +36,7 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
       const { data, error } = await supabase
         .from('user_follows')
         .select('id')
-        .eq('follower_id', user!.id)
+        .eq('follower_id', user.id)
         .eq('following_id', userId)
         .single();
 

@@ -30,7 +30,7 @@ export const useCitySearch = () => {
       // Using OpenStreetMap Nominatim API for city search
       log.debug('Searching cities', { component: 'useCitySearch', query });
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?` +
+        `https://nominatim.openstreetmap.org/search?${ 
         new URLSearchParams({
           q: query,
           format: 'json',
@@ -39,7 +39,7 @@ export const useCitySearch = () => {
           'accept-language': 'en',
           // Focus on populated places
           featuretype: 'settlement'
-        }).toString(),
+        }).toString()}`,
         {
           headers: {
             'User-Agent': 'LocaleLore-App/1.0'

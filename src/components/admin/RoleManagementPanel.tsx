@@ -83,7 +83,7 @@ export const RoleManagementPanel: React.FC = () => {
         .from('user_roles')
         .insert({
           user_id: userId,
-          role: role,
+          role,
           granted_by: user?.id,
         });
 

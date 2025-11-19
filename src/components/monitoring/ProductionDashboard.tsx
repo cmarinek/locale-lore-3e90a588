@@ -58,7 +58,7 @@ export const ProductionDashboard: React.FC = () => {
     const interval = setInterval(() => {
       // Collect Web Vitals
       if ('performance' in window) {
-        const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+        const navigation = performance.getEntriesByType('navigation')[0];
         
         const newMetrics: SystemMetrics = {
           webVitals: {

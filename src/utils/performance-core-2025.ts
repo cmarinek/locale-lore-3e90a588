@@ -102,7 +102,7 @@ export class RequestBatcher {
         });
       }
       
-      const batch = this.batches.get(key)!;
+      const batch = this.batches.get(key);
       batch.requests.push({ resolve, reject, data });
     });
   }
@@ -181,7 +181,7 @@ export class PerformanceMonitor2025 {
         this.metrics.set(name, []);
       }
       
-      const measurements = this.metrics.get(name)!;
+      const measurements = this.metrics.get(name);
       measurements.push(duration);
       
       // Keep only last 100 measurements

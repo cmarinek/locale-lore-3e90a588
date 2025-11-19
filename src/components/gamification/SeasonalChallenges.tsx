@@ -148,7 +148,7 @@ export const SeasonalChallenges: React.FC<SeasonalChallengesProps> = ({ classNam
           });
         }
 
-        const summary = progressSummary.get(entry.challenge_id)!;
+        const summary = progressSummary.get(entry.challenge_id);
         summary.total += entry.current_progress || 0;
         summary.participants.add(entry.user_id);
 

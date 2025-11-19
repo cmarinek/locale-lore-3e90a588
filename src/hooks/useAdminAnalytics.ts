@@ -285,7 +285,7 @@ export const useAdminAnalytics = (timeRange: string = '30d') => {
       let key: string;
       
       if (range === '24h') {
-        key = date.toISOString().slice(0, 13) + ':00'; // Group by hour
+        key = `${date.toISOString().slice(0, 13)  }:00`; // Group by hour
       } else if (range === '7d') {
         key = date.toISOString().slice(0, 10); // Group by day
       } else {
@@ -321,7 +321,7 @@ export const useAdminAnalytics = (timeRange: string = '30d') => {
     });
     
     return Object.entries(groupedData).map(([month, data]) => ({
-      month: new Date(month + '-01').toLocaleDateString([], { month: 'short', year: 'numeric' }),
+      month: new Date(`${month  }-01`).toLocaleDateString([], { month: 'short', year: 'numeric' }),
       revenue: data.revenue,
       contributors: data.contributors
     })).slice(-12); // Last 12 months
@@ -335,7 +335,7 @@ export const useAdminAnalytics = (timeRange: string = '30d') => {
       let key: string;
 
       if (range === '24h') {
-        key = date.toISOString().slice(0, 13) + ':00';
+        key = `${date.toISOString().slice(0, 13)  }:00`;
       } else if (range === '7d') {
         key = date.toISOString().slice(0, 10);
       } else {
