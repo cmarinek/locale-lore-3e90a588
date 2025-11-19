@@ -9,6 +9,26 @@ import { TransformStream } from 'stream/web';
 
 jest.mock('@/config/environments');
 
+// Mock web-vitals to avoid performance.getEntriesByType errors in JSDOM
+jest.mock('web-vitals', () => ({
+  onCLS: jest.fn(),
+  onFCP: jest.fn(),
+  onFID: jest.fn(),
+  onINP: jest.fn(),
+  onLCP: jest.fn(),
+  onTTFB: jest.fn(),
+}));
+
+// Mock performance API methods not available in JSDOM
+if (typeof performance !== 'undefined') {
+  if (!performance.getEntriesByType) {
+    performance.getEntriesByType = jest.fn().mockReturnValue([]);
+  }
+  if (!performance.getEntriesByName) {
+    performance.getEntriesByName = jest.fn().mockReturnValue([]);
+  }
+}
+
 type MockAuthState = {
   user: { id: string; email: string } | null;
   session: unknown;

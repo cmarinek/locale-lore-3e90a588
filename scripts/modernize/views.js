@@ -170,4 +170,4 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ isOpen, onClose }) => 
   fs.writeFileSync(filterPanelPath, simpleFilterContent);
 }
 
-console.log('✅ View controls modernization complete');`
+console.log('✅ View controls modernization complete');
