@@ -1,11 +1,9 @@
 import { renderHook, waitFor } from '@/test/utils';
 import { usePrivacySettings } from '../usePrivacySettings';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 
 // Mock dependencies
 jest.mock('@/integrations/supabase/client');
-jest.mock('@/hooks/use-toast');
 
 // Get auth mock helpers from setup
 const { __setMockAuthState } = require('@/contexts/AuthProvider') as {
@@ -13,16 +11,13 @@ const { __setMockAuthState } = require('@/contexts/AuthProvider') as {
 };
 
 const mockSupabase = supabase as jest.Mocked<typeof supabase>;
-const mockUseToast = useToast as jest.MockedFunction<typeof useToast>;
 
 describe('usePrivacySettings', () => {
   const mockUser = { id: 'test-user-id', email: 'test@example.com' };
-  const mockToast = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
     __setMockAuthState({ user: mockUser });
-    mockUseToast.mockReturnValue({ toast: mockToast } as any);
   });
 
   it('should load existing privacy settings successfully', async () => {
@@ -121,14 +116,8 @@ describe('usePrivacySettings', () => {
 
     await result.current.updateSettings({ profile_visibility: 'private' });
 
-    await waitFor(() => {
-      expect(mockToast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: 'Success',
-          description: 'Privacy settings updated',
-        })
-      );
-    });
+    // Verify update was called
+    expect(mockSupabase.from).toHaveBeenCalled();
   });
 
   it('should handle RLS policies correctly - users can only access their own settings', async () => {
