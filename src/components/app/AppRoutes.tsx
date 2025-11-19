@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState, useMemo } from 'react';
+import React, { Suspense, lazy, useState, useMemo, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthProvider';
 import { LoadingIntroduction } from '@/components/ui/loading-introduction';
@@ -9,66 +9,106 @@ import Index from '@/pages/Index';
 import AuthMain from '@/pages/AuthMain';
 import NotFound from '@/pages/NotFound';
 
-// Lazy load secondary pages
-const AuthCallback = lazy(() => import('@/pages/AuthCallback'));
-const AuthConfirm = lazy(() => import('@/pages/AuthConfirm'));
-const AuthResetPassword = lazy(() => import('@/pages/AuthResetPassword'));
-const Explore = lazy(() => import('@/pages/Explore').then(m => ({ default: m.Explore })));
+// Helper function to create lazy-loaded components with proper error handling
+const createLazyPage = <T extends React.ComponentType<any>>(
+  importFn: () => Promise<{ default: T } | { [key: string]: T }>,
+  pageName: string
+) => {
+  return lazy(() =>
+    importFn()
+      .then((module) => {
+        // Check for default export first, then named export
+        const component = (module as any).default || (module as any)[pageName];
+        if (!component) {
+          throw new Error(
+            `Failed to load page: ${pageName} - Component not found. ` +
+            `Ensure the file exports a valid component as default or named export "${pageName}".`
+          );
+        }
+        return { default: component };
+      })
+      .catch((error) => {
+        console.error(`Module import failed for ${pageName}:`, error);
+        throw error;
+      })
+  );
+};
 
-const Search = lazy(() => import('@/pages/Search').then(m => ({ default: m.Search })));
-const Submit = lazy(() => import('@/pages/Submit').then(m => ({ default: m.Submit })));
-const Profile = lazy(() => import('@/pages/Profile').then(m => ({ default: m.Profile })));
-const Fact = lazy(() => import('@/pages/Fact').then(m => ({ default: m.Fact })));
-const ComponentShowcase = lazy(() => import('@/pages/ComponentShowcase'));
-const Gamification = lazy(() => import('@/pages/Gamification').then(m => ({ default: m.Gamification })));
-const Notifications = lazy(() => import('@/pages/Notifications').then(m => ({ default: m.Notifications })));
-const Friends = lazy(() => import('@/pages/Friends').then(m => ({ default: m.Friends })));
-const Hybrid = lazy(() => import('@/pages/Hybrid').then(m => ({ default: m.Hybrid })));
-const MediaManagement = lazy(() => import('@/pages/MediaManagement'));
-const Billing = lazy(() => import('@/pages/Billing').then(m => ({ default: m.Billing })));
-const Social = lazy(() => import('@/pages/Social').then(m => ({ default: m.Social })));
-const Stories = lazy(() => import('@/pages/Stories'));
-const ContributorEconomy = lazy(() => import('@/pages/ContributorEconomy'));
-const Admin = lazy(() => import('@/pages/Admin'));
-const Privacy = lazy(() => import('@/pages/Privacy').then(m => ({ default: m.Privacy })));
-const Terms = lazy(() => import('@/pages/Terms').then(m => ({ default: m.Terms })));
-const ProductionReadiness = lazy(() => import('@/pages/ProductionReadiness').then(m => ({ default: m.ProductionReadiness })));
-const PreDeploymentDashboard = lazy(() => import('@/pages/PreDeploymentDashboard').then(m => ({ default: m.PreDeploymentDashboard })));
-const Support = lazy(() => import('@/pages/Support').then(m => ({ default: m.Support })));
-const ContentGuidelines = lazy(() => import('@/pages/ContentGuidelines').then(m => ({ default: m.ContentGuidelines })));
-const TranslationTest = lazy(() => import('@/pages/TranslationTest'));
-const Monitoring = lazy(() => import('@/pages/Monitoring'));
-const SecurityAudit = lazy(() => import('@/pages/SecurityAudit'));
-const PerformanceMonitor = lazy(() => import('@/pages/PerformanceMonitor'));
-// FIX: Proper lazy loading with error handling for Map
-const LazyMap = lazy(() => 
-  import('@/pages/Map').then(m => {
-    const component = m.default;
-    if (!component) {
-      throw new Error('Map component not found - ensure Map.tsx exports default');
-    }
-    return { default: component };
-  })
-);
-const Help = lazy(() => import('@/pages/Help'));
-const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
-const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
-const RefundPolicy = lazy(() => import('@/pages/RefundPolicy'));
-const BillingSuccess = lazy(() => import('@/pages/BillingSuccess').then(m => ({ default: m.BillingSuccess })));
-const BillingCanceled = lazy(() => import('@/pages/BillingCanceled').then(m => ({ default: m.BillingCanceled })));
-const Settings = lazy(() => import('@/pages/Settings'));
-const PrivacySettings = lazy(() => import('@/pages/PrivacySettings'));
-const TranslationManager = lazy(() => import('@/pages/admin/TranslationManager').then(m => ({ default: m.TranslationManager })));
-const MakeAdmin = lazy(() => import('@/pages/MakeAdmin'));
-const RBACTesting = lazy(() => import('@/pages/admin/RBACTesting'));
-const FAQ = lazy(() => import('@/pages/FAQ'));
-const ImplementationStatus = lazy(() => import('@/pages/ImplementationStatus'));
+// Lazy load secondary pages with error handling
+const AuthCallback = createLazyPage(() => import('@/pages/AuthCallback'), 'AuthCallback');
+const AuthConfirm = createLazyPage(() => import('@/pages/AuthConfirm'), 'AuthConfirm');
+const AuthResetPassword = createLazyPage(() => import('@/pages/AuthResetPassword'), 'AuthResetPassword');
+const Explore = createLazyPage(() => import('@/pages/Explore'), 'Explore');
+const Search = createLazyPage(() => import('@/pages/Search'), 'Search');
+const Submit = createLazyPage(() => import('@/pages/Submit'), 'Submit');
+const Profile = createLazyPage(() => import('@/pages/Profile'), 'Profile');
+const Fact = createLazyPage(() => import('@/pages/Fact'), 'Fact');
+const ComponentShowcase = createLazyPage(() => import('@/pages/ComponentShowcase'), 'ComponentShowcase');
+const Gamification = createLazyPage(() => import('@/pages/Gamification'), 'Gamification');
+const Notifications = createLazyPage(() => import('@/pages/Notifications'), 'Notifications');
+const Friends = createLazyPage(() => import('@/pages/Friends'), 'Friends');
+const Hybrid = createLazyPage(() => import('@/pages/Hybrid'), 'Hybrid');
+const MediaManagement = createLazyPage(() => import('@/pages/MediaManagement'), 'MediaManagement');
+const Billing = createLazyPage(() => import('@/pages/Billing'), 'Billing');
+const Social = createLazyPage(() => import('@/pages/Social'), 'Social');
+const Stories = createLazyPage(() => import('@/pages/Stories'), 'Stories');
+const ContributorEconomy = createLazyPage(() => import('@/pages/ContributorEconomy'), 'ContributorEconomy');
+const Admin = createLazyPage(() => import('@/pages/Admin'), 'Admin');
+const Privacy = createLazyPage(() => import('@/pages/Privacy'), 'Privacy');
+const Terms = createLazyPage(() => import('@/pages/Terms'), 'Terms');
+const ProductionReadiness = createLazyPage(() => import('@/pages/ProductionReadiness'), 'ProductionReadiness');
+const PreDeploymentDashboard = createLazyPage(() => import('@/pages/PreDeploymentDashboard'), 'PreDeploymentDashboard');
+const Support = createLazyPage(() => import('@/pages/Support'), 'Support');
+const ContentGuidelines = createLazyPage(() => import('@/pages/ContentGuidelines'), 'ContentGuidelines');
+const TranslationTest = createLazyPage(() => import('@/pages/TranslationTest'), 'TranslationTest');
+const Monitoring = createLazyPage(() => import('@/pages/Monitoring'), 'Monitoring');
+const SecurityAudit = createLazyPage(() => import('@/pages/SecurityAudit'), 'SecurityAudit');
+const PerformanceMonitor = createLazyPage(() => import('@/pages/PerformanceMonitor'), 'PerformanceMonitor');
+const LazyMap = createLazyPage(() => import('@/pages/Map'), 'Map');
+const Help = createLazyPage(() => import('@/pages/Help'), 'Help');
+const TermsOfService = createLazyPage(() => import('@/pages/TermsOfService'), 'TermsOfService');
+const PrivacyPolicy = createLazyPage(() => import('@/pages/PrivacyPolicy'), 'PrivacyPolicy');
+const RefundPolicy = createLazyPage(() => import('@/pages/RefundPolicy'), 'RefundPolicy');
+const BillingSuccess = createLazyPage(() => import('@/pages/BillingSuccess'), 'BillingSuccess');
+const BillingCanceled = createLazyPage(() => import('@/pages/BillingCanceled'), 'BillingCanceled');
+const Settings = createLazyPage(() => import('@/pages/Settings'), 'Settings');
+const PrivacySettings = createLazyPage(() => import('@/pages/PrivacySettings'), 'PrivacySettings');
+const TranslationManager = createLazyPage(() => import('@/pages/admin/TranslationManager'), 'TranslationManager');
+const MakeAdmin = createLazyPage(() => import('@/pages/MakeAdmin'), 'MakeAdmin');
+const RBACTesting = createLazyPage(() => import('@/pages/admin/RBACTesting'), 'RBACTesting');
+const FAQ = createLazyPage(() => import('@/pages/FAQ'), 'FAQ');
+const ImplementationStatus = createLazyPage(() => import('@/pages/ImplementationStatus'), 'ImplementationStatus');
 
-const LoadingFallback = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-  </div>
-);
+const LoadingFallback = () => {
+  const [isStalled, setIsStalled] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsStalled(true), 10000); // 10 second timeout
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isStalled) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-destructive mb-4">Page is taking longer than expected to load</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+          >
+            Reload Page
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>
+  );
+};
 
 export const AppRoutes: React.FC = React.memo(() => {
   const { loading: authLoading } = useAuth();
@@ -85,7 +125,7 @@ export const AppRoutes: React.FC = React.memo(() => {
 
   if (shouldShowLoading) {
     return (
-      <LoadingIntroduction 
+      <LoadingIntroduction
         onComplete={handleLoadingComplete}
         minDisplayTime={2000}
       />
