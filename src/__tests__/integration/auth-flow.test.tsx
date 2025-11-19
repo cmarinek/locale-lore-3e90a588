@@ -2,7 +2,19 @@
 import { render, screen, fireEvent, waitFor } from '@/test/utils';
 import { server } from '@/test/mocks/server';
 
-jest.mock('@/config/environments');
+jest.mock('@/config/environments', () => ({
+  __esModule: true,
+  default: {
+    DEV: false,
+    PROD: true,
+    MODE: 'test',
+  },
+  environments: {
+    DEV: false,
+    PROD: true,
+    MODE: 'test',
+  },
+}));
 jest.mock('@/integrations/supabase/client');
 
 const authActionMocks = {
