@@ -11,13 +11,13 @@ const Contact = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // TODO: Replace with actual business information
-  const BUSINESS_NAME = "[LOCALELORE, INC.]";
-  const BUSINESS_ADDRESS = "[123 Main Street, City, State, ZIP, Country]";
-  const SUPPORT_EMAIL = "support@localelore.com";
-  const LEGAL_EMAIL = "legal@localelore.com";
-  const PRIVACY_EMAIL = "privacy@localelore.com";
-  const SECURITY_EMAIL = "security@localelore.com";
+  // TODO: Replace remaining with actual business information
+  const BUSINESS_NAME = "[YOUR LEGAL ENTITY NAME]"; // e.g., "LocaleLore LLC"
+  const BUSINESS_ADDRESS = "[YOUR REGISTERED ADDRESS]"; // Your registered business address
+  const SUPPORT_EMAIL = "support@localelore.org"; // ✅ CONFIGURED
+  const LEGAL_EMAIL = "legal@localelore.org"; // TODO: Set up email forwarding
+  const PRIVACY_EMAIL = "privacy@localelore.org"; // TODO: Set up email forwarding
+  const SECURITY_EMAIL = "security@localelore.org"; // TODO: Set up email forwarding
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
