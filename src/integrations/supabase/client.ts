@@ -6,19 +6,41 @@ import { config } from '@/config/environments';
 const SUPABASE_URL = config.supabaseUrl;
 const SUPABASE_PUBLISHABLE_KEY = config.supabaseKey;
 
+// Validate configuration but don't throw during module initialization
+// This allows the app to load and show a proper error message
 if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-  throw new Error(
-    'Supabase configuration is missing. Please set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your environment.'
+  console.error(
+    '❌ CRITICAL: Supabase configuration is missing!\n' +
+    'Please ensure these environment variables are set:\n' +
+    '  - VITE_SUPABASE_URL\n' +
+    '  - VITE_SUPABASE_PUBLISHABLE_KEY\n\n' +
+    'Current values:\n' +
+    `  VITE_SUPABASE_URL: ${SUPABASE_URL || '(not set)'}\n` +
+    `  VITE_SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY ? '(set)' : '(not set)'}`
   );
 }
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
+// Create client with fallback values to prevent crash
+// If config is missing, API calls will fail gracefully instead of crashing on load
+export const supabase = createClient<Database>(
+  SUPABASE_URL || 'https://placeholder.supabase.co',
+  SUPABASE_PUBLISHABLE_KEY || 'placeholder-key',
+  {
+    auth: {
+      storage: localStorage,
+      persistSession: true,
+      autoRefreshToken: true,
+    }
   }
-});
+);
+
+// Export validation function for runtime checks
+export const isSupabaseConfigured = () => {
+  return Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY &&
+    SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+    SUPABASE_PUBLISHABLE_KEY !== 'placeholder-key'
+  );
+};
