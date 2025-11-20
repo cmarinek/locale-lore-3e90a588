@@ -10,6 +10,7 @@ import { useAuthActions } from '@/hooks/useAuthActions';
 import { useTranslation } from 'react-i18next';
 import { useValidationSchemas } from '@/hooks/useValidationSchemas';
 import { log } from '@/utils/logger';
+import { HCaptchaComponent } from '@/components/security/HCaptcha';
 
 
 interface EmailPasswordFormProps {
@@ -21,6 +22,7 @@ interface EmailPasswordFormProps {
 export const EmailPasswordForm = ({ mode, onSuccess, onSwitchMode }: EmailPasswordFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string>('');
   const { signInWithEmail, signUpWithEmail, loading } = useAuthActions();
   const { t } = useTranslation('auth');
   const { signInSchema, signUpSchema } = useValidationSchemas();
@@ -206,10 +208,19 @@ export const EmailPasswordForm = ({ mode, onSuccess, onSwitchMode }: EmailPasswo
             />
           )}
 
-          <Button 
-            type="submit" 
-            className="w-full h-12 text-base transition-all duration-200 hover:scale-[1.02]" 
-            disabled={loading}
+          {/* CAPTCHA for signup */}
+          {mode === 'signup' && (
+            <HCaptchaComponent
+              onVerify={(token) => setCaptchaToken(token)}
+              onExpire={() => setCaptchaToken('')}
+              theme="light"
+            />
+          )}
+
+          <Button
+            type="submit"
+            className="w-full h-12 text-base transition-all duration-200 hover:scale-[1.02]"
+            disabled={loading || (mode === 'signup' && !captchaToken)}
           >
             {loading ? (
               <>
