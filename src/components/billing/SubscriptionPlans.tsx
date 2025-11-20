@@ -88,10 +88,10 @@ export const SubscriptionPlans: React.FC = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
-        body: { 
+        body: {
           tier,
           type: 'subscription',
-          trialDays: trialDays || 14,
+          trialDays: trialDays || 3,
           promoCode: promoCode || undefined
         }
       });
@@ -207,7 +207,7 @@ export const SubscriptionPlans: React.FC = () => {
                 </div>
                 {tier.trial && (
                   <Badge variant="secondary" className="mt-2">
-                    14-day free trial
+                    3-day free trial
                   </Badge>
                 )}
               </CardHeader>
@@ -223,7 +223,7 @@ export const SubscriptionPlans: React.FC = () => {
                 </ul>
 
                 <Button
-                  onClick={() => handleSubscribe(tier.id, tier.trial ? 14 : undefined)}
+                  onClick={() => handleSubscribe(tier.id, tier.trial ? 3 : undefined)}
                   disabled={loading}
                   className="w-full"
                   variant={tier.popular ? "default" : "outline"}
@@ -313,7 +313,7 @@ export const SubscriptionPlans: React.FC = () => {
           <div>
             <h4 className="font-semibold">What happens after the free trial?</h4>
             <p className="text-sm text-muted-foreground">
-              After your 14-day free trial, you'll be automatically charged for your selected plan. You can cancel before the trial ends to avoid charges.
+              After your 3-day free trial, you'll be automatically charged for your selected plan. You can cancel before the trial ends to avoid charges.
             </p>
           </div>
           <div>

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
+import { checkRateLimit, RATE_LIMITS } from '../_shared/rate-limit.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -29,6 +30,25 @@ serve(async (req) => {
   }
 
   try {
+    // Rate limit by IP to prevent search abuse
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] ||
+                     req.headers.get('x-real-ip') ||
+                     'unknown';
+
+    const rateLimitResult = await checkRateLimit(clientIP, RATE_LIMITS.STANDARD);
+    if (!rateLimitResult.allowed) {
+      return new Response(
+        JSON.stringify({
+          error: 'Too many search requests. Please wait before searching again.',
+          retryAfter: rateLimitResult.retryAfter
+        }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -42,10 +62,10 @@ serve(async (req) => {
     const { query, filters = {}, page = 1, limit = 20, sortBy = 'relevance', userId }: SearchRequest = await req.json()
 
     if (!query || query.trim().length === 0) {
-      return new Response(JSON.stringify({ 
-        results: [], 
-        total: 0, 
-        suggestions: [] 
+      return new Response(JSON.stringify({
+        results: [],
+        total: 0,
+        suggestions: []
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })

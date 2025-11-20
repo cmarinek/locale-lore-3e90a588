@@ -3,13 +3,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
 const TermsOfService = () => {
-  // TODO: Update these values with actual business information
-  const BUSINESS_NAME = "[LOCALELORE, INC.]"; // Replace with actual legal entity name
-  const BUSINESS_ADDRESS = "[123 Main Street, City, State, ZIP, Country]"; // Replace with registered address
-  const SUPPORT_EMAIL = "support@localelore.com"; // Replace with actual support email
-  const LEGAL_EMAIL = "legal@localelore.com"; // Replace with actual legal email
-  const EFFECTIVE_DATE = "January 1, 2025"; // Replace with actual effective date
-  const JURISDICTION = "[State/Country]"; // Replace with governing jurisdiction
+  // TODO: Update these remaining values with actual business information
+  const BUSINESS_NAME = "[YOUR LEGAL ENTITY NAME]"; // e.g., "LocaleLore LLC" or "John Doe DBA LocaleLore"
+  const BUSINESS_ADDRESS = "[YOUR REGISTERED ADDRESS]"; // Your registered business address
+  const SUPPORT_EMAIL = "support@localelore.org"; // ✅ CONFIGURED
+  const LEGAL_EMAIL = "legal@localelore.org"; // TODO: Set up email forwarding
+  const PRIVACY_EMAIL = "privacy@localelore.org"; // TODO: Set up email forwarding
+  const EFFECTIVE_DATE = "December 1, 2025"; // TODO: Set to launch date (typically 2 weeks notice)
+  const JURISDICTION = "[YOUR STATE/COUNTRY]"; // e.g., "Delaware" or "California"
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
@@ -110,7 +111,7 @@ const TermsOfService = () => {
 
               <h3>4.2 Free Trial</h3>
               <p>
-                New subscribers may receive a 14-day free trial. You will not be charged during the trial
+                New subscribers may receive a 3-day free trial. You will not be charged during the trial
                 period. If you do not cancel before the trial ends, you will automatically be charged for
                 your selected subscription plan.
               </p>

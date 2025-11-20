@@ -3,13 +3,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
 const PrivacyPolicy = () => {
-  // TODO: Update these values with actual business information
-  const BUSINESS_NAME = "[LOCALELORE, INC.]";
-  const BUSINESS_ADDRESS = "[123 Main Street, City, State, ZIP, Country]";
-  const SUPPORT_EMAIL = "support@localelore.com";
-  const PRIVACY_EMAIL = "privacy@localelore.com";
-  const DPO_EMAIL = "dpo@localelore.com"; // Data Protection Officer (if required)
-  const EFFECTIVE_DATE = "January 1, 2025";
+  // TODO: Update these remaining values with actual business information
+  const BUSINESS_NAME = "[YOUR LEGAL ENTITY NAME]"; // e.g., "LocaleLore LLC"
+  const BUSINESS_ADDRESS = "[YOUR REGISTERED ADDRESS]"; // Your registered business address
+  const SUPPORT_EMAIL = "support@localelore.org"; // ✅ CONFIGURED
+  const PRIVACY_EMAIL = "privacy@localelore.org"; // TODO: Set up email forwarding
+  const DPO_EMAIL = "dpo@localelore.org"; // Data Protection Officer (if required for your size/location)
+  const EFFECTIVE_DATE = "December 1, 2025"; // TODO: Set to launch date
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">

@@ -3,9 +3,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
 const CookiePolicy = () => {
-  const BUSINESS_NAME = "[LOCALELORE, INC.]";
-  const EFFECTIVE_DATE = "January 1, 2025";
-  const PRIVACY_EMAIL = "privacy@localelore.com";
+  const BUSINESS_NAME = "[YOUR LEGAL ENTITY NAME]"; // e.g., "LocaleLore LLC"
+  const EFFECTIVE_DATE = "December 1, 2025"; // TODO: Set to launch date
+  const PRIVACY_EMAIL = "privacy@localelore.org"; // TODO: Set up email forwarding
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
