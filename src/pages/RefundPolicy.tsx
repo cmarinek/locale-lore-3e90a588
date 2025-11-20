@@ -74,7 +74,7 @@ const RefundPolicy = () => {
 
               <h3>2.4 Free Trial Refunds</h3>
               <p>
-                If you cancel during your 14-day free trial period, you will not be charged. No refund
+                If you cancel during your 3-day free trial period, you will not be charged. No refund
                 is necessary as no payment was made.
               </p>
             </section>

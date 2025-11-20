@@ -111,7 +111,7 @@ const TermsOfService = () => {
 
               <h3>4.2 Free Trial</h3>
               <p>
-                New subscribers may receive a 14-day free trial. You will not be charged during the trial
+                New subscribers may receive a 3-day free trial. You will not be charged during the trial
                 period. If you do not cancel before the trial ends, you will automatically be charged for
                 your selected subscription plan.
               </p>
