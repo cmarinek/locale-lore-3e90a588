@@ -104,9 +104,8 @@ const TermsOfService = () => {
               <h3>4.1 Subscription Tiers</h3>
               <p>LocaleLore offers the following subscription plans:</p>
               <ul>
-                <li><strong>Basic Plan:</strong> $9.99/month - Limited features, 50 facts per month</li>
-                <li><strong>Premium Plan:</strong> $19.99/month - Unlimited facts, advanced features</li>
-                <li><strong>Pro Plan:</strong> $29.99/month - All Premium features plus analytics and API access</li>
+                <li><strong>Free Plan:</strong> Free - Browse all facts, explore maps, search and discover content</li>
+                <li><strong>Contributor Plan:</strong> $4.97/month - Unlimited fact submissions, commenting, voting, advanced features, priority support, and analytics</li>
               </ul>
 
               <h3>4.2 Free Trial</h3>

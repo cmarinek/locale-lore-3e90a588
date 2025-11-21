@@ -41,9 +41,8 @@ const RefundPolicy = () => {
               <h3>2.1 Subscription Plans</h3>
               <p>Our subscription plans are:</p>
               <ul>
-                <li><strong>Basic Plan:</strong> $9.99/month</li>
-                <li><strong>Premium Plan:</strong> $19.99/month</li>
-                <li><strong>Pro Plan:</strong> $29.99/month</li>
+                <li><strong>Free Plan:</strong> Free - No payment required</li>
+                <li><strong>Contributor Plan:</strong> $4.97/month - All contributor features</li>
               </ul>
 
               <h3>2.2 30-Day Money-Back Guarantee</h3>
@@ -80,24 +79,9 @@ const RefundPolicy = () => {
             </section>
 
             <section>
-              <h2>3. One-Time Purchase Refunds</h2>
+              <h2>3. Refund Eligibility - Exceptions</h2>
 
-              <h3>3.1 Digital Products</h3>
-              <p>One-time purchases (Premium Feature Pack, Advanced Analytics, etc.) are generally non-refundable except:</p>
-              <ul>
-                <li><strong>Technical Issues:</strong> If the purchased feature does not work as described</li>
-                <li><strong>Billing Errors:</strong> If you were charged incorrectly</li>
-                <li><strong>Duplicate Charges:</strong> If you were charged multiple times for the same purchase</li>
-              </ul>
-              <p>
-                Refund requests for one-time purchases must be submitted within 14 days of purchase.
-              </p>
-            </section>
-
-            <section>
-              <h2>4. Refund Eligibility - Exceptions</h2>
-
-              <h3>4.1 Technical Issues</h3>
+              <h3>3.1 Technical Issues</h3>
               <p>We may issue refunds if:</p>
               <ul>
                 <li>Our Service was unavailable for extended periods (more than 24 consecutive hours) due to our fault</li>
@@ -108,7 +92,7 @@ const RefundPolicy = () => {
                 <em>Note: Scheduled maintenance and brief downtimes do not qualify for refunds.</em>
               </p>
 
-              <h3>4.2 Billing Errors</h3>
+              <h3>3.2 Billing Errors</h3>
               <p>We will provide a full refund if:</p>
               <ul>
                 <li>You were charged incorrectly or more than the stated subscription price</li>
@@ -117,7 +101,7 @@ const RefundPolicy = () => {
                 <li>You were charged for a subscription you never authorized</li>
               </ul>
 
-              <h3>4.3 Unauthorized Charges</h3>
+              <h3>3.3 Unauthorized Charges</h3>
               <p>
                 If you believe your payment method was used without your authorization, contact us
                 immediately at {SUPPORT_EMAIL}. We will investigate and issue a refund if warranted.
@@ -125,7 +109,7 @@ const RefundPolicy = () => {
             </section>
 
             <section>
-              <h2>5. Non-Refundable Circumstances</h2>
+              <h2>4. Non-Refundable Circumstances</h2>
               <p>Refunds will NOT be issued in the following situations:</p>
               <ul>
                 <li><strong>Account Termination for Violations:</strong> If we terminate your account for violating our Terms of Service</li>
@@ -139,9 +123,9 @@ const RefundPolicy = () => {
             </section>
 
             <section>
-              <h2>6. How to Request a Refund</h2>
+              <h2>5. How to Request a Refund</h2>
 
-              <h3>6.1 Refund Request Process</h3>
+              <h3>5.1 Refund Request Process</h3>
               <p>To request a refund:</p>
               <ol>
                 <li>Email {SUPPORT_EMAIL} with the subject line "Refund Request"</li>
@@ -158,14 +142,14 @@ const RefundPolicy = () => {
                 <li>You will receive an email with our decision</li>
               </ol>
 
-              <h3>6.2 Review Timeline</h3>
+              <h3>5.2 Review Timeline</h3>
               <ul>
                 <li><strong>Initial Response:</strong> Within 24-48 hours</li>
                 <li><strong>Decision:</strong> Within 3-5 business days</li>
                 <li><strong>Refund Processing:</strong> 5-10 business days after approval</li>
               </ul>
 
-              <h3>6.3 Required Information</h3>
+              <h3>5.3 Required Information</h3>
               <p>
                 To expedite your refund request, please provide as much detail as possible about why
                 you're requesting a refund. Incomplete requests may be delayed while we gather additional
@@ -174,15 +158,15 @@ const RefundPolicy = () => {
             </section>
 
             <section>
-              <h2>7. Refund Method and Timing</h2>
+              <h2>6. Refund Method and Timing</h2>
 
-              <h3>7.1 Refund Method</h3>
+              <h3>6.1 Refund Method</h3>
               <p>
                 Approved refunds will be issued to the original payment method used for the purchase.
                 We cannot issue refunds to different payment methods or accounts.
               </p>
 
-              <h3>7.2 Processing Time</h3>
+              <h3>6.2 Processing Time</h3>
               <ul>
                 <li><strong>Credit/Debit Cards:</strong> 5-10 business days</li>
                 <li><strong>PayPal:</strong> 3-5 business days</li>
@@ -193,7 +177,7 @@ const RefundPolicy = () => {
                 We initiate refunds promptly, but we cannot control how quickly your bank processes them.</em>
               </p>
 
-              <h3>7.3 Refund Confirmation</h3>
+              <h3>6.3 Refund Confirmation</h3>
               <p>
                 You will receive an email confirmation when your refund is approved and when it has been
                 processed. Keep this for your records.
@@ -201,15 +185,15 @@ const RefundPolicy = () => {
             </section>
 
             <section>
-              <h2>8. Chargebacks</h2>
+              <h2>7. Chargebacks</h2>
 
-              <h3>8.1 Contact Us First</h3>
+              <h3>7.1 Contact Us First</h3>
               <p>
                 <strong>Please contact us before initiating a chargeback or dispute with your bank.</strong>
                 We are committed to resolving billing issues and will work with you to find a solution.
               </p>
 
-              <h3>8.2 Chargeback Consequences</h3>
+              <h3>7.2 Chargeback Consequences</h3>
               <p>
                 If you initiate a chargeback without first contacting us, it may result in:
               </p>
@@ -226,7 +210,7 @@ const RefundPolicy = () => {
             </section>
 
             <section>
-              <h2>9. Promotional Offers and Discounts</h2>
+              <h2>8. Promotional Offers and Discounts</h2>
               <p>
                 Subscriptions purchased with promotional codes, discounts, or special offers may have
                 different refund terms as specified at the time of purchase. These terms will be clearly
@@ -243,7 +227,7 @@ const RefundPolicy = () => {
             </section>
 
             <section>
-              <h2>10. Annual Subscriptions</h2>
+              <h2>9. Annual Subscriptions</h2>
               <p>
                 If we offer annual subscription options in the future:
               </p>
@@ -256,7 +240,7 @@ const RefundPolicy = () => {
             </section>
 
             <section>
-              <h2>11. Fair Use of Refund Policy</h2>
+              <h2>10. Fair Use of Refund Policy</h2>
               <p>
                 We reserve the right to deny refund requests that appear to abuse our refund policy,
                 including but not limited to:
@@ -274,7 +258,7 @@ const RefundPolicy = () => {
             </section>
 
             <section>
-              <h2>12. Policy Changes</h2>
+              <h2>11. Policy Changes</h2>
               <p>
                 We may update this Refund Policy from time to time. Changes will be communicated via:
               </p>
