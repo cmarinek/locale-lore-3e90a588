@@ -3,8 +3,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
 const CookiePolicy = () => {
-  const BUSINESS_NAME = "[YOUR LEGAL ENTITY NAME]"; // e.g., "LocaleLore LLC"
-  const EFFECTIVE_DATE = "December 1, 2025"; // TODO: Set to launch date
+  const BUSINESS_NAME = "ASCEND LEADS DBA LocaleLore"; // e.g., "LocaleLore LLC"
+  const EFFECTIVE_DATE = "November 22, 2025"; // TODO: Set to launch date
   const PRIVACY_EMAIL = "privacy@localelore.org"; // TODO: Set up email forwarding
 
   return (
