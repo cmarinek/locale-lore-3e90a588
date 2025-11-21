@@ -12,8 +12,8 @@ const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // TODO: Replace remaining with actual business information
-  const BUSINESS_NAME = "[YOUR LEGAL ENTITY NAME]"; // e.g., "LocaleLore LLC"
-  const BUSINESS_ADDRESS = "[YOUR REGISTERED ADDRESS]"; // Your registered business address
+  const BUSINESS_NAME = "Ascend Leads LLC DBA Localelore"; // e.g., "LocaleLore LLC"
+  const BUSINESS_ADDRESS = "2715 East Lehigh Avenue, Philadelphia, PA. 19125."; // Your registered business address
   const SUPPORT_EMAIL = "support@localelore.org"; // ✅ CONFIGURED
   const LEGAL_EMAIL = "legal@localelore.org"; // TODO: Set up email forwarding
   const PRIVACY_EMAIL = "privacy@localelore.org"; // TODO: Set up email forwarding
