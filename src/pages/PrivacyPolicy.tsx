@@ -4,12 +4,12 @@ import { AlertCircle } from "lucide-react";
 
 const PrivacyPolicy = () => {
   // TODO: Update these remaining values with actual business information
-  const BUSINESS_NAME = "[YOUR LEGAL ENTITY NAME]"; // e.g., "LocaleLore LLC"
-  const BUSINESS_ADDRESS = "[YOUR REGISTERED ADDRESS]"; // Your registered business address
+  const BUSINESS_NAME = "Ascend Leads LLC DBA Localelore"; // e.g., "LocaleLore LLC"
+  const BUSINESS_ADDRESS = "2715 East Lehigh Avenue, Philadelphia, PA. 19125"; // Your registered business address
   const SUPPORT_EMAIL = "support@localelore.org"; // ✅ CONFIGURED
   const PRIVACY_EMAIL = "privacy@localelore.org"; // TODO: Set up email forwarding
-  const DPO_EMAIL = "dpo@localelore.org"; // Data Protection Officer (if required for your size/location)
-  const EFFECTIVE_DATE = "December 1, 2025"; // TODO: Set to launch date
+  const DPO_EMAIL = "legal@localelore.org"; // Data Protection Officer (if required for your size/location)
+  const EFFECTIVE_DATE = "November 22, 2025"; // TODO: Set to launch date
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
