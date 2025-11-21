@@ -55,11 +55,11 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    // Single contributor pricing at $1.97/month
-    const contributorPlan = { 
-      amount: 197, 
-      name: "Contributor", 
-      features: ["Submit facts", "Comment and interact", "Participate in gamification", "Join the community"] 
+    // Single contributor pricing at $4.97/month
+    const contributorPlan = {
+      amount: 497,
+      name: "Contributor",
+      features: ["Submit facts", "Comment and interact", "Participate in gamification", "Join the community"]
     };
 
     const sessionConfig: any = {

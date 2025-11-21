@@ -77,9 +77,9 @@ export const Submit: React.FC = () => {
   const handleUpgrade = async () => {
     try {
       const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
-        body: { 
+        body: {
           type: 'subscription',
-          trialDays: 7
+          trialDays: 3
         }
       });
 

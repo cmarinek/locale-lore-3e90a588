@@ -81,10 +81,10 @@ export const SubscriptionManager = ({ subscription, onRefresh, loading }: Subscr
     setActionLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
-        body: { 
+        body: {
           tier,
           type: 'subscription',
-          trialDays: 14
+          trialDays: 3
         }
       });
 

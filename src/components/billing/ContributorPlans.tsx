@@ -38,7 +38,7 @@ export const ContributorPlans: React.FC = () => {
       const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
         body: { 
           type: 'subscription',
-          trialDays: trialDays || 7,
+          trialDays: trialDays || 3,
           promoCode: promoCode || undefined
         }
       });
@@ -68,7 +68,7 @@ export const ContributorPlans: React.FC = () => {
           Become a Contributor
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Join our community of knowledge sharers. Browse for free, contribute for just <span className="font-bold text-primary">$1.97/month</span>.
+          Join our community of knowledge sharers. Browse for free, contribute for just <span className="font-bold text-primary">$4.97/month</span>.
         </p>
       </div>
 
@@ -122,7 +122,7 @@ export const ContributorPlans: React.FC = () => {
             </div>
             <CardTitle>Contributor</CardTitle>
             <div className="text-3xl font-bold">
-              $1.97
+              $4.97
               <span className="text-sm font-normal text-muted-foreground">/month</span>
             </div>
           </CardHeader>
@@ -151,10 +151,10 @@ export const ContributorPlans: React.FC = () => {
               </li>
             </ul>
             <Button
-              onClick={() => handleSubscribe(7)}
+              onClick={() => handleSubscribe(3)}
               disabled={loading}
               className="w-full"
-              aria-label="Start 7-day free trial for contributor subscription"
+              aria-label="Start 3-day free trial for contributor subscription"
             >
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -248,7 +248,7 @@ export const ContributorPlans: React.FC = () => {
           <div>
             <h4 className="font-semibold">What happens after the free trial?</h4>
             <p className="text-sm text-muted-foreground">
-              After your 7-day free trial, you'll be automatically charged $1.97/month. You can cancel before the trial ends to avoid charges.
+              After your 3-day free trial, you'll be automatically charged $4.97/month. You can cancel before the trial ends to avoid charges.
             </p>
           </div>
           <div>
