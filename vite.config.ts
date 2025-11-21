@@ -29,7 +29,13 @@ export default defineConfig(({ mode }) => ({
       "scheduler": path.resolve(__dirname, "./node_modules/scheduler"),
     },
     // Optimize React context resolution - prevent multiple React instances
-    dedupe: ["react", "react-dom", "react/jsx-runtime", "scheduler"],
+    dedupe: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "scheduler",
+      "@tanstack/react-query"
+    ],
     // Ensure contexts are resolved consistently
     conditions: ['import', 'module', 'browser', 'default'],
   },
@@ -46,22 +52,31 @@ export default defineConfig(({ mode }) => ({
         // Don't manually chunk React - keep it in main bundle to prevent initialization errors
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // Keep React, scheduler, and React-dependent libraries in main bundle
-            if (id.includes('react') || id.includes('scheduler') || id.includes('@radix-ui')) {
-              // Don't chunk these - they need to be in the same bundle
+            // Keep React ecosystem in main bundle - these all need access to React internals
+            if (
+              id.includes('react') ||
+              id.includes('scheduler') ||
+              id.includes('@radix-ui') ||
+              id.includes('@tanstack/react-query') ||
+              id.includes('react-error-boundary') ||
+              id.includes('react-router') ||
+              id.includes('react-i18next') ||
+              id.includes('framer-motion')
+            ) {
+              // Don't chunk these - they need to be in the same bundle as React
               return undefined;
             }
 
+            // Large independent libraries
             if (id.includes('mapbox')) {
               return 'map-vendor';
             }
 
-            // Large independent libraries that don't depend on React internals
             if (id.includes('lucide-react')) {
               return 'ui-vendor';
             }
 
-            // Other vendor code
+            // Other vendor code that doesn't depend on React internals
             return 'vendor';
           }
         }
