@@ -166,10 +166,18 @@ export function useNavigationItems() {
         category: 'primary'
       },
       {
-        id: 'explore',
-        label: t('explore'),
-        path: '/explore',
-        icon: Compass,
+        id: 'map',
+        label: 'Map',
+        path: '/map',
+        icon: MapPin,
+        description: 'Explore stories on map',
+        category: 'primary'
+      },
+      {
+        id: 'stories',
+        label: t('stories'),
+        path: '/stories',
+        icon: Camera,
         category: 'primary'
       },
       {
@@ -177,14 +185,6 @@ export function useNavigationItems() {
         label: t('submit'),
         path: '/submit',
         icon: Plus,
-        requiresAuth: true,
-        category: 'primary'
-      },
-      {
-        id: 'billing',
-        label: t('billing'),
-        path: '/billing',
-        icon: Wallet,
         requiresAuth: true,
         category: 'primary'
       },
@@ -208,10 +208,11 @@ export function useNavigationItems() {
         category: 'primary'
       },
       {
-        id: 'explore',
-        label: t('explore'),
-        path: '/explore',
-        icon: Compass,
+        id: 'map',
+        label: 'Map',
+        path: '/map',
+        icon: MapPin,
+        description: 'Explore stories on map',
         category: 'primary'
       },
       {

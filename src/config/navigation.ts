@@ -1,8 +1,8 @@
-import { 
-  Home, 
-  Compass, 
-  Search, 
-  Plus, 
+import {
+  Home,
+  Compass,
+  Search,
+  Plus,
   User,
   Camera,
   Users,
@@ -14,7 +14,8 @@ import {
   FileText,
   Share2,
   BarChart3,
-  Star
+  Star,
+  MapPin
 } from 'lucide-react';
 import { NavigationItem, NavigationConfig, UserRole } from '@/types/navigation';
 
@@ -35,6 +36,14 @@ function getCoreNavigation(): NavigationItem[] {
     path: '/explore',
     icon: Compass,
     description: 'Browse stories by location',
+    category: 'primary'
+  },
+  {
+    id: 'map',
+    label: 'Map',
+    path: '/map',
+    icon: MapPin,
+    description: 'Explore stories on interactive map',
     category: 'primary'
   },
   {
@@ -159,18 +168,11 @@ function getMobilePrimaryNavigation(): NavigationItem[] {
     category: 'primary'
   },
   {
-    id: 'explore',
-    label: 'Explore',
-    path: '/explore',
-    icon: Compass,
-    category: 'primary'
-  },
-  {
-    id: 'create',
-    label: 'Create',
-    path: '/submit',
-    icon: Plus,
-    requiresAuth: true,
+    id: 'map',
+    label: 'Map',
+    path: '/map',
+    icon: MapPin,
+    description: 'Explore stories on map',
     category: 'primary'
   },
   {
@@ -179,6 +181,14 @@ function getMobilePrimaryNavigation(): NavigationItem[] {
     path: '/stories',
     icon: Camera,
     category: 'primary' // Remove requiresAuth - everyone can view stories
+  },
+  {
+    id: 'create',
+    label: 'Create',
+    path: '/submit',
+    icon: Plus,
+    requiresAuth: true,
+    category: 'primary'
   },
   {
     id: 'profile',
@@ -202,10 +212,11 @@ function getGuestNavigation(): NavigationItem[] {
     category: 'primary'
   },
   {
-    id: 'explore',
-    label: 'Explore',
-    path: '/explore',
-    icon: Compass,
+    id: 'map',
+    label: 'Map',
+    path: '/map',
+    icon: MapPin,
+    description: 'Explore stories on map',
     category: 'primary'
   },
   {
