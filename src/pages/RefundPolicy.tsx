@@ -3,9 +3,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
 const RefundPolicy = () => {
-  const BUSINESS_NAME = "[YOUR LEGAL ENTITY NAME]"; // e.g., "LocaleLore LLC"
+  const BUSINESS_NAME = "Ascend Leads LLC dba Localelore"; // e.g., "LocaleLore LLC"
   const SUPPORT_EMAIL = "support@localelore.org"; // ✅ CONFIGURED
-  const EFFECTIVE_DATE = "December 1, 2025"; // TODO: Set to launch date
+  const EFFECTIVE_DATE = "November 22, 2025"; // TODO: Set to launch date
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
