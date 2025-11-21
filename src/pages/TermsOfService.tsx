@@ -4,13 +4,13 @@ import { AlertCircle } from "lucide-react";
 
 const TermsOfService = () => {
   // TODO: Update these remaining values with actual business information
-  const BUSINESS_NAME = "[YOUR LEGAL ENTITY NAME]"; // e.g., "LocaleLore LLC" or "John Doe DBA LocaleLore"
-  const BUSINESS_ADDRESS = "[YOUR REGISTERED ADDRESS]"; // Your registered business address
+  const BUSINESS_NAME = "Ascend Leads DBA Localelore"; // e.g., "LocaleLore LLC" or "John Doe DBA LocaleLore"
+  const BUSINESS_ADDRESS = "2715 East Lehigh Avenue, Philadelphia, PA. 19125"; // Your registered business address
   const SUPPORT_EMAIL = "support@localelore.org"; // ✅ CONFIGURED
   const LEGAL_EMAIL = "legal@localelore.org"; // TODO: Set up email forwarding
   const PRIVACY_EMAIL = "privacy@localelore.org"; // TODO: Set up email forwarding
-  const EFFECTIVE_DATE = "December 1, 2025"; // TODO: Set to launch date (typically 2 weeks notice)
-  const JURISDICTION = "[YOUR STATE/COUNTRY]"; // e.g., "Delaware" or "California"
+  const EFFECTIVE_DATE = "November 22, 2025"; // TODO: Set to launch date (typically 2 weeks notice)
+  const JURISDICTION = "Pennsylvania"; // e.g., "Delaware" or "California"
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
