@@ -23,12 +23,13 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Enforce single React instance
+      // Enforce single React instance and scheduler
       "react": path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      "scheduler": path.resolve(__dirname, "./node_modules/scheduler"),
     },
     // Optimize React context resolution - prevent multiple React instances
-    dedupe: ["react", "react-dom", "react/jsx-runtime"],
+    dedupe: ["react", "react-dom", "react/jsx-runtime", "scheduler"],
     // Ensure contexts are resolved consistently
     conditions: ['import', 'module', 'browser', 'default'],
   },
@@ -45,16 +46,23 @@ export default defineConfig(({ mode }) => ({
         // Don't manually chunk React - keep it in main bundle to prevent initialization errors
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
+            // Keep React, scheduler, and React-dependent libraries in main bundle
+            if (id.includes('react') || id.includes('scheduler') || id.includes('@radix-ui')) {
+              // Don't chunk these - they need to be in the same bundle
+              return undefined;
+            }
+
             if (id.includes('mapbox')) {
               return 'map-vendor';
             }
-            if (id.includes('@radix-ui')) {
+
+            // Large independent libraries that don't depend on React internals
+            if (id.includes('lucide-react')) {
               return 'ui-vendor';
             }
-            // Only split non-React vendor code
-            if (!id.includes('react')) {
-              return 'vendor';
-            }
+
+            // Other vendor code
+            return 'vendor';
           }
         }
       },
@@ -67,6 +75,8 @@ export default defineConfig(({ mode }) => ({
       "react",
       "react-dom",
       "react/jsx-runtime",
+      "scheduler",
+      "scheduler/tracing",
       "@tanstack/react-query",
       "clsx",
       "tailwind-merge",
