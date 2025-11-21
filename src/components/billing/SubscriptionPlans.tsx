@@ -24,53 +24,41 @@ export const SubscriptionPlans: React.FC = () => {
 
   const subscriptionTiers = React.useMemo(() => [
     {
-      id: 'basic',
-      name: 'Basic Contributor',
-      price: '$9.99',
-      priceAmount: 999,
+      id: 'free',
+      name: 'Free Explorer',
+      price: 'Free',
+      priceAmount: 0,
       icon: Star,
       features: [
-        'Submit up to 50 facts per month',
-        'Basic search functionality',
-        'Standard support',
-        'Mobile app access',
-        'Comment on facts',
+        'Browse all facts and stories',
+        'Explore interactive maps',
+        'Search and discover content',
+        'Read community contributions',
+        'View photos and media',
+        'Access mobile app',
       ],
-      trial: true,
+      isFree: true,
     },
     {
-      id: 'premium',
-      name: 'Premium Contributor',
-      price: '$19.99',
-      priceAmount: 1999,
+      id: 'contributor',
+      name: 'Contributor',
+      price: '$4.97',
+      priceAmount: 497,
       icon: Crown,
       features: [
+        'Everything in Free, plus:',
         'Unlimited fact submissions',
+        'Comment and discuss',
+        'Vote on content',
         'Advanced search and filters',
-        'Priority support',
-        'Early access to new features',
         'Custom profile themes',
         'Enhanced discovery radius',
-        'Export data',
+        'Priority support',
+        'Export your data',
+        'Early access to new features',
+        'Analytics dashboard',
       ],
       popular: true,
-      trial: true,
-    },
-    {
-      id: 'pro',
-      name: 'Pro Contributor',
-      price: '$29.99',
-      priceAmount: 2999,
-      icon: Zap,
-      features: [
-        'All Premium features',
-        'Advanced analytics dashboard',
-        'API access',
-        'White-label options',
-        'Dedicated account manager',
-        'Custom integrations',
-        'Unlimited exports',
-      ],
       trial: true,
     },
   ], []);
@@ -114,41 +102,6 @@ export const SubscriptionPlans: React.FC = () => {
     }
   };
 
-  const handleOneTimePayment = async (feature: string, amount: number) => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to make a purchase.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
-        body: { 
-          tier: feature,
-          type: 'payment'
-        }
-      });
-
-      if (error) throw error;
-
-      if (data.url) {
-        window.open(data.url, '_blank');
-      }
-    } catch (error: any) {
-      console.error('Error creating payment:', error);
-      toast({
-        title: "Payment failed",
-        description: error.message || "Failed to create payment session. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="space-y-8">
@@ -179,13 +132,13 @@ export const SubscriptionPlans: React.FC = () => {
       </Card>
 
       {/* Subscription Plans */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto">
         {subscriptionTiers.map((tier) => {
           const Icon = tier.icon;
-          
+
           return (
-            <Card 
-              key={tier.id} 
+            <Card
+              key={tier.id}
               className={`relative transition-all duration-200 hover:shadow-lg ${
                 tier.popular ? 'border-primary shadow-lg scale-105' : ''
               }`}
@@ -203,7 +156,9 @@ export const SubscriptionPlans: React.FC = () => {
                 <CardTitle>{tier.name}</CardTitle>
                 <div className="text-3xl font-bold">
                   {tier.price}
-                  <span className="text-sm font-normal text-muted-foreground">/month</span>
+                  {!tier.isFree && (
+                    <span className="text-sm font-normal text-muted-foreground">/month</span>
+                  )}
                 </div>
                 {tier.trial && (
                   <Badge variant="secondary" className="mt-2">
@@ -222,81 +177,37 @@ export const SubscriptionPlans: React.FC = () => {
                   ))}
                 </ul>
 
-                <Button
-                  onClick={() => handleSubscribe(tier.id, tier.trial ? 3 : undefined)}
-                  disabled={loading}
-                  className="w-full"
-                  variant={tier.popular ? "default" : "outline"}
-                >
-                  {loading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <>
-                      <Crown className="mr-2 h-4 w-4" />
-                      Start {tier.trial ? 'Free Trial' : 'Subscription'}
-                    </>
-                  )}
-                </Button>
+                {tier.isFree ? (
+                  <Button
+                    disabled
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Current Plan
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => handleSubscribe(tier.id, tier.trial ? 3 : undefined)}
+                    disabled={loading}
+                    className="w-full"
+                    variant={tier.popular ? "default" : "outline"}
+                  >
+                    {loading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Crown className="mr-2 h-4 w-4" />
+                        Start {tier.trial ? 'Free Trial' : 'Subscription'}
+                      </>
+                    )}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           );
         })}
       </div>
-
-      {/* One-time Purchases */}
-      <Card>
-        <CardHeader>
-          <CardTitle>One-time Purchases</CardTitle>
-          <CardDescription>
-            Unlock specific features without a subscription
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="border rounded-lg p-4">
-              <h3 className="font-semibold mb-2">Premium Feature Pack</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Unlock advanced search, custom themes, and priority support for lifetime
-              </p>
-              <div className="flex items-center justify-between">
-                <span className="text-xl font-bold">$49.99</span>
-                <Button
-                  onClick={() => handleOneTimePayment('premium_feature', 4999)}
-                  disabled={loading}
-                  variant="outline"
-                >
-                  {loading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    'Purchase'
-                  )}
-                </Button>
-              </div>
-            </div>
-            
-            <div className="border rounded-lg p-4">
-              <h3 className="font-semibold mb-2">Advanced Analytics</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Get detailed insights and reporting on your contributions
-              </p>
-              <div className="flex items-center justify-between">
-                <span className="text-xl font-bold">$99.99</span>
-                <Button
-                  onClick={() => handleOneTimePayment('advanced_analytics', 9999)}
-                  disabled={loading}
-                  variant="outline"
-                >
-                  {loading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    'Purchase'
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* FAQ Section */}
       <Card>
@@ -305,21 +216,27 @@ export const SubscriptionPlans: React.FC = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <h4 className="font-semibold">Can I cancel anytime?</h4>
+            <h4 className="font-semibold">What's included in the free plan?</h4>
             <p className="text-sm text-muted-foreground">
-              Yes, you can cancel your subscription at any time. You'll continue to have access until the end of your billing period.
+              The free plan lets you explore everything - browse all facts, view maps, search content, and enjoy the full LocaleLore experience as a reader.
             </p>
           </div>
           <div>
             <h4 className="font-semibold">What happens after the free trial?</h4>
             <p className="text-sm text-muted-foreground">
-              After your 3-day free trial, you'll be automatically charged for your selected plan. You can cancel before the trial ends to avoid charges.
+              After your 3-day free trial, you'll be automatically charged $4.97/month. You can cancel anytime before the trial ends to avoid charges.
             </p>
           </div>
           <div>
-            <h4 className="font-semibold">Can I upgrade or downgrade my plan?</h4>
+            <h4 className="font-semibold">Can I cancel anytime?</h4>
             <p className="text-sm text-muted-foreground">
-              Yes, you can change your plan at any time from your billing dashboard. Changes take effect immediately with prorated billing.
+              Yes! Cancel your Contributor subscription at any time. You'll continue to have access until the end of your billing period, then automatically return to the free plan.
+            </p>
+          </div>
+          <div>
+            <h4 className="font-semibold">Why become a Contributor?</h4>
+            <p className="text-sm text-muted-foreground">
+              Contributors can submit unlimited facts, share their local knowledge, engage with the community, and help build the world's most comprehensive location-based storytelling platform.
             </p>
           </div>
         </CardContent>
