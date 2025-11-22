@@ -24,6 +24,7 @@ import { TourDetailsPanel } from '@/components/map/TourDetailsPanel';
 import { TourWaypoint, TravelMode, FactTour } from '@/types/tour';
 import { directionsService } from '@/services/directionsService';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export const Map: React.FC = () => {
   const [searchParams] = useSearchParams();
