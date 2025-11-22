@@ -18,6 +18,7 @@ import { geocodingService } from '@/services/geocodingService';
 import { getRadiusForZoom } from '@/types/location';
 import { filterByRadius, sortByDistance, addDistanceToItems } from '@/utils/distanceUtils';
 import { MapFilters, DistanceFilter, SortOption } from '@/components/map/MapFilters';
+import { MapSidePanel } from '@/components/map/MapSidePanel';
 
 export const Map: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -35,6 +36,9 @@ export const Map: React.FC = () => {
   const [distanceFilter, setDistanceFilter] = useState<DistanceFilter>(999999); // Anywhere
   const [sortBy, setSortBy] = useState<SortOption>('distance');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+
+  // Side panel state
+  const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
 
   const handleFactClick = (fact: any) => {
     const enhancedFact = {
@@ -74,6 +78,17 @@ export const Map: React.FC = () => {
   const handleCloseModal = () => {
     setSelectedFact(null);
     setSelectedMarkerId(null);
+  };
+
+  const handleCardClick = (fact: any) => {
+    setSelectedFact(fact);
+    setSelectedMarkerId(fact.id);
+  };
+
+  const handleNavigateToFact = (fact: any) => {
+    setCenter([fact.longitude, fact.latitude]);
+    setZoom(16);
+    setSelectedMarkerId(fact.id);
   };
 
   const handleSearch = (query: string) => {
@@ -264,6 +279,12 @@ export const Map: React.FC = () => {
       });
     }
 
+    // 5. Add distance information if location is set
+    if (userLocation || currentLocation) {
+      const [lng, lat] = userLocation || center;
+      result = addDistanceToItems(result, lat, lng);
+    }
+
     return result;
   }, [facts, searchQuery, categoryFilter, distanceFilter, sortBy, userLocation, currentLocation, center]);
 
@@ -301,8 +322,29 @@ export const Map: React.FC = () => {
           <link rel="canonical" href="/map" />
         </Helmet>
 
-        {/* Full-height map container - adjust for header */}
-        <div className="fixed top-16 left-0 right-0 bottom-0 bg-background overflow-hidden">
+        {/* Side Panel - Desktop only, shown when filters are active */}
+        <div className="hidden md:block">
+          <MapSidePanel
+            facts={filteredFacts}
+            selectedFactId={selectedMarkerId}
+            isOpen={isSidePanelOpen && (userLocation !== null || currentLocation !== null)}
+            onToggle={() => setIsSidePanelOpen(!isSidePanelOpen)}
+            onFactClick={handleCardClick}
+            onNavigateToFact={handleNavigateToFact}
+            title={currentLocation || 'Results'}
+            subtitle={`${filteredFacts.length} ${filteredFacts.length === 1 ? 'story' : 'stories'} found`}
+          />
+        </div>
+
+        {/* Full-height map container - adjust for header and side panel */}
+        <div
+          className={cn(
+            'fixed top-16 right-0 bottom-0 bg-background overflow-hidden transition-all duration-300',
+            isSidePanelOpen && (userLocation !== null || currentLocation !== null)
+              ? 'left-96'
+              : 'left-0'
+          )}
+        >
 
         {/* Map View */}
         {(viewMode === 'map' || viewMode === 'hybrid') && (
