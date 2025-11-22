@@ -1,4 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { AppProviders } from '@/components/app/AppProviders';
 import { AppLayout } from '@/components/app/AppLayout';
 import { AppRoutes } from '@/components/app/AppRoutes';
@@ -21,6 +22,7 @@ function App() {
           </BrowserRouter>
         </AppProviders>
       </ConfigurationValidator>
+      <SpeedInsights />
     </ChunkErrorBoundary>
   );
 }
