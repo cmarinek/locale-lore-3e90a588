@@ -16,12 +16,13 @@ import { MapPin, Crosshair } from 'lucide-react';
 import { Place } from '@/types/location';
 import { geocodingService } from '@/services/geocodingService';
 import { getRadiusForZoom } from '@/types/location';
-import { filterByRadius } from '@/utils/distanceUtils';
+import { filterByRadius, sortByDistance, addDistanceToItems } from '@/utils/distanceUtils';
+import { MapFilters, DistanceFilter, SortOption } from '@/components/map/MapFilters';
 
 export const Map: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { facts, selectedFact, setSelectedFact, fetchFactById, initializeData } = useDiscoveryStore();
+  const { facts, selectedFact, setSelectedFact, fetchFactById, initializeData, categories } = useDiscoveryStore();
   const { center, zoom, setCenter, setZoom, selectedMarkerId, setSelectedMarkerId } = useMapStore();
   const [viewMode, setViewMode] = useState<'map' | 'list' | 'hybrid'>('map');
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,6 +30,11 @@ export const Map: React.FC = () => {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [currentLocation, setCurrentLocation] = useState<string | null>(null);
   const [factsInView, setFactsInView] = useState<number>(0);
+
+  // Filter state
+  const [distanceFilter, setDistanceFilter] = useState<DistanceFilter>(999999); // Anywhere
+  const [sortBy, setSortBy] = useState<SortOption>('distance');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   const handleFactClick = (fact: any) => {
     const enhancedFact = {
@@ -105,13 +111,33 @@ export const Map: React.FC = () => {
   const handleCenterOnLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords;
           const location: [number, number] = [longitude, latitude];
           setUserLocation(location);
           setCenter(location);
           setZoom(14);
+
+          // Auto-load nearby facts
+          const radius = distanceFilter === 999999 ? 5 : distanceFilter; // Default 5 miles
+          const nearbyFacts = filterByRadius(facts, latitude, longitude, radius);
+
+          // Reverse geocode to get place name
+          try {
+            const place = await geocodingService.reverseGeocode(longitude, latitude);
+            if (place) {
+              setCurrentLocation(place.full_name);
+            } else {
+              setCurrentLocation('Your location');
+            }
+          } catch (error) {
+            console.error('❌ [Map] Reverse geocode error:', error);
+            setCurrentLocation('Your location');
+          }
+
+          setFactsInView(nearbyFacts.length);
           console.log(`📍 [Map] Centered on user location: ${latitude}, ${longitude}`);
+          console.log(`📊 [Map] Found ${nearbyFacts.length} facts within ${radius} miles`);
         },
         (error) => {
           console.error('❌ [Map] Geolocation error:', error);
@@ -187,17 +213,59 @@ export const Map: React.FC = () => {
     }
   }, [selectedMarkerId, setSelectedFact, fetchFactById]);
 
-  // Filter facts based on search query
+  // Filter and sort facts based on all criteria
   const filteredFacts = React.useMemo(() => {
-    if (!searchQuery.trim()) return facts;
-    
-    const lowerQuery = searchQuery.toLowerCase();
-    return facts.filter(fact => 
-      fact.title.toLowerCase().includes(lowerQuery) ||
-      fact.description?.toLowerCase().includes(lowerQuery) ||
-      fact.location_name?.toLowerCase().includes(lowerQuery)
-    );
-  }, [facts, searchQuery]);
+    let result = [...facts];
+
+    // 1. Apply search query filter
+    if (searchQuery.trim()) {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter(
+        (fact) =>
+          fact.title.toLowerCase().includes(lowerQuery) ||
+          fact.description?.toLowerCase().includes(lowerQuery) ||
+          fact.location_name?.toLowerCase().includes(lowerQuery)
+      );
+    }
+
+    // 2. Apply category filter
+    if (categoryFilter && categoryFilter !== 'all') {
+      result = result.filter((fact) => fact.category_id === categoryFilter);
+    }
+
+    // 3. Apply distance filter (if user location or current location is set)
+    if (distanceFilter !== 999999) {
+      const centerPoint = userLocation || (currentLocation && center);
+      if (centerPoint) {
+        const [lng, lat] = Array.isArray(centerPoint) ? centerPoint : center;
+        result = filterByRadius(result, lat, lng, distanceFilter);
+      }
+    }
+
+    // 4. Apply sorting
+    if (sortBy === 'distance' && (userLocation || currentLocation)) {
+      const [lng, lat] = userLocation || center;
+      result = sortByDistance(result, lat, lng);
+    } else if (sortBy === 'recent') {
+      result.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    } else if (sortBy === 'popular') {
+      result.sort(
+        (a, b) =>
+          (b.vote_count_up || 0) - (b.vote_count_down || 0) -
+          ((a.vote_count_up || 0) - (a.vote_count_down || 0))
+      );
+    } else if (sortBy === 'verified') {
+      result.sort((a, b) => {
+        if (a.status === 'verified' && b.status !== 'verified') return -1;
+        if (a.status !== 'verified' && b.status === 'verified') return 1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [facts, searchQuery, categoryFilter, distanceFilter, sortBy, userLocation, currentLocation, center]);
 
   // Calculate stats
   const totalStories = filteredFacts.length;
@@ -288,6 +356,26 @@ export const Map: React.FC = () => {
               >
                 <Crosshair className="h-5 w-5" />
               </Button>
+            )}
+
+            {/* Filters - Compact mode on right side */}
+            {!isMapLoading && (userLocation || currentLocation) && (
+              <div className="fixed top-48 right-4 z-20">
+                <MapFilters
+                  distanceFilter={distanceFilter}
+                  onDistanceChange={setDistanceFilter}
+                  sortBy={sortBy}
+                  onSortChange={setSortBy}
+                  categoryFilter={categoryFilter}
+                  onCategoryChange={setCategoryFilter}
+                  categories={categories.map((cat) => ({
+                    id: cat.id,
+                    name: cat.category_translations?.[0]?.name || cat.slug,
+                    icon: cat.icon,
+                  }))}
+                  compact={true}
+                />
+              </div>
             )}
           </div>
         )}
