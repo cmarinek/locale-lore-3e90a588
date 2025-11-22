@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { DiscussionThread } from '@/components/verification/DiscussionThread';
 import { SwipeToVote } from '@/components/verification/SwipeToVote';
@@ -307,6 +308,44 @@ export const Fact: React.FC = () => {
 
   return (
     <MainLayout>
+      {/* SEO and Social Media Meta Tags */}
+      <Helmet>
+        <title>{fact.title} | LocaleLore</title>
+        <meta name="description" content={fact.description.substring(0, 160)} />
+
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={fact.title} />
+        <meta property="og:description" content={fact.description.substring(0, 200)} />
+        <meta property="og:url" content={`${window.location.origin}/fact/${fact.id}`} />
+        {fact.media_urls && fact.media_urls[0] && (
+          <meta property="og:image" content={fact.media_urls[0]} />
+        )}
+        <meta property="og:site_name" content="LocaleLore" />
+        <meta property="article:author" content={fact.profiles.username} />
+        <meta property="article:published_time" content={fact.created_at} />
+        <meta property="article:modified_time" content={fact.updated_at} />
+        {fact.tags && fact.tags.map((tag, index) => (
+          <meta key={index} property="article:tag" content={tag} />
+        ))}
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={fact.title} />
+        <meta name="twitter:description" content={fact.description.substring(0, 200)} />
+        {fact.media_urls && fact.media_urls[0] && (
+          <meta name="twitter:image" content={fact.media_urls[0]} />
+        )}
+
+        {/* Additional Meta */}
+        <meta name="geo.position" content={`${fact.latitude};${fact.longitude}`} />
+        <meta name="geo.placename" content={fact.location_name} />
+        <meta name="geo.region" content={fact.location_name} />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href={`${window.location.origin}/fact/${fact.id}`} />
+      </Helmet>
+
       <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
