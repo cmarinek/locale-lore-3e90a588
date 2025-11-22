@@ -34,35 +34,44 @@ export const LocationNavigationButton: React.FC<LocationNavigationButtonProps> =
     // Critical: Stop event propagation to prevent card click
     e.stopPropagation();
     e.preventDefault();
-    
-    console.log('Location button clicked:', { latitude, longitude, locationName });
-    
+
+    console.log('Location button clicked:', { latitude, longitude, locationName, factId });
+
     const currentPath = location.pathname;
-    
-    // Set the map center coordinates
-    console.log('Setting map center to:', [longitude, latitude]);
-    setCenter([longitude, latitude]);
-    setSelectedFact(null); // Clear any selected fact when navigating
-    setSelectedMarkerId(null); // Clear map selection
-    
-    if (currentPath === '/hybrid') {
+
+    // Build URL parameters for navigation
+    const params = new URLSearchParams();
+    params.set('lat', latitude.toString());
+    params.set('lng', longitude.toString());
+    params.set('zoom', '15');
+    if (factId) {
+      params.set('factId', factId);
+    }
+
+    if (currentPath === '/map') {
+      // If already on map page, just update the URL params and state
+      console.log('Already on map page, updating URL parameters');
+      setCenter([longitude, latitude]);
+      if (factId) {
+        setSelectedMarkerId(factId);
+      }
+      navigate(`/map?${params.toString()}`, { replace: true });
+      toast.success(`Centered map on ${locationName || 'location'}`);
+    } else if (currentPath === '/hybrid') {
       // If on hybrid page, just center the map and switch to map tab
       console.log('On hybrid page, centering map and switching to map tab');
-      
+      setCenter([longitude, latitude]);
+      if (factId) {
+        setSelectedMarkerId(factId);
+      }
       // Dispatch custom event to switch to map tab
       window.dispatchEvent(new CustomEvent('switch-to-map-tab'));
-      
-      toast.success(`Centered map on ${locationName || 'location'}`);
-      // If already on map page, just center the map
-      console.log('Already on map page, centering map');
       toast.success(`Centered map on ${locationName || 'location'}`);
     } else {
-      // Navigate to map view for map centering
-      console.log('Navigating to map page');
-      navigate('/map', { 
-        state: { centerMap: [longitude, latitude], locationName } 
-      });
-      toast.success(`Navigating to map view`);
+      // Navigate to map view with URL parameters
+      console.log('Navigating to map page with params:', params.toString());
+      navigate(`/map?${params.toString()}`);
+      toast.success(`Opening ${locationName || 'location'} on map`);
     }
   };
 
