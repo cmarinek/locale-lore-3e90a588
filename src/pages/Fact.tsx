@@ -53,6 +53,7 @@ interface Fact {
   tags?: string[];
   source_url?: string;
   time_period?: string;
+  view_count?: number;
   profiles: {
     id: string;
     username: string;
@@ -111,6 +112,18 @@ export const Fact: React.FC = () => {
 
       if (error) throw error;
       setFact(data);
+
+      // Increment view count (fire and forget - don't wait for response)
+      if (data?.id) {
+        supabase.rpc('increment_fact_view_count', { fact_id: data.id })
+          .then(({ data: newCount }) => {
+            // Update local state with new view count
+            if (newCount !== null) {
+              setFact(prev => prev ? { ...prev, view_count: newCount } : null);
+            }
+          })
+          .catch(err => console.warn('Failed to increment view count:', err));
+      }
     } catch (error) {
       console.error('Error loading fact:', error);
       toast({
@@ -464,11 +477,11 @@ export const Fact: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-1 text-sm">
                         <MessageCircle className="w-4 h-4" />
-                        {/* Comment count would go here */}
+                        <span className="text-muted-foreground">Comments</span>
                       </div>
                       <div className="flex items-center gap-1 text-sm">
                         <Eye className="w-4 h-4" />
-                        {/* View count would go here */}
+                        {fact.view_count || 0}
                       </div>
                     </div>
 
