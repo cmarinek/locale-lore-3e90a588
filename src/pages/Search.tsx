@@ -66,7 +66,13 @@ export const Search: React.FC = () => {
   // Initialize search from URL params
   useEffect(() => {
     const urlQuery = searchParams.get('q');
-    if (urlQuery && urlQuery !== query) {
+    const urlTag = searchParams.get('tag');
+
+    if (urlTag) {
+      // If tag parameter exists, search by tag
+      setQuery(`#${urlTag}`);
+      performTagSearch(urlTag);
+    } else if (urlQuery && urlQuery !== query) {
       setQuery(urlQuery);
       performSearch(urlQuery, filters, 1, 'relevance');
     }
@@ -121,6 +127,58 @@ export const Search: React.FC = () => {
       setLoading(false);
     }
   }, [user, sortBy, toast]);
+
+  const performTagSearch = useCallback(async (tag: string) => {
+    try {
+      setLoading(true);
+
+      // Direct database query for tag-based search
+      const { data, error } = await supabase
+        .from('facts')
+        .select(`
+          id,
+          title,
+          description,
+          location_name,
+          latitude,
+          longitude,
+          created_at,
+          vote_count_up,
+          vote_count_down,
+          status,
+          media_urls,
+          profiles!facts_author_id_fkey(
+            username,
+            avatar_url
+          ),
+          categories!facts_category_id_fkey(
+            slug,
+            icon,
+            color
+          )
+        `)
+        .contains('tags', [tag])
+        .order('vote_count_up', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+
+      setResults(data || []);
+      setTotal(data?.length || 0);
+      setHasMore(false);
+      setPage(1);
+
+    } catch (error) {
+      console.error('Tag search error:', error);
+      toast({
+        title: "Tag search failed",
+        description: "Please try again",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
 
   const handleSearch = (searchQuery: string, searchFilters: SearchFilters) => {
     setQuery(searchQuery);
