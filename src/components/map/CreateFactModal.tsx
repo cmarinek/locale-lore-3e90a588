@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { MapPin, Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MapPin, Loader2, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 
-interface CreateStoryModalProps {
+interface CreateFactModalProps {
   open: boolean;
   onClose: () => void;
   latitude: number;
@@ -17,13 +18,21 @@ interface CreateStoryModalProps {
   locationName?: string;
 }
 
-const storySchema = z.object({
+interface Category {
+  id: string;
+  slug: string;
+  icon: string;
+  category_translations: Array<{ name: string; language_code: string }>;
+}
+
+const factSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
   description: z.string().trim().min(10, 'Description must be at least 10 characters').max(2000, 'Description must be less than 2000 characters'),
-  locationName: z.string().trim().min(1, 'Location name is required').max(200, 'Location name must be less than 200 characters')
+  locationName: z.string().trim().min(1, 'Location name is required').max(200, 'Location name must be less than 200 characters'),
+  categoryId: z.string().min(1, 'Please select a category')
 });
 
-export const CreateStoryModal: React.FC<CreateStoryModalProps> = ({
+export const CreateFactModal: React.FC<CreateFactModalProps> = ({
   open,
   onClose,
   latitude,
@@ -33,17 +42,54 @@ export const CreateStoryModal: React.FC<CreateStoryModalProps> = ({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [locationName, setLocationName] = useState(initialLocationName);
+  const [categoryId, setCategoryId] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
+
+  // Load categories on mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('categories')
+          .select('id, slug, icon, category_translations(name, language_code)')
+          .order('slug');
+
+        if (error) throw error;
+
+        setCategories(data as Category[] || []);
+      } catch (error) {
+        console.error('Error loading categories:', error);
+        toast({
+          title: 'Warning',
+          description: 'Failed to load categories. Please refresh the page.',
+          variant: 'destructive'
+        });
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    if (open) {
+      loadCategories();
+    }
+  }, [open, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
 
     // Validate input
-    const validation = storySchema.safeParse({ title, description, locationName });
-    
+    const validation = factSchema.safeParse({
+      title,
+      description,
+      locationName,
+      categoryId
+    });
+
     if (!validation.success) {
       const fieldErrors: Record<string, string> = {};
       validation.error.errors.forEach((err) => {
@@ -59,22 +105,15 @@ export const CreateStoryModal: React.FC<CreateStoryModalProps> = ({
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         toast({
           title: 'Authentication required',
-          description: 'Please sign in to create a story',
+          description: 'Please sign in to submit a fact',
           variant: 'destructive'
         });
         return;
       }
-
-      // Get a default category (you may want to add category selection)
-      const { data: categories } = await supabase
-        .from('categories')
-        .select('id')
-        .limit(1)
-        .single();
 
       const { error } = await supabase
         .from('facts')
@@ -85,27 +124,28 @@ export const CreateStoryModal: React.FC<CreateStoryModalProps> = ({
           latitude,
           longitude,
           author_id: user.id,
-          category_id: categories?.id || null,
+          category_id: validation.data.categoryId,
           status: 'pending'
         });
 
       if (error) throw error;
 
       toast({
-        title: 'Story created!',
-        description: 'Your story has been submitted and is pending verification',
+        title: 'Fact submitted!',
+        description: 'Your fact has been submitted and is pending verification. You\'ll be notified once it\'s approved.',
       });
 
       // Reset form and close
       setTitle('');
       setDescription('');
       setLocationName('');
+      setCategoryId('');
       onClose();
     } catch (error) {
-      console.error('Error creating story:', error);
+      console.error('Error creating fact:', error);
       toast({
         title: 'Error',
-        description: 'Failed to create story. Please try again.',
+        description: 'Failed to submit fact. Please try again.',
         variant: 'destructive'
       });
     } finally {
@@ -115,25 +155,36 @@ export const CreateStoryModal: React.FC<CreateStoryModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md animate-scale-in">
+      <DialogContent className="max-w-md animate-scale-in max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
-            Create Story at Location
+            Submit Local Fact or Lore
           </DialogTitle>
           <DialogDescription>
-            Share a story, legend, or historical fact about this location
+            Share historical facts, local legends, or cultural lore about this location
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+          {/* Info Banner */}
+          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-md p-3">
+            <div className="flex gap-2">
+              <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+              <p className="text-xs text-blue-800 dark:text-blue-300">
+                Your submission will be reviewed before appearing on the map. Please ensure accuracy and provide verifiable information.
+              </p>
+            </div>
+          </div>
+
+          {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
+            <Label htmlFor="title">Fact Title *</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter story title"
+              placeholder="e.g., First Public Library in America"
               maxLength={200}
               className={errors.title ? 'border-destructive' : ''}
             />
@@ -142,6 +193,37 @@ export const CreateStoryModal: React.FC<CreateStoryModalProps> = ({
             )}
           </div>
 
+          {/* Category */}
+          <div className="space-y-2">
+            <Label htmlFor="category">Category *</Label>
+            {loadingCategories ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading categories...
+              </div>
+            ) : (
+              <Select value={categoryId} onValueChange={setCategoryId}>
+                <SelectTrigger className={errors.categoryId ? 'border-destructive' : ''}>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      <span className="flex items-center gap-2">
+                        <span>{cat.icon}</span>
+                        <span>{cat.category_translations?.[0]?.name || cat.slug}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            {errors.categoryId && (
+              <p className="text-xs text-destructive">{errors.categoryId}</p>
+            )}
+          </div>
+
+          {/* Location Name */}
           <div className="space-y-2">
             <Label htmlFor="locationName">Location Name *</Label>
             <Input
@@ -157,13 +239,14 @@ export const CreateStoryModal: React.FC<CreateStoryModalProps> = ({
             )}
           </div>
 
+          {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Story *</Label>
+            <Label htmlFor="description">Description *</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Tell the story..."
+              placeholder="Provide detailed information about this historical fact, legend, or cultural lore. Include relevant dates, people, or events."
               rows={6}
               maxLength={2000}
               className={errors.description ? 'border-destructive' : ''}
@@ -176,13 +259,15 @@ export const CreateStoryModal: React.FC<CreateStoryModalProps> = ({
             </p>
           </div>
 
+          {/* Coordinates Display */}
           <div className="bg-muted/50 p-3 rounded-md">
             <p className="text-xs text-muted-foreground">
               <strong>Coordinates:</strong> {latitude.toFixed(6)}, {longitude.toFixed(6)}
             </p>
           </div>
 
-          <div className="flex gap-2">
+          {/* Actions */}
+          <div className="flex gap-2 pt-2">
             <Button
               type="button"
               variant="outline"
@@ -194,16 +279,16 @@ export const CreateStoryModal: React.FC<CreateStoryModalProps> = ({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || loadingCategories}
               className="flex-1"
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
+                  Submitting...
                 </>
               ) : (
-                'Create Story'
+                'Submit Fact'
               )}
             </Button>
           </div>

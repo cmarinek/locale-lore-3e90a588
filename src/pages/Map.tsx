@@ -488,13 +488,13 @@ export const Map: React.FC = () => {
   }, [facts, searchQuery, categoryFilter, distanceFilter, sortBy, userLocation, currentLocation, center]);
 
   // Calculate stats
-  const totalStories = filteredFacts.length;
-  const verifiedStories = filteredFacts.filter(f => f.status === 'verified').length;
+  const totalFacts = filteredFacts.length;
+  const verifiedFacts = filteredFacts.filter(f => f.status === 'verified').length;
 
   return (
     <MainLayout
-      totalStories={totalStories}
-      verifiedStories={verifiedStories}
+      totalStories={totalFacts}
+      verifiedStories={verifiedFacts}
       mapViewMode={viewMode}
       onMapViewChange={(mode) => setViewMode(mode as 'map' | 'list' | 'hybrid')}
     >
@@ -516,8 +516,8 @@ export const Map: React.FC = () => {
         }
       >
         <Helmet>
-          <title>Explore Map - Discover Stories Around You</title>
-          <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
+          <title>Explore Map - Discover Local Facts & Lore</title>
+          <meta name="description" content="Explore local facts, legends, and historical lore on an interactive map. Discover verified historical sites, cultural heritage, and hidden gems in your area." />
           <link rel="canonical" href="/map" />
         </Helmet>
 
@@ -532,7 +532,7 @@ export const Map: React.FC = () => {
               onFactClick={handleCardClick}
               onNavigateToFact={handleNavigateToFact}
               title={currentLocation || 'Results'}
-              subtitle={`${filteredFacts.length} ${filteredFacts.length === 1 ? 'story' : 'stories'} found`}
+              subtitle={`${filteredFacts.length} ${filteredFacts.length === 1 ? 'fact' : 'facts'} found`}
             />
           </div>
         )}
@@ -584,7 +584,7 @@ export const Map: React.FC = () => {
                   <UnifiedSearchBar
                     onSearch={handleSearch}
                     onPlaceSelect={handlePlaceSelect}
-                    placeholder="Search cities, places, stories..."
+                    placeholder="Search cities, places, facts..."
                   />
                 </div>
 
@@ -595,7 +595,7 @@ export const Map: React.FC = () => {
                     className="px-3 py-2 shadow-lg backdrop-blur-sm bg-background/95"
                   >
                     <MapPin className="h-3 w-3 mr-2 inline" />
-                    {factsInView} {factsInView === 1 ? 'story' : 'stories'} in {currentLocation}
+                    {factsInView} {factsInView === 1 ? 'fact' : 'facts'} in {currentLocation}
                   </Badge>
                 )}
               </div>
@@ -684,7 +684,7 @@ export const Map: React.FC = () => {
         {viewMode === 'hybrid' && (
           <div className="fixed bottom-0 left-0 right-0 h-1/3 bg-background border-t border-border overflow-y-auto z-10">
             <div className="p-4">
-              <h3 className="text-lg font-semibold mb-4">Stories in View</h3>
+              <h3 className="text-lg font-semibold mb-4">Facts in View</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredFacts.slice(0, 6).map(fact => (
                   <FactCard key={fact.id} fact={fact} />
@@ -699,9 +699,9 @@ export const Map: React.FC = () => {
           <div className="w-full h-full overflow-y-auto bg-background">
             <div className="container mx-auto px-4 py-8">
               <div className="mb-6">
-                <h1 className="text-3xl font-bold mb-2">All Stories</h1>
+                <h1 className="text-3xl font-bold mb-2">All Facts</h1>
                 <p className="text-muted-foreground">
-                  Showing {totalStories} stories ({verifiedStories} verified)
+                  Showing {totalFacts} facts ({verifiedFacts} verified)
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
