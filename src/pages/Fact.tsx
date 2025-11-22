@@ -5,6 +5,7 @@ import { DiscussionThread } from '@/components/verification/DiscussionThread';
 import { SwipeToVote } from '@/components/verification/SwipeToVote';
 import { ReputationDisplay } from '@/components/verification/ReputationDisplay';
 import { SocialSharing } from '@/components/social/SocialSharing';
+import { RelatedFacts } from '@/components/facts/RelatedFacts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -603,6 +604,21 @@ export const Fact: React.FC = () => {
                       </Button>
                     </div>
                   </Card>
+                </motion.div>
+
+                {/* Related Facts */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <RelatedFacts
+                    factId={fact.id}
+                    latitude={fact.latitude}
+                    longitude={fact.longitude}
+                    categoryId={fact.category_id}
+                    tags={fact.tags}
+                  />
                 </motion.div>
               </div>
             </div>
