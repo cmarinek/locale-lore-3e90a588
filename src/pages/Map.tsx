@@ -12,13 +12,18 @@ import { MapSkeleton } from '@/components/ui/skeleton-loader';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Crosshair } from 'lucide-react';
+import { MapPin, Crosshair, Route } from 'lucide-react';
 import { Place } from '@/types/location';
 import { geocodingService } from '@/services/geocodingService';
 import { getRadiusForZoom } from '@/types/location';
 import { filterByRadius, sortByDistance, addDistanceToItems } from '@/utils/distanceUtils';
 import { MapFilters, DistanceFilter, SortOption } from '@/components/map/MapFilters';
 import { MapSidePanel } from '@/components/map/MapSidePanel';
+import { TourBuilder } from '@/components/map/TourBuilder';
+import { TourDetailsPanel } from '@/components/map/TourDetailsPanel';
+import { TourWaypoint, TravelMode, FactTour } from '@/types/tour';
+import { directionsService } from '@/services/directionsService';
+import { toast } from 'sonner';
 
 export const Map: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -39,6 +44,14 @@ export const Map: React.FC = () => {
 
   // Side panel state
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
+
+  // Tour mode state
+  const [isTourMode, setIsTourMode] = useState(false);
+  const [tourWaypoints, setTourWaypoints] = useState<TourWaypoint[]>([]);
+  const [travelMode, setTravelMode] = useState<TravelMode>('walking');
+  const [activeTour, setActiveTour] = useState<FactTour | null>(null);
+  const [isBuilding, setIsBuilding] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
 
   const handleFactClick = (fact: any) => {
     const enhancedFact = {
@@ -71,8 +84,14 @@ export const Map: React.FC = () => {
         }]
       }
     };
-    setSelectedFact(enhancedFact);
-    setSelectedMarkerId(fact.id);
+
+    // If in tour mode, add to waypoints instead of opening modal
+    if (isTourMode) {
+      handleAddToTour(enhancedFact);
+    } else {
+      setSelectedFact(enhancedFact);
+      setSelectedMarkerId(fact.id);
+    }
   };
 
   const handleCloseModal = () => {
@@ -162,6 +181,152 @@ export const Map: React.FC = () => {
     } else {
       alert('Geolocation is not supported by your browser.');
     }
+  };
+
+  // Tour handlers
+  const handleToggleTourMode = () => {
+    if (isTourMode) {
+      // Exit tour mode - reset everything
+      setIsTourMode(false);
+      setTourWaypoints([]);
+      setActiveTour(null);
+      toast.info('Tour mode cancelled');
+    } else {
+      // Enter tour mode
+      setIsTourMode(true);
+      setActiveTour(null);
+      toast.success('Tour mode activated. Click on facts to add them to your tour!');
+    }
+  };
+
+  const handleAddToTour = (fact: any) => {
+    // Check if already in tour
+    if (tourWaypoints.some((wp) => wp.fact.id === fact.id)) {
+      toast.info(`${fact.title} is already in your tour`);
+      return;
+    }
+
+    const waypoint: TourWaypoint = {
+      fact,
+      order: tourWaypoints.length,
+      coordinates: [fact.longitude, fact.latitude],
+    };
+
+    setTourWaypoints([...tourWaypoints, waypoint]);
+    toast.success(`Added ${fact.title} to tour (${tourWaypoints.length + 1} stops)`);
+  };
+
+  const handleRemoveWaypoint = (factId: string) => {
+    const updated = tourWaypoints
+      .filter((wp) => wp.fact.id !== factId)
+      .map((wp, index) => ({ ...wp, order: index }));
+    setTourWaypoints(updated);
+  };
+
+  const handleReorderWaypoint = (fromIndex: number, toIndex: number) => {
+    const updated = [...tourWaypoints];
+    const [moved] = updated.splice(fromIndex, 1);
+    updated.splice(toIndex, 0, moved);
+    // Update order numbers
+    const reordered = updated.map((wp, index) => ({ ...wp, order: index }));
+    setTourWaypoints(reordered);
+  };
+
+  const handleOptimizeRoute = () => {
+    if (tourWaypoints.length <= 2) {
+      toast.info('Add at least 3 stops to optimize the route');
+      return;
+    }
+
+    setIsOptimizing(true);
+    try {
+      const optimized = directionsService.optimizeWaypointOrder(tourWaypoints);
+      setTourWaypoints(optimized);
+      toast.success('Route optimized for shortest distance!');
+    } catch (error) {
+      console.error('❌ [Map] Route optimization error:', error);
+      toast.error('Failed to optimize route');
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
+
+  const handleBuildTour = async () => {
+    if (tourWaypoints.length < 2) {
+      toast.error('Add at least 2 stops to build a tour');
+      return;
+    }
+
+    setIsBuilding(true);
+    try {
+      // Get route from Mapbox Directions API
+      const response = await directionsService.getRoute(tourWaypoints, travelMode, {
+        steps: true,
+        geometries: 'geojson',
+      });
+
+      // Build segments from response
+      const segments = directionsService.buildRouteSegments(response, tourWaypoints);
+
+      // Calculate totals
+      const { totalDistance, totalDuration } = directionsService.calculateTotals(segments);
+
+      // Create tour object
+      const tour: FactTour = {
+        id: Date.now().toString(),
+        name: `Tour of ${tourWaypoints.length} facts`,
+        waypoints: tourWaypoints,
+        segments,
+        totalDistance,
+        totalDuration,
+        travelMode,
+        createdAt: new Date(),
+        optimized: false,
+      };
+
+      setActiveTour(tour);
+      toast.success('Tour built successfully!');
+
+      console.log('🗺️ [Map] Tour built:', {
+        waypoints: tour.waypoints.length,
+        distance: tour.totalDistance,
+        duration: tour.totalDuration,
+      });
+    } catch (error) {
+      console.error('❌ [Map] Build tour error:', error);
+      toast.error('Failed to build tour. Please try again.');
+    } finally {
+      setIsBuilding(false);
+    }
+  };
+
+  const handleEditTour = () => {
+    setActiveTour(null);
+    toast.info('Edit mode activated');
+  };
+
+  const handleShareTour = () => {
+    if (!activeTour) return;
+
+    // Build shareable URL with tour waypoints
+    const factIds = activeTour.waypoints.map((wp) => wp.fact.id).join(',');
+    const shareUrl = `${window.location.origin}/map?tour=${factIds}&mode=${travelMode}`;
+
+    // Copy to clipboard
+    navigator.clipboard
+      .writeText(shareUrl)
+      .then(() => {
+        toast.success('Tour link copied to clipboard!');
+      })
+      .catch(() => {
+        toast.error('Failed to copy link');
+      });
+  };
+
+  const handleCloseTour = () => {
+    setActiveTour(null);
+    setIsTourMode(false);
+    setTourWaypoints([]);
   };
 
   // Load data on mount with detailed logging
@@ -400,9 +565,22 @@ export const Map: React.FC = () => {
               </Button>
             )}
 
+            {/* Tour Mode Toggle Button */}
+            {!isMapLoading && (
+              <Button
+                onClick={handleToggleTourMode}
+                className="fixed top-44 right-4 z-20 shadow-lg"
+                size="icon"
+                variant={isTourMode ? 'default' : 'outline'}
+                title={isTourMode ? 'Exit tour mode' : 'Plan a tour'}
+              >
+                <Route className="h-5 w-5" />
+              </Button>
+            )}
+
             {/* Filters - Compact mode on right side */}
-            {!isMapLoading && (userLocation || currentLocation) && (
-              <div className="fixed top-48 right-4 z-20">
+            {!isMapLoading && (userLocation || currentLocation) && !isTourMode && (
+              <div className="fixed top-56 right-4 z-20">
                 <MapFilters
                   distanceFilter={distanceFilter}
                   onDistanceChange={setDistanceFilter}
@@ -418,6 +596,39 @@ export const Map: React.FC = () => {
                   compact={true}
                 />
               </div>
+            )}
+
+            {/* Tour Builder */}
+            {isTourMode && !activeTour && (
+              <TourBuilder
+                waypoints={tourWaypoints}
+                travelMode={travelMode}
+                onTravelModeChange={setTravelMode}
+                onRemoveWaypoint={handleRemoveWaypoint}
+                onReorderWaypoint={handleReorderWaypoint}
+                onOptimizeRoute={handleOptimizeRoute}
+                onBuildTour={handleBuildTour}
+                onCancel={handleToggleTourMode}
+                onAddFactClick={() => setIsSidePanelOpen(true)}
+                isOptimizing={isOptimizing}
+                isBuilding={isBuilding}
+              />
+            )}
+
+            {/* Tour Details Panel */}
+            {activeTour && (
+              <TourDetailsPanel
+                tour={activeTour}
+                onClose={handleCloseTour}
+                onEdit={handleEditTour}
+                onShare={handleShareTour}
+                onNavigateToWaypoint={(factId) => {
+                  const waypoint = activeTour.waypoints.find((wp) => wp.fact.id === factId);
+                  if (waypoint) {
+                    handleNavigateToFact(waypoint.fact);
+                  }
+                }}
+              />
             )}
           </div>
         )}
