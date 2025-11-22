@@ -115,18 +115,20 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       {children}
     </main>
 
-    {/* Modern Footer */}
-    <div className={cn(
-      "mb-20 md:mb-0 safe-area-padding-bottom",
-      isMapPage ? "mt-0" : "mt-12"
-    )}>
-      <ModernFooter 
-        totalStories={totalStories}
-        verifiedStories={verifiedStories}
-        trendingStories={trendingStories}
-        isMapPage={isMapPage}
-      />
-    </div>
+    {/* Modern Footer - Hidden on /map for full-screen experience */}
+    {location.pathname !== '/map' && (
+      <div className={cn(
+        "mb-20 md:mb-0 safe-area-padding-bottom",
+        isMapPage ? "mt-0" : "mt-12"
+      )}>
+        <ModernFooter
+          totalStories={totalStories}
+          verifiedStories={verifiedStories}
+          trendingStories={trendingStories}
+          isMapPage={isMapPage}
+        />
+      </div>
+    )}
 
     {/* Bottom Navigation - Mobile Only */}
     <BottomNavigation />
