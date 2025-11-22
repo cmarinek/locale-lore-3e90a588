@@ -5,6 +5,7 @@ import { DiscussionThread } from '@/components/verification/DiscussionThread';
 import { SwipeToVote } from '@/components/verification/SwipeToVote';
 import { ReputationDisplay } from '@/components/verification/ReputationDisplay';
 import { SocialSharing } from '@/components/social/SocialSharing';
+import { RelatedFacts } from '@/components/facts/RelatedFacts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,19 +15,22 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  MapPin, 
-  Calendar, 
-  User, 
-  Eye, 
-  ThumbsUp, 
-  MessageCircle, 
-  Share2, 
-  Bookmark, 
+import {
+  ArrowLeft,
+  MapPin,
+  Calendar,
+  User,
+  Eye,
+  ThumbsUp,
+  MessageCircle,
+  Share2,
+  Bookmark,
   Flag,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Tag,
+  Link as LinkIcon,
+  Clock
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -46,6 +50,9 @@ interface Fact {
   author_id: string;
   category_id: string;
   verified_by?: string;
+  tags?: string[];
+  source_url?: string;
+  time_period?: string;
   profiles: {
     id: string;
     username: string;
@@ -107,8 +114,8 @@ export const Fact: React.FC = () => {
     } catch (error) {
       console.error('Error loading fact:', error);
       toast({
-        title: "Error loading story",
-        description: "The story you're looking for might not exist",
+        title: "Error loading fact",
+        description: "The fact you're looking for might not exist",
         variant: "destructive"
       });
       navigate('/explore');
@@ -157,7 +164,7 @@ export const Fact: React.FC = () => {
     if (!user) {
       toast({
         title: "Authentication required",
-        description: "Please sign in to vote on stories",
+        description: "Please sign in to vote on facts",
         variant: "destructive"
       });
       return;
@@ -207,7 +214,7 @@ export const Fact: React.FC = () => {
     if (!user) {
       toast({
         title: "Authentication required",
-        description: "Please sign in to save stories",
+        description: "Please sign in to save facts",
         variant: "destructive"
       });
       return;
@@ -223,7 +230,7 @@ export const Fact: React.FC = () => {
         
         setIsSaved(false);
         toast({
-          title: "Story removed from saved",
+          title: "Fact removed from saved",
         });
       } else {
         await supabase
@@ -235,7 +242,7 @@ export const Fact: React.FC = () => {
         
         setIsSaved(true);
         toast({
-          title: "Story saved!",
+          title: "Fact saved!",
         });
       }
     } catch (error) {
@@ -261,7 +268,7 @@ export const Fact: React.FC = () => {
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading story...</p>
+            <p className="text-muted-foreground">Loading fact...</p>
           </div>
         </div>
       </MainLayout>
@@ -274,8 +281,8 @@ export const Fact: React.FC = () => {
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Story not found</h2>
-            <p className="text-muted-foreground mb-4">The story you're looking for doesn't exist or has been removed.</p>
+            <h2 className="text-xl font-semibold mb-2">Fact not found</h2>
+            <p className="text-muted-foreground mb-4">The fact you're looking for doesn't exist or has been removed.</p>
             <Button onClick={() => navigate('/explore')}>
               Return to Explore
             </Button>
@@ -364,6 +371,68 @@ export const Fact: React.FC = () => {
                       by {fact.profiles.username}
                     </div>
                   </div>
+
+                  {/* Metadata Section */}
+                  {(fact.time_period || fact.source_url || (fact.tags && fact.tags.length > 0)) && (
+                    <div className="mb-8 p-4 border border-border rounded-lg bg-muted/30 space-y-4">
+                      {/* Time Period */}
+                      {fact.time_period && (
+                        <div className="flex items-start gap-3">
+                          <Clock className="w-5 h-5 text-primary mt-0.5" />
+                          <div>
+                            <div className="font-medium text-sm text-muted-foreground mb-1">Time Period</div>
+                            <div className="text-base">{fact.time_period}</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Source URL */}
+                      {fact.source_url && (
+                        <div className="flex items-start gap-3">
+                          <LinkIcon className="w-5 h-5 text-primary mt-0.5" />
+                          <div className="flex-1">
+                            <div className="font-medium text-sm text-muted-foreground mb-1">Source</div>
+                            <a
+                              href={fact.source_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline break-all flex items-center gap-2"
+                            >
+                              <img
+                                src={`https://www.google.com/s2/favicons?domain=${new URL(fact.source_url).hostname}&sz=16`}
+                                alt=""
+                                className="w-4 h-4"
+                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                              />
+                              {new URL(fact.source_url).hostname}
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Tags */}
+                      {fact.tags && fact.tags.length > 0 && (
+                        <div className="flex items-start gap-3">
+                          <Tag className="w-5 h-5 text-primary mt-0.5" />
+                          <div className="flex-1">
+                            <div className="font-medium text-sm text-muted-foreground mb-2">Tags</div>
+                            <div className="flex flex-wrap gap-2">
+                              {fact.tags.map((tag, index) => (
+                                <Badge
+                                  key={index}
+                                  variant="secondary"
+                                  className="cursor-pointer hover:bg-primary/20 transition-colors"
+                                  onClick={() => navigate(`/search?tag=${encodeURIComponent(tag)}`)}
+                                >
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Media */}
                   {fact.media_urls && fact.media_urls.length > 0 && (
@@ -501,19 +570,55 @@ export const Fact: React.FC = () => {
                 >
                   <Card className="p-6 bg-card/50 backdrop-blur">
                     <h3 className="font-semibold mb-4">Location</h3>
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
-                      <MapPin className="w-8 h-8" />
+                    <div
+                      className="aspect-video bg-muted rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => navigate(`/map?lat=${fact.latitude}&lng=${fact.longitude}&zoom=15&factId=${fact.id}`)}
+                    >
+                      <img
+                        src={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s+ff0000(${fact.longitude},${fact.latitude})/${fact.longitude},${fact.latitude},14,0/400x300@2x?access_token=${import.meta.env.VITE_MAPBOX_TOKEN}`}
+                        alt={`Map showing ${fact.location_name}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback to placeholder if image fails to load
+                          e.currentTarget.style.display = 'none';
+                          const parent = e.currentTarget.parentElement;
+                          if (parent) {
+                            parent.innerHTML = '<div class="w-full h-full flex items-center justify-center"><svg class="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></div>';
+                          }
+                        }}
+                      />
                     </div>
                     <div className="mt-4">
                       <p className="font-medium">{fact.location_name}</p>
                       <p className="text-sm text-muted-foreground">
                         {fact.latitude.toFixed(4)}, {fact.longitude.toFixed(4)}
                       </p>
-                      <Button variant="outline" size="sm" className="mt-3 w-full">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-3 w-full"
+                        onClick={() => navigate(`/map?lat=${fact.latitude}&lng=${fact.longitude}&zoom=15&factId=${fact.id}`)}
+                      >
+                        <MapPin className="w-4 h-4 mr-2" />
                         View on Map
                       </Button>
                     </div>
                   </Card>
+                </motion.div>
+
+                {/* Related Facts */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <RelatedFacts
+                    factId={fact.id}
+                    latitude={fact.latitude}
+                    longitude={fact.longitude}
+                    categoryId={fact.category_id}
+                    tags={fact.tags}
+                  />
                 </motion.div>
               </div>
             </div>
