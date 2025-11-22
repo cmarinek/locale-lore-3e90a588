@@ -521,25 +521,27 @@ export const Map: React.FC = () => {
           <link rel="canonical" href="/map" />
         </Helmet>
 
-        {/* Side Panel - Desktop only, shown when filters are active */}
-        <div className="hidden md:block">
-          <MapSidePanel
-            facts={filteredFacts}
-            selectedFactId={selectedMarkerId}
-            isOpen={isSidePanelOpen && (userLocation !== null || currentLocation !== null)}
-            onToggle={() => setIsSidePanelOpen(!isSidePanelOpen)}
-            onFactClick={handleCardClick}
-            onNavigateToFact={handleNavigateToFact}
-            title={currentLocation || 'Results'}
-            subtitle={`${filteredFacts.length} ${filteredFacts.length === 1 ? 'story' : 'stories'} found`}
-          />
-        </div>
+        {/* Side Panel - Desktop only, shown when location is set and results exist */}
+        {(userLocation !== null || currentLocation !== null) && filteredFacts.length > 0 && (
+          <div className="hidden md:block">
+            <MapSidePanel
+              facts={filteredFacts}
+              selectedFactId={selectedMarkerId}
+              isOpen={isSidePanelOpen}
+              onToggle={() => setIsSidePanelOpen(!isSidePanelOpen)}
+              onFactClick={handleCardClick}
+              onNavigateToFact={handleNavigateToFact}
+              title={currentLocation || 'Results'}
+              subtitle={`${filteredFacts.length} ${filteredFacts.length === 1 ? 'story' : 'stories'} found`}
+            />
+          </div>
+        )}
 
         {/* Full-height map container - adjust for header and side panel */}
         <div
           className={cn(
             'fixed top-16 right-0 bottom-0 bg-background overflow-hidden transition-all duration-300',
-            isSidePanelOpen && (userLocation !== null || currentLocation !== null)
+            isSidePanelOpen && (userLocation !== null || currentLocation !== null) && filteredFacts.length > 0
               ? 'left-96'
               : 'left-0'
           )}
@@ -575,58 +577,57 @@ export const Map: React.FC = () => {
               />
             )}
 
-            {/* Search Bar - Overlays map */}
+            {/* Top-left: Search Bar and Location Badge */}
             {!isMapLoading && (
-              <div className="fixed top-20 left-4 z-20 w-80">
-                <UnifiedSearchBar
-                  onSearch={handleSearch}
-                  onPlaceSelect={handlePlaceSelect}
-                  placeholder="Search cities, places, stories..."
-                />
+              <div className="fixed top-20 left-4 z-20 space-y-3">
+                <div className="w-80">
+                  <UnifiedSearchBar
+                    onSearch={handleSearch}
+                    onPlaceSelect={handlePlaceSelect}
+                    placeholder="Search cities, places, stories..."
+                  />
+                </div>
+
+                {/* Location Context Badge */}
+                {currentLocation && factsInView > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="px-3 py-2 shadow-lg backdrop-blur-sm bg-background/95"
+                  >
+                    <MapPin className="h-3 w-3 mr-2 inline" />
+                    {factsInView} {factsInView === 1 ? 'story' : 'stories'} in {currentLocation}
+                  </Badge>
+                )}
               </div>
             )}
 
-            {/* Location Context Badge */}
-            {!isMapLoading && currentLocation && factsInView > 0 && (
-              <div className="fixed top-36 left-4 z-20">
-                <Badge
-                  variant="secondary"
-                  className="px-3 py-2 shadow-lg backdrop-blur-sm bg-background/95"
+            {/* Top-right: Action Buttons (Grouped) */}
+            {!isMapLoading && (
+              <div className="fixed top-20 right-4 z-20 flex flex-col gap-2">
+                <Button
+                  onClick={handleCenterOnLocation}
+                  className="shadow-lg"
+                  size="icon"
+                  title="Center on my location"
                 >
-                  <MapPin className="h-3 w-3 mr-2 inline" />
-                  {factsInView} {factsInView === 1 ? 'story' : 'stories'} in {currentLocation}
-                </Badge>
+                  <Crosshair className="h-5 w-5" />
+                </Button>
+
+                <Button
+                  onClick={handleToggleTourMode}
+                  className="shadow-lg"
+                  size="icon"
+                  variant={isTourMode ? 'default' : 'outline'}
+                  title={isTourMode ? 'Exit tour mode' : 'Plan a tour'}
+                >
+                  <Route className="h-5 w-5" />
+                </Button>
               </div>
             )}
 
-            {/* Center on Location Button - Overlays map */}
-            {!isMapLoading && (
-              <Button
-                onClick={handleCenterOnLocation}
-                className="fixed top-32 right-4 z-20 shadow-lg"
-                size="icon"
-                title="Center on my location"
-              >
-                <Crosshair className="h-5 w-5" />
-              </Button>
-            )}
-
-            {/* Tour Mode Toggle Button */}
-            {!isMapLoading && (
-              <Button
-                onClick={handleToggleTourMode}
-                className="fixed top-44 right-4 z-20 shadow-lg"
-                size="icon"
-                variant={isTourMode ? 'default' : 'outline'}
-                title={isTourMode ? 'Exit tour mode' : 'Plan a tour'}
-              >
-                <Route className="h-5 w-5" />
-              </Button>
-            )}
-
-            {/* Filters - Compact mode on right side */}
+            {/* Filters - Below action buttons when location is set */}
             {!isMapLoading && (userLocation || currentLocation) && !isTourMode && (
-              <div className="fixed top-56 right-4 z-20">
+              <div className="fixed top-36 right-4 z-20">
                 <MapFilters
                   distanceFilter={distanceFilter}
                   onDistanceChange={setDistanceFilter}
