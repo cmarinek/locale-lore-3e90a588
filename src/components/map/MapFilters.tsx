@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 export type DistanceFilter = 0.5 | 1 | 5 | 10 | 25 | 50 | 100 | 999999;
-export type SortOption = 'distance' | 'recent' | 'popular' | 'verified';
+export type SortOption = 'distance' | 'recent' | 'popular' | 'verified' | 'trending';
 
 export interface MapFiltersProps {
   distanceFilter: DistanceFilter;
@@ -45,6 +45,7 @@ const DISTANCE_OPTIONS: Array<{ value: DistanceFilter; label: string }> = [
 
 const SORT_OPTIONS: Array<{ value: SortOption; label: string }> = [
   { value: 'distance', label: 'Closest first' },
+  { value: 'trending', label: '🔥 Trending' },
   { value: 'recent', label: 'Most recent' },
   { value: 'popular', label: 'Most popular' },
   { value: 'verified', label: 'Verified first' },

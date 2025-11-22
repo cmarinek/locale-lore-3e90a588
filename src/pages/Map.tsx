@@ -476,6 +476,18 @@ export const Map: React.FC = () => {
         if (a.status !== 'verified' && b.status === 'verified') return 1;
         return 0;
       });
+    } else if (sortBy === 'trending') {
+      // Trending algorithm: (votes * 2 + views * 0.5) / (age_hours + 2)^1.8
+      result.sort((a, b) => {
+        const now = Date.now();
+        const aAge = (now - new Date(a.created_at).getTime()) / (1000 * 60 * 60); // hours
+        const bAge = (now - new Date(b.created_at).getTime()) / (1000 * 60 * 60);
+
+        const aScore = ((a.vote_count_up || 0) * 2 + ((a as any).view_count || 0) * 0.5) / Math.pow(aAge + 2, 1.8);
+        const bScore = ((b.vote_count_up || 0) * 2 + ((b as any).view_count || 0) * 0.5) / Math.pow(bAge + 2, 1.8);
+
+        return bScore - aScore;
+      });
     }
 
     // 5. Add distance information if location is set
