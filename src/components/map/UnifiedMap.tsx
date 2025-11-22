@@ -429,16 +429,11 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
       // Update paint properties for selection highlighting
       map.current.setPaintProperty('unclustered-point', 'circle-radius', [
-        'case',
-        ['==', ['get', 'id'], selectedFactId || ''],
-        16, // Larger when selected
-        [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          8, 5,
-          16, 10
-        ]
+        'interpolate',
+        ['linear'],
+        ['zoom'],
+        8, ['case', ['==', ['get', 'id'], selectedFactId || ''], 12, 5],
+        16, ['case', ['==', ['get', 'id'], selectedFactId || ''], 16, 10]
       ]);
 
       map.current.setPaintProperty('unclustered-point', 'circle-stroke-width', [
@@ -882,16 +877,11 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
         // Force map to repaint to update selection styling
         if (selectedFactId) {
           map.current.setPaintProperty('unclustered-point', 'circle-radius', [
-            'case',
-            ['==', ['get', 'id'], selectedFactId],
-            16,
-            [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              8, 5,
-              16, 10
-            ]
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            8, ['case', ['==', ['get', 'id'], selectedFactId], 12, 5],
+            16, ['case', ['==', ['get', 'id'], selectedFactId], 16, 10]
           ]);
         }
       }
