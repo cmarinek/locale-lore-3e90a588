@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { useAppStore } from '@/stores/appStore';
 import { InfiniteFactList } from '@/components/discovery/InfiniteFactList';
-import { CleanSearchBar } from '@/components/ui/clean-search-bar';
+import { UnifiedSearchBar } from '@/components/ui/UnifiedSearchBar';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useSearchStore } from '@/stores/searchStore';
@@ -78,8 +78,8 @@ export const Explore: React.FC = () => {
               </p>
             </div>
             
-            <CleanSearchBar 
-              onQueryChange={handleSearch}
+            <UnifiedSearchBar
+              onSearch={handleSearch}
               placeholder={t('search.searchPlaceholder', 'Search stories, locations, or topics...')}
             />
           </div>

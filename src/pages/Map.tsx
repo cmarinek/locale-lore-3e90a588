@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { UnifiedMap } from '@/components/map/UnifiedMap';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
 import { useMapStore } from '@/stores/mapStore';
 import { FactPreviewModal } from '@/components/discovery/FactPreviewModal';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
-import { MapSearchBar } from '@/components/map/MapSearchBar';
+import { UnifiedSearchBar } from '@/components/ui/UnifiedSearchBar';
 import { FactCard } from '@/components/discovery/FactCard';
 import { MapSkeleton } from '@/components/ui/skeleton-loader';
+import { MainLayout } from '@/components/templates/MainLayout';
+import { Button } from '@/components/ui/button';
+import { MapPin, Crosshair } from 'lucide-react';
 
 export const Map: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { facts, selectedFact, setSelectedFact, fetchFactById, initializeData } = useDiscoveryStore();
-  const { selectedMarkerId, setSelectedMarkerId } = useMapStore();
+  const { center, zoom, setCenter, setZoom, selectedMarkerId, setSelectedMarkerId } = useMapStore();
   const [viewMode, setViewMode] = useState<'map' | 'list' | 'hybrid'>('map');
   const [searchQuery, setSearchQuery] = useState('');
   const [isMapLoading, setIsMapLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
   const handleFactClick = (fact: any) => {
     const enhancedFact = {
@@ -60,15 +67,78 @@ export const Map: React.FC = () => {
     setSearchQuery(query);
   };
 
+  const handleCenterOnLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const location: [number, number] = [longitude, latitude];
+          setUserLocation(location);
+          setCenter(location);
+          setZoom(14);
+          console.log(`📍 [Map] Centered on user location: ${latitude}, ${longitude}`);
+        },
+        (error) => {
+          console.error('❌ [Map] Geolocation error:', error);
+          alert('Unable to get your location. Please enable location services.');
+        }
+      );
+    } else {
+      alert('Geolocation is not supported by your browser.');
+    }
+  };
+
+  // Load data on mount with detailed logging
   useEffect(() => {
     const loadData = async () => {
+      console.log('📊 [Map] Starting data initialization...');
       setIsMapLoading(true);
-      await initializeData();
-      // Simulate minimum loading time for smooth UX
-      setTimeout(() => setIsMapLoading(false), 800);
+      try {
+        await initializeData();
+        console.log('📊 [Map] Data initialization complete');
+      } catch (error) {
+        console.error('❌ [Map] Data initialization failed:', error);
+      } finally {
+        // Simulate minimum loading time for smooth UX
+        setTimeout(() => {
+          setIsMapLoading(false);
+          console.log('📊 [Map] Loading state cleared');
+        }, 800);
+      }
     };
     loadData();
   }, [initializeData]);
+
+  // Log facts when they change
+  useEffect(() => {
+    console.log(`📊 [Map] Facts updated: ${facts.length} facts available`);
+  }, [facts]);
+
+  // Handle URL parameters for centering on specific fact
+  useEffect(() => {
+    const factId = searchParams.get('factId');
+    const lat = searchParams.get('lat');
+    const lng = searchParams.get('lng');
+    const urlZoom = searchParams.get('zoom');
+
+    if (factId) {
+      console.log(`🎯 [Map] Opening fact from URL: ${factId}`);
+      setSelectedMarkerId(factId);
+      fetchFactById(factId).then(fact => {
+        if (fact) {
+          setSelectedFact(fact);
+          setCenter([fact.longitude, fact.latitude]);
+          setZoom(15);
+        }
+      });
+    } else if (lat && lng) {
+      console.log(`🎯 [Map] Centering on coordinates from URL: ${lat}, ${lng}`);
+      setCenter([parseFloat(lng), parseFloat(lat)]);
+      if (urlZoom) {
+        setZoom(parseFloat(urlZoom));
+      }
+    }
+  }, [searchParams, fetchFactById, setSelectedFact, setCenter, setZoom, setSelectedMarkerId]);
 
   useEffect(() => {
     if (selectedMarkerId) {
@@ -99,31 +169,37 @@ export const Map: React.FC = () => {
   const verifiedStories = filteredFacts.filter(f => f.status === 'verified').length;
 
   return (
-    <ErrorBoundary
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <div className="text-4xl">🗺️</div>
-            <h2 className="text-xl font-semibold">Map Loading Error</h2>
-            <p className="text-muted-foreground">There was an issue loading the map. Please refresh to try again.</p>
-            <button 
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-            >
-              Refresh Map
-            </button>
-          </div>
-        </div>
-      }
+    <MainLayout
+      totalStories={totalStories}
+      verifiedStories={verifiedStories}
+      mapViewMode={viewMode}
+      onMapViewChange={(mode) => setViewMode(mode as 'map' | 'list' | 'hybrid')}
     >
-      <Helmet>
-        <title>Explore Map - Discover Stories Around You</title>
-        <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
-        <link rel="canonical" href="/map" />
-      </Helmet>
+      <ErrorBoundary
+        fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="text-4xl">🗺️</div>
+              <h2 className="text-xl font-semibold">Map Loading Error</h2>
+              <p className="text-muted-foreground">There was an issue loading the map. Please refresh to try again.</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              >
+                Refresh Map
+              </button>
+            </div>
+          </div>
+        }
+      >
+        <Helmet>
+          <title>Explore Map - Discover Stories Around You</title>
+          <meta name="description" content="Explore local stories and legends on an interactive map. Discover historical sites, folklore, and hidden gems in your area." />
+          <link rel="canonical" href="/map" />
+        </Helmet>
 
-      {/* Full-height map container */}
-      <div className="w-full h-screen bg-background overflow-hidden">
+        {/* Full-height map container - adjust for header */}
+        <div className="fixed top-16 left-0 right-0 bottom-0 bg-background overflow-hidden">
 
         {/* Map View */}
         {(viewMode === 'map' || viewMode === 'hybrid') && (
@@ -135,8 +211,8 @@ export const Map: React.FC = () => {
                 facts={filteredFacts}
                 useScalableLoading={false}
                 enableClustering={true}
-                center={[0, 20]}
-                zoom={2}
+                center={center}
+                zoom={zoom}
                 onFactClick={handleFactClick}
                 isVisible={true}
                 className="w-full flex-1"
@@ -144,7 +220,26 @@ export const Map: React.FC = () => {
             )}
 
             {/* Search Bar - Overlays map */}
-            {!isMapLoading && <MapSearchBar onSearch={handleSearch} />}
+            {!isMapLoading && (
+              <div className="fixed top-20 left-4 z-20 w-80">
+                <UnifiedSearchBar
+                  onSearch={handleSearch}
+                  placeholder="Search stories, locations, categories..."
+                />
+              </div>
+            )}
+
+            {/* Center on Location Button - Overlays map */}
+            {!isMapLoading && (
+              <Button
+                onClick={handleCenterOnLocation}
+                className="fixed top-32 right-4 z-20 shadow-lg"
+                size="icon"
+                title="Center on my location"
+              >
+                <Crosshair className="h-5 w-5" />
+              </Button>
+            )}
           </div>
         )}
 
@@ -191,6 +286,7 @@ export const Map: React.FC = () => {
         )}
       </div>
     </ErrorBoundary>
+    </MainLayout>
   );
 };
 

@@ -98,6 +98,7 @@ export const FactPreviewModal: React.FC<FactPreviewModalProps> = ({
                     latitude={fact.latitude}
                     longitude={fact.longitude}
                     locationName={fact.location_name}
+                    factId={fact.id}
                     variant="icon"
                   />
                 </div>

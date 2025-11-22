@@ -553,11 +553,11 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
       map.current.on('click', (e) => {
         const zoom = map.current?.getZoom() || 0;
-        
-        if (zoom < 12) {
+
+        if (zoom < 15) {
           toast({
-            title: 'Zoom in closer',
-            description: 'Please zoom in further to accurately place your story',
+            title: 'Zoom in to street level',
+            description: `Current zoom: ${zoom.toFixed(1)} - Please zoom to level 15 or higher to accurately place your story`,
           });
           return;
         }
@@ -1078,6 +1078,20 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
           onStyleChange={handleStyleChange}
           currentStyle={mapStyle}
         />
+      )}
+
+      {/* Zoom Level Indicator */}
+      {isLoaded && (
+        <div className="absolute bottom-4 left-4 z-10">
+          <Badge
+            variant={currentZoom >= 15 ? 'default' : 'secondary'}
+            className="px-3 py-1 text-sm font-mono shadow-lg backdrop-blur-sm"
+          >
+            <ZoomIn className="h-3 w-3 mr-1 inline" />
+            Zoom: {currentZoom.toFixed(1)}
+            {currentZoom < 15 && ' (15+ to add lore)'}
+          </Badge>
+        </div>
       )}
     </div>
   );
