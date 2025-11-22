@@ -586,12 +586,38 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
   // Setup clustered map using Mapbox GL native clustering with category distribution
   const setupClusteredMap = useCallback(() => {
-    if (!map.current) return;
+    if (!map.current || !map.current.isStyleLoaded()) return;
 
     try {
       console.log('🗺️ Setting up clustered map...');
 
-      // Remove existing layers and source if they exist
+      // Check if source already exists - if so, just update data
+      const existingSource = map.current.getSource('facts');
+      if (existingSource && existingSource.type === 'geojson') {
+        console.log('📊 Updating existing source data...');
+        existingSource.setData({
+          type: 'FeatureCollection',
+          features: filteredFacts.map(fact => ({
+            type: 'Feature',
+            properties: {
+              id: fact.id,
+              title: fact.title,
+              category: fact.categories?.slug || fact.category || 'unknown',
+              categoryIcon: fact.categories?.icon || '📍',
+              categoryColor: fact.categories?.color || '#666666',
+              verified: fact.status === 'verified',
+              vote_count_up: fact.vote_count_up || 0
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: [fact.longitude, fact.latitude]
+            }
+          }))
+        });
+        return;
+      }
+
+      // Remove existing layers if they exist
       const layersToRemove = ['unclustered-point-labels', 'unclustered-point', 'cluster-count', 'clusters'];
       layersToRemove.forEach(layerId => {
         if (map.current?.getLayer(layerId)) {
@@ -670,32 +696,16 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       }
     });
 
-    // Cluster count labels with category indicator
+    // Cluster count labels - simplified to avoid glyph issues
     map.current.addLayer({
       id: 'cluster-count',
       type: 'symbol',
       source: 'facts',
       filter: ['has', 'point_count'],
       layout: {
-        'text-field': [
-          'concat',
-          ['to-string', ['get', 'point_count']],
-          '\n',
-          ['case',
-            ['>', ['get', 'history_count'], ['max', ['get', 'culture_count'], ['get', 'nature_count'], ['get', 'mystery_count'], ['get', 'legend_count']]],
-            '🏛️',
-            ['>', ['get', 'nature_count'], ['max', ['get', 'culture_count'], ['get', 'mystery_count'], ['get', 'legend_count']]],
-            '🌿',
-            ['>', ['get', 'culture_count'], ['max', ['get', 'mystery_count'], ['get', 'legend_count']]],
-            '🎭',
-            ['>', ['get', 'mystery_count'], ['get', 'legend_count']],
-            '🔮',
-            '📜'
-          ]
-        ],
+        'text-field': ['to-string', ['get', 'point_count']],
         'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        'text-size': 11,
-        'text-line-height': 1.2
+        'text-size': 14
       },
       paint: {
         'text-color': '#ffffff'
