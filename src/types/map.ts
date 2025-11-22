@@ -64,4 +64,7 @@ export interface FactMarker {
   voteScore: number;
   authorName?: string;
   imageUrl?: string | null;
+  categoryIcon?: string;
+  categoryColor?: string;
+  description?: string;
 }
