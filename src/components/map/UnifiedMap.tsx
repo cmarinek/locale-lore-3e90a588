@@ -554,11 +554,8 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       map.current.on('click', (e) => {
         const zoom = map.current?.getZoom() || 0;
 
+        // Check zoom level - requirement now shown in persistent badge indicator
         if (zoom < 15) {
-          toast({
-            title: 'Zoom in to street level',
-            description: `Current zoom: ${zoom.toFixed(1)} - Please zoom to level 15 or higher to accurately place your story`,
-          });
           return;
         }
 

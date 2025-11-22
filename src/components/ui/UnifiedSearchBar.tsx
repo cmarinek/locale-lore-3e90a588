@@ -1,23 +1,28 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Search, X, Loader2, MapPin, Tag, Clock } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { Search, X, Loader2, MapPin, Tag, Clock, Globe } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useDiscoveryStore } from '@/stores/discoveryStore';
+import { geocodingService } from '@/services/geocodingService';
+import { Place } from '@/types/location';
 import { debounce } from 'lodash';
 
 interface SearchSuggestion {
-  type: 'fact' | 'category' | 'location' | 'recent';
+  type: 'place' | 'fact' | 'category' | 'location' | 'recent';
   value: string;
   label: string;
+  subtitle?: string;
   icon?: string;
   count?: number;
+  place?: Place;
 }
 
 interface UnifiedSearchBarProps {
   onSearch: (query: string) => void;
+  onPlaceSelect?: (place: Place) => void;
   placeholder?: string;
   className?: string;
   variant?: 'default' | 'minimal';
@@ -26,6 +31,7 @@ interface UnifiedSearchBarProps {
 
 export const UnifiedSearchBar: React.FC<UnifiedSearchBarProps> = ({
   onSearch,
+  onPlaceSelect,
   placeholder = 'Search stories, locations, categories...',
   className,
   variant = 'default',
@@ -34,10 +40,37 @@ export const UnifiedSearchBar: React.FC<UnifiedSearchBarProps> = ({
   const [query, setQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [isSearchingPlaces, setIsSearchingPlaces] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   const { facts, categories } = useDiscoveryStore();
+
+  // Debounced place search
+  const searchPlaces = useCallback(
+    debounce(async (searchQuery: string) => {
+      if (!searchQuery || searchQuery.trim().length < 2) {
+        setPlaces([]);
+        return;
+      }
+
+      setIsSearchingPlaces(true);
+      try {
+        const results = await geocodingService.searchPlaces(searchQuery, {
+          limit: 5,
+        });
+        setPlaces(results);
+        console.log('[UnifiedSearchBar] Found', results.length, 'places for:', searchQuery);
+      } catch (error) {
+        console.error('[UnifiedSearchBar] Place search error:', error);
+        setPlaces([]);
+      } finally {
+        setIsSearchingPlaces(false);
+      }
+    }, 400),
+    []
+  );
 
   // Load recent searches from localStorage
   useEffect(() => {
@@ -65,50 +98,52 @@ export const UnifiedSearchBar: React.FC<UnifiedSearchBarProps> = ({
     const lowerQuery = query.toLowerCase();
     const results: SearchSuggestion[] = [];
 
-    // Search in fact titles and descriptions
+    // PRIORITY 1: Places from geocoding (Google Maps style)
+    places.forEach(place => {
+      // Build subtitle from context (e.g., "New York, USA")
+      const contextParts: string[] = [];
+      if (place.context) {
+        place.context.forEach(ctx => {
+          if (ctx.text && !place.name.includes(ctx.text)) {
+            contextParts.push(ctx.text);
+          }
+        });
+      }
+
+      results.push({
+        type: 'place',
+        value: place.full_name,
+        label: place.name,
+        subtitle: contextParts.join(', ') || place.place_type[0],
+        place: place,
+      });
+    });
+
+    // PRIORITY 2: Facts in our database
     const matchingFacts = facts
       .filter(fact =>
         fact.title.toLowerCase().includes(lowerQuery) ||
         fact.description?.toLowerCase().includes(lowerQuery)
       )
-      .slice(0, 5);
+      .slice(0, 3);
 
     matchingFacts.forEach(fact => {
       results.push({
         type: 'fact',
         value: fact.title,
         label: fact.title,
+        subtitle: fact.location_name,
         icon: fact.categories?.icon
       });
     });
 
-    // Search in locations
-    const uniqueLocations = new Set<string>();
-    facts
-      .filter(fact => fact.location_name?.toLowerCase().includes(lowerQuery))
-      .forEach(fact => {
-        if (fact.location_name) {
-          uniqueLocations.add(fact.location_name);
-        }
-      });
-
-    Array.from(uniqueLocations).slice(0, 3).forEach(location => {
-      const count = facts.filter(f => f.location_name === location).length;
-      results.push({
-        type: 'location',
-        value: location,
-        label: location,
-        count
-      });
-    });
-
-    // Search in categories
+    // PRIORITY 3: Categories
     categories
       .filter(cat => {
         const name = cat.category_translations?.[0]?.name?.toLowerCase() || '';
         return name.includes(lowerQuery) || cat.slug.toLowerCase().includes(lowerQuery);
       })
-      .slice(0, 3)
+      .slice(0, 2)
       .forEach(cat => {
         const name = cat.category_translations?.[0]?.name || cat.slug;
         const count = facts.filter(f => f.category_id === cat.id).length;
@@ -121,8 +156,8 @@ export const UnifiedSearchBar: React.FC<UnifiedSearchBarProps> = ({
         });
       });
 
-    return results.slice(0, 8);
-  }, [query, facts, categories, recentSearches]);
+    return results.slice(0, 10);
+  }, [query, facts, categories, recentSearches, places]);
 
   // Debounced search callback
   const debouncedSearch = useMemo(
@@ -137,6 +172,9 @@ export const UnifiedSearchBar: React.FC<UnifiedSearchBarProps> = ({
     const newQuery = e.target.value;
     setQuery(newQuery);
     setShowSuggestions(true);
+
+    // Trigger geocoding place search
+    searchPlaces(newQuery);
 
     // Trigger debounced search for real-time filtering
     debouncedSearch(newQuery);
@@ -179,8 +217,26 @@ export const UnifiedSearchBar: React.FC<UnifiedSearchBarProps> = ({
   };
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
-    setQuery(suggestion.value);
-    handleSearch(suggestion.value);
+    if (suggestion.type === 'place' && suggestion.place && onPlaceSelect) {
+      // Handle place selection - navigate to location on map
+      console.log('[UnifiedSearchBar] Place selected:', suggestion.place);
+      onPlaceSelect(suggestion.place);
+      setQuery(suggestion.label);
+      setShowSuggestions(false);
+      inputRef.current?.blur();
+
+      // Save to recent searches
+      const updated = [
+        suggestion.value,
+        ...recentSearches.filter(s => s !== suggestion.value)
+      ].slice(0, 10);
+      setRecentSearches(updated);
+      localStorage.setItem('recentSearches', JSON.stringify(updated));
+    } else {
+      // Handle regular text search (facts, categories)
+      setQuery(suggestion.value);
+      handleSearch(suggestion.value);
+    }
   };
 
   // Close suggestions when clicking outside
@@ -202,6 +258,8 @@ export const UnifiedSearchBar: React.FC<UnifiedSearchBarProps> = ({
 
   const getSuggestionIcon = (suggestion: SearchSuggestion) => {
     switch (suggestion.type) {
+      case 'place':
+        return <Globe className="h-4 w-4 text-blue-500" />;
       case 'fact':
         return suggestion.icon || '📖';
       case 'location':
@@ -272,7 +330,17 @@ export const UnifiedSearchBar: React.FC<UnifiedSearchBarProps> = ({
                   <div className="text-sm font-medium truncate">
                     {suggestion.label}
                   </div>
-                  {suggestion.type !== 'recent' && (
+                  {suggestion.type === 'place' && suggestion.subtitle && (
+                    <div className="text-xs text-muted-foreground">
+                      {suggestion.subtitle}
+                    </div>
+                  )}
+                  {suggestion.type === 'fact' && suggestion.subtitle && (
+                    <div className="text-xs text-muted-foreground">
+                      {suggestion.subtitle}
+                    </div>
+                  )}
+                  {suggestion.type !== 'recent' && suggestion.type !== 'place' && suggestion.type !== 'fact' && (
                     <div className="text-xs text-muted-foreground capitalize">
                       {suggestion.type}
                       {suggestion.count && ` • ${suggestion.count} stories`}
