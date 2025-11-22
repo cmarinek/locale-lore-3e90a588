@@ -11,7 +11,12 @@ import { FactCard } from '@/components/discovery/FactCard';
 import { MapSkeleton } from '@/components/ui/skeleton-loader';
 import { MainLayout } from '@/components/templates/MainLayout';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { MapPin, Crosshair } from 'lucide-react';
+import { Place } from '@/types/location';
+import { geocodingService } from '@/services/geocodingService';
+import { getRadiusForZoom } from '@/types/location';
+import { filterByRadius } from '@/utils/distanceUtils';
 
 export const Map: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -22,6 +27,8 @@ export const Map: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMapLoading, setIsMapLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<string | null>(null);
+  const [factsInView, setFactsInView] = useState<number>(0);
 
   const handleFactClick = (fact: any) => {
     const enhancedFact = {
@@ -65,6 +72,34 @@ export const Map: React.FC = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+  };
+
+  const handlePlaceSelect = (place: Place) => {
+    console.log(`🌍 [Map] Place selected:`, place.full_name);
+
+    // Get appropriate zoom level for this place type
+    const placeZoom = geocodingService.getZoomForPlace(place);
+
+    // Center map on place
+    setCenter([place.coordinates.longitude, place.coordinates.latitude]);
+    setZoom(placeZoom);
+
+    // Update location context
+    setCurrentLocation(place.full_name);
+
+    // Calculate radius for this zoom level
+    const radius = getRadiusForZoom(placeZoom);
+
+    // Filter facts within radius
+    const factsInRadius = filterByRadius(
+      facts,
+      place.coordinates.latitude,
+      place.coordinates.longitude,
+      radius
+    );
+
+    setFactsInView(factsInRadius.length);
+    console.log(`📊 [Map] Found ${factsInRadius.length} facts within ${radius} miles of ${place.name}`);
   };
 
   const handleCenterOnLocation = () => {
@@ -224,8 +259,22 @@ export const Map: React.FC = () => {
               <div className="fixed top-20 left-4 z-20 w-80">
                 <UnifiedSearchBar
                   onSearch={handleSearch}
-                  placeholder="Search stories, locations, categories..."
+                  onPlaceSelect={handlePlaceSelect}
+                  placeholder="Search cities, places, stories..."
                 />
+              </div>
+            )}
+
+            {/* Location Context Badge */}
+            {!isMapLoading && currentLocation && factsInView > 0 && (
+              <div className="fixed top-36 left-4 z-20">
+                <Badge
+                  variant="secondary"
+                  className="px-3 py-2 shadow-lg backdrop-blur-sm bg-background/95"
+                >
+                  <MapPin className="h-3 w-3 mr-2 inline" />
+                  {factsInView} {factsInView === 1 ? 'story' : 'stories'} in {currentLocation}
+                </Badge>
               </div>
             )}
 
