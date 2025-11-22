@@ -44,28 +44,36 @@ interface Fact {
   };
 }
 
+interface TourRoute {
+  coordinates: [number, number][];
+  waypoints?: Array<{ id: string; order: number; coordinates: [number, number] }>;
+}
+
 interface UnifiedMapProps {
   // Data source options
   facts?: Fact[];
   useScalableLoading?: boolean;
-  
+
   // Map configuration
   center?: [number, number];
   zoom?: number;
   maxZoom?: number;
   style?: 'light' | 'dark' | 'satellite';
-  
+
   // Clustering options
   enableClustering?: boolean;
   clusterRadius?: number;
-  
+
   // Performance options
   enableViewportLoading?: boolean;
-  
+
+  // Tour route (for Phase 4)
+  tourRoute?: TourRoute | null;
+
   // Event handlers
   onFactClick?: (fact: Fact) => void;
   onBoundsChange?: (bounds: mapboxgl.LngLatBounds) => void;
-  
+
   // UI options
   className?: string;
   isVisible?: boolean;
@@ -82,6 +90,7 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
   enableClustering = true,
   clusterRadius = 50,
   enableViewportLoading = false,
+  tourRoute = null,
   onFactClick,
   onBoundsChange,
   className,
@@ -993,6 +1002,131 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
       });
     }
   }, [mapStyle, isLoaded, getMapStyleUrl, enableClustering, setupClusteredMap, setupMarkerMap]);
+
+  // Render tour route on map
+  useEffect(() => {
+    if (!map.current || !isLoaded) return;
+
+    const ROUTE_SOURCE_ID = 'tour-route';
+    const ROUTE_LAYER_ID = 'tour-route-layer';
+    const ROUTE_OUTLINE_ID = 'tour-route-outline';
+    const WAYPOINT_LAYER_ID = 'tour-waypoints';
+
+    // Remove existing route layers/sources
+    if (map.current.getLayer(ROUTE_LAYER_ID)) {
+      map.current.removeLayer(ROUTE_LAYER_ID);
+    }
+    if (map.current.getLayer(ROUTE_OUTLINE_ID)) {
+      map.current.removeLayer(ROUTE_OUTLINE_ID);
+    }
+    if (map.current.getLayer(WAYPOINT_LAYER_ID)) {
+      map.current.removeLayer(WAYPOINT_LAYER_ID);
+    }
+    if (map.current.getSource(ROUTE_SOURCE_ID)) {
+      map.current.removeSource(ROUTE_SOURCE_ID);
+    }
+
+    // If no tour route, we're done
+    if (!tourRoute || !tourRoute.coordinates || tourRoute.coordinates.length === 0) {
+      return;
+    }
+
+    console.log('🗺️ [UnifiedMap] Rendering tour route with', tourRoute.coordinates.length, 'coordinates');
+
+    // Add route source
+    map.current.addSource(ROUTE_SOURCE_ID, {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: tourRoute.coordinates
+        }
+      }
+    });
+
+    // Add route outline (wider, darker)
+    map.current.addLayer({
+      id: ROUTE_OUTLINE_ID,
+      type: 'line',
+      source: ROUTE_SOURCE_ID,
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
+      },
+      paint: {
+        'line-color': '#000',
+        'line-width': 8,
+        'line-opacity': 0.3
+      }
+    });
+
+    // Add route line (main colored line)
+    map.current.addLayer({
+      id: ROUTE_LAYER_ID,
+      type: 'line',
+      source: ROUTE_SOURCE_ID,
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
+      },
+      paint: {
+        'line-color': 'hsl(203, 85%, 65%)', // primary color
+        'line-width': 5,
+        'line-opacity': 0.9
+      }
+    });
+
+    // Add numbered waypoint markers
+    if (tourRoute.waypoints && tourRoute.waypoints.length > 0) {
+      // Remove existing waypoint markers
+      markersRef.current.forEach((marker, id) => {
+        if (id.startsWith('tour-waypoint-')) {
+          marker.remove();
+          markersRef.current.delete(id);
+        }
+      });
+
+      tourRoute.waypoints.forEach((waypoint) => {
+        const el = document.createElement('div');
+        el.className = 'tour-waypoint-marker';
+        el.style.cssText = `
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: hsl(203, 85%, 65%);
+          border: 3px solid white;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          font-size: 14px;
+          color: white;
+          cursor: pointer;
+          z-index: 100;
+        `;
+        el.textContent = (waypoint.order + 1).toString();
+
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat(waypoint.coordinates)
+          .addTo(map.current!);
+
+        markersRef.current.set(`tour-waypoint-${waypoint.id}`, marker);
+      });
+    }
+
+    // Fit map to show entire route
+    const bounds = new mapboxgl.LngLatBounds();
+    tourRoute.coordinates.forEach(coord => bounds.extend(coord as [number, number]));
+
+    map.current.fitBounds(bounds, {
+      padding: { top: 100, bottom: 100, left: 100, right: 500 }, // Extra padding on right for tour panel
+      duration: 1000
+    });
+
+  }, [tourRoute, isLoaded]);
 
   const containerClass = isVisible 
     ? 'relative w-full h-full' 

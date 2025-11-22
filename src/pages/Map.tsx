@@ -393,6 +393,39 @@ export const Map: React.FC = () => {
     }
   }, [selectedMarkerId, setSelectedFact, fetchFactById]);
 
+  // Load tour from URL parameters
+  useEffect(() => {
+    const tourParam = searchParams.get('tour');
+    const modeParam = searchParams.get('mode');
+
+    if (tourParam && facts.length > 0) {
+      const factIds = tourParam.split(',');
+      const tourFacts = factIds
+        .map((id) => facts.find((f) => f.id === id))
+        .filter((f): f is typeof f & object => f !== undefined);
+
+      if (tourFacts.length >= 2) {
+        console.log('🗺️ [Map] Loading tour from URL:', tourFacts.length, 'facts');
+
+        // Build waypoints
+        const waypoints: TourWaypoint[] = tourFacts.map((fact, index) => ({
+          fact,
+          order: index,
+          coordinates: [fact.longitude, fact.latitude],
+        }));
+
+        setTourWaypoints(waypoints);
+        setTravelMode((modeParam as TravelMode) || 'walking');
+        setIsTourMode(true);
+
+        // Auto-build tour
+        setTimeout(() => {
+          handleBuildTour();
+        }, 500);
+      }
+    }
+  }, [searchParams, facts]);
+
   // Filter and sort facts based on all criteria
   const filteredFacts = React.useMemo(() => {
     let result = [...facts];
@@ -526,6 +559,18 @@ export const Map: React.FC = () => {
                 onFactClick={handleFactClick}
                 isVisible={true}
                 className="w-full flex-1"
+                tourRoute={
+                  activeTour
+                    ? {
+                        coordinates: activeTour.segments.flatMap((seg) => seg.geometry),
+                        waypoints: activeTour.waypoints.map((wp) => ({
+                          id: wp.fact.id,
+                          order: wp.order,
+                          coordinates: wp.coordinates,
+                        })),
+                      }
+                    : null
+                }
               />
             )}
 
