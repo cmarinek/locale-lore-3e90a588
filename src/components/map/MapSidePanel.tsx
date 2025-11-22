@@ -103,7 +103,7 @@ export const MapSidePanel: React.FC<MapSidePanelProps> = ({
         {facts.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <div className="text-6xl mb-4">🗺️</div>
-            <h3 className="font-semibold text-lg mb-2">No stories found</h3>
+            <h3 className="font-semibold text-lg mb-2">No facts found</h3>
             <p className="text-sm text-muted-foreground max-w-xs">
               Try adjusting your filters or searching for a different location.
             </p>
@@ -131,7 +131,7 @@ export const MapSidePanel: React.FC<MapSidePanelProps> = ({
       {/* Footer - Summary */}
       {facts.length > 0 && (
         <div className="p-3 border-t bg-muted/30 text-xs text-muted-foreground text-center">
-          Showing {facts.length} {facts.length === 1 ? 'story' : 'stories'}
+          Showing {facts.length} {facts.length === 1 ? 'fact' : 'facts'}
         </div>
       )}
     </div>

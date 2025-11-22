@@ -22,7 +22,7 @@ import { useMapStore } from '@/stores/mapStore';
 import { MapTokenMissing } from './MapTokenMissing';
 import { supabase } from '@/integrations/supabase/client';
 import { MiniMap } from './MiniMap';
-import { CreateStoryModal } from './CreateStoryModal';
+import { CreateFactModal } from './CreateFactModal';
 
 // Types
 interface Fact {
@@ -1180,9 +1180,9 @@ export const UnifiedMap: React.FC<UnifiedMapProps> = ({
 
       {/* Mini Map Overview - Removed for better space utilization */}
 
-      {/* Create Story Modal */}
+      {/* Create Fact Modal */}
       {createLocation && (
-        <CreateStoryModal
+        <CreateFactModal
           open={createModalOpen}
           onClose={() => {
             setCreateModalOpen(false);
