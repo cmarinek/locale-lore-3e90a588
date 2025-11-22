@@ -29,7 +29,10 @@ const factSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
   description: z.string().trim().min(10, 'Description must be at least 10 characters').max(2000, 'Description must be less than 2000 characters'),
   locationName: z.string().trim().min(1, 'Location name is required').max(200, 'Location name must be less than 200 characters'),
-  categoryId: z.string().min(1, 'Please select a category')
+  categoryId: z.string().min(1, 'Please select a category'),
+  sourceUrl: z.string().trim().url('Please enter a valid URL').optional().or(z.literal('')),
+  timePeriod: z.string().trim().max(100).optional(),
+  tags: z.string().trim().max(200).optional()
 });
 
 export const CreateFactModal: React.FC<CreateFactModalProps> = ({
@@ -43,6 +46,9 @@ export const CreateFactModal: React.FC<CreateFactModalProps> = ({
   const [description, setDescription] = useState('');
   const [locationName, setLocationName] = useState(initialLocationName);
   const [categoryId, setCategoryId] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
+  const [timePeriod, setTimePeriod] = useState('');
+  const [tags, setTags] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(true);
@@ -87,7 +93,10 @@ export const CreateFactModal: React.FC<CreateFactModalProps> = ({
       title,
       description,
       locationName,
-      categoryId
+      categoryId,
+      sourceUrl,
+      timePeriod,
+      tags
     });
 
     if (!validation.success) {
@@ -115,6 +124,11 @@ export const CreateFactModal: React.FC<CreateFactModalProps> = ({
         return;
       }
 
+      // Parse tags from comma-separated string
+      const tagsArray = validation.data.tags
+        ? validation.data.tags.split(',').map(t => t.trim()).filter(t => t.length > 0)
+        : [];
+
       const { error } = await supabase
         .from('facts')
         .insert({
@@ -125,7 +139,10 @@ export const CreateFactModal: React.FC<CreateFactModalProps> = ({
           longitude,
           author_id: user.id,
           category_id: validation.data.categoryId,
-          status: 'pending'
+          status: 'pending',
+          source_url: validation.data.sourceUrl || null,
+          time_period: validation.data.timePeriod || null,
+          tags: tagsArray.length > 0 ? tagsArray : null
         });
 
       if (error) throw error;
@@ -140,6 +157,9 @@ export const CreateFactModal: React.FC<CreateFactModalProps> = ({
       setDescription('');
       setLocationName('');
       setCategoryId('');
+      setSourceUrl('');
+      setTimePeriod('');
+      setTags('');
       onClose();
     } catch (error) {
       console.error('Error creating fact:', error);
@@ -257,6 +277,68 @@ export const CreateFactModal: React.FC<CreateFactModalProps> = ({
             <p className="text-xs text-muted-foreground">
               {description.length}/2000 characters
             </p>
+          </div>
+
+          {/* Optional Fields Section */}
+          <div className="border-t pt-4 space-y-4">
+            <p className="text-sm font-medium text-muted-foreground">Optional Information</p>
+
+            {/* Source URL */}
+            <div className="space-y-2">
+              <Label htmlFor="sourceUrl">Source URL (Optional)</Label>
+              <Input
+                id="sourceUrl"
+                type="url"
+                value={sourceUrl}
+                onChange={(e) => setSourceUrl(e.target.value)}
+                placeholder="https://example.com/source"
+                className={errors.sourceUrl ? 'border-destructive' : ''}
+              />
+              {errors.sourceUrl && (
+                <p className="text-xs text-destructive">{errors.sourceUrl}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Link to source material for verification
+              </p>
+            </div>
+
+            {/* Time Period */}
+            <div className="space-y-2">
+              <Label htmlFor="timePeriod">Time Period (Optional)</Label>
+              <Input
+                id="timePeriod"
+                value={timePeriod}
+                onChange={(e) => setTimePeriod(e.target.value)}
+                placeholder="e.g., 1776, 1920s, Medieval Era"
+                maxLength={100}
+                className={errors.timePeriod ? 'border-destructive' : ''}
+              />
+              {errors.timePeriod && (
+                <p className="text-xs text-destructive">{errors.timePeriod}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Historical period or date range
+              </p>
+            </div>
+
+            {/* Tags */}
+            <div className="space-y-2">
+              <Label htmlFor="tags">Tags (Optional)</Label>
+              <Input
+                id="tags"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="e.g., colonial, revolution, founding-fathers"
+                maxLength={200}
+                className={errors.tags ? 'border-destructive' : ''}
+              />
+              {errors.tags && (
+                <p className="text-xs text-destructive">{errors.tags}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Comma-separated keywords for better searchability
+              </p>
+            </div>
           </div>
 
           {/* Coordinates Display */}

@@ -41,7 +41,7 @@ export function useNavigationItems() {
         label: t('explore'),
         path: '/explore',
         icon: Compass,
-        description: 'Browse stories by location',
+        description: 'Browse local facts and lore by location',
         category: 'primary'
       },
       {
@@ -49,7 +49,7 @@ export function useNavigationItems() {
         label: 'Map',
         path: '/map',
         icon: MapPin,
-        description: 'Explore stories on interactive map',
+        description: 'Explore local facts and lore on interactive map',
         category: 'primary'
       },
       {
@@ -170,7 +170,7 @@ export function useNavigationItems() {
         label: 'Map',
         path: '/map',
         icon: MapPin,
-        description: 'Explore stories on map',
+        description: 'Explore local facts and lore on map',
         category: 'primary'
       },
       {
@@ -212,7 +212,7 @@ export function useNavigationItems() {
         label: 'Map',
         path: '/map',
         icon: MapPin,
-        description: 'Explore stories on map',
+        description: 'Explore local facts and lore on map',
         category: 'primary'
       },
       {
